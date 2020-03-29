@@ -11,9 +11,9 @@
 #define CONFIG_OPT_LONG         "--config"
 #define CONFIG_OPT_SHRT         "-c"
 
-#define MAJOR 2
-#define MINOR 4
-#define PATCH 1
+#define MAJOR 0
+#define MINOR 1
+#define PATCH 0
 
 extern int SLSMainConnectionID(void);
 
