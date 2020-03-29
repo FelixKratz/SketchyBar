@@ -65,6 +65,14 @@ spacebar -m config status_bar_clock_icon        
 
 - Sample configuration files can be found in the [&nearr;&nbsp;examples][spacebar-examples] directory. Refer to the [&nearr;&nbsp;documentation][spacebar-docs].
 
+## Integration with yabai
+
+Add the following to your yabai configuration, so yabai won't draw over the status bar.
+
+```
+yabai -m config top_padding 26
+```
+
 ## Debug output and error reporting
 
 In the case that something is not working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag. If you are running through brew services the log files can be found in the following directory:
