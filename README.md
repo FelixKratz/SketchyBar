@@ -54,7 +54,7 @@ All of the configuration options can be changed at runtime as well.
 Example configuration:
 ```
 spacebar -m config status_bar_text_font         "Helvetica Neue:Bold:12.0"
-spacebar -m config status_bar_icon_font         "FontAwesome:Regular:12.0"
+spacebar -m config status_bar_icon_font         "Font Awesome 5:Regular:12.0"
 spacebar -m config status_bar_background_color  0xff202020
 spacebar -m config status_bar_foreground_color  0xffa8a8a8
 spacebar -m config status_bar_space_icon_strip  I II III IV V VI VII VIII IX X
@@ -80,6 +80,13 @@ tail -f /usr/local/var/log/spacebar/spacebar.err.log
 tail -f /usr/local/var/log/spacebar/spacebar.out.log
 ```
 
+## Upgrade
+
+```
+brew services stop spacebar
+brew upgrade spacebar
+brew services start spacebar
+```
 
 ## Requirements and Caveats
 
