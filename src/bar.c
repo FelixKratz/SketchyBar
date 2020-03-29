@@ -182,6 +182,35 @@ static char * focused_window_title()
 }
 #pragma clang diagnostic pop
 
+static int mission_control_index(uint64_t sid)
+{
+    uint64_t result = 0;
+    int desktop_cnt = 1;
+
+    CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
+    int display_spaces_count = CFArrayGetCount(display_spaces_ref);
+
+    for (int i = 0; i < display_spaces_count; ++i) {
+        CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
+        CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
+        int spaces_count = CFArrayGetCount(spaces_ref);
+
+        for (int j = 0; j < spaces_count; ++j) {
+            CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
+            CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
+            CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &result);
+            if (sid == result) goto out;
+
+            ++desktop_cnt;
+        }
+    }
+
+    desktop_cnt = 0;
+    out:
+    CFRelease(display_spaces_ref);
+    return desktop_cnt;
+}
+
 void bar_refresh(struct bar *bar)
 {
     SLSDisableUpdate(g_connection);
@@ -203,9 +232,12 @@ void bar_refresh(struct bar *bar)
 
         for (int i = 0; i < space_count; ++i) {
             CGPoint pos = CGContextGetTextPosition(bar->context);
-            struct bar_line space_line = i >= buf_len(g_bar_manager.space_icon_strip)
+
+            int index = mission_control_index(space_list[i]) - 1;
+
+            struct bar_line space_line = index >= buf_len(g_bar_manager.space_icon_strip)
                                        ? g_bar_manager.space_icon
-                                       : g_bar_manager.space_icon_strip[i];
+                                       : g_bar_manager.space_icon_strip[index];
             if (i == 0) {
                 pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
             } else {
