@@ -1,0 +1,123 @@
+'\" t
+.\"     Title: spacebar
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.10
+.\"      Date: 2020-03-29
+.\"    Manual: Spacebar Manual
+.\"    Source: Spacebar
+.\"  Language: English
+.\"
+.TH "SPACEBAR" "1" "2020-03-29" "Spacebar" "Spacebar Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+spacebar \- status bar for yabai tile window management utility
+.SH "SYNOPSIS"
+.sp
+\fBspacebar\fP [\fB\-v\fP,\fB\-\-version\fP|\fB\-V\fP,\fB\-\-verbose\fP|\fB\-m\fP,\fB\-\-message\fP \fImsg\fP|\fB\-c\fP,\fB\-\-config\fP \fIconfig_file\fP]
+.SH "DESCRIPTION"
+.sp
+\fBspacebar\fP is a tiling window manager for macOS based on binary space partitioning.
+.SH "OPTIONS"
+.sp
+\fB\-v\fP, \fB\-\-version\fP
+.RS 4
+Print the version and exit.
+.RE
+.sp
+\fB\-V\fP, \fB\-\-verbose\fP
+.RS 4
+Output debug information to stdout.
+.RE
+.sp
+\fB\-m\fP, \fB\-\-message\fP \fI<msg>\fP
+.RS 4
+Send message to a running instance of spacebar.
+.RE
+.sp
+\fB\-c\fP, \fB\-\-config\fP \fI<config_file>\fP
+.RS 4
+Use the specified configuration file.
+.RE
+.SH "CONFIG"
+.SS "General Syntax"
+.sp
+spacebar \-m config <setting>
+.RS 4
+Get or set the value of <setting>.
+.RE
+.SS "Settings"
+.sp
+\fBdebug_output\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable output of debug information to stdout.
+.RE
+.sp
+\fBstatus_bar_text_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
+.RS 4
+Specify name, style and size of font to use for drawing text.
+.br
+Use \fIFont Book.app\fP to identify the correct name.
+.RE
+.sp
+\fBstatus_bar_icon_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
+.RS 4
+Specify name, style and size of font to use for drawing icon symbols.
+.br
+Use \fIFont Book.app\fP to identify the correct name.
+.RE
+.sp
+\fBstatus_bar_background_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing status bar background.
+.RE
+.sp
+\fBstatus_bar_foreground_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing status bar elements.
+.RE
+.sp
+\fBstatus_bar_space_icon_strip\fP [\fI<sym_1> <sym_2> <sym_n>\fP]
+.RS 4
+Specify symbols separated by whitespace to be used for visualizing spaces.
+.RE
+.sp
+\fBstatus_bar_power_icon_strip\fP [\fI<sym_battery> <sym_ac>\fP]
+.RS 4
+Specify two symbols separated by whitespace.
+.br
+The first symbol represents battery power and the second symbol indicates AC.
+.RE
+.sp
+\fBstatus_bar_space_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a general symbol to use for any given space that does not have a match in \fIstatus_bar_space_icon_strip\fP.
+.RE
+.sp
+\fBstatus_bar_clock_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a symbol to represent the current time.
+.RE
+.SH "EXIT CODES"
+.sp
+If \fBspacebar\fP can\(cqt handle a message, it will return a non\-zero exit code.
+.SH "AUTHOR"
+.sp
+Doron Somech <somdoron at gmail.com>
