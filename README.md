@@ -21,11 +21,64 @@
 
 spacebar is a status bar for [&nearr;&nbsp;yabai][gh-yabai] tiling window management.
 
-## Installation and Configuration
+## Installation
 
-- TODO: release package 
+A codesigned binary release of spacebar can be installed using Homebrew from the tap somdoron/formulae. 
+```
+brew install somdoron/formulae/spacebar
+```
+
+Open System Preferences.app and navigate to Security & Privacy, then Privacy, then Accessibility. Click the lock icon at the bottom and enter your password to allow changes to the list. Starting with `brew services start spacebar` will prompt the user to allow spacebar accessibility permissions. Check the box next to spacebar to allow accessibility permissions.
+
+To run space, simply start it:
+```
+brew services start spacebar
+```
+
+## Configuration
+
+The per-user spacebar configuration file must be executable; it is just a shell script that's ran before spacebar launches. It must be placed at one of the following places (in order):
+
+* $XDG_CONFIG_HOME/spacebar/spacebarrc
+* $HOME/.config/spacebar/spacebarrc
+* $HOME/.spacebarrc
+
+Create empty configuration file and make it executable:
+```
+touch ~/.config/spacebar/spacebarrc
+chmod +x ~/.config/spacebar/spacebarrc
+```
+
+All of the configuration options can be changed at runtime as well.
+
+Example configuration:
+```
+spacebar -m config status_bar_text_font         "Helvetica Neue:Bold:12.0"
+spacebar -m config status_bar_icon_font         "FontAwesome:Regular:12.0"
+spacebar -m config status_bar_background_color  0xff202020
+spacebar -m config status_bar_foreground_color  0xffa8a8a8
+spacebar -m config status_bar_space_icon_strip  I II III IV V VI VII VIII IX X
+spacebar -m config status_bar_power_icon_strip   
+spacebar -m config status_bar_space_icon        
+spacebar -m config status_bar_clock_icon        
+```
 
 - Sample configuration files can be found in the [&nearr;&nbsp;examples][spacebar-examples] directory. Refer to the [&nearr;&nbsp;documentation][spacebar-docs].
+
+## Debug output and error reporting
+
+In the case that something is not working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag. If you are running through brew services the log files can be found in the following directory:
+
+```
+# directory containing log files (HOMEBREW_PREFIX defaults to /usr/local unless you manually specified otherwise)
+HOMEBREW_PREFIX/var/log/spacebar/
+
+# view the last lines of the error log 
+tail -f /usr/local/var/log/spacebar/spacebar.err.log
+
+# view the last lines of the debug log
+tail -f /usr/local/var/log/spacebar/spacebar.out.log
+```
 
 
 ## Requirements and Caveats
