@@ -35,8 +35,7 @@ void bar_manager_set_power_strip(struct bar_manager *bar_manager, char **icon_st
 void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 
-void bar_manager_add_display(struct bar_manager *bar_manager, uint32_t did);
-void bar_manager_remove_display(struct bar_manager *bar_manager, uint32_t did);
+void bar_manager_display_changed(struct bar_manager *bar_manager);
 void bar_manager_refresh(struct bar_manager *bar_manager);
 void bar_manager_resize(struct bar_manager *bar_manager);
 void bar_manager_begin(struct bar_manager *bar_manager);

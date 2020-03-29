@@ -165,30 +165,12 @@ void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon)
     bar_manager_refresh(bar_manager);
 }
 
-void bar_manager_add_display(struct bar_manager *bar_manager, uint32_t did)
-{
-    for (int i = 0; i < bar_manager->bar_count; ++i) {
-        if (bar_manager->bars[i]->did == did)
-            return;
-    }
-
-    bar_manager->bar_count++;
-    bar_manager->bars = realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
-    bar_manager->bars[bar_manager->bar_count - 1] = bar_create(did);
-}
-
-void bar_manager_remove_display(struct bar_manager *bar_manager, uint32_t did)
+void bar_manager_display_changed(struct bar_manager *bar_manager)
 {
     for (int i = 0; i < bar_manager->bar_count; ++i)
-    {
-        if (bar_manager->bars[i]->did == did) {
-            free (bar_manager->bars[i]);
-            bar_manager->bars[i] = bar_manager->bars[bar_manager->bar_count - 1];
-            bar_manager->bar_count--;
-            bar_manager->bars = realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
-            return;
-        }
-    }
+        bar_destroy(bar_manager->bars[i]);
+
+    bar_manager_begin(bar_manager);
 }
 
 void bar_manager_refresh(struct bar_manager *bar_manager)
@@ -219,7 +201,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
 void bar_manager_begin(struct bar_manager *bar_manager)
 {
     bar_manager->bar_count = display_manager_active_display_count();
-    bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
+    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
 
     for (uint32_t index=1; index <= bar_manager->bar_count; index++)
     {

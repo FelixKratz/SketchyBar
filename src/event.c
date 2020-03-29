@@ -154,7 +154,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED)
 
     debug("%s: %d\n", __FUNCTION__, g_display_manager.current_display_id);
 
-    bar_manager_refresh(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
 
     return EVENT_SUCCESS;
 }
@@ -163,7 +163,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED)
 {
     uint32_t did = (uint32_t)(intptr_t) context;
     debug("%s: %d\n", __FUNCTION__, did);
-    bar_manager_add_display(&g_bar_manager, did);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
@@ -171,7 +171,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED)
 {
     uint32_t did = (uint32_t)(intptr_t) context;
     debug("%s: %d\n", __FUNCTION__, did);
-    bar_manager_remove_display(&g_bar_manager, did);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
@@ -179,7 +179,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED)
 {
     uint32_t did = (uint32_t)(intptr_t) context;
     debug("%s: %d\n", __FUNCTION__, did);
-    bar_manager_resize(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
@@ -187,7 +187,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED)
 {
     uint32_t did = (uint32_t)(intptr_t) context;
     debug("%s: %d\n", __FUNCTION__, did);
-    bar_manager_resize(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
