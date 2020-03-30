@@ -87,6 +87,9 @@ Settings
 *status_bar_clock_icon* ['<sym>']::
     Specify a symbol to represent the current time.
 
+*status_bar_clock_format* ['<sym>']::
+    Specify a format for the current time, according to the strftime function.
+
 Exit Codes
 ----------
 

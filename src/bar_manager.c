@@ -45,7 +45,23 @@ void bar_manager_set_text_font(struct bar_manager *bar_manager, char *font_strin
     bar_manager->t_font = bar_create_font(bar_manager->t_font_prop);
     bar_manager->space_underline = bar_prepare_line(bar_manager->t_font, "______", rgba_color_from_hex(0xffd4d232));
     bar_manager->power_underline = bar_prepare_line(bar_manager->t_font, "__________", rgba_color_from_hex(0xffd75f5f));
-    bar_manager->clock_underline = bar_prepare_line(bar_manager->t_font, "__________", rgba_color_from_hex(0xff458588));
+
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *timeinfo = localtime(&rawtime);
+    if (timeinfo) {
+        char time[255];
+        strftime(time, sizeof(time), g_bar_manager._clock_format, timeinfo);
+        char underline[255] = {0};
+
+        for (int i = 0; i < strlen(time) + 4; ++i)
+            underline[i] = '_';
+
+        bar_manager->clock_underline = bar_prepare_line(bar_manager->t_font, underline, rgba_color_from_hex(0xff458588));
+    }
+    else
+        bar_manager->clock_underline = bar_prepare_line(bar_manager->t_font, "__________", rgba_color_from_hex(0xff458588));
+
     bar_manager_refresh(bar_manager);
 }
 
@@ -146,6 +162,12 @@ void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon)
     bar_manager_refresh(bar_manager);
 }
 
+void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format)
+{
+    bar_manager->_clock_format = format;
+    bar_manager_set_text_font(bar_manager, bar_manager->t_font_prop);
+}
+
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon)
 {
     if (bar_manager->space_icon.line) {
@@ -194,6 +216,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_background_color(bar_manager, 0xff202020);
     bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
     bar_manager_set_clock_icon(bar_manager, string_copy(" "));
+    bar_manager_set_clock_format(bar_manager, string_copy("%R"));
     bar_manager_set_space_icon(bar_manager, string_copy("*"));
     bar_manager_set_power_strip(bar_manager, NULL);
 }

@@ -12,6 +12,7 @@ struct bar_manager
     char **_space_icon_strip;
     char **_power_icon_strip;
     char *_clock_icon;
+    char *_clock_format;
     char *_space_icon;
     struct rgba_color foreground_color;
     struct rgba_color background_color;
@@ -33,6 +34,7 @@ void bar_manager_set_icon_font(struct bar_manager *bar_manager, char *font_strin
 void bar_manager_set_space_strip(struct bar_manager *bar_manager, char **icon_strip);
 void bar_manager_set_power_strip(struct bar_manager *bar_manager, char **icon_strip);
 void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon);
+void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format);
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);

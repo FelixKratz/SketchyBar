@@ -8,5 +8,6 @@ spacebar -m config status_bar_space_icon_strip  I II III IV V VI VII VIII IX X
 spacebar -m config status_bar_power_icon_strip   
 spacebar -m config status_bar_space_icon        
 spacebar -m config status_bar_clock_icon        
+spacebar -m config status_bar_clock_format      "%d/%m/%y %R"
 
 echo "spacebar configuration loaded.."

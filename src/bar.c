@@ -272,7 +272,8 @@ void bar_refresh(struct bar *bar)
     struct tm *timeinfo = localtime(&rawtime);
     if (timeinfo) {
         char time[255];
-        snprintf(time, sizeof(time), "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
+        strftime(time, sizeof(time), g_bar_manager._clock_format, timeinfo);
+        //snprintf(time, sizeof(time), "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
         struct bar_line time_line = bar_prepare_line(g_bar_manager.t_font, time, g_bar_manager.foreground_color);
         CGPoint t_pos = bar_align_line(bar, time_line, ALIGN_RIGHT, ALIGN_CENTER);
         bar_draw_line(bar, time_line, t_pos.x, t_pos.y);

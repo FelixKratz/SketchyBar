@@ -20,6 +20,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_POWER_STRIP       "status_bar_power_icon_strip"
 #define COMMAND_CONFIG_BAR_SPACE_ICON        "status_bar_space_icon"
 #define COMMAND_CONFIG_BAR_CLOCK_ICON        "status_bar_clock_icon"
+#define COMMAND_CONFIG_BAR_CLOCK_FORMAT      "status_bar_clock_format"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -187,7 +188,15 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         } else {
             bar_manager_set_clock_icon(&g_bar_manager, token_to_string(token));
         }
-    } else {
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_CLOCK_FORMAT)) {
+        struct token token = get_token(&message);
+        if (!token_is_valid(token)) {
+            fprintf(rsp, "%s\n", g_bar_manager._clock_icon ? g_bar_manager._clock_icon : "");
+        } else {
+            bar_manager_set_clock_format(&g_bar_manager, token_to_string(token));
+        }
+    }
+    else {
         daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
     }
 }
