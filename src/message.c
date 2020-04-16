@@ -12,15 +12,15 @@ extern bool g_verbose;
 
 /* --------------------------------DOMAIN CONFIG-------------------------------- */
 #define COMMAND_CONFIG_DEBUG_OUTPUT          "debug_output"
-#define COMMAND_CONFIG_BAR_TEXT_FONT         "status_bar_text_font"
-#define COMMAND_CONFIG_BAR_ICON_FONT         "status_bar_icon_font"
-#define COMMAND_CONFIG_BAR_BACKGROUND        "status_bar_background_color"
-#define COMMAND_CONFIG_BAR_FOREGROUND        "status_bar_foreground_color"
-#define COMMAND_CONFIG_BAR_SPACE_STRIP       "status_bar_space_icon_strip"
-#define COMMAND_CONFIG_BAR_POWER_STRIP       "status_bar_power_icon_strip"
-#define COMMAND_CONFIG_BAR_SPACE_ICON        "status_bar_space_icon"
-#define COMMAND_CONFIG_BAR_CLOCK_ICON        "status_bar_clock_icon"
-#define COMMAND_CONFIG_BAR_CLOCK_FORMAT      "status_bar_clock_format"
+#define COMMAND_CONFIG_BAR_TEXT_FONT         "text_font"
+#define COMMAND_CONFIG_BAR_ICON_FONT         "icon_font"
+#define COMMAND_CONFIG_BAR_BACKGROUND        "background_color"
+#define COMMAND_CONFIG_BAR_FOREGROUND        "foreground_color"
+#define COMMAND_CONFIG_BAR_SPACE_STRIP       "space_icon_strip"
+#define COMMAND_CONFIG_BAR_POWER_STRIP       "power_icon_strip"
+#define COMMAND_CONFIG_BAR_SPACE_ICON        "space_icon"
+#define COMMAND_CONFIG_BAR_CLOCK_ICON        "clock_icon"
+#define COMMAND_CONFIG_BAR_CLOCK_FORMAT      "clock_format"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"

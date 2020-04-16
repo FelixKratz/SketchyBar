@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 
-spacebar -m config status_bar_text_font         "Helvetica Neue:Bold:12.0"
-spacebar -m config status_bar_icon_font         "Font Awesome 5 Free:Regular:12.0"
-spacebar -m config status_bar_background_color  0xff202020
-spacebar -m config status_bar_foreground_color  0xffa8a8a8
-spacebar -m config status_bar_space_icon_strip  I II III IV V VI VII VIII IX X
-spacebar -m config status_bar_power_icon_strip   
-spacebar -m config status_bar_space_icon        
-spacebar -m config status_bar_clock_icon        
-spacebar -m config status_bar_clock_format      "%d/%m/%y %R"
+spacebar -m config text_font         "Helvetica Neue:Bold:12.0"
+spacebar -m config icon_font         "Font Awesome 5 Free:Regular:12.0"
+spacebar -m config background_color  0xff202020
+spacebar -m config foreground_color  0xffa8a8a8
+spacebar -m config space_icon_strip  I II III IV V VI VII VIII IX X
+spacebar -m config power_icon_strip   
+spacebar -m config space_icon        
+spacebar -m config clock_icon        
+spacebar -m config clock_format      "%d/%m/%y %R"
 
 echo "spacebar configuration loaded.."

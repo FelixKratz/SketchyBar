@@ -70,50 +70,55 @@ Get or set the value of <setting>.
 Enable output of debug information to stdout.
 .RE
 .sp
-\fBstatus_bar_text_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
+\fBtext_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
 .RS 4
 Specify name, style and size of font to use for drawing text.
 .br
 Use \fIFont Book.app\fP to identify the correct name.
 .RE
 .sp
-\fBstatus_bar_icon_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
+\fBicon_font\fP [\fI<font_family>:<font_style>:<font_size>\fP]
 .RS 4
 Specify name, style and size of font to use for drawing icon symbols.
 .br
 Use \fIFont Book.app\fP to identify the correct name.
 .RE
 .sp
-\fBstatus_bar_background_color\fP [\fI<COLOR>\fP]
+\fBbackground_color\fP [\fI<COLOR>\fP]
 .RS 4
 Color to use for drawing status bar background.
 .RE
 .sp
-\fBstatus_bar_foreground_color\fP [\fI<COLOR>\fP]
+\fBforeground_color\fP [\fI<COLOR>\fP]
 .RS 4
 Color to use for drawing status bar elements.
 .RE
 .sp
-\fBstatus_bar_space_icon_strip\fP [\fI<sym_1> <sym_2> <sym_n>\fP]
+\fBspace_icon_strip\fP [\fI<sym_1> <sym_2> <sym_n>\fP]
 .RS 4
 Specify symbols separated by whitespace to be used for visualizing spaces.
 .RE
 .sp
-\fBstatus_bar_power_icon_strip\fP [\fI<sym_battery> <sym_ac>\fP]
+\fBpower_icon_strip\fP [\fI<sym_battery> <sym_ac>\fP]
 .RS 4
 Specify two symbols separated by whitespace.
 .br
 The first symbol represents battery power and the second symbol indicates AC.
 .RE
 .sp
-\fBstatus_bar_space_icon\fP [\fI<sym>\fP]
+\fBspace_icon\fP [\fI<sym>\fP]
 .RS 4
-Specify a general symbol to use for any given space that does not have a match in \fIstatus_bar_space_icon_strip\fP.
+Specify a general symbol to use for any given space that does not have a match in \fIspace_icon_strip\fP.
 .RE
 .sp
-\fBstatus_bar_clock_icon\fP [\fI<sym>\fP]
+\fBclock_icon\fP [\fI<sym>\fP]
 .RS 4
 Specify a symbol to represent the current time.
+.RE
+.sp
+\fBclock_format\fP [\fI<sym>\fP]
+.RS 4
+Specify a format for the current time, according to the strftime function.
 .RE
 .SH "EXIT CODES"
 .sp
