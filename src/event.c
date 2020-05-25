@@ -154,7 +154,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED)
 
     debug("%s: %d\n", __FUNCTION__, g_display_manager.current_display_id);
 
-    bar_manager_display_changed(&g_bar_manager);
+    bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
 }
