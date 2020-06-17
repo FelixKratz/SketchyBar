@@ -14,6 +14,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_DEBUG_OUTPUT          "debug_output"
 #define COMMAND_CONFIG_BAR_TEXT_FONT         "text_font"
 #define COMMAND_CONFIG_BAR_ICON_FONT         "icon_font"
+#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR  "space_icon_color"
 #define COMMAND_CONFIG_BAR_BACKGROUND        "background_color"
 #define COMMAND_CONFIG_BAR_FOREGROUND        "foreground_color"
 #define COMMAND_CONFIG_BAR_SPACE_STRIP       "space_icon_strip"
@@ -194,6 +195,18 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
             fprintf(rsp, "%s\n", g_bar_manager._clock_icon ? g_bar_manager._clock_icon : "");
         } else {
             bar_manager_set_clock_format(&g_bar_manager, token_to_string(token));
+        }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR)) {
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color.p);
+        } else {
+            uint32_t color = token_to_uint32t(value);
+            if (color) {
+                bar_manager_set_space_icon_color(&g_bar_manager, color);
+            } else {
+                daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+            }
         }
     }
     else {

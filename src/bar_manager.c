@@ -16,6 +16,12 @@ void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t 
     bar_manager_refresh(bar_manager);
 }
 
+void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->space_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
 void bar_manager_set_text_font(struct bar_manager *bar_manager, char *font_string)
 {
     if (bar_manager->t_font) {
@@ -215,6 +221,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Regular:10.0"));
     bar_manager_set_background_color(bar_manager, 0xff202020);
     bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
+    bar_manager_set_space_icon_color(bar_manager, 0xffd75f5f);
     bar_manager_set_clock_icon(bar_manager, string_copy(" "));
     bar_manager_set_clock_format(bar_manager, string_copy("%R"));
     bar_manager_set_space_icon(bar_manager, string_copy("*"));
