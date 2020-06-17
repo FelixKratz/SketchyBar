@@ -16,6 +16,7 @@ struct bar_manager
     char *_space_icon;
     struct rgba_color foreground_color;
     struct rgba_color background_color;
+    struct rgba_color space_icon_color;
     struct rgba_color background_color_dim;
     struct bar_line *space_icon_strip;
     struct bar_line space_icon;
@@ -29,6 +30,7 @@ struct bar_manager
 
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);
+void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_text_font(struct bar_manager *bar_manager, char *font_string);
 void bar_manager_set_icon_font(struct bar_manager *bar_manager, char *font_string);
 void bar_manager_set_space_strip(struct bar_manager *bar_manager, char **icon_strip);

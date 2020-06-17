@@ -236,24 +236,18 @@ void bar_refresh(struct bar *bar)
             int index = mission_control_index(space_list[i]) - 1;
 
             struct bar_line space_line = index >= buf_len(g_bar_manager.space_icon_strip)
-                                       ? g_bar_manager.space_icon
-                                       : g_bar_manager.space_icon_strip[index];
+              ? g_bar_manager.space_icon
+              : g_bar_manager.space_icon_strip[index];
             if (i == 0) {
-                pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
+              pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
             } else {
-                pos.x += 25;
+              pos.x += 25;
             }
-
-            bar_draw_line(bar, space_line, pos.x, pos.y);
 
             if (sid == space_list[i]) {
-                CGPoint new_pos = CGContextGetTextPosition(bar->context);
-                struct bar_line mark_line = g_bar_manager.space_underline;
-                CGPoint mark_pos = bar_align_line(bar, mark_line, 0, ALIGN_BOTTOM);
-                mark_pos.x = mark_pos.x - mark_line.bounds.size.width / 2 - space_line.bounds.size.width / 2;
-                bar_draw_line(bar, mark_line, mark_pos.x, mark_pos.y);
-                CGContextSetTextPosition(bar->context, new_pos.x, new_pos.y);
+              space_line.color = g_bar_manager.space_icon_color;
             }
+            bar_draw_line(bar, space_line, pos.x, pos.y);
 
             final_bar_left_x = pos.x + space_line.bounds.size.width + 10;
         }
