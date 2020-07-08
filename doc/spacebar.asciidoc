@@ -90,6 +90,9 @@ Settings
 *clock_format* ['<sym>']::
     Specify a format for the current time, according to the strftime function.
 
+*dnd_icon* ['<sym>']::
+    Specify a symbol to represent the current DoNotDisturb status.
+
 Exit Codes
 ----------
 
