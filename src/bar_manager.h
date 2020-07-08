@@ -23,9 +23,6 @@ struct bar_manager
     struct bar_line clock_icon;
     struct bar_line battr_icon;
     struct bar_line power_icon;
-    struct bar_line space_underline;
-    struct bar_line power_underline;
-    struct bar_line clock_underline;
 };
 
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);

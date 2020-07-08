@@ -285,7 +285,6 @@ void bar_refresh(struct bar *bar)
     if (has_batt) {
       char batt[255];
       snprintf(batt, sizeof(batt), "%' '3d%%", percent);
-
       struct bar_line batt_line = bar_prepare_line(g_bar_manager.t_font, batt, g_bar_manager.foreground_color);
       CGPoint p_pos = bar_align_line(bar, batt_line, ALIGN_RIGHT, ALIGN_CENTER);
       p_pos.x = time_line_pos - 40;
