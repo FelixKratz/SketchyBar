@@ -23,6 +23,30 @@ void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t 
   bar_manager_refresh(bar_manager);
 }
 
+void bar_manager_set_battery_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->battery_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_power_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->power_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_clock_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->clock_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_dnd_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->dnd_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
 void bar_manager_set_text_font(struct bar_manager *bar_manager, char *font_string)
 {
     if (bar_manager->t_font) {
@@ -110,14 +134,14 @@ void bar_manager_set_power_strip(struct bar_manager *bar_manager, char **icon_st
     }
 
     if (buf_len(bar_manager->_power_icon_strip) == 2) {
-        bar_manager->battr_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_power_icon_strip[0], rgba_color_from_hex(0xffd75f5f));
-        bar_manager->power_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_power_icon_strip[1], rgba_color_from_hex(0xffcd950c));
+      bar_manager->battr_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_power_icon_strip[0], bar_manager->battery_icon_color);
+      bar_manager->power_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_power_icon_strip[1], bar_manager->power_icon_color);
     } else {
-        bar_manager->battr_icon = bar_prepare_line(bar_manager->i_font, "", rgba_color_from_hex(0xffd75f5f));
-        bar_manager->power_icon = bar_prepare_line(bar_manager->i_font, "", rgba_color_from_hex(0xffcd950c));
+      bar_manager->battr_icon = bar_prepare_line(bar_manager->i_font, "", bar_manager->battery_icon_color);
+      bar_manager->power_icon = bar_prepare_line(bar_manager->i_font, "", bar_manager->power_icon_color);
     }
 
-    bar_manager_refresh(bar_manager);
+bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon)
@@ -179,7 +203,7 @@ void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon)
     bar_manager->_dnd_icon = icon;
   }
 
-  bar_manager->dnd_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_dnd_icon, rgba_color_from_hex(0xfffcf7bb));
+  bar_manager->dnd_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_dnd_icon, bar_manager->dnd_icon_color);
 
   bar_manager_refresh(bar_manager);
 }
@@ -213,11 +237,15 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_background_color(bar_manager, 0xff202020);
     bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
     bar_manager_set_space_icon_color(bar_manager, 0xffd75f5f);
+    bar_manager_set_battery_icon_color(bar_manager, 0xffd75f5f);
+    bar_manager_set_power_icon_color(bar_manager, 0xffcd950c);
+    bar_manager_set_clock_icon_color(bar_manager, 0xffa8a8a8);
     bar_manager_set_clock_icon(bar_manager, string_copy(" "));
     bar_manager_set_clock_format(bar_manager, string_copy("%R"));
     bar_manager_set_space_icon(bar_manager, string_copy("*"));
     bar_manager_set_power_strip(bar_manager, NULL);
     bar_manager_set_dnd_icon(bar_manager, string_copy(""));
+    bar_manager_set_dnd_icon_color(bar_manager, 0xffa8a8a8);
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager)

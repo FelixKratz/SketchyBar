@@ -81,17 +81,32 @@ Settings
     Specify two symbols separated by whitespace. +
     The first symbol represents battery power and the second symbol indicates AC.
 
+*power_icon_color* ['<COLOR>']::
+    Color to use for drawing the power (charing) icon.
+
+*battery_icon_color* ['<COLOR>']::
+    Color to use for drawing the battery icon.
+
 *space_icon* ['<sym>']::
     Specify a general symbol to use for any given space that does not have a match in 'space_icon_strip'.
 
+*space_icon_color* ['<COLOR>']::
+    Color to use for drawing the current space icon.
+
 *clock_icon* ['<sym>']::
     Specify a symbol to represent the current time.
+
+*clock_icon_color* ['<COLOR>']::
+    Color to use for drawing the clock icon.
 
 *clock_format* ['<sym>']::
     Specify a format for the current time, according to the strftime function.
 
 *dnd_icon* ['<sym>']::
     Specify a symbol to represent the current DoNotDisturb status.
+
+*dnd_icon_color* ['<COLOR>']::
+    Color to use for drawing the DoNotDisturb icon.
 
 Exit Codes
 ----------
