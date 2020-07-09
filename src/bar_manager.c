@@ -6,6 +6,7 @@ void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t 
     if (bar_manager->_space_icon_strip) bar_manager_set_space_strip(bar_manager, bar_manager->_space_icon_strip);
     if (bar_manager->_power_icon_strip) bar_manager_set_power_strip(bar_manager, bar_manager->_power_icon_strip);
     if (bar_manager->_clock_icon) bar_manager_set_clock_icon(bar_manager, bar_manager->_clock_icon);
+    if (bar_manager->_dnd_icon) bar_manager_set_dnd_icon(bar_manager, bar_manager->_dnd_icon);
     if (bar_manager->_space_icon) bar_manager_set_space_icon(bar_manager, bar_manager->_space_icon);
     bar_manager_refresh(bar_manager);
 }
@@ -59,6 +60,7 @@ void bar_manager_set_icon_font(struct bar_manager *bar_manager, char *font_strin
   if (bar_manager->_power_icon_strip) bar_manager_set_power_strip(bar_manager, bar_manager->_power_icon_strip);
     if (bar_manager->_clock_icon) bar_manager_set_clock_icon(bar_manager, bar_manager->_clock_icon);
     if (bar_manager->_space_icon) bar_manager_set_space_icon(bar_manager, bar_manager->_space_icon);
+    if (bar_manager->_dnd_icon) bar_manager_set_dnd_icon(bar_manager, bar_manager->_dnd_icon);
     bar_manager_refresh(bar_manager);
 }
 
@@ -143,6 +145,7 @@ void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format)
     bar_manager_set_text_font(bar_manager, bar_manager->t_font_prop);
 }
 
+
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon)
 {
     if (bar_manager->space_icon.line) {
@@ -160,6 +163,25 @@ void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon)
     bar_manager->space_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_space_icon, bar_manager->foreground_color);
 
     bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon)
+{
+  if (bar_manager->dnd_icon.line) {
+    bar_destroy_line(bar_manager->dnd_icon);
+  }
+
+  if (icon != bar_manager->_dnd_icon) {
+    if (bar_manager->_dnd_icon) {
+      free(bar_manager->_dnd_icon);
+    }
+
+    bar_manager->_dnd_icon = icon;
+  }
+
+  bar_manager->dnd_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_dnd_icon, rgba_color_from_hex(0xfffcf7bb));
+
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_display_changed(struct bar_manager *bar_manager)
@@ -195,6 +217,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_clock_format(bar_manager, string_copy("%R"));
     bar_manager_set_space_icon(bar_manager, string_copy("*"));
     bar_manager_set_power_strip(bar_manager, NULL);
+    bar_manager_set_dnd_icon(bar_manager, string_copy(""));
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager)

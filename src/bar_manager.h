@@ -3,26 +3,28 @@
 
 struct bar_manager
 {
-    struct bar **bars;
-    int bar_count;
-    char *t_font_prop;
-    char *i_font_prop;
-    CTFontRef t_font;
-    CTFontRef i_font;
-    char **_space_icon_strip;
-    char **_power_icon_strip;
-    char *_clock_icon;
-    char *_clock_format;
-    char *_space_icon;
-    struct rgba_color foreground_color;
-    struct rgba_color background_color;
-    struct rgba_color space_icon_color;
-    struct rgba_color background_color_dim;
-    struct bar_line *space_icon_strip;
-    struct bar_line space_icon;
-    struct bar_line clock_icon;
-    struct bar_line battr_icon;
-    struct bar_line power_icon;
+  struct bar **bars;
+  int bar_count;
+  char *t_font_prop;
+  char *i_font_prop;
+  CTFontRef t_font;
+  CTFontRef i_font;
+  char **_space_icon_strip;
+  char **_power_icon_strip;
+  char *_clock_icon;
+  char *_clock_format;
+  char *_space_icon;
+  char *_dnd_icon;
+  struct rgba_color foreground_color;
+  struct rgba_color background_color;
+  struct rgba_color space_icon_color;
+  struct rgba_color background_color_dim;
+  struct bar_line *space_icon_strip;
+  struct bar_line space_icon;
+  struct bar_line clock_icon;
+  struct bar_line battr_icon;
+  struct bar_line power_icon;
+  struct bar_line dnd_icon;
 };
 
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);
@@ -35,6 +37,7 @@ void bar_manager_set_power_strip(struct bar_manager *bar_manager, char **icon_st
 void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format);
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
+void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);
 void bar_manager_refresh(struct bar_manager *bar_manager);

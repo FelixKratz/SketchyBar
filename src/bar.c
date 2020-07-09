@@ -282,6 +282,7 @@ void bar_refresh(struct bar *bar)
     bool has_batt = false;
     bool charging = false;
     int percent = bar_find_battery_life(&has_batt, &charging);
+    int batt_line_pos;
     if (has_batt) {
       char batt[255];
       snprintf(batt, sizeof(batt), "%' '3d%%", percent);
@@ -293,10 +294,22 @@ void bar_refresh(struct bar *bar)
       struct bar_line batt_icon = charging ? g_bar_manager.power_icon : g_bar_manager.battr_icon;
       CGPoint pi_pos = bar_align_line(bar, batt_icon, 0, ALIGN_CENTER);
       pi_pos.x = p_pos.x - batt_icon.bounds.size.width;
+      batt_line_pos = pi_pos.x;
 
       bar_draw_line(bar, batt_icon, pi_pos.x, pi_pos.y);
       bar_destroy_line(batt_line);
     }
+
+    NSUserDefaults* defaults = [[NSUserDefaults alloc]initWithSuiteName:@"com.apple.notificationcenterui"];
+    bool dnd = [defaults boolForKey:@"doNotDisturb"];
+    if (dnd) {
+      struct bar_line dnd_icon = g_bar_manager.dnd_icon;
+      CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
+      di_pos.x = batt_line_pos - dnd_icon.bounds.size.width - 15;
+
+      bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);
+    }
+
 
     // BAR CENTER
     char *title = focused_window_title();
