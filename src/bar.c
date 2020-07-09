@@ -271,11 +271,13 @@ void bar_refresh(struct bar *bar)
       CGPoint t_pos = bar_align_line(bar, time_line, ALIGN_RIGHT, ALIGN_CENTER);
       bar_draw_line(bar, time_line, t_pos.x, t_pos.y);
 
+      struct bar_line time_icon = g_bar_manager.clock_icon;
+      time_icon.color = g_bar_manager.clock_icon_color;
       CGPoint ti_pos = bar_align_line(bar, g_bar_manager.clock_icon, 0, ALIGN_CENTER);
       ti_pos.x = t_pos.x - g_bar_manager.clock_icon.bounds.size.width - 5;
       time_line_pos = ti_pos.x;
 
-      bar_draw_line(bar, g_bar_manager.clock_icon, ti_pos.x, ti_pos.y);
+      bar_draw_line(bar, time_icon, ti_pos.x, ti_pos.y);
       bar_destroy_line(time_line);
     }
 
@@ -292,6 +294,7 @@ void bar_refresh(struct bar *bar)
       bar_draw_line(bar, batt_line, p_pos.x, p_pos.y);
 
       struct bar_line batt_icon = charging ? g_bar_manager.power_icon : g_bar_manager.battr_icon;
+      batt_icon.color = charging ? g_bar_manager.power_icon_color : g_bar_manager.battery_icon_color;
       CGPoint pi_pos = bar_align_line(bar, batt_icon, 0, ALIGN_CENTER);
       pi_pos.x = p_pos.x - batt_icon.bounds.size.width;
       batt_line_pos = pi_pos.x;
@@ -304,6 +307,7 @@ void bar_refresh(struct bar *bar)
     bool dnd = [defaults boolForKey:@"doNotDisturb"];
     if (dnd) {
       struct bar_line dnd_icon = g_bar_manager.dnd_icon;
+      dnd_icon.color = g_bar_manager.dnd_icon_color;
       CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
       di_pos.x = batt_line_pos - dnd_icon.bounds.size.width - 15;
 
