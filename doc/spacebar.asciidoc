@@ -120,4 +120,4 @@ If *spacebar* can't handle a message, it will return a non-zero exit code.
 Author
 ------
 
-Doron Somech <somdoron at gmail.com>
+Calum MacRae <hi at cmacr.ae>

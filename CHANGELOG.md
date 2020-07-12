@@ -6,4 +6,4 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/somdoron/spacebar/compare/master...HEAD
+[Unreleased]: https://github.com/cmacrae/spacebar/compare/master...HEAD

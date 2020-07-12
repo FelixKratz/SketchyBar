@@ -3,17 +3,17 @@
   <b>Status Bar for the Mac.</b>
 </p>
 <p align="center">
-  <a href="https://travis-ci.org/somdoron/spacebar">
-    <img src="https://travis-ci.org/somdoron/spacebar.svg?branch=master" alt="CI Status Badge">
+  <a href="https://travis-ci.org/cmacrae/spacebar">
+    <img src="https://travis-ci.org/cmacrae/spacebar.svg?branch=master" alt="CI Status Badge">
   </a>
-  <a href="https://github.com/somdoron/spacebar/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/somdoron/spacebar.svg?color=green" alt="License Badge">
+  <a href="https://github.com/cmacrae/spacebar/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/github/license/cmacrae/spacebar.svg?color=green" alt="License Badge">
   </a>
   <a href="https://github.com/spacebar/blob/blob/master/CHANGELOG.md">
     <img src="https://img.shields.io/badge/view-changelog-green.svg" alt="Changelog Badge">
   </a>
-  <a href="https://github.com/somdoron/spacebar/releases">
-    <img src="https://img.shields.io/github/commits-since/somdoron/spacebar/latest.svg?color=green" alt="Version Badge">
+  <a href="https://github.com/cmacrae/spacebar/releases">
+    <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=green" alt="Version Badge">
   </a>
 </p>
 
@@ -127,8 +127,8 @@ I take no responsibility if anything should happen to your machine while trying 
 
 <!-- Project internal links -->
 [spacebar-license]: LICENSE.txt
-[spacebar-examples]: https://github.com/somdoron/spacebar/tree/master/examples
-[spacebar-docs]: https://github.com/somdoron/spacebar/blob/master/doc/spacebar.asciidoc
+[spacebar-examples]: https://github.com/cmacrae/spacebar/tree/master/examples
+[spacebar-docs]: https://github.com/cmacrae/spacebar/blob/master/doc/spacebar.asciidoc
 
 <!-- Links to other GitHub projects/users -->
 [gh-koekeishiya]: https://github.com/koekeishiya

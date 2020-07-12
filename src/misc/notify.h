@@ -8,7 +8,7 @@ static NSImage *g_notify_img;
 - (NSString *)fake_bundleIdentifier
 {
     if (self == [NSBundle mainBundle]) {
-        return @"com.somdoron.spacebar";
+        return @"ae.cmacr.spacebar";
     } else {
         return [self fake_bundleIdentifier];
     }
