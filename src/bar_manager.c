@@ -208,6 +208,12 @@ void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon)
   bar_manager_refresh(bar_manager);
 }
 
+void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
+{
+  bar_manager->position = pos;
+  bar_manager_resize(bar_manager);
+}
+
 void bar_manager_display_changed(struct bar_manager *bar_manager)
 {
     for (int i = 0; i < bar_manager->bar_count; ++i)
@@ -232,6 +238,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
 {
     bar_manager->bars = NULL;
     bar_manager->bar_count = 0;
+    bar_manager_set_position(bar_manager, string_copy("top"));
     bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));
     bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Regular:10.0"));
     bar_manager_set_background_color(bar_manager, 0xff202020);

@@ -27,6 +27,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_CLOCK_ICON          "clock_icon"
 #define COMMAND_CONFIG_BAR_CLOCK_FORMAT        "clock_format"
 #define COMMAND_CONFIG_BAR_DND_ICON            "dnd_icon"
+#define COMMAND_CONFIG_BAR_POSITION            "position"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -268,8 +269,18 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       } else {
 	bar_manager_set_dnd_icon(&g_bar_manager, token_to_string(token));
       }
-    }
-    else {
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_POSITION)) {
+      int length = strlen(message);
+      char * top = "top";
+      char * bottom = "bottom";
+      if (length <= 0) {
+	fprintf(rsp, "%s\n", g_bar_manager.position);
+      } else if ((strcmp(message,top) == 0) || (strcmp(message,bottom) == 0)) {
+	bar_manager_set_position(&g_bar_manager, string_copy(message));
+      } else {
+	daemon_fail(rsp, "value for '%.*s' must be either 'top' or 'bottom'.\n", command.length, command.text);
+      }
+    } else {
       daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
     }
 }
