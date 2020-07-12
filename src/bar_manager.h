@@ -15,6 +15,7 @@ struct bar_manager
   char *_clock_format;
   char *_space_icon;
   char *_dnd_icon;
+  char *position;
   struct rgba_color foreground_color;
   struct rgba_color background_color;
   struct rgba_color space_icon_color;
@@ -46,6 +47,7 @@ void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format);
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
+void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);
 void bar_manager_refresh(struct bar_manager *bar_manager);

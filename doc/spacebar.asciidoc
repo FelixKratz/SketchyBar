@@ -60,6 +60,10 @@ Settings
 *debug_output* ['<BOOL_SEL>']::
     Enable output of debug information to stdout.
 
+*position* ['<position>']::
+    Position on the screen to draw the bar. +
+    Must be one of 'top' or 'bottom'.
+
 *text_font* ['<font_family>:<font_style>:<font_size>']::
     Specify name, style and size of font to use for drawing text. +
     Use 'Font Book.app' to identify the correct name.

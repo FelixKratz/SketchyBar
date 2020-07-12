@@ -372,6 +372,11 @@ static CGPoint bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
         origin.y   += menu.size.height;
     }
 
+    char *btm = "bottom";
+    if (strcmp(g_bar_manager.position, btm) == 0) {
+      origin.y = bounds.size.height - 26;
+    }
+
     bar->frame = (CGRect) {{0, 0},{bounds.size.width, 26}};
     CGSNewRegionWithRect(&bar->frame, frame_region);
 
