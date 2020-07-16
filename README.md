@@ -15,7 +15,7 @@
   <a href="https://builtwithnix.org">
     <img src="https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5" alt="Nix Badge">
   </a>
-  <a href="https://github.com/cmacrae/spacebar/compare/v0.5.0...HEAD">
+  <a href="https://github.com/cmacrae/spacebar/compare/v1.0.0...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=orange" alt="Version Badge">
   </a>
 </p>
