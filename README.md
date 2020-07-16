@@ -112,10 +112,16 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
 ```
 
 ## Integration with yabai
-Add the following to your yabai configuration, so yabai won't draw over the status bar.
-```
-yabai -m config top_padding 26
-```
+yabai provides the `external_bar` config option. This can be used so yabai plays nice with spacebar.  
+Take a look at this excerpt from the yabai man page
+>       external_bar [<main|all|off>:<top_padding>:<bottom_padding>]
+>           Specify top and bottom padding for a potential custom bar that you may be running.
+>           main: Apply the given padding only to spaces located on the main display.
+>           all:  Apply the given padding to all spaces regardless of their display.
+>           off:  Do not apply any special padding.
+
+
+So, if you like having spacebar at the bottom, you'd use `yabai -m config external_bar all:0:26`
 
 ## Debug output and error reporting
 In the case that something isn't working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag. If you're using the Homebrew service, the log files can be found in the following directory:
