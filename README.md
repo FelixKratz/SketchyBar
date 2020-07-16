@@ -124,7 +124,10 @@ Take a look at this excerpt from the yabai man page
 So, if you like having spacebar at the bottom, you'd use `yabai -m config external_bar all:0:26`
 
 ## Debug output and error reporting
-In the case that something isn't working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag. If you're using the Homebrew service, the log files can be found in the following directory:
+In the case that something isn't working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag.
+
+### Homebrew
+If you're using the Homebrew service, the log files can be found in the following directory:
 ```
 # directory containing log files (HOMEBREW_PREFIX defaults to /usr/local unless you manually specified otherwise)
 $HOMEBREW_PREFIX/var/log/spacebar/
@@ -134,6 +137,16 @@ tail -f /usr/local/var/log/spacebar/spacebar.err.log
 
 # view the last lines of the debug log
 tail -f /usr/local/var/log/spacebar/spacebar.out.log
+```
+
+### Nix
+If you're using the Nix service, you can set up debugging like so:
+```nix
+{
+  services.spacebar.config.debug_output = "on";
+  launchd.user.agents.spacebar.serviceConfig.StandardErrorPath = "/tmp/spacebar.err.log";
+  launchd.user.agents.spacebar.serviceConfig.StandardOutPath = "/tmp/spacebar.out.log";
+}
 ```
 
 ## Upgrading
