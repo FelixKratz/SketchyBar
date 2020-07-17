@@ -28,6 +28,12 @@
 ## About
 spacebar is a minimal status bar for macOS. Ideal for use with tiling window managers like [yabai](https://github.com/koekeishiya/yabai).
 
+<p align="center">
+  <a href="https://i.imgur.com/SFe0ifD.png">
+    <img src="https://i.imgur.com/SFe0ifD.png" alt="spacebar demo">
+  </a>
+</p>
+
 ## Installation
 A package and service to install and manage spacebar is provided in two flavours: [Homebrew](https://brew.sh) & [Nix](https://nixos.org).
 
