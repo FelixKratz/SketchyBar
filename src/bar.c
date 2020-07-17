@@ -178,6 +178,16 @@ static char * focused_window_title()
     CFRelease(window_ref);
     CFRelease(application_ref);
 
+    if (title) {
+      int title_length = strlen(title);
+      if (title_length > 100) {
+	char *ellipses = "...";
+	title[title_length - 100 ] = 0;
+	char *truncated_title = strcat(title, ellipses);
+	return truncated_title;
+      };
+    };
+
     return title;
 }
 #pragma clang diagnostic pop
