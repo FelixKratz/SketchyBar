@@ -15,7 +15,7 @@
   <a href="https://builtwithnix.org">
     <img src="https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5" alt="Nix Badge">
   </a>
-  <a href="https://github.com/cmacrae/spacebar/compare/v1.0.0...HEAD">
+  <a href="https://github.com/cmacrae/spacebar/compare/v1.1.0...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=orange" alt="Version Badge">
   </a>
 </p>
@@ -62,6 +62,7 @@ Here's a configuration taken from [the examples directory](examples):
 #!/usr/bin/env sh
 
 spacebar -m config position           top
+spacebar -m config height             26
 spacebar -m config text_font          "Helvetica Neue:Bold:12.0"
 spacebar -m config icon_font          "Font Awesome 5 Free:Regular:12.0"
 spacebar -m config background_color   0xff202020
@@ -92,6 +93,7 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
   services.spacebar.package = pkgs.spacebar;
   services.spacebar.config = {
     position           = "top";
+    height             = 26;
     text_font          = ''"Helvetica Neue:Bold:12.0"'';
     icon_font          = ''"Font Awesome 5 Free:Regular:12.0"'';
     background_color   = "0xff202020";
@@ -121,7 +123,13 @@ Take a look at this excerpt from the yabai man page
 >           off:  Do not apply any special padding.
 
 
-So, if you like having spacebar at the bottom, you'd use `yabai -m config external_bar all:0:26`
+So, if you like having spacebar at the bottom, you'd use `yabai -m config external_bar all:0:26`  
+
+You can also use the command `spacebar -m config height` with no argument to get the current height, which you could then use in conjunction with `external_bar`:
+```
+SPACEBAR_HEIGHT=$(spacebar -m config height)
+yabai -m config external_bar all:0:$SPACEBAR_HEIGHT
+```
 
 ## Debug output and error reporting
 In the case that something isn't working as you're expecting, please make sure to take a look in the output and error log. To enable debug output make sure that your configuration file contains `spacebar -m config debug_output on` or that spacebar is launched with the `--verbose` flag.

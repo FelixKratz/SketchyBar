@@ -28,6 +28,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_CLOCK_FORMAT        "clock_format"
 #define COMMAND_CONFIG_BAR_DND_ICON            "dnd_icon"
 #define COMMAND_CONFIG_BAR_POSITION            "position"
+#define COMMAND_CONFIG_BAR_HEIGHT              "height"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -280,6 +281,13 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       } else {
 	daemon_fail(rsp, "value for '%.*s' must be either 'top' or 'bottom'.\n", command.length, command.text);
       }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_HEIGHT)) {
+        struct token token = get_token(&message);
+        if (!token_is_valid(token)) {
+	  fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
+        } else {
+	  bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
+        }
     } else {
       daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
     }

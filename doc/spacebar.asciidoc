@@ -64,6 +64,9 @@ Settings
     Position on the screen to draw the bar. +
     Must be one of 'top' or 'bottom'.
 
+*height* ['<NUM>']::
+    Height in pixels to draw the bar.
+
 *text_font* ['<font_family>:<font_style>:<font_size>']::
     Specify name, style and size of font to use for drawing text. +
     Use 'Font Book.app' to identify the correct name.

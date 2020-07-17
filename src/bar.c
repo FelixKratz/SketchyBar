@@ -375,10 +375,10 @@ static CGPoint bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
     char *btm = "bottom";
     CGFloat display_bottom = CGRectGetMaxY(bounds);
     if (strcmp(g_bar_manager.position, btm) == 0) {
-      origin.y = display_bottom - 26;
+      origin.y = display_bottom - g_bar_manager.height;
     }
 
-    bar->frame = (CGRect) {{0, 0},{bounds.size.width, 26}};
+    bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};
     CGSNewRegionWithRect(&bar->frame, frame_region);
 
     return origin;

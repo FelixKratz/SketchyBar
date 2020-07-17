@@ -8,6 +8,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 [Unreleased]: https://github.com/cmacrae/spacebar/compare/master...HEAD
 
+## [1.1.0](https://github.com/cmacrae/spacebar/releases/tag/v1.1.0) - 2020-07-17
+
+**Added**
+- Height configuration option
+
 ## [1.0.0](https://github.com/cmacrae/spacebar/releases/tag/v1.0.0) - 2020-07-16
 
 **Added**
