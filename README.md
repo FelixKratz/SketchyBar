@@ -4,13 +4,13 @@
 </p>
 <p align="center">
   <a href="https://travis-ci.org/cmacrae/spacebar">
-    <img src="https://travis-ci.org/cmacrae/spacebar.svg?branch=master" alt="CI Status Badge">
+    <img src="https://img.shields.io/travis/cmacrae/spacebar/master.svg?colorB=b6eb7a&colorC=e84a5f" alt="CI Status Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/cmacrae/spacebar.svg?color=blue" alt="License Badge">
+    <img src="https://img.shields.io/github/license/cmacrae/spacebar.svg?color=a6dcef" alt="License Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/blob/master/CHANGELOG.md">
-    <img src="https://img.shields.io/badge/view-changelog-purple.svg" alt="Changelog Badge">
+    <img src="https://img.shields.io/badge/view-changelog-726a95.svg" alt="Changelog Badge">
   </a>
 </p>
 <p align="center">
@@ -18,10 +18,10 @@
     <img src="https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5" alt="Nix Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/projects/1">
-    <img src="https://img.shields.io/badge/Project-tasks-0079BF.svg?logo=trello" alt="GitHub Project Badge">
+    <img src="https://img.shields.io/badge/Project-tasks-7fdbda.svg?logo=trello" alt="GitHub Project Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/compare/v1.1.0...HEAD">
-    <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=orange" alt="Version Badge">
+    <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=ea907a" alt="Version Badge">
   </a>
 </p>
 
