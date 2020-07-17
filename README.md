@@ -12,8 +12,13 @@
   <a href="https://github.com/cmacrae/spacebar/blob/master/CHANGELOG.md">
     <img src="https://img.shields.io/badge/view-changelog-purple.svg" alt="Changelog Badge">
   </a>
+</p>
+<p align="center">
   <a href="https://builtwithnix.org">
     <img src="https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5" alt="Nix Badge">
+  </a>
+  <a href="https://github.com/cmacrae/spacebar/projects/1">
+    <img src="https://img.shields.io/badge/Project-tasks-0079BF.svg?logo=trello" alt="GitHub Project Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/compare/v1.1.0...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=orange" alt="Version Badge">
