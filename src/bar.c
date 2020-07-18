@@ -336,7 +336,7 @@ void bar_refresh(struct bar *bar)
       assert(overlap_left >= 0);
 
       if (overlap_left > 0) {
-	pos.x = bar_left_final_item_x + 10;
+	pos.x = bar_left_final_item_x + 100;
       }
 
 
@@ -347,7 +347,7 @@ void bar_refresh(struct bar *bar)
       assert(overlap_right >= 0);
 
       if (overlap_right > 0) {
-	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 10);
+	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 100);
 	if (truncated_width > 0) {
 	  CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
 	  CFRelease(title_line.line);
