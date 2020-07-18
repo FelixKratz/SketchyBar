@@ -178,16 +178,6 @@ static char * focused_window_title()
     CFRelease(window_ref);
     CFRelease(application_ref);
 
-    if (title) {
-      int title_length = strlen(title);
-      if (title_length > 100) {
-	char *ellipses = "...";
-	title[title_length - 100 ] = 0;
-	char *truncated_title = strcat(title, ellipses);
-	return truncated_title;
-      };
-    };
-
     return title;
 }
 #pragma clang diagnostic pop
@@ -234,7 +224,7 @@ void bar_refresh(struct bar *bar)
     // BAR LEFT
     //
 
-    int final_bar_left_x = 10;
+    int bar_left_final_item_x = 10;
     int space_count;
     uint64_t *space_list = display_space_list(bar->did, &space_count);
     if (space_list) {
@@ -259,7 +249,7 @@ void bar_refresh(struct bar *bar)
             }
             bar_draw_line(bar, space_line, pos.x, pos.y);
 
-            final_bar_left_x = pos.x + space_line.bounds.size.width + 10;
+            bar_left_final_item_x = pos.x + space_line.bounds.size.width + 10;
         }
 
         free(space_list);
@@ -269,7 +259,9 @@ void bar_refresh(struct bar *bar)
     // BAR RIGHT
     //
 
-    int initial_bar_right_x = bar->frame.size.width - 10;
+    // This is used to calculate overlap for the cetner bar.
+    // It is updated to represent the X position of the first item, depending on what's displayed.
+    int bar_right_first_item_x = bar->frame.size.width - 10;
     time_t rawtime;
     time(&rawtime);
     int time_line_pos;
@@ -286,6 +278,7 @@ void bar_refresh(struct bar *bar)
       CGPoint ti_pos = bar_align_line(bar, g_bar_manager.clock_icon, 0, ALIGN_CENTER);
       ti_pos.x = t_pos.x - g_bar_manager.clock_icon.bounds.size.width - 5;
       time_line_pos = ti_pos.x;
+      bar_right_first_item_x = ti_pos.x;
 
       bar_draw_line(bar, time_icon, ti_pos.x, ti_pos.y);
       bar_destroy_line(time_line);
@@ -308,6 +301,7 @@ void bar_refresh(struct bar *bar)
       CGPoint pi_pos = bar_align_line(bar, batt_icon, 0, ALIGN_CENTER);
       pi_pos.x = p_pos.x - batt_icon.bounds.size.width;
       batt_line_pos = pi_pos.x;
+      bar_right_first_item_x = pi_pos.x;
 
       bar_draw_line(bar, batt_icon, pi_pos.x, pi_pos.y);
       bar_destroy_line(batt_line);
@@ -320,6 +314,7 @@ void bar_refresh(struct bar *bar)
       dnd_icon.color = g_bar_manager.dnd_icon_color;
       CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
       di_pos.x = batt_line_pos - dnd_icon.bounds.size.width - 15;
+      bar_right_first_item_x = di_pos.x;
 
       bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);
     }
@@ -334,24 +329,25 @@ void bar_refresh(struct bar *bar)
       struct bar_line title_line = bar_prepare_line(g_bar_manager.t_font, title, g_bar_manager.foreground_color);
       CGPoint pos = bar_align_line(bar, title_line, ALIGN_CENTER, ALIGN_CENTER);
 
-      if (final_bar_left_x >= pos.x) {
-	overlap_left = final_bar_left_x - pos.x;
+      if (bar_left_final_item_x >= pos.x) {
+	overlap_left = bar_left_final_item_x - pos.x;
       }
 
       assert(overlap_left >= 0);
 
       if (overlap_left > 0) {
-	pos.x = final_bar_left_x;
+	pos.x = bar_left_final_item_x + 10;
       }
 
-      if (initial_bar_right_x <= pos.x + title_line.bounds.size.width) {
-	overlap_right = pos.x + title_line.bounds.size.width - initial_bar_right_x;
+
+      if (bar_right_first_item_x <= (pos.x + title_line.bounds.size.width)) {
+	overlap_right = (pos.x + title_line.bounds.size.width) - bar_right_first_item_x;
       }
 
       assert(overlap_right >= 0);
 
       if (overlap_right > 0) {
-	int truncated_width = (int)title_line.bounds.size.width - overlap_right;
+	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 10);
 	if (truncated_width > 0) {
 	  CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
 	  CFRelease(title_line.line);
