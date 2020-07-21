@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 [Unreleased]: https://github.com/cmacrae/spacebar/compare/master...HEAD
 
+## [1.1.1](https://github.com/cmacrae/spacebar/releases/tag/v1.1.1) - 2020-07-21
+
 **Changed**
 - Fixed a bug where long window titles would draw over the right status area
 - Padding between items in the status area based on current values
