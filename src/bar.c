@@ -241,7 +241,7 @@ void bar_refresh(struct bar *bar)
             if (i == 0) {
               pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
             } else {
-              pos.x += 25;
+              pos.x += g_bar_manager.spacing_left;
             }
 
             if (sid == space_list[i]) {
@@ -293,7 +293,7 @@ void bar_refresh(struct bar *bar)
       snprintf(batt, sizeof(batt), "%' '3d%%", percent);
       struct bar_line batt_line = bar_prepare_line(g_bar_manager.t_font, batt, g_bar_manager.foreground_color);
       CGPoint p_pos = bar_align_line(bar, batt_line, ALIGN_RIGHT, ALIGN_CENTER);
-      p_pos.x = time_line_pos - (batt_line.bounds.size.width + 15);
+      p_pos.x = time_line_pos - (batt_line.bounds.size.width + g_bar_manager.spacing_right);
       bar_draw_line(bar, batt_line, p_pos.x, p_pos.y);
 
       struct bar_line batt_icon = charging ? g_bar_manager.power_icon : g_bar_manager.battr_icon;
@@ -313,7 +313,7 @@ void bar_refresh(struct bar *bar)
       struct bar_line dnd_icon = g_bar_manager.dnd_icon;
       dnd_icon.color = g_bar_manager.dnd_icon_color;
       CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
-      di_pos.x = batt_line_pos - dnd_icon.bounds.size.width - 10;
+      di_pos.x = (batt_line_pos + 5) - dnd_icon.bounds.size.width - g_bar_manager.spacing_right;
       bar_right_first_item_x = di_pos.x;
 
       bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);

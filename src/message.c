@@ -29,6 +29,8 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_DND_ICON            "dnd_icon"
 #define COMMAND_CONFIG_BAR_POSITION            "position"
 #define COMMAND_CONFIG_BAR_HEIGHT              "height"
+#define COMMAND_CONFIG_BAR_SPACING_LEFT        "spacing_left"
+#define COMMAND_CONFIG_BAR_SPACING_RIGHT       "spacing_right"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -288,6 +290,20 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         } else {
 	  bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
         }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACING_LEFT)) {
+      struct token token = get_token(&message);
+      if (!token_is_valid(token)) {
+	fprintf(rsp, "%"PRIu32"\n", g_bar_manager.spacing_left ? g_bar_manager.spacing_left : 0);
+      } else {
+	bar_manager_set_spacing_left(&g_bar_manager, atoi(token_to_string(token)));
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACING_RIGHT)) {
+      struct token token = get_token(&message);
+      if (!token_is_valid(token)) {
+	fprintf(rsp, "%"PRIu32"\n", g_bar_manager.spacing_right ? g_bar_manager.spacing_right : 0);
+      } else {
+	bar_manager_set_spacing_right(&g_bar_manager, atoi(token_to_string(token)));
+      }
     } else {
       daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
     }

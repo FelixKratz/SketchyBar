@@ -17,6 +17,8 @@ struct bar_manager
   char *_dnd_icon;
   char *position;
   uint32_t height;
+  uint32_t spacing_left;
+  uint32_t spacing_right;
   struct rgba_color foreground_color;
   struct rgba_color background_color;
   struct rgba_color space_icon_color;
@@ -50,6 +52,8 @@ void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
+void bar_manager_set_spacing_left(struct bar_manager *bar_manager, uint32_t spacing);
+void bar_manager_set_spacing_right(struct bar_manager *bar_manager, uint32_t spacing);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);
 void bar_manager_refresh(struct bar_manager *bar_manager);
