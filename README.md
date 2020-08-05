@@ -94,7 +94,7 @@ echo "spacebar configuration loaded.."
 ```
 _Note: Ensure fonts are installed to use glyphs_
 
-For further configuration documentation, please see `man spacebar`
+For further configuration documentation, please see [`man spacebar`](doc/spacebar.asciidoc)
 
 ### Declarative configuration with Nix
 If you're using the `services.spacebar` module from [nix-darwin](https://github.com/LnL7/nix-darwin), you can configure spacebar like so:
