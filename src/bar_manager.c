@@ -214,6 +214,11 @@ void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
   bar_manager_resize(bar_manager);
 }
 
+void bar_manager_set_title(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->title = value;
+}
+
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
 {
   bar_manager->height = height;
