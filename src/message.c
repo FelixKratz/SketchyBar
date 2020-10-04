@@ -168,11 +168,20 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
     } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_STRIP)) {
         char **icon_strip = NULL;
         struct token token = get_token(&message);
-        while (token.text && token.length > 0) {
-            buf_push(icon_strip, token_to_string(token));
-            token = get_token(&message);
+
+        if(token.length==0){ // If no value given, print current value
+            fprintf(rsp, "\"%s\"", *g_bar_manager._space_icon_strip);
+            char **p = g_bar_manager._space_icon_strip;
+            for(int i = 1; i<buf_len(g_bar_manager.space_icon_strip);i++) {
+                fprintf(rsp, " \"%s\"", *++p);
+            }
+        } else { // Else, set value
+            while (token.text && token.length > 0) {
+                buf_push(icon_strip, token_to_string(token));
+                token = get_token(&message);
+            }
+            bar_manager_set_space_strip(&g_bar_manager, icon_strip);
         }
-        bar_manager_set_space_strip(&g_bar_manager, icon_strip);
     } else if (token_equals(command, COMMAND_CONFIG_BAR_POWER_STRIP)) {
         char **icon_strip = NULL;
         struct token token = get_token(&message);
