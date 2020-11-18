@@ -20,7 +20,7 @@
   <a href="https://github.com/cmacrae/spacebar/projects/1">
     <img src="https://img.shields.io/badge/Project-tasks-7fdbda.svg?logo=trello" alt="GitHub Project Badge">
   </a>
-  <a href="https://github.com/cmacrae/spacebar/compare/v1.1.1...HEAD">
+  <a href="https://github.com/cmacrae/spacebar/compare/v1.2.0...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=ea907a" alt="Version Badge">
   </a>
 </p>
