@@ -8,6 +8,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 [Unreleased]: https://github.com/cmacrae/spacebar/compare/master...HEAD
 
+## [1.2.1](https://github.com/cmacrae/spacebar/releases/tag/v1.2.1) - 2020-11-18
+
+**Changed**
+- Fixed a bug where querying for the value of `space_icon_strip` would set it to default (thanks [@jraregris](https://github.com/jraregris))
+
 ## [1.2.0](https://github.com/cmacrae/spacebar/releases/tag/v1.2.0) - 2020-11-18
 
 **Added**
