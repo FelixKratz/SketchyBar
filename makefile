@@ -4,10 +4,10 @@ BUILD_FLAGS    = -std=c99 -Wall -DDEBUG -g -O0 -fvisibility=hidden -mmacosx-vers
 BUILD_PATH     = ./bin
 DOC_PATH       = ./doc
 SMP_PATH       = ./examples
-SPACEBAR_SRC      = ./src/manifest.m
+SPACEBAR_SRC   = ./src/manifest.m
 BINS           = $(BUILD_PATH)/spacebar
 
-.PHONY: all clean install sign archive man
+.PHONY: all clean install archive man
 
 all: clean $(BINS)
 
