@@ -18,7 +18,8 @@ stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden -mmac
 stats: clean $(BINS)
 
 man:
-	asciidoctor -b manpage $(DOC_PATH)/spacebar.asciidoc -o $(DOC_PATH)/spacebar.1
+	asciidoctor -b manpage $(DOC_PATH)/spacebar.asciidoc -o $(DOC_PATH)/spacebar.1 && \
+	sed -i 's/1980-01-01/$(shell date "+%Y-%m-%d")/g'  $(DOC_PATH)/spacebar.1
 
 clean:
 	rm -rf $(BUILD_PATH)
