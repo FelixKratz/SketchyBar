@@ -321,46 +321,48 @@ void bar_refresh(struct bar *bar)
 
 
     // BAR CENTER
-    char *title = focused_window_title();
-    if (title) {
-      int overlap_left = 0;
-      int overlap_right = 0;
+    if (g_bar_manager.title) {
+      char *title = focused_window_title();
+      if (title) {
+        int overlap_left = 0;
+        int overlap_right = 0;
 
-      struct bar_line title_line = bar_prepare_line(g_bar_manager.t_font, title, g_bar_manager.foreground_color);
-      CGPoint pos = bar_align_line(bar, title_line, ALIGN_CENTER, ALIGN_CENTER);
+        struct bar_line title_line = bar_prepare_line(g_bar_manager.t_font, title, g_bar_manager.foreground_color);
+        CGPoint pos = bar_align_line(bar, title_line, ALIGN_CENTER, ALIGN_CENTER);
 
-      if (bar_left_final_item_x >= pos.x) {
-	overlap_left = bar_left_final_item_x - pos.x;
+        if (bar_left_final_item_x >= pos.x) {
+  	overlap_left = bar_left_final_item_x - pos.x;
+        }
+
+        assert(overlap_left >= 0);
+
+        if (overlap_left > 0) {
+  	pos.x = bar_left_final_item_x + 100;
+        }
+
+
+        if (bar_right_first_item_x <= (pos.x + title_line.bounds.size.width)) {
+  	overlap_right = (pos.x + title_line.bounds.size.width) - bar_right_first_item_x;
+        }
+
+        assert(overlap_right >= 0);
+
+        if (overlap_right > 0) {
+  	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 100);
+  	if (truncated_width > 0) {
+  	  CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
+  	  CFRelease(title_line.line);
+  	  title_line.line = truncated_line;
+  	} else {
+  	  goto free_title;
+  	}
+        }
+
+        bar_draw_line(bar, title_line, pos.x, pos.y);
+      free_title:
+        bar_destroy_line(title_line);
+        free(title);
       }
-
-      assert(overlap_left >= 0);
-
-      if (overlap_left > 0) {
-	pos.x = bar_left_final_item_x + 100;
-      }
-
-
-      if (bar_right_first_item_x <= (pos.x + title_line.bounds.size.width)) {
-	overlap_right = (pos.x + title_line.bounds.size.width) - bar_right_first_item_x;
-      }
-
-      assert(overlap_right >= 0);
-
-      if (overlap_right > 0) {
-	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 100);
-	if (truncated_width > 0) {
-	  CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
-	  CFRelease(title_line.line);
-	  title_line.line = truncated_line;
-	} else {
-	  goto free_title;
-	}
-      }
-
-      bar_draw_line(bar, title_line, pos.x, pos.y);
-    free_title:
-      bar_destroy_line(title_line);
-      free(title);
     }
 
     CGContextFlush(bar->context);

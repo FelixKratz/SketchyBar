@@ -31,6 +31,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_HEIGHT              "height"
 #define COMMAND_CONFIG_BAR_SPACING_LEFT        "spacing_left"
 #define COMMAND_CONFIG_BAR_SPACING_RIGHT       "spacing_right"
+#define COMMAND_CONFIG_BAR_TITLE               "title"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -312,6 +313,16 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 	fprintf(rsp, "%"PRIu32"\n", g_bar_manager.spacing_right ? g_bar_manager.spacing_right : 0);
       } else {
 	bar_manager_set_spacing_right(&g_bar_manager, atoi(token_to_string(token)));
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_TITLE)) {
+      char * on = "on";
+      char * off = "off";
+      if (strcmp(message,on) == 0) {
+        bar_manager_set_title(&g_bar_manager, true);
+      } else if (strcmp(message,off) == 0) {
+        bar_manager_set_title(&g_bar_manager, false);
+      } else {
+        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
       }
     } else {
       daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
