@@ -263,6 +263,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager->bar_count = 0;
     bar_manager_set_position(bar_manager, string_copy("top"));
     bar_manager_set_height(bar_manager, 26);
+    bar_manager_set_title(bar_manager, true);
     bar_manager_set_spacing_left(bar_manager, 25);
     bar_manager_set_spacing_right(bar_manager, 15);
     bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));
