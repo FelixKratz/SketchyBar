@@ -1,6 +1,6 @@
-:man source:   Spacebar
+:man source:   spacebar
 :man version:  {revnumber}
-:man manual:   Spacebar Manual
+:man manual:   spacebar manual
 
 ifdef::env-github[]
 :toc:
@@ -19,7 +19,7 @@ endif::[]
 Name
 ----
 
-spacebar - Status bar for mac
+spacebar - a simple status bar for macOS
 
 Synopsis
 --------
@@ -29,7 +29,7 @@ Synopsis
 Description
 -----------
 
-*spacebar* is a tiling window manager for macOS based on binary space partitioning.
+*spacebar* is a simple status bar for macOS.
 
 Options
 -------
