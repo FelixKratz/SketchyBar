@@ -98,7 +98,7 @@ Settings
     The first symbol represents battery power and the second symbol indicates AC.
 
 *power_icon_color* ['<COLOR>']::
-    Color to use for drawing the power (charing) icon.
+    Color to use for drawing the power (charging) icon.
 
 *battery_icon_color* ['<COLOR>']::
     Color to use for drawing the battery icon.
