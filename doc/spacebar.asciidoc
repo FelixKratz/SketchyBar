@@ -70,6 +70,15 @@ Settings
 *title* ['<BOOL_SEL>']::
     Enable focused window title display at the centre of the bar.
 
+*spaces* ['<BOOL_SEL>']::
+    Enable space indicator on the left of the bar.
+
+*clock* ['<BOOL_SEL>']::
+    Enable clock on the right of the bar.
+
+*power* ['<BOOL_SEL>']::
+    Enable power indicator on the right of the bar.
+
 *spacing_left* ['<NUM>']::
     Spacing in pixels between the left space indicators.
 

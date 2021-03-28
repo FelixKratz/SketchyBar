@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 **Added**
 - Option to turn focused window title display on or off (thanks [@Norviah](https://github.com/Norviah)!)
+- Option to turn the spaces indicator on or off
+- Option to turn the clock on or off
+- Option to turn the power indicator on or off
 
 ## [1.2.1](https://github.com/cmacrae/spacebar/releases/tag/v1.2.1) - 2020-11-18
 

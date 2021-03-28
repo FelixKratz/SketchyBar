@@ -219,6 +219,21 @@ void bar_manager_set_title(struct bar_manager *bar_manager, bool value)
   bar_manager->title = value;
 }
 
+void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->spaces = value;
+}
+
+void bar_manager_set_clock(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->clock = value;
+}
+
+void bar_manager_set_power(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->power = value;
+}
+
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
 {
   bar_manager->height = height;
@@ -264,6 +279,9 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_position(bar_manager, string_copy("top"));
     bar_manager_set_height(bar_manager, 26);
     bar_manager_set_title(bar_manager, true);
+    bar_manager_set_spaces(bar_manager, true);
+    bar_manager_set_clock(bar_manager, true);
+    bar_manager_set_power(bar_manager, true);
     bar_manager_set_spacing_left(bar_manager, 25);
     bar_manager_set_spacing_right(bar_manager, 15);
     bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));

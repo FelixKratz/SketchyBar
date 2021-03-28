@@ -32,6 +32,9 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_SPACING_LEFT        "spacing_left"
 #define COMMAND_CONFIG_BAR_SPACING_RIGHT       "spacing_right"
 #define COMMAND_CONFIG_BAR_TITLE               "title"
+#define COMMAND_CONFIG_BAR_SPACES              "spaces"
+#define COMMAND_CONFIG_BAR_CLOCK               "clock"
+#define COMMAND_CONFIG_BAR_POWER               "power"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -321,6 +324,36 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         bar_manager_set_title(&g_bar_manager, true);
       } else if (strcmp(message,off) == 0) {
         bar_manager_set_title(&g_bar_manager, false);
+      } else {
+        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACES)) {
+      char * on = "on";
+      char * off = "off";
+      if (strcmp(message,on) == 0) {
+        bar_manager_set_spaces(&g_bar_manager, true);
+      } else if (strcmp(message,off) == 0) {
+        bar_manager_set_spaces(&g_bar_manager, false);
+      } else {
+        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_CLOCK)) {
+      char * on = "on";
+      char * off = "off";
+      if (strcmp(message,on) == 0) {
+        bar_manager_set_clock(&g_bar_manager, true);
+      } else if (strcmp(message,off) == 0) {
+        bar_manager_set_clock(&g_bar_manager, false);
+      } else {
+        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_POWER)) {
+      char * on = "on";
+      char * off = "off";
+      if (strcmp(message,on) == 0) {
+        bar_manager_set_power(&g_bar_manager, true);
+      } else if (strcmp(message,off) == 0) {
+        bar_manager_set_power(&g_bar_manager, false);
       } else {
         daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
       }

@@ -34,6 +34,9 @@ struct bar_manager
   struct bar_line power_icon;
   struct bar_line dnd_icon;
   bool title;
+  bool spaces;
+  bool clock;
+  bool power;
 };
 
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);
@@ -53,6 +56,9 @@ void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 void bar_manager_set_title(struct bar_manager *bar_manager, bool value);
+void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value);
+void bar_manager_set_clock(struct bar_manager *bar_manager, bool value);
+void bar_manager_set_power(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
 void bar_manager_set_spacing_left(struct bar_manager *bar_manager, uint32_t spacing);
 void bar_manager_set_spacing_right(struct bar_manager *bar_manager, uint32_t spacing);

@@ -72,6 +72,10 @@ Here's a configuration taken from [the examples directory](examples):
 
 spacebar -m config position           top
 spacebar -m config height             26
+spacebar -m config title              on
+spacebar -m config spaces             on
+spacebar -m config clock              on
+spacebar -m config power              on
 spacebar -m config spacing_left       25
 spacebar -m config spacing_right      15
 spacebar -m config text_font          "Helvetica Neue:Bold:12.0"
@@ -105,6 +109,10 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
   services.spacebar.config = {
     position           = "top";
     height             = 26;
+	title              = "on";
+	spaces             = "on";
+	clock              = "on";
+	power              = "on";
     spacing_left       = 25;
     spacing_right      = 15;
     text_font          = ''"Helvetica Neue:Bold:12.0"'';
