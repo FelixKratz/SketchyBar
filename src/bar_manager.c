@@ -398,7 +398,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_spacing_left(bar_manager, 25);
     bar_manager_set_spacing_right(bar_manager, 15);
     bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));
-    bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Regular:10.0"));
+    bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Solid:10.0"));
     bar_manager_set_background_color(bar_manager, 0xff202020);
     bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
     bar_manager_set_space_icon_color(bar_manager, 0xffd75f5f);

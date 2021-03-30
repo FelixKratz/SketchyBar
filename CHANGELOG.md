@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Option to turn the clock on or off
 - Option to turn the power indicator on or off
 - Option to set the padding between the first/last item and the left/right edge of the display
+- Default to "Solid" style of Font Awesome 5 Free icon font
 
 ## [1.2.1](https://github.com/cmacrae/spacebar/releases/tag/v1.2.1) - 2020-11-18
 
