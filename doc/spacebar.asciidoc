@@ -68,7 +68,8 @@ Settings
     Height in pixels to draw the bar.
 
 *title* ['<BOOL_SEL>']::
-    Enable focused window title display at the centre of the bar.
+    Enable focused window title display at the centre of the bar. +
+    This cannot be enabled when 'center_shell'is set to 'on'.
 
 *spaces* ['<BOOL_SEL>']::
     Enable space indicator on the left of the bar.
@@ -132,6 +133,41 @@ Settings
 
 *dnd_icon_color* ['<COLOR>']::
     Color to use for drawing the DoNotDisturb icon.
+
+*left_shell* ['<BOOL_SEL>']::
+    Enable shell output on the left of the bar.
+
+*right_shell* ['<BOOL_SEL>']::
+    Enable shell output on the right of the bar.
+
+*center_shell* ['<BOOL_SEL>']::
+    Enable shell output at the center of the bar. +
+    This cannot be enabled when 'title' is set to 'on'.
+
+*left_shell_icon* ['<sym>']::
+    Specify a symbol to prefix the left shell output.
+
+*left_shell_icon_color* ['<COLOR>']::
+    Color to use for drawing the left shell icon.
+
+*left_shell_command* ['<shell command>']::
+    Command pipeline to retrieve the output for displaying in the left shell section. +
+    There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly.
+
+*right_shell_icon* ['<sym>']::
+    Specify a symbol to prefix the right shell output.
+
+*right_shell_icon_color* ['<COLOR>']::
+    Color to use for drawing the right shell icon.
+
+*right_shell_command* ['<shell command>']::
+    Command pipeline to retrieve the output for displaying in the right shell section. +
+    There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly. 
+
+*center_shell_command* ['<shell command>']::
+    Command pipeline to retrieve the output for displaying in the center shell section. +
+    There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly. +
+
 
 Exit Codes
 ----------

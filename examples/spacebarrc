@@ -1,27 +1,29 @@
 #!/usr/bin/env sh
 
-spacebar -m config position           top
-spacebar -m config height             26
-spacebar -m config title              on
-spacebar -m config spaces             on
-spacebar -m config clock              on
-spacebar -m config power              on
-spacebar -m config spacing_left       25
-spacebar -m config spacing_right      15
-spacebar -m config text_font          "Helvetica Neue:Bold:12.0"
-spacebar -m config icon_font          "Font Awesome 5 Free:Regular:12.0"
-spacebar -m config background_color   0xff202020
-spacebar -m config foreground_color   0xffa8a8a8
-spacebar -m config space_icon_color   0xff458588
-spacebar -m config power_icon_color   0xffcd950c
-spacebar -m config battery_icon_color 0xffd75f5f
-spacebar -m config dnd_icon_color     0xffa8a8a8
-spacebar -m config clock_icon_color   0xffa8a8a8
-spacebar -m config space_icon_strip   I II III IV V VI VII VIII IX X
-spacebar -m config power_icon_strip    
-spacebar -m config space_icon         
-spacebar -m config clock_icon         
-spacebar -m config dnd_icon           
-spacebar -m config clock_format       "%d/%m/%y %R"
+spacebar -m config position             top
+spacebar -m config height               26
+spacebar -m config title                on
+spacebar -m config spaces               on
+spacebar -m config clock                on
+spacebar -m config power                on
+spacebar -m config spacing_left         25
+spacebar -m config spacing_right        15
+spacebar -m config text_font            "Helvetica Neue:Bold:12.0"
+spacebar -m config icon_font            "Font Awesome 5 Free:Regular:12.0"
+spacebar -m config background_color     0xff202020
+spacebar -m config foreground_color     0xffa8a8a8
+spacebar -m config space_icon_color     0xff458588
+spacebar -m config power_icon_color     0xffcd950c
+spacebar -m config battery_icon_color   0xffd75f5f
+spacebar -m config dnd_icon_color       0xffa8a8a8
+spacebar -m config clock_icon_color     0xffa8a8a8
+spacebar -m config power_icon_strip      
+spacebar -m config space_icon           
+spacebar -m config clock_icon           
+spacebar -m config dnd_icon             
+spacebar -m config clock_format         "%d/%m/%y %R"
+spacebar -m config right_shell          on
+spacebar -m config right_shell_icon     
+spacebar -m config right_shell_command  "whoami"
 
 echo "spacebar configuration loaded.."

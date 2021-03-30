@@ -1,7 +1,6 @@
 #include "bar.h"
 
 extern struct event_loop g_event_loop;
-//extern struct space_manager g_space_manager;
 extern struct bar_manager g_bar_manager;
 
 static POWER_CALLBACK(power_handler)
@@ -55,6 +54,46 @@ static int bar_find_battery_life(bool *has_battery, bool *charging)
     CFRelease(ps_list);
     CFRelease(ps_info);
     return percent;
+}
+
+// TODO (cmacrae): Implement timeout
+static char* run_shell(char *command)
+{
+    FILE *fp;
+    char path[2048];
+    char* string;
+
+    fp = popen(command, "r");
+    if (fp == NULL) {
+        printf("error running command\n" );
+        exit(1);
+    }
+
+    while (fgets(path, sizeof(path), fp) != NULL) {
+        string = string_copy(path);
+    }
+
+    pclose(fp);
+    return string;
+}
+
+static void set_shell_outputs(struct bar_manager *bar_manager)
+{
+    char* left_shell_output;
+    char* right_shell_output;
+    char* center_shell_output;
+    if (strlen(bar_manager->left_shell_command) >= 0) {
+        left_shell_output = run_shell(string_copy(bar_manager->left_shell_command));
+        bar_manager_set_left_shell_output(bar_manager, left_shell_output);
+    }
+    if (strlen(bar_manager->right_shell_command) >= 0) {
+        right_shell_output = run_shell(string_copy(bar_manager->right_shell_command));
+        bar_manager_set_right_shell_output(bar_manager, right_shell_output);
+    }
+    if (strlen(bar_manager->center_shell_command) >= 0) {
+        center_shell_output = run_shell(string_copy(bar_manager->center_shell_command));
+        bar_manager_set_center_shell_output(bar_manager, center_shell_output);
+    }
 }
 
 static CTFontRef bar_create_font(char *cstring)
@@ -220,11 +259,15 @@ void bar_refresh(struct bar *bar)
     CGContextFillRect(bar->context, bar->frame);
     CGContextStrokePath(bar->context);
 
+    if(g_bar_manager.left_shell_on || g_bar_manager.right_shell_on || g_bar_manager.center_shell_on) {
+      set_shell_outputs(&g_bar_manager);
+    }
+
     //
     // BAR LEFT
     //
 
-    int bar_left_final_item_x = 10;
+    int bar_left_final_item_x = 20;
     if (g_bar_manager.spaces) {
       int space_count;
       uint64_t *space_list = display_space_list(bar->did, &space_count);
@@ -241,20 +284,37 @@ void bar_refresh(struct bar *bar)
 	    : g_bar_manager.space_icon_strip[index];
 	  if (i == 0) {
 	    pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
+	    pos.x = bar_left_final_item_x;
 	  } else {
 	    pos.x += g_bar_manager.spacing_left;
 	  }
+
+	  bar_left_final_item_x = pos.x + g_bar_manager.spacing_left;
 
 	  if (sid == space_list[i]) {
 	    space_line.color = g_bar_manager.space_icon_color;
 	  }
 	  bar_draw_line(bar, space_line, pos.x, pos.y);
 
-	  bar_left_final_item_x = pos.x + space_line.bounds.size.width + 10;
 	}
 
 	free(space_list);
       }
+    }
+
+    if(g_bar_manager.left_shell_on) {
+      struct bar_line lso_icon = g_bar_manager.left_shell_icon;
+      lso_icon.color = g_bar_manager.left_shell_icon_color;
+      CGPoint li_pos = bar_align_line(bar, lso_icon, 0, ALIGN_CENTER);
+      li_pos.x = bar_left_final_item_x;
+      bar_draw_line(bar, lso_icon, li_pos.x, li_pos.y);
+
+      struct bar_line left_shell_line = bar_prepare_line(g_bar_manager.t_font, g_bar_manager.left_shell_output, g_bar_manager.foreground_color);
+      CGPoint lso_pos = bar_align_line(bar, left_shell_line, ALIGN_LEFT, ALIGN_CENTER);
+      lso_pos.x = li_pos.x + lso_icon.bounds.size.width + 5;
+
+      bar_left_final_item_x = lso_pos.x + left_shell_line.bounds.size.width + g_bar_manager.spacing_left;
+      bar_draw_line(bar, left_shell_line, lso_pos.x, lso_pos.y);
     }
 
     //
@@ -263,8 +323,7 @@ void bar_refresh(struct bar *bar)
 
     // This is used to calculate overlap for the cetner bar.
     // It is updated to represent the X position of the first item, depending on what's displayed.
-    int bar_right_first_item_x = bar->frame.size.width - 10;
-    int time_line_pos;
+    int bar_right_first_item_x = bar->frame.size.width - 20;
     if (g_bar_manager.clock) {
       time_t rawtime;
       time(&rawtime);
@@ -274,21 +333,20 @@ void bar_refresh(struct bar *bar)
 	strftime(time, sizeof(time), g_bar_manager._clock_format, timeinfo);
 	struct bar_line time_line = bar_prepare_line(g_bar_manager.t_font, time, g_bar_manager.foreground_color);
 	CGPoint t_pos = bar_align_line(bar, time_line, ALIGN_RIGHT, ALIGN_CENTER);
+	t_pos.x = bar_right_first_item_x - time_line.bounds.size.width;
 	bar_draw_line(bar, time_line, t_pos.x, t_pos.y);
 
 	struct bar_line time_icon = g_bar_manager.clock_icon;
 	time_icon.color = g_bar_manager.clock_icon_color;
-	CGPoint ti_pos = bar_align_line(bar, g_bar_manager.clock_icon, 0, ALIGN_CENTER);
-	ti_pos.x = t_pos.x - g_bar_manager.clock_icon.bounds.size.width - 5;
-	time_line_pos = ti_pos.x;
-	bar_right_first_item_x = ti_pos.x;
+	CGPoint ti_pos = bar_align_line(bar, time_icon, 0, ALIGN_CENTER);
+	ti_pos.x = t_pos.x - time_icon.bounds.size.width - 5;
+	bar_right_first_item_x = ti_pos.x - g_bar_manager.spacing_right;
 
 	bar_draw_line(bar, time_icon, ti_pos.x, ti_pos.y);
 	bar_destroy_line(time_line);
       }
     }
 
-    int batt_line_pos;
     if (g_bar_manager.power) {
       bool has_batt = false;
       bool charging = false;
@@ -298,21 +356,14 @@ void bar_refresh(struct bar *bar)
 	snprintf(batt, sizeof(batt), "%' '3d%%", percent);
 	struct bar_line batt_line = bar_prepare_line(g_bar_manager.t_font, batt, g_bar_manager.foreground_color);
 	CGPoint p_pos = bar_align_line(bar, batt_line, ALIGN_RIGHT, ALIGN_CENTER);
-	if (g_bar_manager.clock) {
-	  p_pos.x = time_line_pos - (batt_line.bounds.size.width + g_bar_manager.spacing_right);
-	}
+	p_pos.x = bar_right_first_item_x - batt_line.bounds.size.width;
 	bar_draw_line(bar, batt_line, p_pos.x, p_pos.y);
 
 	struct bar_line batt_icon = charging ? g_bar_manager.power_icon : g_bar_manager.battr_icon;
 	batt_icon.color = charging ? g_bar_manager.power_icon_color : g_bar_manager.battery_icon_color;
 	CGPoint pi_pos = bar_align_line(bar, batt_icon, 0, ALIGN_CENTER);
-	if (g_bar_manager.clock) {
-	  pi_pos.x = p_pos.x - batt_icon.bounds.size.width;
-	} else {
-	  pi_pos.x = p_pos.x - g_bar_manager.power_icon.bounds.size.width - 5;
-	}
-	batt_line_pos = pi_pos.x;
-	bar_right_first_item_x = pi_pos.x;
+	pi_pos.x = p_pos.x - batt_icon.bounds.size.width;
+	bar_right_first_item_x = pi_pos.x - g_bar_manager.spacing_right;
 
 	bar_draw_line(bar, batt_icon, pi_pos.x, pi_pos.y);
 	bar_destroy_line(batt_line);
@@ -325,10 +376,25 @@ void bar_refresh(struct bar *bar)
       struct bar_line dnd_icon = g_bar_manager.dnd_icon;
       dnd_icon.color = g_bar_manager.dnd_icon_color;
       CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
-      di_pos.x = (batt_line_pos + 5) - dnd_icon.bounds.size.width - g_bar_manager.spacing_right;
-      bar_right_first_item_x = di_pos.x;
+      di_pos.x = bar_right_first_item_x - dnd_icon.bounds.size.width;
+      bar_right_first_item_x = di_pos.x - g_bar_manager.spacing_right;
 
       bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);
+    }
+
+    if(g_bar_manager.right_shell_on) {
+      struct bar_line right_shell_line = bar_prepare_line(g_bar_manager.t_font, g_bar_manager.right_shell_output, g_bar_manager.foreground_color);
+      CGPoint rso_pos = bar_align_line(bar, right_shell_line, ALIGN_RIGHT, ALIGN_CENTER);
+      rso_pos.x = bar_right_first_item_x - right_shell_line.bounds.size.width;
+      bar_draw_line(bar, right_shell_line, rso_pos.x, rso_pos.y);
+
+      struct bar_line rso_icon = g_bar_manager.right_shell_icon;
+      rso_icon.color = g_bar_manager.right_shell_icon_color;
+      CGPoint ri_pos = bar_align_line(bar, rso_icon, 0, ALIGN_CENTER);
+      ri_pos.x = rso_pos.x - rso_icon.bounds.size.width - 5;
+      bar_right_first_item_x = ri_pos.x - g_bar_manager.spacing_right;
+
+      bar_draw_line(bar, rso_icon, ri_pos.x, ri_pos.y);
     }
 
 
@@ -336,46 +402,68 @@ void bar_refresh(struct bar *bar)
     if (g_bar_manager.title) {
       char *title = focused_window_title();
       if (title) {
-        int overlap_left = 0;
         int overlap_right = 0;
 
         struct bar_line title_line = bar_prepare_line(g_bar_manager.t_font, title, g_bar_manager.foreground_color);
         CGPoint pos = bar_align_line(bar, title_line, ALIGN_CENTER, ALIGN_CENTER);
 
         if (bar_left_final_item_x >= pos.x) {
-  	overlap_left = bar_left_final_item_x - pos.x;
-        }
-
-        assert(overlap_left >= 0);
-
-        if (overlap_left > 0) {
-  	pos.x = bar_left_final_item_x + 100;
-        }
-
+	  pos.x = bar_left_final_item_x + 100;
+	}
 
         if (bar_right_first_item_x <= (pos.x + title_line.bounds.size.width)) {
-  	overlap_right = (pos.x + title_line.bounds.size.width) - bar_right_first_item_x;
-        }
+	  overlap_right = (pos.x + title_line.bounds.size.width) - bar_right_first_item_x;
+	}
 
-        assert(overlap_right >= 0);
+	if (overlap_right > 0) {
+	  int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 100);
+	  if (truncated_width > 0) {
+	    CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
+	    CFRelease(title_line.line);
+	    title_line.line = truncated_line;
+	  } else {
+	    goto free_title;
+	  }
+	}
 
-        if (overlap_right > 0) {
-  	int truncated_width = (int)title_line.bounds.size.width - (overlap_right + 100);
-  	if (truncated_width > 0) {
-  	  CTLineRef truncated_line = CTLineCreateTruncatedLine(title_line.line, truncated_width, kCTLineTruncationEnd, NULL);
-  	  CFRelease(title_line.line);
-  	  title_line.line = truncated_line;
-  	} else {
-  	  goto free_title;
-  	}
-        }
-
-        bar_draw_line(bar, title_line, pos.x, pos.y);
+	bar_draw_line(bar, title_line, pos.x, pos.y);
       free_title:
-        bar_destroy_line(title_line);
-        free(title);
+	bar_destroy_line(title_line);
+	free(title);
       }
     }
+
+
+    if (g_bar_manager.center_shell_on) {
+        int overlap_right = 0;
+
+	struct bar_line center_shell_line = bar_prepare_line(g_bar_manager.t_font, g_bar_manager.center_shell_output, g_bar_manager.foreground_color);
+	CGPoint pos = bar_align_line(bar, center_shell_line, ALIGN_CENTER, ALIGN_CENTER);
+
+        if (bar_left_final_item_x >= pos.x) {
+	  pos.x = bar_left_final_item_x + 100;
+	}
+
+        if (bar_right_first_item_x <= (pos.x + center_shell_line.bounds.size.width)) {
+	  overlap_right = (pos.x + center_shell_line.bounds.size.width) - bar_right_first_item_x;
+	}
+
+	if (overlap_right > 0) {
+	  int truncated_width = (int)center_shell_line.bounds.size.width - (overlap_right + 100);
+	  if (truncated_width > 0) {
+	    CTLineRef truncated_line = CTLineCreateTruncatedLine(center_shell_line.line, truncated_width, kCTLineTruncationEnd, NULL);
+	    CFRelease(center_shell_line.line);
+	    center_shell_line.line = truncated_line;
+	  } else {
+	    goto destroy_center;
+	  }
+	}
+
+	bar_draw_line(bar, center_shell_line, pos.x, pos.y);
+    destroy_center:
+	bar_destroy_line(center_shell_line);
+    }
+
 
     CGContextFlush(bar->context);
     SLSOrderWindow(g_connection, bar->id, 1, bar->id);

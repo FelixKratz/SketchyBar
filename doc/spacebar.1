@@ -2,12 +2,12 @@
 .\"     Title: spacebar
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2021-03-28
+.\"      Date: 2021-03-30
 .\"    Manual: spacebar manual
 .\"    Source: spacebar
 .\"  Language: English
 .\"
-.TH "SPACEBAR" "1" "2021-03-28" "spacebar" "spacebar manual"
+.TH "SPACEBAR" "1" "2021-03-30" "spacebar" "spacebar manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -85,6 +85,8 @@ Height in pixels to draw the bar.
 \fBtitle\fP [\fI<BOOL_SEL>\fP]
 .RS 4
 Enable focused window title display at the centre of the bar.
+.br
+This cannot be enabled when \fIcenter_shell\(cqis set to \(aqon\fP.
 .RE
 .sp
 \fBspaces\fP [\fI<BOOL_SEL>\fP]
@@ -191,6 +193,65 @@ Specify a symbol to represent the current DoNotDisturb status.
 \fBdnd_icon_color\fP [\fI<COLOR>\fP]
 .RS 4
 Color to use for drawing the DoNotDisturb icon.
+.RE
+.sp
+\fBleft_shell\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable shell output on the left of the bar.
+.RE
+.sp
+\fBright_shell\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable shell output on the right of the bar.
+.RE
+.sp
+\fBcenter_shell\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable shell output at the center of the bar.
+.br
+This cannot be enabled when \fItitle\fP is set to \fIon\fP.
+.RE
+.sp
+\fBleft_shell_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a symbol to prefix the left shell output.
+.RE
+.sp
+\fBleft_shell_icon_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the left shell icon.
+.RE
+.sp
+\fBleft_shell_command\fP [\fI<shell command>\fP]
+.RS 4
+Command pipeline to retrieve the output for displaying in the left shell section.
+.br
+There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly.
+.RE
+.sp
+\fBright_shell_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a symbol to prefix the right shell output.
+.RE
+.sp
+\fBright_shell_icon_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the right shell icon.
+.RE
+.sp
+\fBright_shell_command\fP [\fI<shell command>\fP]
+.RS 4
+Command pipeline to retrieve the output for displaying in the right shell section.
+.br
+There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly.
+.RE
+.sp
+\fBcenter_shell_command\fP [\fI<shell command>\fP]
+.RS 4
+Command pipeline to retrieve the output for displaying in the center shell section.
+.br
+There is NO timeout protection for the command pipeline, so be sure to set it to something that returns output quickly.
+.br
 .RE
 .SH "EXIT CODES"
 .sp
