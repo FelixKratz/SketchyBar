@@ -80,6 +80,12 @@ Settings
 *power* ['<BOOL_SEL>']::
     Enable power indicator on the right of the bar.
 
+*padding_left* ['<NUM>']::
+    Padding in pixels between the left edge of the display and the first item.
+
+*padding_right* ['<NUM>']::
+    Padding in pixels between the right edge of the display and the last item.
+
 *spacing_left* ['<NUM>']::
     Spacing in pixels between the left space indicators.
 

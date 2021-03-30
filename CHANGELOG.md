@@ -11,11 +11,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fixed a bug introduced in Big Sur where buffer reads were incorrect
 
 **Added**
+- New `left|center|right` shell sections: display custom text based on shell pipelines
 - Option to turn focused window title display on or off (thanks [@Norviah](https://github.com/Norviah)!)
 - Option to turn the spaces indicator on or off
 - Option to turn the clock on or off
 - Option to turn the power indicator on or off
-- New `left|center|right` shell sections: display custom text based on shell pipelines
+- Option to set the padding between the first/last item and the left/right edge of the display
 
 ## [1.2.1](https://github.com/cmacrae/spacebar/releases/tag/v1.2.1) - 2020-11-18
 

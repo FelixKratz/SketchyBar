@@ -76,6 +76,8 @@ spacebar -m config title                on
 spacebar -m config spaces               on
 spacebar -m config clock                on
 spacebar -m config power                on
+spacebar -m config padding_left         20
+spacebar -m config padding_right        20
 spacebar -m config spacing_left         25
 spacebar -m config spacing_right        15
 spacebar -m config text_font            "Helvetica Neue:Bold:12.0"
@@ -115,6 +117,8 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
 	spaces              = "on";
 	clock               = "on";
 	power               = "on";
+    padding_left        = 20;
+    padding_right       = 20;
     spacing_left        = 25;
     spacing_right       = 15;
     text_font           = ''"Helvetica Neue:Bold:12.0"'';

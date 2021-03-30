@@ -29,6 +29,8 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_DND_ICON                "dnd_icon"
 #define COMMAND_CONFIG_BAR_POSITION                "position"
 #define COMMAND_CONFIG_BAR_HEIGHT                  "height"
+#define COMMAND_CONFIG_BAR_PADDING_LEFT            "padding_left"
+#define COMMAND_CONFIG_BAR_PADDING_RIGHT           "padding_right"
 #define COMMAND_CONFIG_BAR_SPACING_LEFT            "spacing_left"
 #define COMMAND_CONFIG_BAR_SPACING_RIGHT           "spacing_right"
 #define COMMAND_CONFIG_BAR_TITLE                   "title"
@@ -313,6 +315,20 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         } else {
 	  bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
         }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_LEFT)) {
+      struct token token = get_token(&message);
+      if (!token_is_valid(token)) {
+	fprintf(rsp, "%"PRIu32"\n", g_bar_manager.padding_left ? g_bar_manager.padding_left : 0);
+      } else {
+	bar_manager_set_padding_left(&g_bar_manager, atoi(token_to_string(token)));
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_RIGHT)) {
+      struct token token = get_token(&message);
+      if (!token_is_valid(token)) {
+	fprintf(rsp, "%"PRIu32"\n", g_bar_manager.padding_right ? g_bar_manager.padding_right : 0);
+      } else {
+	bar_manager_set_padding_right(&g_bar_manager, atoi(token_to_string(token)));
+      }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACING_LEFT)) {
       struct token token = get_token(&message);
       if (!token_is_valid(token)) {

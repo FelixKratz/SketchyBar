@@ -267,7 +267,7 @@ void bar_refresh(struct bar *bar)
     // BAR LEFT
     //
 
-    int bar_left_final_item_x = 20;
+    int bar_left_final_item_x = g_bar_manager.padding_left;
     if (g_bar_manager.spaces) {
       int space_count;
       uint64_t *space_list = display_space_list(bar->did, &space_count);
@@ -323,7 +323,7 @@ void bar_refresh(struct bar *bar)
 
     // This is used to calculate overlap for the cetner bar.
     // It is updated to represent the X position of the first item, depending on what's displayed.
-    int bar_right_first_item_x = bar->frame.size.width - 20;
+    int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
     if (g_bar_manager.clock) {
       time_t rawtime;
       time(&rawtime);

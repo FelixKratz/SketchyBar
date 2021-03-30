@@ -294,6 +294,18 @@ void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
   bar_manager_resize(bar_manager);
 }
 
+void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding)
+{
+  bar_manager->padding_left = padding;
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding)
+{
+  bar_manager->padding_right = padding;
+  bar_manager_refresh(bar_manager);
+}
+
 void bar_manager_set_spacing_left(struct bar_manager *bar_manager, uint32_t spacing)
 {
   bar_manager->spacing_left = spacing;
@@ -381,6 +393,8 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_spaces(bar_manager, true);
     bar_manager_set_clock(bar_manager, true);
     bar_manager_set_power(bar_manager, true);
+    bar_manager_set_padding_left(bar_manager, 20);
+    bar_manager_set_padding_right(bar_manager, 20);
     bar_manager_set_spacing_left(bar_manager, 25);
     bar_manager_set_spacing_right(bar_manager, 15);
     bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));

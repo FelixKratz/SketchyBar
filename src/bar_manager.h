@@ -19,6 +19,8 @@ struct bar_manager
   char *_right_shell_icon;
   char *position;
   uint32_t height;
+  uint32_t padding_left;
+  uint32_t padding_right;
   uint32_t spacing_left;
   uint32_t spacing_right;
   bool title;
@@ -82,6 +84,8 @@ void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_clock(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_power(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
+void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding);
+void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_spacing_left(struct bar_manager *bar_manager, uint32_t spacing);
 void bar_manager_set_spacing_right(struct bar_manager *bar_manager, uint32_t spacing);
 void bar_manager_set_left_shell(struct bar_manager *bar_manager, bool value);
