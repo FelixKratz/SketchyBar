@@ -7,7 +7,7 @@ SMP_PATH       = ./examples
 SPACEBAR_SRC   = ./src/manifest.m
 BINS           = $(BUILD_PATH)/spacebar
 
-.PHONY: all clean install archive man
+.PHONY: all clean install man
 
 all: clean $(BINS)
 

@@ -1,0 +1,79 @@
+name: Build & Release
+
+on:
+  push:
+    branches: []
+    tags:
+      - 'v*'
+    paths:
+      - 'src/**'
+      - '.github/**'
+
+jobs:
+  build-and-release:
+    # TODO: Move to macos-11.0 when it's out of private preview
+    #       https://github.com/actions/virtual-environments/issues/2486
+    runs-on: macos-10.15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch history
+        run: git fetch --prune --unshallow
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Build
+        id: build-bin
+        run: |
+          make all
+          echo "::set-output name=file::./bin/spacebar"
+          echo "::set-output name=name::spacebar"
+          echo "::set-output name=sha::$(shasum -a 256 ./bin/spacebar | cut -d" " -f1)"
+
+      - name: Check execution & get version
+        id: check-bin
+        run: |
+          echo "::set-output name=version::$(./bin/spacebar --version | cut -d- -f2)"
+
+      - name: Get the current tag name
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Check bin version before release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          [[ "$RELEASE_VERSION" == ${{ steps.check-bin.outputs.version }} ]]
+    
+      - name: Create Release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          tag_name: ${{ github.ref }}
+          release_name: ${{ env.RELEASE_VERSION }}
+          body: |
+            [Changelog](https://github.com/cmacrae/spacebar/blob/master/CHANGELOG.md)
+
+            You can find a precompiled binary in the release assets below.  
+            SHA-256 checksum:    
+            `${{ steps.build-bin.outputs.sha }}`
+
+      - name: Upload Release Asset
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.build-bin.outputs.file }}
+          asset_name: ${{ steps.build-bin.outputs.name }}
+          asset_content_type: application/x-binary

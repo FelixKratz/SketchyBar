@@ -3,8 +3,8 @@
   <b>A minimal status bar for macOS</b>
 </p>
 <p align="center">
-  <a href="https://travis-ci.org/cmacrae/spacebar">
-    <img src="https://img.shields.io/travis/cmacrae/spacebar/master.svg?colorB=b6eb7a&colorC=e84a5f" alt="CI Status Badge">
+  <a href="https://github.com/cmacrae/spacebar/actions/workflows/build-and-release.yaml">
+    <img src="https://github.com/cmacrae/spacebar/actions/workflows/build-and-release.yaml/badge.svg" alt="Build Status Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/blob/master/LICENSE.txt">
     <img src="https://img.shields.io/github/license/cmacrae/spacebar.svg?color=a6dcef" alt="License Badge">
