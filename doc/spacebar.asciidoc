@@ -74,6 +74,33 @@ Settings
 *spaces* ['<BOOL_SEL>']::
     Enable space indicator on the left of the bar.
 
+*space_icon_strip* ['<sym_1> <sym_2> <sym_n>']::
+    Specify symbols separated by whitespace to be used for visualizing spaces.
+
+*spaces_for_all_displays* ['<BOOL_SEL>']::
+    Enable space indicators for spaces on each display.
+
+*space_icon* ['<sym>']::
+    Specify a general symbol to use for any given space that does not have a match in 'space_icon_strip'.
+
+*space_icon_color* ['<COLOR>']::
+    Color to use for drawing the current space icon.
+
+*space_icon_color_secondary* ['<COLOR>']::
+    Color to use for drawing the current space icon of the second display.
+
+*space_icon_color_tertiary* ['<COLOR>']::
+    Color to use for drawing the current space icon of the third display.
+
+*display_separator* ['<BOOL_SEL>']::
+    Enable separator between the spaces for each display.
+
+*display_separator_icon* ['<sym>']::
+    Specify a symbol to use for the display separator.
+
+*display_separator_icon_color* ['<COLOR>']::
+    Color to use for drawing the display separator icon.
+
 *clock* ['<BOOL_SEL>']::
     Enable clock on the right of the bar.
 
@@ -106,9 +133,6 @@ Settings
 *foreground_color* ['<COLOR>']::
     Color to use for drawing status bar elements.
 
-*space_icon_strip* ['<sym_1> <sym_2> <sym_n>']::
-    Specify symbols separated by whitespace to be used for visualizing spaces.
-
 *power_icon_strip* ['<sym_battery> <sym_ac>']::
     Specify two symbols separated by whitespace. +
     The first symbol represents battery power and the second symbol indicates AC.
@@ -118,12 +142,6 @@ Settings
 
 *battery_icon_color* ['<COLOR>']::
     Color to use for drawing the battery icon.
-
-*space_icon* ['<sym>']::
-    Specify a general symbol to use for any given space that does not have a match in 'space_icon_strip'.
-
-*space_icon_color* ['<COLOR>']::
-    Color to use for drawing the current space icon.
 
 *clock_icon* ['<sym>']::
     Specify a symbol to represent the current time.

@@ -11,42 +11,48 @@ extern bool g_verbose;
 #define DOMAIN_CONFIG  "config"
 
 /* --------------------------------DOMAIN CONFIG-------------------------------- */
-#define COMMAND_CONFIG_DEBUG_OUTPUT                "debug_output"
-#define COMMAND_CONFIG_BAR_TEXT_FONT               "text_font"
-#define COMMAND_CONFIG_BAR_ICON_FONT               "icon_font"
-#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR        "space_icon_color"
-#define COMMAND_CONFIG_BAR_BATTERY_ICON_COLOR      "battery_icon_color"
-#define COMMAND_CONFIG_BAR_POWER_ICON_COLOR        "power_icon_color"
-#define COMMAND_CONFIG_BAR_CLOCK_ICON_COLOR        "clock_icon_color"
-#define COMMAND_CONFIG_BAR_DND_ICON_COLOR          "dnd_icon_color"
-#define COMMAND_CONFIG_BAR_BACKGROUND              "background_color"
-#define COMMAND_CONFIG_BAR_FOREGROUND              "foreground_color"
-#define COMMAND_CONFIG_BAR_SPACE_STRIP             "space_icon_strip"
-#define COMMAND_CONFIG_BAR_POWER_STRIP             "power_icon_strip"
-#define COMMAND_CONFIG_BAR_SPACE_ICON              "space_icon"
-#define COMMAND_CONFIG_BAR_CLOCK_ICON              "clock_icon"
-#define COMMAND_CONFIG_BAR_CLOCK_FORMAT            "clock_format"
-#define COMMAND_CONFIG_BAR_DND_ICON                "dnd_icon"
-#define COMMAND_CONFIG_BAR_POSITION                "position"
-#define COMMAND_CONFIG_BAR_HEIGHT                  "height"
-#define COMMAND_CONFIG_BAR_PADDING_LEFT            "padding_left"
-#define COMMAND_CONFIG_BAR_PADDING_RIGHT           "padding_right"
-#define COMMAND_CONFIG_BAR_SPACING_LEFT            "spacing_left"
-#define COMMAND_CONFIG_BAR_SPACING_RIGHT           "spacing_right"
-#define COMMAND_CONFIG_BAR_TITLE                   "title"
-#define COMMAND_CONFIG_BAR_SPACES                  "spaces"
-#define COMMAND_CONFIG_BAR_CLOCK                   "clock"
-#define COMMAND_CONFIG_BAR_POWER                   "power"
-#define COMMAND_CONFIG_BAR_LEFT_SHELL              "left_shell"
-#define COMMAND_CONFIG_BAR_RIGHT_SHELL             "right_shell"
-#define COMMAND_CONFIG_BAR_CENTER_SHELL            "center_shell"
-#define COMMAND_CONFIG_BAR_LEFT_SHELL_ICON         "left_shell_icon"
-#define COMMAND_CONFIG_BAR_LEFT_SHELL_ICON_COLOR   "left_shell_icon_color"
-#define COMMAND_CONFIG_BAR_RIGHT_SHELL_ICON        "right_shell_icon"
-#define COMMAND_CONFIG_BAR_RIGHT_SHELL_ICON_COLOR  "right_shell_icon_color"
-#define COMMAND_CONFIG_BAR_LEFT_SHELL_COMMAND      "left_shell_command"
-#define COMMAND_CONFIG_BAR_RIGHT_SHELL_COMMAND     "right_shell_command"
-#define COMMAND_CONFIG_BAR_CENTER_SHELL_COMMAND    "center_shell_command"
+#define COMMAND_CONFIG_DEBUG_OUTPUT                        "debug_output"
+#define COMMAND_CONFIG_BAR_TEXT_FONT                       "text_font"
+#define COMMAND_CONFIG_BAR_ICON_FONT                       "icon_font"
+#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                "space_icon_color"
+#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_SECONDARY      "space_icon_color_secondary"
+#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_TERTIARY       "space_icon_color_tertiary"
+#define COMMAND_CONFIG_BAR_BATTERY_ICON_COLOR              "battery_icon_color"
+#define COMMAND_CONFIG_BAR_POWER_ICON_COLOR                "power_icon_color"
+#define COMMAND_CONFIG_BAR_CLOCK_ICON_COLOR                "clock_icon_color"
+#define COMMAND_CONFIG_BAR_DND_ICON_COLOR                  "dnd_icon_color"
+#define COMMAND_CONFIG_BAR_BACKGROUND                      "background_color"
+#define COMMAND_CONFIG_BAR_FOREGROUND                      "foreground_color"
+#define COMMAND_CONFIG_BAR_SPACE_STRIP                     "space_icon_strip"
+#define COMMAND_CONFIG_BAR_POWER_STRIP                     "power_icon_strip"
+#define COMMAND_CONFIG_BAR_SPACE_ICON                      "space_icon"
+#define COMMAND_CONFIG_BAR_CLOCK_ICON                      "clock_icon"
+#define COMMAND_CONFIG_BAR_CLOCK_FORMAT                    "clock_format"
+#define COMMAND_CONFIG_BAR_DND_ICON                        "dnd_icon"
+#define COMMAND_CONFIG_BAR_POSITION                        "position"
+#define COMMAND_CONFIG_BAR_HEIGHT                          "height"
+#define COMMAND_CONFIG_BAR_PADDING_LEFT                    "padding_left"
+#define COMMAND_CONFIG_BAR_PADDING_RIGHT                   "padding_right"
+#define COMMAND_CONFIG_BAR_SPACING_LEFT                    "spacing_left"
+#define COMMAND_CONFIG_BAR_SPACING_RIGHT                   "spacing_right"
+#define COMMAND_CONFIG_BAR_TITLE                           "title"
+#define COMMAND_CONFIG_BAR_SPACES                          "spaces"
+#define COMMAND_CONFIG_BAR_SPACES_FOR_ALL_DISPLAYS         "spaces_for_all_displays"
+#define COMMAND_CONFIG_BAR_CLOCK                           "clock"
+#define COMMAND_CONFIG_BAR_POWER                           "power"
+#define COMMAND_CONFIG_BAR_LEFT_SHELL                      "left_shell"
+#define COMMAND_CONFIG_BAR_RIGHT_SHELL                     "right_shell"
+#define COMMAND_CONFIG_BAR_CENTER_SHELL                    "center_shell"
+#define COMMAND_CONFIG_BAR_LEFT_SHELL_ICON                 "left_shell_icon"
+#define COMMAND_CONFIG_BAR_LEFT_SHELL_ICON_COLOR           "left_shell_icon_color"
+#define COMMAND_CONFIG_BAR_RIGHT_SHELL_ICON                "right_shell_icon"
+#define COMMAND_CONFIG_BAR_RIGHT_SHELL_ICON_COLOR          "right_shell_icon_color"
+#define COMMAND_CONFIG_BAR_LEFT_SHELL_COMMAND              "left_shell_command"
+#define COMMAND_CONFIG_BAR_RIGHT_SHELL_COMMAND             "right_shell_command"
+#define COMMAND_CONFIG_BAR_CENTER_SHELL_COMMAND            "center_shell_command"
+#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR               "display_separator"
+#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON          "display_separator_icon"
+#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON_COLOR    "display_separator_icon_color"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -242,6 +248,30 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
                 daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
             }
         }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_SECONDARY)) {
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color_secondary.p);
+        } else {
+            uint32_t color = token_to_uint32t(value);
+            if (color) {
+                bar_manager_set_space_icon_color_secondary(&g_bar_manager, color);
+            } else {
+                daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+            }
+        }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_TERTIARY)) {
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color_tertiary.p);
+        } else {
+            uint32_t color = token_to_uint32t(value);
+            if (color) {
+                bar_manager_set_space_icon_color_tertiary(&g_bar_manager, color);
+            } else {
+                daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+            }
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_BATTERY_ICON_COLOR)) {
       struct token value = get_token(&message);
       if (!token_is_valid(value)) {
@@ -344,79 +374,97 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 	bar_manager_set_spacing_right(&g_bar_manager, atoi(token_to_string(token)));
       }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_TITLE)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0 && g_bar_manager.center_shell_on) {
-        daemon_fail(rsp, "'%.*s' cannot be 'on' when 'center_shell' is 'on'.\n", command.length, command.text);
-      } else if (strcmp(message,on) == 0) {
-        bar_manager_set_title(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_title(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.title]);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_ON) && g_bar_manager.center_shell_on) {
+	  daemon_fail(rsp, "'%.*s' cannot be 'on' when 'center_shell' is 'on'.\n", command.length, command.text);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	  bar_manager_set_title(&g_bar_manager, false);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_title(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACES)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0) {
-        bar_manager_set_spaces(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_spaces(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.spaces]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_spaces(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_spaces(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACES_FOR_ALL_DISPLAYS)) {
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.spaces_for_all_displays]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_spaces_for_all_displays(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_spaces_for_all_displays(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_CLOCK)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0) {
-        bar_manager_set_clock(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_clock(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.clock]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_clock(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_clock(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_POWER)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0) {
-        bar_manager_set_power(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_power(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.power]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_power(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_power(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_LEFT_SHELL)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0) {
-        bar_manager_set_left_shell(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_left_shell(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.left_shell_on]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_left_shell(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_left_shell(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_RIGHT_SHELL)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0) {
-        bar_manager_set_right_shell(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_right_shell(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.right_shell_on]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_right_shell(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_right_shell(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_CENTER_SHELL)) {
-      char * on = "on";
-      char * off = "off";
-      if (strcmp(message,on) == 0 && g_bar_manager.title) {
-        daemon_fail(rsp, "'%.*s' cannot be 'on' when 'title' is 'on'.\n", command.length, command.text);
-      } else if (strcmp(message,on) == 0) {
-        bar_manager_set_center_shell(&g_bar_manager, true);
-      } else if (strcmp(message,off) == 0) {
-        bar_manager_set_center_shell(&g_bar_manager, false);
-      } else {
-        daemon_fail(rsp, "value for '%.*s' must be either 'on' or 'off'.\n", command.length, command.text);
-      }
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.center_shell_on]);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_ON) && g_bar_manager.title) {
+	  daemon_fail(rsp, "'%.*s' cannot be 'on' when 'title' is 'on'.\n", command.length, command.text);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	  bar_manager_set_center_shell(&g_bar_manager, false);
+	} else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_center_shell(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
     } else if (token_equals(command, COMMAND_CONFIG_BAR_LEFT_SHELL_COMMAND)) {
         int length = strlen(message);
         if (length <= 0) {
@@ -475,6 +523,36 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 	fprintf(rsp, "%s\n", g_bar_manager._left_shell_icon ? g_bar_manager._left_shell_icon : "");
       } else {
 	bar_manager_set_left_shell_icon(&g_bar_manager, token_to_string(token));
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR)) {
+        struct token value = get_token(&message);
+        if (!token_is_valid(value)) {
+            fprintf(rsp, "%s\n", bool_str[g_bar_manager.display_separator]);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	    bar_manager_set_display_separator(&g_bar_manager, false);
+        } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	    bar_manager_set_display_separator(&g_bar_manager, true);
+	} else {
+            daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+        }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON_COLOR)) {
+      struct token value = get_token(&message);
+      if (!token_is_valid(value)) {
+	fprintf(rsp, "0x%x\n", g_bar_manager.display_separator_icon_color.p);
+      } else {
+	uint32_t color = token_to_uint32t(value);
+	if (color) {
+	  bar_manager_set_display_separator_icon_color(&g_bar_manager, color);
+	} else {
+	  daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
+	}
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON)) {
+      struct token token = get_token(&message);
+      if (!token_is_valid(token)) {
+	fprintf(rsp, "%s\n", g_bar_manager._display_separator_icon ? g_bar_manager._display_separator_icon : "");
+      } else {
+	bar_manager_set_display_separator_icon(&g_bar_manager, token_to_string(token));
       }
     }
     else {

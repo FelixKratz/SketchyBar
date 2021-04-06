@@ -10,6 +10,7 @@ void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t 
     if (bar_manager->_space_icon) bar_manager_set_space_icon(bar_manager, bar_manager->_space_icon);
     if (bar_manager->_left_shell_icon) bar_manager_set_left_shell_icon(bar_manager, bar_manager->_left_shell_icon);
     if (bar_manager->_right_shell_icon) bar_manager_set_right_shell_icon(bar_manager, bar_manager->_right_shell_icon);
+    if (bar_manager->_display_separator_icon) bar_manager_set_display_separator_icon(bar_manager, bar_manager->_display_separator_icon);
     bar_manager_refresh(bar_manager);
 }
 
@@ -22,6 +23,18 @@ void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t 
 void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t color)
 {
   bar_manager->space_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_space_icon_color_secondary(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->space_icon_color_secondary = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_space_icon_color_tertiary(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->space_icon_color_tertiary = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager);
 }
 
@@ -58,6 +71,12 @@ void bar_manager_set_left_shell_icon_color(struct bar_manager *bar_manager, uint
 void bar_manager_set_right_shell_icon_color(struct bar_manager *bar_manager, uint32_t color)
 {
   bar_manager->right_shell_icon_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_display_separator_icon_color(struct bar_manager *bar_manager, uint32_t color)
+{
+  bar_manager->display_separator_icon_color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager);
 }
 
@@ -101,6 +120,7 @@ void bar_manager_set_icon_font(struct bar_manager *bar_manager, char *font_strin
     if (bar_manager->_dnd_icon) bar_manager_set_dnd_icon(bar_manager, bar_manager->_dnd_icon);
     if (bar_manager->_left_shell_icon) bar_manager_set_left_shell_icon(bar_manager, bar_manager->_left_shell_icon);
     if (bar_manager->_right_shell_icon) bar_manager_set_right_shell_icon(bar_manager, bar_manager->_right_shell_icon);
+    if (bar_manager->_display_separator_icon) bar_manager_set_display_separator_icon(bar_manager, bar_manager->_display_separator_icon);
     bar_manager_refresh(bar_manager);
 }
 
@@ -262,6 +282,25 @@ void bar_manager_set_right_shell_icon(struct bar_manager *bar_manager, char *ico
   bar_manager_refresh(bar_manager);
 }
 
+void bar_manager_set_display_separator_icon(struct bar_manager *bar_manager, char *icon)
+{
+  if (bar_manager->display_separator_icon.line) {
+    bar_destroy_line(bar_manager->display_separator_icon);
+  }
+
+  if (icon != bar_manager->_display_separator_icon) {
+    if (bar_manager->_display_separator_icon) {
+      free(bar_manager->_display_separator_icon);
+    }
+
+    bar_manager->_display_separator_icon = icon;
+  }
+
+  bar_manager->display_separator_icon = bar_prepare_line(bar_manager->i_font, bar_manager->_display_separator_icon, bar_manager->display_separator_icon_color);
+
+  bar_manager_refresh(bar_manager);
+}
+
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
 {
   bar_manager->position = pos;
@@ -271,21 +310,37 @@ void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
 void bar_manager_set_title(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->title = value;
+  bar_manager_resize(bar_manager);
 }
 
 void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->spaces = value;
+  bar_manager_resize(bar_manager);
+}
+
+void bar_manager_set_spaces_for_all_displays(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->spaces_for_all_displays = value;
+  bar_manager_resize(bar_manager);
+}
+
+void bar_manager_set_display_separator(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->display_separator = value;
+  bar_manager_resize(bar_manager);
 }
 
 void bar_manager_set_clock(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->clock = value;
+  bar_manager_resize(bar_manager);
 }
 
 void bar_manager_set_power(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->power = value;
+  bar_manager_resize(bar_manager);
 }
 
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
@@ -321,16 +376,19 @@ void bar_manager_set_spacing_right(struct bar_manager *bar_manager, uint32_t spa
 void bar_manager_set_left_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->left_shell_on = value;
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_right_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->right_shell_on = value;
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_center_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->center_shell_on = value;
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_left_shell_output(struct bar_manager *bar_manager, char *output)
@@ -351,16 +409,19 @@ void bar_manager_set_center_shell_output(struct bar_manager *bar_manager, char *
 void bar_manager_set_left_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->left_shell_command = command;
+    bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_right_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->right_shell_command = command;
+    bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_center_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->center_shell_command = command;
+    bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_display_changed(struct bar_manager *bar_manager)
@@ -402,6 +463,8 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_background_color(bar_manager, 0xff202020);
     bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
     bar_manager_set_space_icon_color(bar_manager, 0xffd75f5f);
+    bar_manager_set_space_icon_color_secondary(bar_manager, 0xffd75f5f);
+    bar_manager_set_space_icon_color_tertiary(bar_manager, 0xffd75f5f);
     bar_manager_set_battery_icon_color(bar_manager, 0xffd75f5f);
     bar_manager_set_power_icon_color(bar_manager, 0xffcd950c);
     bar_manager_set_clock_icon_color(bar_manager, 0xffa8a8a8);
@@ -421,9 +484,11 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager_set_left_shell_output(bar_manager, string_copy(""));
     bar_manager_set_right_shell_output(bar_manager, string_copy(""));
     bar_manager_set_center_shell_output(bar_manager, string_copy(""));
-    bar_manager_set_left_shell_command(bar_manager, string_copy("true"));
-    bar_manager_set_right_shell_command(bar_manager, string_copy("true"));
-    bar_manager_set_center_shell_command(bar_manager, string_copy("true"));
+    bar_manager_set_left_shell_command(bar_manager, string_copy("echo 'left shell'"));
+    bar_manager_set_right_shell_command(bar_manager, string_copy("echo 'right shell'"));
+    bar_manager_set_center_shell_command(bar_manager, string_copy("echo 'center shell'"));
+    bar_manager_set_display_separator_icon(bar_manager, string_copy("|"));
+    bar_manager_set_display_separator_icon_color(bar_manager, 0xffa8a8a8);
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager)

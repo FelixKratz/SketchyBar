@@ -18,6 +18,7 @@ struct bar_manager
   char *_left_shell_icon;
   char *_right_shell_icon;
   char *position;
+  char *_display_separator_icon;
   uint32_t height;
   uint32_t padding_left;
   uint32_t padding_right;
@@ -25,6 +26,8 @@ struct bar_manager
   uint32_t spacing_right;
   bool title;
   bool spaces;
+  bool spaces_for_all_displays;
+  bool display_separator;
   bool clock;
   bool power;
   bool left_shell_on;
@@ -39,12 +42,15 @@ struct bar_manager
   struct rgba_color foreground_color;
   struct rgba_color background_color;
   struct rgba_color space_icon_color;
+  struct rgba_color space_icon_color_secondary;
+  struct rgba_color space_icon_color_tertiary;
   struct rgba_color battery_icon_color;
   struct rgba_color power_icon_color;
   struct rgba_color clock_icon_color;
   struct rgba_color dnd_icon_color;
   struct rgba_color left_shell_icon_color;
   struct rgba_color right_shell_icon_color;
+  struct rgba_color display_separator_icon_color;
   struct rgba_color background_color_dim;
   struct bar_line *space_icon_strip;
   struct bar_line space_icon;
@@ -57,15 +63,19 @@ struct bar_manager
   struct bar_line right_shell;
   struct bar_line right_shell_icon;
   struct bar_line center_shell;
+  struct bar_line display_separator_icon;
 };
 
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t color);
+void bar_manager_set_space_icon_color_secondary(struct bar_manager *bar_manager, uint32_t color);
+void bar_manager_set_space_icon_color_tertiary(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_battery_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_power_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_clock_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_dnd_icon_color(struct bar_manager *bar_manager, uint32_t color);
+void bar_manager_set_display_separator_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_left_shell_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_right_shell_icon_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_text_font(struct bar_manager *bar_manager, char *font_string);
@@ -77,10 +87,13 @@ void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format)
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_left_shell_icon(struct bar_manager *bar_manager, char *icon);
+void bar_manager_set_display_separator(struct bar_manager *bar_manager, bool value);
+void bar_manager_set_display_separator_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_right_shell_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 void bar_manager_set_title(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value);
+void bar_manager_set_spaces_for_all_displays(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_clock(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_power(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
