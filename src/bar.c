@@ -61,39 +61,44 @@ static char* run_shell(char *command)
 {
     FILE *fp;
     char path[2048];
-    char* string;
+    char* out;
 
     fp = popen(command, "r");
     if (fp == NULL) {
-        printf("error running command\n" );
-        exit(1);
+	return string_copy("error running command");
     }
 
     while (fgets(path, sizeof(path), fp) != NULL) {
-        string = string_copy(path);
+        out = string_copy(path);
     }
 
     pclose(fp);
-    return string;
+    return out;
 }
 
 static void set_shell_outputs(struct bar_manager *bar_manager)
 {
-    char* left_shell_output;
-    char* right_shell_output;
-    char* center_shell_output;
-    if (strlen(bar_manager->left_shell_command) >= 0) {
-        left_shell_output = run_shell(string_copy(bar_manager->left_shell_command));
-        bar_manager_set_left_shell_output(bar_manager, left_shell_output);
+  char* left_shell_output;
+  char* right_shell_output;
+  char* center_shell_output;
+  if ((strlen(bar_manager->left_shell_command) > 0) && bar_manager->left_shell_on) {
+    left_shell_output = run_shell(string_copy(bar_manager->left_shell_command));
+    if (strlen(left_shell_output) > 0) {
+      bar_manager_set_left_shell_output(bar_manager, left_shell_output);
     }
-    if (strlen(bar_manager->right_shell_command) >= 0) {
-        right_shell_output = run_shell(string_copy(bar_manager->right_shell_command));
-        bar_manager_set_right_shell_output(bar_manager, right_shell_output);
+  }
+  if ((strlen(bar_manager->right_shell_command) > 0) && bar_manager->right_shell_on) {
+    right_shell_output = run_shell(string_copy(bar_manager->right_shell_command));
+    if (strlen(right_shell_output) > 0) {
+      bar_manager_set_right_shell_output(bar_manager, right_shell_output);
     }
-    if (strlen(bar_manager->center_shell_command) >= 0) {
-        center_shell_output = run_shell(string_copy(bar_manager->center_shell_command));
-        bar_manager_set_center_shell_output(bar_manager, center_shell_output);
+  }
+  if ((strlen(bar_manager->center_shell_command) > 0) && bar_manager->center_shell_on) {
+    center_shell_output = run_shell(string_copy(bar_manager->center_shell_command));
+    if (strlen(center_shell_output) > 0) {
+      bar_manager_set_center_shell_output(bar_manager, center_shell_output);
     }
+  }
 }
 
 static CTFontRef bar_create_font(char *cstring)
@@ -270,36 +275,89 @@ void bar_refresh(struct bar *bar)
     int bar_left_final_item_x = g_bar_manager.padding_left;
     if (g_bar_manager.spaces) {
       int space_count;
-      uint64_t *space_list = display_space_list(bar->did, &space_count);
-      if (space_list) {
-	uint64_t sid = display_space_id(bar->did);
 
-	for (int i = 0; i < space_count; ++i) {
-	  CGPoint pos = CGContextGetTextPosition(bar->context);
+      if (g_bar_manager.spaces_for_all_displays) {
+	uint32_t display_count = display_manager_active_display_count();
+	for (uint32_t d_index = 1; d_index <= display_count; d_index++)
+	  {
+	    uint32_t did = display_manager_arrangement_display_id(d_index);
+	    uint64_t *space_list = display_space_list(did, &space_count);
 
-	  int index = mission_control_index(space_list[i]) - 1;
+	    uint64_t sid = display_space_id(did);
 
-	  struct bar_line space_line = index >= buf_len(g_bar_manager.space_icon_strip)
-	    ? g_bar_manager.space_icon
-	    : g_bar_manager.space_icon_strip[index];
-	  if (i == 0) {
-	    pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
-	    pos.x = bar_left_final_item_x;
-	  } else {
-	    pos.x += g_bar_manager.spacing_left;
+	    for (int i = 0; i < space_count; ++i) {
+	      CGPoint pos = CGContextGetTextPosition(bar->context);
+
+	      int index = mission_control_index(space_list[i]) - 1;
+
+	      struct bar_line space_line = index >= buf_len(g_bar_manager.space_icon_strip)
+		? g_bar_manager.space_icon
+		: g_bar_manager.space_icon_strip[index];
+	      if (i == 0) {
+		pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
+		pos.x = bar_left_final_item_x;
+	      } else {
+		pos.x += g_bar_manager.spacing_left;
+	      }
+
+	      bar_left_final_item_x = pos.x + g_bar_manager.spacing_left;
+
+	      if (sid == space_list[i]) {
+		if (d_index == 1) {
+		  space_line.color = g_bar_manager.space_icon_color;
+		} else if (d_index == 2) {
+		  space_line.color = g_bar_manager.space_icon_color_secondary;
+		} else if (d_index == 3) {
+		  space_line.color = g_bar_manager.space_icon_color_tertiary;
+		}
+	      }
+
+	      bar_draw_line(bar, space_line, pos.x, pos.y);
+	    }
+
+	    if ((d_index < display_count) && g_bar_manager.display_separator) {
+	      struct bar_line display_separator_icon = g_bar_manager.display_separator_icon;
+	      CGPoint s_pos = bar_align_line(bar, display_separator_icon, 0, ALIGN_CENTER);
+	      s_pos.x = bar_left_final_item_x;
+	      bar_left_final_item_x = s_pos.x + g_bar_manager.spacing_left;
+	      bar_draw_line(bar, display_separator_icon, s_pos.x, s_pos.y);
+	    }
+
+	    free(space_list);
+	  }
+      } else {
+	uint64_t *space_list = display_space_list(bar->did, &space_count);
+	if (space_list) {
+	  uint64_t sid = display_space_id(bar->did);
+
+	  for (int i = 0; i < space_count; ++i) {
+	    CGPoint pos = CGContextGetTextPosition(bar->context);
+
+	    int index = mission_control_index(space_list[i]) - 1;
+
+	    struct bar_line space_line = index >= buf_len(g_bar_manager.space_icon_strip)
+	      ? g_bar_manager.space_icon
+	      : g_bar_manager.space_icon_strip[index];
+	    if (i == 0) {
+	      pos = bar_align_line(bar, space_line, ALIGN_LEFT, ALIGN_CENTER);
+	      pos.x = bar_left_final_item_x;
+	    } else {
+	      pos.x += g_bar_manager.spacing_left;
+	    }
+
+	    bar_left_final_item_x = pos.x + g_bar_manager.spacing_left;
+
+	    if (sid == space_list[i]) {
+	      space_line.color = g_bar_manager.space_icon_color;
+	    }
+	    bar_draw_line(bar, space_line, pos.x, pos.y);
+
 	  }
 
-	  bar_left_final_item_x = pos.x + g_bar_manager.spacing_left;
-
-	  if (sid == space_list[i]) {
-	    space_line.color = g_bar_manager.space_icon_color;
-	  }
-	  bar_draw_line(bar, space_line, pos.x, pos.y);
-
+	  free(space_list);
 	}
-
-	free(space_list);
       }
+
     }
 
     if(g_bar_manager.left_shell_on) {

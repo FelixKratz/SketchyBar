@@ -2,12 +2,12 @@
 .\"     Title: spacebar
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2021-03-30
+.\"      Date: 2021-04-07
 .\"    Manual: spacebar manual
 .\"    Source: spacebar
 .\"  Language: English
 .\"
-.TH "SPACEBAR" "1" "2021-03-30" "spacebar" "spacebar manual"
+.TH "SPACEBAR" "1" "2021-04-07" "spacebar" "spacebar manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -94,6 +94,51 @@ This cannot be enabled when \fIcenter_shell\(cqis set to \(aqon\fP.
 Enable space indicator on the left of the bar.
 .RE
 .sp
+\fBspace_icon_strip\fP [\fI<sym_1> <sym_2> <sym_n>\fP]
+.RS 4
+Specify symbols separated by whitespace to be used for visualizing spaces.
+.RE
+.sp
+\fBspaces_for_all_displays\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable space indicators for spaces on each display.
+.RE
+.sp
+\fBspace_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a general symbol to use for any given space that does not have a match in \fIspace_icon_strip\fP.
+.RE
+.sp
+\fBspace_icon_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the current space icon.
+.RE
+.sp
+\fBspace_icon_color_secondary\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the current space icon of the second display.
+.RE
+.sp
+\fBspace_icon_color_tertiary\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the current space icon of the third display.
+.RE
+.sp
+\fBdisplay_separator\fP [\fI<BOOL_SEL>\fP]
+.RS 4
+Enable separator between the spaces for each display.
+.RE
+.sp
+\fBdisplay_separator_icon\fP [\fI<sym>\fP]
+.RS 4
+Specify a symbol to use for the display separator.
+.RE
+.sp
+\fBdisplay_separator_icon_color\fP [\fI<COLOR>\fP]
+.RS 4
+Color to use for drawing the display separator icon.
+.RE
+.sp
 \fBclock\fP [\fI<BOOL_SEL>\fP]
 .RS 4
 Enable clock on the right of the bar.
@@ -148,11 +193,6 @@ Color to use for drawing status bar background.
 Color to use for drawing status bar elements.
 .RE
 .sp
-\fBspace_icon_strip\fP [\fI<sym_1> <sym_2> <sym_n>\fP]
-.RS 4
-Specify symbols separated by whitespace to be used for visualizing spaces.
-.RE
-.sp
 \fBpower_icon_strip\fP [\fI<sym_battery> <sym_ac>\fP]
 .RS 4
 Specify two symbols separated by whitespace.
@@ -168,16 +208,6 @@ Color to use for drawing the power (charging) icon.
 \fBbattery_icon_color\fP [\fI<COLOR>\fP]
 .RS 4
 Color to use for drawing the battery icon.
-.RE
-.sp
-\fBspace_icon\fP [\fI<sym>\fP]
-.RS 4
-Specify a general symbol to use for any given space that does not have a match in \fIspace_icon_strip\fP.
-.RE
-.sp
-\fBspace_icon_color\fP [\fI<COLOR>\fP]
-.RS 4
-Color to use for drawing the current space icon.
 .RE
 .sp
 \fBclock_icon\fP [\fI<sym>\fP]
