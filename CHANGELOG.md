@@ -4,9 +4,8 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased](https://github.com/cmacrae/spacebar/compare/v1.2.1...HEAD)
 
-[Unreleased]: https://github.com/cmacrae/spacebar/compare/master...HEAD
 **Changed**
 - Fixed a bug introduced in Big Sur where buffer reads were incorrect
 
