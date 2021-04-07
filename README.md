@@ -66,43 +66,35 @@ touch ~/.config/spacebar/spacebarrc
 chmod +x ~/.config/spacebar/spacebarrc
 ```
 
-Here's a configuration taken from [the examples directory](examples):
+Here's a configuration taken from [`examples/`](https://github.com/cmacrae/spacebar/blob/v1.2.1/examples/spacebarrc):
 ```
 #!/usr/bin/env sh
 
-spacebar -m config position             top
-spacebar -m config height               26
-spacebar -m config title                on
-spacebar -m config spaces               on
-spacebar -m config clock                on
-spacebar -m config power                on
-spacebar -m config padding_left         20
-spacebar -m config padding_right        20
-spacebar -m config spacing_left         25
-spacebar -m config spacing_right        15
-spacebar -m config text_font            "Helvetica Neue:Bold:12.0"
-spacebar -m config icon_font            "Font Awesome 5 Free:Solid:12.0"
-spacebar -m config background_color     0xff202020
-spacebar -m config foreground_color     0xffa8a8a8
-spacebar -m config space_icon_color     0xff458588
-spacebar -m config power_icon_color     0xffcd950c
-spacebar -m config battery_icon_color   0xffd75f5f
-spacebar -m config dnd_icon_color       0xffa8a8a8
-spacebar -m config clock_icon_color     0xffa8a8a8
-spacebar -m config power_icon_strip      
-spacebar -m config space_icon           
-spacebar -m config clock_icon           
-spacebar -m config dnd_icon             
-spacebar -m config clock_format         "%d/%m/%y %R"
-spacebar -m config right_shell          on
-spacebar -m config right_shell_icon     
-spacebar -m config right_shell_command  "whoami"
+spacebar -m config position           top
+spacebar -m config height             26
+spacebar -m config spacing_left       25
+spacebar -m config spacing_right      15
+spacebar -m config text_font          "Helvetica Neue:Bold:12.0"
+spacebar -m config icon_font          "Font Awesome 5 Free:Regular:12.0"
+spacebar -m config background_color   0xff202020
+spacebar -m config foreground_color   0xffa8a8a8
+spacebar -m config space_icon_color   0xff458588
+spacebar -m config power_icon_color   0xffcd950c
+spacebar -m config battery_icon_color 0xffd75f5f
+spacebar -m config dnd_icon_color     0xffa8a8a8
+spacebar -m config clock_icon_color   0xffa8a8a8
+spacebar -m config space_icon_strip   I II III IV V VI VII VIII IX X
+spacebar -m config power_icon_strip    
+spacebar -m config space_icon         
+spacebar -m config clock_icon         
+spacebar -m config dnd_icon           
+spacebar -m config clock_format       "%d/%m/%y %R"
 
 echo "spacebar configuration loaded.."
 ```
 _Note: Ensure fonts are installed to use glyphs_
 
-For further configuration documentation, please see [`man spacebar`](doc/spacebar.asciidoc)
+For further configuration documentation, please see [`man spacebar`](https://github.com/cmacrae/spacebar/blob/v1.2.1/doc/spacebar.asciidoc)
 
 ### Declarative configuration with Nix
 If you're using the `services.spacebar` module from [nix-darwin](https://github.com/LnL7/nix-darwin), you can configure spacebar like so:
@@ -111,34 +103,25 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
   services.spacebar.enable = true;
   services.spacebar.package = pkgs.spacebar;
   services.spacebar.config = {
-    position            = "top";
-    height              = 26;
-	title               = "on";
-	spaces              = "on";
-	clock               = "on";
-	power               = "on";
-    padding_left        = 20;
-    padding_right       = 20;
-    spacing_left        = 25;
-    spacing_right       = 15;
-    text_font           = ''"Helvetica Neue:Bold:12.0"'';
-    icon_font           = ''"Font Awesome 5 Free:Solid:12.0"'';
-    background_color    = "0xff202020";
-    foreground_color    = "0xffa8a8a8";
-    space_icon_color    = "0xff458588";
-    power_icon_color    = "0xffcd950c";
-    battery_icon_color  = "0xffd75f5f";
-    dnd_icon_color      = "0xffa8a8a8";
-    clock_icon_color    = "0xffa8a8a8";
-    space_icon_strip    = "I II III IV V VI VII VIII IX X";
-    power_icon_strip    = " ";
-    space_icon          = "";
-    clock_icon          = "";
-    dnd_icon            = "";
-    clock_format        = ''"%d/%m/%y %R"'';
-    right_shell         = "on";
-    right_shell_icon    = "";
-    right_shell_command = "whoami";
+    position           = "top";
+    height             = 26;
+    spacing_left       = 25;
+    spacing_right      = 15;
+    text_font          = ''"Helvetica Neue:Bold:12.0"'';
+    icon_font          = ''"Font Awesome 5 Free:Regular:12.0"'';
+    background_color   = "0xff202020";
+    foreground_color   = "0xffa8a8a8";
+    space_icon_color   = "0xff458588";
+    power_icon_color   = "0xffcd950c";
+    battery_icon_color = "0xffd75f5f";
+    dnd_icon_color     = "0xffa8a8a8";
+    clock_icon_color   = "0xffa8a8a8";
+    space_icon_strip   = "I II III IV V VI VII VIII IX X";
+    power_icon_strip   = " ";
+    space_icon         = "";
+    clock_icon         = "";
+    dnd_icon           = "";
+    clock_format       = ''"%d/%m/%y %R"'';
   };
 }
 ```
@@ -212,7 +195,6 @@ Please also take note of the following caveats.
 |-:|:-|
 |Code Signing|When building from source (or installing from HEAD), it is recommended to codesign the binary so it retains its accessibility and automation privileges when updated or rebuilt.|
 |Mission Control|In the Mission Control preferences pane in System Preferences, the setting "Automatically rearrange Spaces based on most recent use" should be disabled.|
-|Shell output|When using the any of the `<position>_shell` (and their associated configurations) be sure to set it to a pipeline that returns output quickly (~1s or less is ideal). If you're using any of these options and spacebar is locking up, be sure to check how long your pipelines take!|
 
 ## Releases and branches
 Main work for this project is conducted on the `master` branch, and thus it should be considered unstable (expect bugs!).  
