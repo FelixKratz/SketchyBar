@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 **Changed**
 - Fixed a bug introduced in Big Sur where buffer reads were incorrect
 - Improved efficiency of bar's initialisation
+- Fixed DoNotDisturb indicator on Big Sur
 
 **Added**
 - New `left|center|right` shell sections: display custom text based on shell pipelines
@@ -16,6 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Option to turn the spaces indicator on or off
 - Option to turn the clock on or off
 - Option to turn the power indicator on or off
+- Option to turn the DoNotDisturb indicator on or off
 - Option to set the padding between the first/last item and the left/right edge of the display
 - Default to "Solid" style of Font Awesome 5 Free icon font
 - Option to display spaces for all displays, including: optional separator, secondary & tertiary space indicator colours in relation to display

@@ -156,6 +156,9 @@ Settings
 *clock_format* ['<sym>']::
     Specify a format for the current time, according to the strftime function.
 
+*dnd* ['<BOOL_SEL>']::
+    Enable a DoNotDisturb indicator on the right of the bar.
+
 *dnd_icon* ['<sym>']::
     Specify a symbol to represent the current DoNotDisturb status.
 

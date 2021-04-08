@@ -3,6 +3,7 @@
 #include <Cocoa/Cocoa.h>
 #include <IOKit/ps/IOPowerSources.h>
 #include <IOKit/ps/IOPSKeys.h>
+#include <Foundation/Foundation.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,6 +34,7 @@
 #undef HASHTABLE_IMPLEMENTATION
 #include "misc/socket.h"
 #include "misc/socket.c"
+#include "misc/dnd.c"
 
 //#include "osax/sa.h"
 //#include "osax/sa_loader.c"

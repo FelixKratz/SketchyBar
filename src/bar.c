@@ -385,16 +385,17 @@ void bar_refresh(struct bar *bar)
       }
     }
 
-    NSUserDefaults* defaults = [[NSUserDefaults alloc]initWithSuiteName:@"com.apple.notificationcenterui"];
-    bool dnd = [defaults boolForKey:@"doNotDisturb"];
-    if (dnd) {
-      struct bar_line dnd_icon = g_bar_manager.dnd_icon;
-      dnd_icon.color = g_bar_manager.dnd_icon_color;
-      CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
-      di_pos.x = bar_right_first_item_x - dnd_icon.bounds.size.width;
-      bar_right_first_item_x = di_pos.x - g_bar_manager.spacing_right;
+    if (g_bar_manager.dnd) {
+      bool dnd = getDoNotDisturb();
+      if (dnd) {
+	struct bar_line dnd_icon = g_bar_manager.dnd_icon;
+	dnd_icon.color = g_bar_manager.dnd_icon_color;
+	CGPoint di_pos = bar_align_line(bar, dnd_icon, 0, ALIGN_CENTER);
+	di_pos.x = bar_right_first_item_x - dnd_icon.bounds.size.width;
+	bar_right_first_item_x = di_pos.x - g_bar_manager.spacing_right;
 
-      bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);
+	bar_draw_line(bar, dnd_icon, di_pos.x, di_pos.y);
+      }
     }
 
     if(g_bar_manager.right_shell_on) {

@@ -310,37 +310,43 @@ void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
 void bar_manager_set_title(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->title = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
+}
+
+void bar_manager_set_dnd(struct bar_manager *bar_manager, bool value)
+{
+  bar_manager->dnd = value;
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->spaces = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_spaces_for_all_displays(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->spaces_for_all_displays = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_display_separator(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->display_separator = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_clock(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->clock = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_power(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->power = value;
-  bar_manager_resize(bar_manager);
+  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
@@ -533,6 +539,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager->spaces = true;
     bar_manager->clock = true;
     bar_manager->power = true;
+    bar_manager->dnd = true;
     bar_manager->padding_left = 20;
     bar_manager->padding_right = 20;
     bar_manager->spacing_left = 25;

@@ -20,6 +20,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_BATTERY_ICON_COLOR              "battery_icon_color"
 #define COMMAND_CONFIG_BAR_POWER_ICON_COLOR                "power_icon_color"
 #define COMMAND_CONFIG_BAR_CLOCK_ICON_COLOR                "clock_icon_color"
+#define COMMAND_CONFIG_BAR_DND                             "dnd"
 #define COMMAND_CONFIG_BAR_DND_ICON_COLOR                  "dnd_icon_color"
 #define COMMAND_CONFIG_BAR_BACKGROUND                      "background_color"
 #define COMMAND_CONFIG_BAR_FOREGROUND                      "foreground_color"
@@ -565,6 +566,17 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 	bar_manager_set_display(&g_bar_manager, string_copy(message));
       } else {
 	daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_DND)) {
+      struct token value = get_token(&message);
+      if (!token_is_valid(value)) {
+	fprintf(rsp, "%s\n", bool_str[g_bar_manager.dnd]);
+      } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
+	bar_manager_set_dnd(&g_bar_manager, false);
+      } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
+	bar_manager_set_dnd(&g_bar_manager, true);
+      } else {
+	daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
       }
     }
     else {

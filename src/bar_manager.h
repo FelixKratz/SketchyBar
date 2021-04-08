@@ -31,6 +31,7 @@ struct bar_manager
   bool display_separator;
   bool clock;
   bool power;
+  bool dnd;
   bool left_shell_on;
   bool right_shell_on;
   bool center_shell_on;
@@ -86,6 +87,7 @@ void bar_manager_set_power_strip(struct bar_manager *bar_manager, char **icon_st
 void bar_manager_set_clock_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_clock_format(struct bar_manager *bar_manager, char *format);
 void bar_manager_set_space_icon(struct bar_manager *bar_manager, char *icon);
+void bar_manager_set_dnd(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_dnd_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_left_shell_icon(struct bar_manager *bar_manager, char *icon);
 void bar_manager_set_display_separator(struct bar_manager *bar_manager, bool value);
