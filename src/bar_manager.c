@@ -376,18 +376,21 @@ void bar_manager_set_spacing_right(struct bar_manager *bar_manager, uint32_t spa
 void bar_manager_set_left_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->left_shell_on = value;
+  set_shell_outputs(bar_manager);
   bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_right_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->right_shell_on = value;
+  set_shell_outputs(bar_manager);
   bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_center_shell(struct bar_manager *bar_manager, bool value)
 {
   bar_manager->center_shell_on = value;
+  set_shell_outputs(bar_manager);
   bar_manager_refresh(bar_manager);
 }
 
@@ -409,18 +412,21 @@ void bar_manager_set_center_shell_output(struct bar_manager *bar_manager, char *
 void bar_manager_set_left_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->left_shell_command = command;
+    set_shell_outputs(bar_manager);
     bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_right_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->right_shell_command = command;
+    set_shell_outputs(bar_manager);
     bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_center_shell_command(struct bar_manager *bar_manager, char *command)
 {
     bar_manager->center_shell_command = command;
+    set_shell_outputs(bar_manager);
     bar_manager_refresh(bar_manager);
 }
 
@@ -452,6 +458,67 @@ void bar_manager_resize(struct bar_manager *bar_manager)
 {
     for (int i = 0; i < bar_manager->bar_count; ++i)
         bar_resize(bar_manager->bars[i]);
+}
+
+
+// TODO (cmacrae): Implement timeout
+static char* run_shell(char *command)
+{
+    int cursor = 0;
+    int bytes_read = 0;
+    char *result = NULL;
+    char buffer[BUFSIZ];
+
+    FILE *handle = popen(command, "r");
+    if (!handle) {
+      return string_copy("error running command");
+    }
+
+    while ((bytes_read = read(fileno(handle), buffer, sizeof(buffer)-1)) > 0) {
+        char *temp = realloc(result, cursor+bytes_read+1);
+        if (!temp) goto err;
+
+        result = temp;
+        memcpy(result+cursor, buffer, bytes_read);
+        cursor += bytes_read;
+    }
+
+    if (result && bytes_read != -1) {
+        result[cursor] = '\0';
+        return result;
+    } else {
+err:
+	return string_copy("here we are");
+        if (result) free(result);
+    }
+
+    pclose(handle);
+    return result;
+}
+
+void set_shell_outputs(struct bar_manager *bar_manager)
+{
+  char* left_shell_output;
+  char* right_shell_output;
+  char* center_shell_output;
+  if ((strlen(bar_manager->left_shell_command) > 0) && bar_manager->left_shell_on) {
+    left_shell_output = run_shell(string_copy(bar_manager->left_shell_command));
+    if (strlen(left_shell_output) > 0) {
+      bar_manager_set_left_shell_output(bar_manager, left_shell_output);
+    }
+  }
+  if ((strlen(bar_manager->right_shell_command) > 0) && bar_manager->right_shell_on) {
+    right_shell_output = run_shell(string_copy(bar_manager->right_shell_command));
+    if (strlen(right_shell_output) > 0) {
+      bar_manager_set_right_shell_output(bar_manager, right_shell_output);
+    }
+  }
+  if ((strlen(bar_manager->center_shell_command) > 0) && bar_manager->center_shell_on) {
+    center_shell_output = run_shell(string_copy(bar_manager->center_shell_command));
+    if (strlen(center_shell_output) > 0) {
+      bar_manager_set_center_shell_output(bar_manager, center_shell_output);
+    }
+  }
 }
 
 void bar_manager_init(struct bar_manager *bar_manager)

@@ -119,5 +119,6 @@ void bar_manager_resize(struct bar_manager *bar_manager);
 void bar_manager_begin(struct bar_manager *bar_manager);
 void bar_manager_init(struct bar_manager *bar_manager);
 
+void set_shell_outputs(struct bar_manager *bar_manager);
 
 #endif

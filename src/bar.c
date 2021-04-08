@@ -15,6 +15,12 @@ static TIMER_CALLBACK(timer_handler)
     event_loop_post(&g_event_loop, event);
 }
 
+static SHELL_TIMER_CALLBACK(shell_timer_handler)
+{
+    struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
+    event_loop_post(&g_event_loop, event);
+}
+
 static int bar_find_battery_life(bool *has_battery, bool *charging)
 {
     CFTypeRef ps_info = IOPSCopyPowerSourcesInfo();
@@ -54,64 +60,6 @@ static int bar_find_battery_life(bool *has_battery, bool *charging)
     CFRelease(ps_list);
     CFRelease(ps_info);
     return percent;
-}
-
-// TODO (cmacrae): Implement timeout
-static char* run_shell(char *command)
-{
-    int cursor = 0;
-    int bytes_read = 0;
-    char *result = NULL;
-    char buffer[BUFSIZ];
-
-    FILE *handle = popen(command, "r");
-    if (!handle) return string_copy("error running command");
-
-    while ((bytes_read = read(fileno(handle), buffer, sizeof(buffer)-1)) > 0) {
-        char *temp = realloc(result, cursor+bytes_read+1);
-        if (!temp) goto err;
-
-        result = temp;
-        memcpy(result+cursor, buffer, bytes_read);
-        cursor += bytes_read;
-    }
-
-    if (result && bytes_read != -1) {
-        result[cursor] = '\0';
-        return result;
-    } else {
-err:
-        if (result) free(result);
-	return string_copy("error running command");
-    }
-
-    pclose(handle);
-    return result;
-}
-
-static void set_shell_outputs(struct bar_manager *bar_manager)
-{
-  char* left_shell_output;
-  char* right_shell_output;
-  char* center_shell_output;
-  if ((strlen(bar_manager->left_shell_command) > 0) && bar_manager->left_shell_on) {
-    left_shell_output = run_shell(string_copy(bar_manager->left_shell_command));
-    if (strlen(left_shell_output) > 0) {
-      bar_manager_set_left_shell_output(bar_manager, left_shell_output);
-    }
-  }
-  if ((strlen(bar_manager->right_shell_command) > 0) && bar_manager->right_shell_on) {
-    right_shell_output = run_shell(string_copy(bar_manager->right_shell_command));
-    if (strlen(right_shell_output) > 0) {
-      bar_manager_set_right_shell_output(bar_manager, right_shell_output);
-    }
-  }
-  if ((strlen(bar_manager->center_shell_command) > 0) && bar_manager->center_shell_on) {
-    center_shell_output = run_shell(string_copy(bar_manager->center_shell_command));
-    if (strlen(center_shell_output) > 0) {
-      bar_manager_set_center_shell_output(bar_manager, center_shell_output);
-    }
-  }
 }
 
 static CTFontRef bar_create_font(char *cstring)
@@ -276,10 +224,6 @@ void bar_refresh(struct bar *bar)
     CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
     CGContextFillRect(bar->context, bar->frame);
     CGContextStrokePath(bar->context);
-
-    if(g_bar_manager.left_shell_on || g_bar_manager.right_shell_on || g_bar_manager.center_shell_on) {
-      set_shell_outputs(&g_bar_manager);
-    }
 
     //
     // BAR LEFT
@@ -609,11 +553,14 @@ struct bar *bar_create(uint32_t did)
     bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
 
     int refresh_frequency = 5;
+    int shell_refresh_frequency = 5;
     bar->power_source = IOPSNotificationCreateRunLoopSource(power_handler, NULL);
     bar->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
+    bar->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
 
     CFRunLoopAddSource(CFRunLoopGetMain(), bar->power_source, kCFRunLoopCommonModes);
     CFRunLoopAddTimer(CFRunLoopGetMain(), bar->refresh_timer, kCFRunLoopCommonModes);
+    CFRunLoopAddTimer(CFRunLoopGetMain(), bar->shell_refresh_timer, kCFRunLoopCommonModes);
 
     bar_refresh(bar);
 
@@ -627,6 +574,9 @@ void bar_destroy(struct bar *bar)
 
     CFRunLoopRemoveTimer(CFRunLoopGetMain(), bar->refresh_timer, kCFRunLoopCommonModes);
     CFRunLoopTimerInvalidate(bar->refresh_timer);
+
+    CFRunLoopRemoveTimer(CFRunLoopGetMain(), bar->shell_refresh_timer, kCFRunLoopCommonModes);
+    CFRunLoopTimerInvalidate(bar->shell_refresh_timer);
 
     CGContextRelease(bar->context);
     SLSReleaseWindow(g_connection, bar->id);
