@@ -470,9 +470,7 @@ static char* run_shell(char *command)
     char buffer[BUFSIZ];
 
     FILE *handle = popen(command, "r");
-    if (!handle) {
-      return string_copy("error running command");
-    }
+    if (!handle) goto err;
 
     while ((bytes_read = read(fileno(handle), buffer, sizeof(buffer)-1)) > 0) {
         char *temp = realloc(result, cursor+bytes_read+1);
@@ -485,11 +483,14 @@ static char* run_shell(char *command)
 
     if (result && bytes_read != -1) {
         result[cursor] = '\0';
-        return result;
+
+	pclose(handle);
+	return result;
     } else {
 err:
-        return string_copy("error running command");
-	if (result) free(result);
+      pclose(handle);
+      return string_copy("error running command");
+      if (result) free(result);
     }
 
     pclose(handle);
