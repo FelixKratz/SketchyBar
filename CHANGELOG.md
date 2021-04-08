@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 **Changed**
 - Fixed a bug introduced in Big Sur where buffer reads were incorrect
+- Improved efficiency of bar's initialisation
 
 **Added**
 - New `left|center|right` shell sections: display custom text based on shell pipelines

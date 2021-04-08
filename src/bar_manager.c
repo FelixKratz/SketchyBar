@@ -459,47 +459,48 @@ void bar_manager_init(struct bar_manager *bar_manager)
     bar_manager->bars = NULL;
     bar_manager->bar_count = 0;
     bar_manager->display = "all";
-    bar_manager_set_position(bar_manager, string_copy("top"));
-    bar_manager_set_height(bar_manager, 26);
-    bar_manager_set_title(bar_manager, true);
-    bar_manager_set_spaces(bar_manager, true);
-    bar_manager_set_clock(bar_manager, true);
-    bar_manager_set_power(bar_manager, true);
-    bar_manager_set_padding_left(bar_manager, 20);
-    bar_manager_set_padding_right(bar_manager, 20);
-    bar_manager_set_spacing_left(bar_manager, 25);
-    bar_manager_set_spacing_right(bar_manager, 15);
-    bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:10.0"));
-    bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Solid:10.0"));
-    bar_manager_set_background_color(bar_manager, 0xff202020);
-    bar_manager_set_foreground_color(bar_manager, 0xffa8a8a8);
-    bar_manager_set_space_icon_color(bar_manager, 0xffd75f5f);
-    bar_manager_set_space_icon_color_secondary(bar_manager, 0xffd75f5f);
-    bar_manager_set_space_icon_color_tertiary(bar_manager, 0xffd75f5f);
-    bar_manager_set_battery_icon_color(bar_manager, 0xffd75f5f);
-    bar_manager_set_power_icon_color(bar_manager, 0xffcd950c);
-    bar_manager_set_clock_icon_color(bar_manager, 0xffa8a8a8);
-    bar_manager_set_clock_icon(bar_manager, string_copy(" "));
-    bar_manager_set_clock_format(bar_manager, string_copy("%R"));
-    bar_manager_set_space_icon(bar_manager, string_copy("*"));
+    bar_manager->position = "top";
+    bar_manager->height = 26;
+    bar_manager->title = true;
+    bar_manager->spaces = true;
+    bar_manager->clock = true;
+    bar_manager->power = true;
+    bar_manager->padding_left = 20;
+    bar_manager->padding_right = 20;
+    bar_manager->spacing_left = 25;
+    bar_manager->spacing_right = 15;
+    bar_manager_set_text_font(bar_manager, string_copy("Helvetica Neue:Regular:12.0"));
+    bar_manager_set_icon_font(bar_manager, string_copy("Font Awesome 5 Free:Solid:12.0"));
+    bar_manager->background_color = rgba_color_from_hex(0xff202020);
+    bar_manager->foreground_color = rgba_color_from_hex(0xffa8a8a8);
+    bar_manager->space_icon_color = rgba_color_from_hex(0xffd75f5f);
+    bar_manager->space_icon_color_secondary = rgba_color_from_hex(0xffd75f5f);
+    bar_manager->space_icon_color_tertiary = rgba_color_from_hex(0xffd75f5f);
+    bar_manager->battery_icon_color = rgba_color_from_hex(0xffd75f5f);
+    bar_manager->power_icon_color = rgba_color_from_hex(0xffcd950c);
+    bar_manager->clock_icon_color = rgba_color_from_hex(0xffa8a8a8);
+    bar_manager_set_clock_icon(bar_manager, string_copy(""));
+    bar_manager->_clock_format = "%R";
+    bar_manager_set_space_icon(bar_manager, string_copy("•"));
     bar_manager_set_power_strip(bar_manager, NULL);
     bar_manager_set_dnd_icon(bar_manager, string_copy(""));
     bar_manager_set_dnd_icon_color(bar_manager, 0xffa8a8a8);
-    bar_manager_set_left_shell(bar_manager, false);
-    bar_manager_set_right_shell(bar_manager, false);
-    bar_manager_set_center_shell(bar_manager, false);
+    bar_manager->left_shell_on = false;
+    bar_manager->right_shell_on = false;
+    bar_manager->center_shell_on = false;
     bar_manager_set_left_shell_icon(bar_manager, string_copy(""));
-    bar_manager_set_left_shell_icon_color(bar_manager, 0xffa8a8a8);
+    bar_manager->left_shell_icon_color = rgba_color_from_hex(0xffa8a8a8);
     bar_manager_set_right_shell_icon(bar_manager, string_copy(""));
-    bar_manager_set_right_shell_icon_color(bar_manager, 0xffa8a8a8);
-    bar_manager_set_left_shell_output(bar_manager, string_copy(""));
-    bar_manager_set_right_shell_output(bar_manager, string_copy(""));
-    bar_manager_set_center_shell_output(bar_manager, string_copy(""));
-    bar_manager_set_left_shell_command(bar_manager, string_copy("echo 'left shell'"));
-    bar_manager_set_right_shell_command(bar_manager, string_copy("echo 'right shell'"));
-    bar_manager_set_center_shell_command(bar_manager, string_copy("echo 'center shell'"));
+    bar_manager->right_shell_icon_color = rgba_color_from_hex(0xffa8a8a8);
+    bar_manager->left_shell_output = "";
+    bar_manager->right_shell_output = "";
+    bar_manager->center_shell_output = "";
+    bar_manager->center_shell_output = "";
+    bar_manager->left_shell_command = "echo 'left shell'";
+    bar_manager->right_shell_command = "echo 'right shell'";
+    bar_manager->center_shell_command = "echo 'center shell'";
     bar_manager_set_display_separator_icon(bar_manager, string_copy("|"));
-    bar_manager_set_display_separator_icon_color(bar_manager, 0xffa8a8a8);
+    bar_manager->display_separator_icon_color = rgba_color_from_hex(0xffa8a8a8);
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager)
@@ -508,18 +509,17 @@ void bar_manager_begin(struct bar_manager *bar_manager)
   char * all = "all";
 
   if (strcmp(bar_manager->display,main) == 0) {
-        uint32_t did = display_manager_main_display_id();
-	bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * 1);
-	bar_manager->bar_count = 1;
-	bar_manager->bars[0] = bar_create(did);
+    uint32_t did = display_manager_main_display_id();
+    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * 1);
+    bar_manager->bar_count = 1;
+    bar_manager->bars[0] = bar_create(did);
   } else if (strcmp(bar_manager->display,all) == 0) {
     bar_manager->bar_count = display_manager_active_display_count();
     bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
 
-    for (uint32_t index=1; index <= bar_manager->bar_count; index++)
-    {
-        uint32_t did = display_manager_arrangement_display_id(index);
-        bar_manager->bars[index - 1] = bar_create(did);
+    for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
+      uint32_t did = display_manager_arrangement_display_id(index);
+      bar_manager->bars[index - 1] = bar_create(did);
     }
   }
 }
