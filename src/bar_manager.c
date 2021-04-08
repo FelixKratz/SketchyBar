@@ -488,8 +488,8 @@ static char* run_shell(char *command)
         return result;
     } else {
 err:
-	return string_copy("here we are");
-        if (result) free(result);
+        return string_copy("error running command");
+	if (result) free(result);
     }
 
     pclose(handle);
