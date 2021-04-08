@@ -59,21 +59,34 @@ static int bar_find_battery_life(bool *has_battery, bool *charging)
 // TODO (cmacrae): Implement timeout
 static char* run_shell(char *command)
 {
-    FILE *fp;
-    char path[2048];
-    char* out;
+    int cursor = 0;
+    int bytes_read = 0;
+    char *result = NULL;
+    char buffer[BUFSIZ];
 
-    fp = popen(command, "r");
-    if (fp == NULL) {
+    FILE *handle = popen(command, "r");
+    if (!handle) return string_copy("error running command");
+
+    while ((bytes_read = read(fileno(handle), buffer, sizeof(buffer)-1)) > 0) {
+        char *temp = realloc(result, cursor+bytes_read+1);
+        if (!temp) goto err;
+
+        result = temp;
+        memcpy(result+cursor, buffer, bytes_read);
+        cursor += bytes_read;
+    }
+
+    if (result && bytes_read != -1) {
+        result[cursor] = '\0';
+        return result;
+    } else {
+err:
+        if (result) free(result);
 	return string_copy("error running command");
     }
 
-    while (fgets(path, sizeof(path), fp) != NULL) {
-        out = string_copy(path);
-    }
-
-    pclose(fp);
-    return out;
+    pclose(handle);
+    return result;
 }
 
 static void set_shell_outputs(struct bar_manager *bar_manager)
