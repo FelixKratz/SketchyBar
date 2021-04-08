@@ -432,6 +432,16 @@ void bar_manager_display_changed(struct bar_manager *bar_manager)
     bar_manager_begin(bar_manager);
 }
 
+void bar_manager_set_display(struct bar_manager *bar_manager, char *display)
+{
+  bar_manager->display = display;
+
+  for (int i = 0; i < bar_manager->bar_count; ++i)
+    bar_destroy(bar_manager->bars[i]);
+
+  bar_manager_begin(bar_manager);
+}
+
 void bar_manager_refresh(struct bar_manager *bar_manager)
 {
     for (int i = 0; i < bar_manager->bar_count; ++i)
@@ -448,6 +458,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
 {
     bar_manager->bars = NULL;
     bar_manager->bar_count = 0;
+    bar_manager->display = "all";
     bar_manager_set_position(bar_manager, string_copy("top"));
     bar_manager_set_height(bar_manager, 26);
     bar_manager_set_title(bar_manager, true);
@@ -493,6 +504,15 @@ void bar_manager_init(struct bar_manager *bar_manager)
 
 void bar_manager_begin(struct bar_manager *bar_manager)
 {
+  char * main = "main";
+  char * all = "all";
+
+  if (strcmp(bar_manager->display,main) == 0) {
+        uint32_t did = display_manager_main_display_id();
+	bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * 1);
+	bar_manager->bar_count = 1;
+	bar_manager->bars[0] = bar_create(did);
+  } else if (strcmp(bar_manager->display,all) == 0) {
     bar_manager->bar_count = display_manager_active_display_count();
     bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
 
@@ -501,4 +521,5 @@ void bar_manager_begin(struct bar_manager *bar_manager)
         uint32_t did = display_manager_arrangement_display_id(index);
         bar_manager->bars[index - 1] = bar_create(did);
     }
+  }
 }

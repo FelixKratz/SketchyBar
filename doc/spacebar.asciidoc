@@ -60,6 +60,10 @@ Settings
 *debug_output* ['<BOOL_SEL>']::
     Enable output of debug information to stdout.
 
+*display* ['<display>']::
+    Display to draw the bar on. +
+    Must be one of 'main' or 'all'.
+
 *position* ['<position>']::
     Position on the screen to draw the bar. +
     Must be one of 'top' or 'bottom'.

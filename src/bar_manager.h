@@ -18,6 +18,7 @@ struct bar_manager
   char *_left_shell_icon;
   char *_right_shell_icon;
   char *position;
+  char *display;
   char *_display_separator_icon;
   uint32_t height;
   uint32_t padding_left;
@@ -110,6 +111,7 @@ void bar_manager_set_center_shell_output(struct bar_manager *bar_manager, char *
 void bar_manager_set_left_shell_command(struct bar_manager *bar_manager, char *command);
 void bar_manager_set_right_shell_command(struct bar_manager *bar_manager, char *command);
 void bar_manager_set_center_shell_command(struct bar_manager *bar_manager, char *command);
+void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);
 void bar_manager_refresh(struct bar_manager *bar_manager);

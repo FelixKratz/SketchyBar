@@ -53,6 +53,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR               "display_separator"
 #define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON          "display_separator_icon"
 #define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON_COLOR    "display_separator_icon_color"
+#define COMMAND_CONFIG_BAR_DISPLAY                         "display"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON     "on"
@@ -553,6 +554,17 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 	fprintf(rsp, "%s\n", g_bar_manager._display_separator_icon ? g_bar_manager._display_separator_icon : "");
       } else {
 	bar_manager_set_display_separator_icon(&g_bar_manager, token_to_string(token));
+      }
+    } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
+      int length = strlen(message);
+      char * main = "main";
+      char * all = "all";
+      if (length <= 0) {
+	fprintf(rsp, "%s\n", g_bar_manager.display);
+      } else if ((strcmp(message,main) == 0) || (strcmp(message,all) == 0)) {
+	bar_manager_set_display(&g_bar_manager, string_copy(message));
+      } else {
+	daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
       }
     }
     else {
