@@ -17,14 +17,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
+        with:
+          # Flakes don't work on shallow clones
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v12
+        with:
+          install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20210207_fd6eaa1/install
+
+      - name: Enable Flakes
+        run: echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf
 
       - name: Build
         id: build-bin
@@ -39,6 +47,10 @@ jobs:
         run: |
           echo "::set-output name=version::$(./bin/spacebar --version | cut -d- -f2)"
 
+      - name: Build with Nix
+        run: |
+          nix build
+
       - name: Get the current tag name
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
@@ -48,7 +60,7 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
           [[ "$RELEASE_VERSION" == ${{ steps.check-bin.outputs.version }} ]]
-    
+
       - name: Create Release
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         id: create-release

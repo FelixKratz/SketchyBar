@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Default to "Solid" style of Font Awesome 5 Free icon font
 - Option to display spaces for all displays, including: optional separator, secondary & tertiary space indicator colours in relation to display
 - Option to specify only drawing one bar on the main display or multiple bars, one for each display (this aligns with yabai's `external_bar` option)
+- Provide a [Nix Flake](https://nixos.wiki/wiki/Flakes)
 
 ## [1.2.1](https://github.com/cmacrae/spacebar/releases/tag/v1.2.1) - 2020-11-18
 

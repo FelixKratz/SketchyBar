@@ -44,6 +44,27 @@ brew services start spacebar
 
 ### Nix
 A package is generally available to Nix users on macOS in the various channels.  
+A [Flake](https://nixos.wiki/wiki/Flakes) is also available in this repository and can be used like so:
+```nix
+{
+  inputs.darwin.url = "github:lnl7/nix-darwin";
+  inputs.spacebar.url = "github:cmacrae/spacebar";
+
+  outputs = { self, darwin, spacebar }: {
+    darwinConfigurations.example = darwin.lib.darwinSystem {
+      modules = [
+        {
+          nixpkgs.overlays = [
+            spacebar.overlay
+          ];
+        }
+      ];
+    };
+  };
+}
+```
+Or try it out with `nix run github:cmacrae/spacebar`!
+
 spacebar can be configured and managed in a declarative manner using the `services.spacebar` module in [nix-darwin](https://github.com/LnL7/nix-darwin)
 
 ### Accessibility Permissions
@@ -178,7 +199,8 @@ brew upgrade spacebar
 brew services start spacebar
 ```
 
-If you're using the Nix package and keeping your channels up to date, package upgrades will roll in as you command.
+If you're using the Nix package form the nixpkgs collection and keeping your channels up to date, package upgrades will roll in as you command.  
+If you're using the Nix Flake, you can update your `input.spacebar.url` to point to the latest release tag and update your lockfile.
 
 ## Requirements and Caveats
 Please read the below requirements carefully.  
