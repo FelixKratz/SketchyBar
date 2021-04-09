@@ -23,6 +23,9 @@
   <a href="https://github.com/cmacrae/spacebar/compare/v1.2.1...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=ea907a" alt="Version Badge">
   </a>
+  <a href="https://github.com/cmacrae/spacebar/discussions">
+    <img src="https://img.shields.io/badge/GitHub-Discussions-a3ddcb.svg?labelColor=3b5360" alt="Discussions Badge">
+  </a>
 </p>
 
 ## About
