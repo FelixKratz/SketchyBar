@@ -51,7 +51,7 @@ A [Flake](https://nixos.wiki/wiki/Flakes) is also available in this repository a
 ```nix
 {
   inputs.darwin.url = "github:lnl7/nix-darwin";
-  inputs.spacebar.url = "github:cmacrae/spacebar";
+  inputs.spacebar.url = "github:cmacrae/spacebar/v1.3.0";
 
   outputs = { self, darwin, spacebar }: {
     darwinConfigurations.example = darwin.lib.darwinSystem {
@@ -66,7 +66,7 @@ A [Flake](https://nixos.wiki/wiki/Flakes) is also available in this repository a
   };
 }
 ```
-Or try it out with `nix run github:cmacrae/spacebar`!
+Or try it out with `nix run github:cmacrae/spacebar/v1.3.0`!
 
 spacebar can be configured and managed in a declarative manner using the `services.spacebar` module in [nix-darwin](https://github.com/LnL7/nix-darwin)
 
