@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/cmacrae/spacebar/compare/v1.2.1...HEAD)
+## [Unreleased](https://github.com/cmacrae/spacebar/compare/v1.3.0...HEAD)
 
+## [1.3.0](https://github.com/cmacrae/spacebar/releases/tag/v1.3.0) - 2020-04-25
 **Changed**
 - Fixed a bug introduced in Big Sur where buffer reads were incorrect
 - Improved efficiency of bar's initialisation

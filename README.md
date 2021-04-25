@@ -20,7 +20,7 @@
   <a href="https://github.com/cmacrae/spacebar/projects/1">
     <img src="https://img.shields.io/badge/Project-tasks-7fdbda.svg?logo=trello" alt="GitHub Project Badge">
   </a>
-  <a href="https://github.com/cmacrae/spacebar/compare/v1.2.1...HEAD">
+  <a href="https://github.com/cmacrae/spacebar/compare/v1.3.0...HEAD">
     <img src="https://img.shields.io/github/commits-since/cmacrae/spacebar/latest.svg?color=ea907a" alt="Version Badge">
   </a>
   <a href="https://github.com/cmacrae/spacebar/discussions">
@@ -90,35 +90,45 @@ touch ~/.config/spacebar/spacebarrc
 chmod +x ~/.config/spacebar/spacebarrc
 ```
 
-Here's a configuration taken from [`examples/`](https://github.com/cmacrae/spacebar/blob/v1.2.1/examples/spacebarrc):
+Here's a configuration taken from [`examples/`](https://github.com/cmacrae/spacebar/blob/v1.3.0/examples/spacebarrc):
 ```
 #!/usr/bin/env sh
 
-spacebar -m config position           top
-spacebar -m config height             26
-spacebar -m config spacing_left       25
-spacebar -m config spacing_right      15
-spacebar -m config text_font          "Helvetica Neue:Bold:12.0"
-spacebar -m config icon_font          "Font Awesome 5 Free:Regular:12.0"
-spacebar -m config background_color   0xff202020
-spacebar -m config foreground_color   0xffa8a8a8
-spacebar -m config space_icon_color   0xff458588
-spacebar -m config power_icon_color   0xffcd950c
-spacebar -m config battery_icon_color 0xffd75f5f
-spacebar -m config dnd_icon_color     0xffa8a8a8
-spacebar -m config clock_icon_color   0xffa8a8a8
-spacebar -m config space_icon_strip   I II III IV V VI VII VIII IX X
-spacebar -m config power_icon_strip    
-spacebar -m config space_icon         
-spacebar -m config clock_icon         
-spacebar -m config dnd_icon           
-spacebar -m config clock_format       "%d/%m/%y %R"
+spacebar -m config position             top
+spacebar -m config height               26
+spacebar -m config title                on
+spacebar -m config spaces               on
+spacebar -m config clock                on
+spacebar -m config power                on
+spacebar -m config padding_left         20
+spacebar -m config padding_right        20
+spacebar -m config spacing_left         25
+spacebar -m config spacing_right        15
+spacebar -m config text_font            "Helvetica Neue:Bold:12.0"
+spacebar -m config icon_font            "Font Awesome 5 Free:Solid:12.0"
+spacebar -m config background_color     0xff202020
+spacebar -m config foreground_color     0xffa8a8a8
+spacebar -m config space_icon_color     0xff458588
+spacebar -m config power_icon_color     0xffcd950c
+spacebar -m config battery_icon_color   0xffd75f5f
+spacebar -m config dnd_icon_color       0xffa8a8a8
+spacebar -m config clock_icon_color     0xffa8a8a8
+spacebar -m config power_icon_strip      
+spacebar -m config space_icon_strip     I II III IV V VI VII VIII IX X
+spacebar -m config space_icon           
+spacebar -m config clock_icon           
+spacebar -m config dnd_icon             
+spacebar -m config clock_format         "%d/%m/%y %R"
+spacebar -m config right_shell          on
+spacebar -m config right_shell_icon     
+spacebar -m config right_shell_command  "whoami"
 
 echo "spacebar configuration loaded.."
+
 ```
 _Note: Ensure fonts are installed to use glyphs_
 
-For further configuration documentation, please see [`man spacebar`](https://github.com/cmacrae/spacebar/blob/v1.2.1/doc/spacebar.asciidoc)
+For further configuration documentation, please see [`man spacebar`](https://github.com/cmacrae/spacebar/blob/v1.3.0/doc/spacebar.asciidoc)
 
 ### Declarative configuration with Nix
 If you're using the `services.spacebar` module from [nix-darwin](https://github.com/LnL7/nix-darwin), you can configure spacebar like so:
@@ -127,25 +137,40 @@ If you're using the `services.spacebar` module from [nix-darwin](https://github.
   services.spacebar.enable = true;
   services.spacebar.package = pkgs.spacebar;
   services.spacebar.config = {
-    position           = "top";
-    height             = 26;
-    spacing_left       = 25;
-    spacing_right      = 15;
-    text_font          = ''"Helvetica Neue:Bold:12.0"'';
-    icon_font          = ''"Font Awesome 5 Free:Regular:12.0"'';
-    background_color   = "0xff202020";
-    foreground_color   = "0xffa8a8a8";
-    space_icon_color   = "0xff458588";
-    power_icon_color   = "0xffcd950c";
-    battery_icon_color = "0xffd75f5f";
-    dnd_icon_color     = "0xffa8a8a8";
-    clock_icon_color   = "0xffa8a8a8";
-    space_icon_strip   = "I II III IV V VI VII VIII IX X";
-    power_icon_strip   = " ";
-    space_icon         = "";
-    clock_icon         = "";
-    dnd_icon           = "";
-    clock_format       = ''"%d/%m/%y %R"'';
+    position                   = "top";
+    display                    = "main";
+    height                     = 26;
+    title                      = "on";
+    spaces                     = "on";
+    clock                      = "on";
+    power                      = "on";
+    padding_left               = 20;
+    padding_right              = 20;
+    spacing_left               = 25;
+    spacing_right              = 15;
+    text_font                  = ''"Menlo:Regular:12.0"'';
+    icon_font                  = ''"Font Awesome 5 Free:Solid:12.0"'';
+    background_color           = "0xff202020";
+    foreground_color           = "0xffa8a8a8";
+    power_icon_color           = "0xffcd950c";
+    battery_icon_color         = "0xffd75f5f";
+    dnd_icon_color             = "0xffa8a8a8";
+    clock_icon_color           = "0xffa8a8a8";
+    power_icon_strip           = " ";
+    space_icon                 = "•";
+    space_icon_strip           = "1 2 3 4 5 6 7 8 9 10";
+    spaces_for_all_displays    = "on";
+    display_separator          = "on";
+    display_separator_icon     = "";
+    space_icon_color           = "0xff458588";
+    space_icon_color_secondary = "0xff78c4d4";
+    space_icon_color_tertiary  = "0xfffff9b0";
+    clock_icon                 = "";
+    dnd_icon                   = "";
+    clock_format               = ''"%d/%m/%y %R"'';
+    right_shell                = "on";
+    right_shell_icon           = "";
+    right_shell_command        = "whoami";
   };
 }
 ```
