@@ -36,7 +36,8 @@ spacebar is a minimal status bar for macOS. Ideal for use with tiling window man
 </p>
 
 ## Installation
-A package and service to install and manage spacebar is provided in two flavours: [Homebrew](https://brew.sh) & [Nix](https://nixos.org).
+A package and service to install and manage spacebar is provided in two flavours: [Homebrew](https://brew.sh) & [Nix](https://nixos.org).  
+There is also a precompiled binary archive available in [the latest release assets](https://github.com/cmacrae/spacebar/releases/tag/v1.3.0).  
 
 ### Homebrew
 spacebar can be installed using Homebrew from the `cmacrae/formulae` tap
