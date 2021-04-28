@@ -26,6 +26,9 @@
   <a href="https://github.com/cmacrae/spacebar/discussions">
     <img src="https://img.shields.io/badge/GitHub-Discussions-a3ddcb.svg?labelColor=3b5360" alt="Discussions Badge">
   </a>
+  <a href="https://github.com/sponsors/cmacrae">
+    <img src="https://img.shields.io/badge/Sponsor-f8f8f8.svg?logo=github-sponsors" alt="Discussions Badge">
+  </a>
 </p>
 
 ## About
