@@ -121,9 +121,9 @@ void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did
   }
 }
 
-void bar_manager_script_update(struct bar_manager* bar_manager) {
+void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_item_script_update(bar_manager->bar_items[i]);
+    bar_item_script_update(bar_manager->bar_items[i], forced);
   }
 }
 

@@ -23,7 +23,7 @@ struct bar_manager
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name);
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager);
 
-void bar_manager_script_update(struct bar_manager* bar_manager);
+void bar_manager_script_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did, uint32_t sid);
 void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);

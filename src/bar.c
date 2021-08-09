@@ -310,8 +310,8 @@ struct bar *bar_create(uint32_t did)
   SLSSetWindowLevel(g_connection, bar->id, CGWindowLevelForKey(4));
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
 
-  int refresh_frequency = 5;
-  int shell_refresh_frequency = 5;
+  int refresh_frequency = 1;
+  int shell_refresh_frequency = 1;
   bar->power_source = IOPSNotificationCreateRunLoopSource(power_handler, NULL);
   bar->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
   bar->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);

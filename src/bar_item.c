@@ -10,7 +10,7 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
-  bar_item->update_frequency = 5;
+  bar_item->update_frequency = 10;
   bar_item->script = "";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
@@ -29,16 +29,13 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
 }
 
-void bar_item_script_update(struct bar_item* bar_item) {
+void bar_item_script_update(struct bar_item* bar_item, bool forced) {
   if (strcmp(bar_item->script, "") != 0) {
-    if (bar_item->update_frequency <= bar_item->counter) { 
+    bar_item->counter++;
+    if (bar_item->update_frequency < bar_item->counter || forced) { 
       bar_item->counter = 0; 
+      fork_exec(bar_item->script, NULL);
     }
-    else {
-      bar_item->counter++;
-      return;
-    }
-    fork_exec(bar_item->script, NULL);
   }
 }
 
@@ -48,7 +45,6 @@ void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t
       bar_item_set_label(bar_item, focused_window_title());
     }
     else if (strcmp(bar_item->identifier, "space") == 0) {
-      printf("sid: %i did: %i \n", sid, did);
       if (sid == bar_item->associated_space && did == bar_item->associated_display) {
         bar_item->icon_color = g_bar_manager.space_icon_color;
         bar_item_set_icon(bar_item, bar_item->icon);

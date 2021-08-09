@@ -22,6 +22,8 @@ extern bool g_verbose;
 
 #define DOMAIN_SET "set"
 
+#define DOMAIN_UPDATE "update"
+
 /* --------------------------------DOMAIN SET-------------------------------- */
 
 // Syntax: spacebar -m set <name> <property> <value>
@@ -365,6 +367,8 @@ void handle_message(FILE *rsp, char *message)
   } else if (token_equals(domain, DOMAIN_SET)){
     printf("DOMAIN: SET \n");
     handle_domain_set(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_UPDATE)) {
+    bar_manager_script_update(&g_bar_manager, true);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }
