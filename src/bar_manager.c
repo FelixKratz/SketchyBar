@@ -121,6 +121,12 @@ void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did
   }
 }
 
+void bar_manager_script_update(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    bar_item_script_update(bar_manager->bar_items[i]);
+  }
+}
+
 void bar_manager_begin(struct bar_manager *bar_manager)
 {
   char * main = "main";

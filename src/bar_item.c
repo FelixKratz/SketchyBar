@@ -7,6 +7,7 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_init(struct bar_item* bar_item) {
+  bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 5;
@@ -26,6 +27,19 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->label_spacing_left = 2;
   bar_item->label_spacing_right = 2;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
+}
+
+void bar_item_script_update(struct bar_item* bar_item) {
+  if (strcmp(bar_item->script, "") != 0) {
+    if (bar_item->update_frequency <= bar_item->counter) { 
+      bar_item->counter = 0; 
+    }
+    else {
+      bar_item->counter++;
+      return;
+    }
+    fork_exec(bar_item->script, NULL);
+  }
 }
 
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {

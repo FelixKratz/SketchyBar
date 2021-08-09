@@ -213,6 +213,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_BAR_REFRESH)
 
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH)
 {
+    bar_manager_script_update(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
