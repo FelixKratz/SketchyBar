@@ -1,4 +1,4 @@
 /bin
-/archive
-/.idea
-result
+.ccls-cache
+.DS_Store
+.ccls

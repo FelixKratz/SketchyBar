@@ -34,7 +34,6 @@
 #undef HASHTABLE_IMPLEMENTATION
 #include "misc/socket.h"
 #include "misc/socket.c"
-#include "misc/dnd.c"
 
 //#include "osax/sa.h"
 //#include "osax/sa_loader.c"
@@ -51,6 +50,7 @@
 #include "display_manager.h"
 #include "application_manager.h"
 #include "bar.h"
+#include "bar_item.h"
 #include "bar_manager.h"
 
 #include "event_loop.c"
@@ -62,6 +62,7 @@
 #include "application.c"
 #include "display_manager.c"
 #include "bar.c"
+#include "bar_item.c"
 #include "bar_manager.c"
 #include "application_manager.c"
 
