@@ -8,22 +8,43 @@ struct bar_item* bar_item_create() {
 
 void bar_item_init(struct bar_item* bar_item) {
   bar_item->name = "";
+  bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 5;
   bar_item->script = "";
-  bar_item->position = 'r';
+  bar_item->position = BAR_POSITION_RIGHT;
+  bar_item->associated_display = 0;
+  bar_item->associated_space = 0;
   bar_item->padding_left = 5;
   bar_item->padding_right = 5;
   bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
   bar_item_set_icon(bar_item, string_copy(""));
-  bar_item->switch_icon_side = false;
-  bar_item->icon_spacing_left = 2;
-  bar_item->icon_spacing_right = 2;
+  bar_item->icon_spacing_left = 5;
+  bar_item->icon_spacing_right = 5;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
   bar_item_set_label_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
   bar_item_set_label(bar_item, string_copy(""));
   bar_item->label_spacing_left = 2;
   bar_item->label_spacing_right = 2;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
+}
+
+void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
+  if (bar_item->type == BAR_COMPONENT) {
+    if (strcmp(bar_item->identifier, "title") == 0) {
+      bar_item_set_label(bar_item, focused_window_title());
+    }
+    else if (strcmp(bar_item->identifier, "space") == 0) {
+      printf("sid: %i did: %i \n", sid, did);
+      if (sid == bar_item->associated_space && did == bar_item->associated_display) {
+        bar_item->icon_color = g_bar_manager.space_icon_color;
+        bar_item_set_icon(bar_item, bar_item->icon);
+      }
+      else {
+        bar_item->icon_color = g_bar_manager.foreground_color;
+        bar_item_set_icon(bar_item, bar_item->icon);
+      }
+    }
+  }
 }
 
 void bar_item_set_name(struct bar_item* bar_item, char* name) {

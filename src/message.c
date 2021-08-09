@@ -15,9 +15,9 @@ extern bool g_verbose;
 #define DOMAIN_ADD "add"
 // Syntax: spacebar -m add item <name> <position>
 #define COMMAND_ADD_ITEM                                    "item"                                  
-// Syntax: spacebar -m add component <name> <position>
+// Syntax: spacebar -m add component <identifier> <name> <position>
 #define COMMAND_ADD_COMPONENT                               "component"
-// Syntax: spacebar -m add plugin <name> <position>
+// Syntax: spacebar -m add plugin <identifier> <name> <position>
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 
 #define DOMAIN_SET "set"
@@ -25,10 +25,15 @@ extern bool g_verbose;
 /* --------------------------------DOMAIN SET-------------------------------- */
 
 // Syntax: spacebar -m set <name> <property> <value>
+#define COMMAND_SET_POSITION                                "position"
+#define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
+#define COMMAND_SET_ASSOCIATED_SPACE                       "associated_space"
 #define COMMAND_SET_UPDATE_FREQ                             "update_freq"
 #define COMMAND_SET_SCRIPT                                  "script"
-#define COMMAND_SET_PADDING_LEFT                            "padding_left"
-#define COMMAND_SET_PADDING_RIGHT                           "padding_right"
+#define COMMAND_SET_ICON_PADDING_LEFT                            "icon_padding_left"
+#define COMMAND_SET_ICON_PADDING_RIGHT                            "icon_padding_right"
+#define COMMAND_SET_LABEL_PADDING_LEFT                            "label_padding_left"
+#define COMMAND_SET_LABEL_PADDING_RIGHT                            "label_padding_right"
 #define COMMAND_SET_ICON                                    "icon"
 #define COMMAND_SET_ICON_FONT                               "icon_font"
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
@@ -41,25 +46,14 @@ extern bool g_verbose;
 
 /* --------------------------------DOMAIN CONFIG-------------------------------- */
 #define COMMAND_CONFIG_DEBUG_OUTPUT                        "debug_output"
-#define COMMAND_CONFIG_BAR_TEXT_FONT                       "text_font"
-#define COMMAND_CONFIG_BAR_ICON_FONT                       "icon_font"
 #define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                "space_icon_color"
-#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_SECONDARY      "space_icon_color_secondary"
-#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_TERTIARY       "space_icon_color_tertiary"
 #define COMMAND_CONFIG_BAR_BACKGROUND                      "background_color"
 #define COMMAND_CONFIG_BAR_FOREGROUND                      "foreground_color"
-#define COMMAND_CONFIG_BAR_SPACE_STRIP                     "space_icon_strip"
-#define COMMAND_CONFIG_BAR_SPACE_ICON                      "space_icon"
 #define COMMAND_CONFIG_BAR_POSITION                        "position"
 #define COMMAND_CONFIG_BAR_HEIGHT                          "height"
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                    "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                   "padding_right"
 #define COMMAND_CONFIG_BAR_TITLE                           "title"
-#define COMMAND_CONFIG_BAR_SPACES                          "spaces"
-#define COMMAND_CONFIG_BAR_SPACES_FOR_ALL_DISPLAYS         "spaces_for_all_displays"
-#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR               "display_separator"
-#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON          "display_separator_icon"
-#define COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON_COLOR    "display_separator_icon_color"
 #define COMMAND_CONFIG_BAR_DISPLAY                         "display"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
@@ -142,23 +136,41 @@ static void daemon_fail(FILE *rsp, char *fmt, ...)
     view_flush(view); \
   }
 
-// Syntax: spacebar -m add <item> <name>
+// Syntax: spacebar -m add <item|component|plugin> (<identifier>) <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
-  printf("Handling add domain \n");
   struct token command  = get_token(&message);
+  struct token name;
+  struct token position;
+  struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
+        
   if (token_equals(command, COMMAND_ADD_ITEM)) {
-    struct token name = get_token(&message);
-    struct token position = get_token(&message);
-    printf("Reallocing \n");
-    g_bar_manager.bar_items = (struct bar_item**) realloc(g_bar_manager.bar_items, sizeof(struct bar_item*) * (g_bar_manager.bar_item_count + 1));
-    g_bar_manager.bar_item_count += 1;
-    g_bar_manager.bar_items[g_bar_manager.bar_item_count - 1] = bar_item_create();
-    printf("Realloced, now we init \n");
-    bar_item_init(g_bar_manager.bar_items[g_bar_manager.bar_item_count - 1]);
-    g_bar_manager.bar_items[g_bar_manager.bar_item_count - 1]->position = token_to_string(position)[0];
-    bar_item_set_name(g_bar_manager.bar_items[g_bar_manager.bar_item_count - 1], string_copy(token_to_string(name)));
-    printf("Init done, now we roll \n");
+    name = get_token(&message);
+    position = get_token(&message);
+    bar_item->type = BAR_ITEM;
+    bar_item->identifier = token_to_string(name);
+  } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
+    struct token identifier = get_token(&message);
+    name = get_token(&message);
+    position = get_token(&message);
+
+    bar_item->type = BAR_COMPONENT;
+    bar_item->identifier = token_to_string(identifier);
+  } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
+    struct token identifier = get_token(&message);
+    name = get_token(&message);
+    position = get_token(&message);
+
+    bar_item->type = BAR_PLUGIN;
+    bar_item->identifier = token_to_string(identifier);
   }
+  else {
+    exit(1);
+  }
+
+  bar_item->position = token_to_string(position)[0];
+  bar_item_set_name(bar_item, string_copy(token_to_string(name)));
+
+  bar_manager_refresh(&g_bar_manager);
 }
 
 // Syntax: spacebar -m set <name> <property> <value>
@@ -171,27 +183,49 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     printf("Name not found in bar items");
     return;
   }
+  struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
   if (token_equals(property, COMMAND_SET_ICON)) {
-    bar_item_set_icon(g_bar_manager.bar_items[item_index_for_name], string_copy(message));
+    bar_item_set_icon(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
-    bar_item_set_icon_font(g_bar_manager.bar_items[item_index_for_name], string_copy(message));
+    bar_item_set_icon_font(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_LABEL)) {
-    bar_item_set_label(g_bar_manager.bar_items[item_index_for_name], string_copy(message));
+    bar_item_set_label(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_LABEL_FONT)) {
-    bar_item_set_label_font(g_bar_manager.bar_items[item_index_for_name], string_copy(message));
+    bar_item_set_label_font(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_SCRIPT)) {
-    bar_item_set_script(g_bar_manager.bar_items[item_index_for_name], string_copy(message));
+    bar_item_set_script(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_UPDATE_FREQ)) {
     struct token value = get_token(&message);
-    g_bar_manager.bar_items[item_index_for_name]->update_frequency = token_to_uint32t(value);
+    bar_item->update_frequency = token_to_uint32t(value);
   } else if (token_equals(property, COMMAND_SET_LABEL_COLOR)) {
     struct token value = get_token(&message);
-    bar_item_set_label_color(g_bar_manager.bar_items[item_index_for_name], token_to_uint32t(value));
+    bar_item_set_label_color(bar_item, token_to_uint32t(value));
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
     struct token value = get_token(&message);
-    bar_item_set_icon_color(g_bar_manager.bar_items[item_index_for_name], token_to_uint32t(value));
-  }
+    bar_item_set_icon_color(bar_item, token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_POSITION)) {
+    struct token value = get_token(&message);
+    bar_item->position = token_to_string(value)[0];
+  } else if (token_equals(property, COMMAND_SET_ASSOCIATED_SPACE)) {
+    struct token value = get_token(&message);
+    bar_item->associated_space = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_ASSOCIATED_DISPLAY)) {
+    struct token value = get_token(&message);
+    bar_item->associated_display = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
+    struct token value = get_token(&message);
+    bar_item->icon_spacing_left = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->icon_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
+    struct token value = get_token(&message);
+    bar_item->label_spacing_left = token_to_uint32t(value);
+  }  else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->label_spacing_left = token_to_uint32t(value);
+  } 
 
   bar_manager_refresh(&g_bar_manager);
 }
@@ -210,20 +244,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       g_verbose = true;
     } else {
       daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_TEXT_FONT)) {
-    int length = strlen(message);
-    if (length <= 0) {
-      fprintf(rsp, "%s\n", g_bar_manager.t_font_prop);
-    } else {
-      bar_manager_set_text_font(&g_bar_manager, string_copy(message));
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_ICON_FONT)) {
-    int length = strlen(message);
-    if (length <= 0) {
-      fprintf(rsp, "%s\n", g_bar_manager.i_font_prop);
-    } else {
-      bar_manager_set_icon_font(&g_bar_manager, string_copy(message));
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_BACKGROUND)) {
     struct token value = get_token(&message);
@@ -249,30 +269,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
       }
     }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_STRIP)) {
-    char **icon_strip = NULL;
-    struct token token = get_token(&message);
-
-    if(token.length==0){ // If no value given, print current value
-      fprintf(rsp, "\"%s\"", *g_bar_manager._space_icon_strip);
-      char **p = g_bar_manager._space_icon_strip;
-      for(int i = 1; i<buf_len(g_bar_manager.space_icon_strip);i++) {
-        fprintf(rsp, " \"%s\"", *++p);
-      }
-    } else { // Else, set value
-      while (token.text && token.length > 0) {
-        buf_push(icon_strip, token_to_string(token));
-        token = get_token(&message);
-      }
-      bar_manager_set_space_strip(&g_bar_manager, icon_strip);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON)) {
-    struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%s\n", g_bar_manager._space_icon ? g_bar_manager._space_icon : "");
-    } else {
-      bar_manager_set_space_icon(&g_bar_manager, token_to_string(token));
-    }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR)) {
     struct token value = get_token(&message);
     if (!token_is_valid(value)) {
@@ -281,30 +277,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       uint32_t color = token_to_uint32t(value);
       if (color) {
         bar_manager_set_space_icon_color(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_SECONDARY)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color_secondary.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_space_icon_color_secondary(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR_TERTIARY)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color_tertiary.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_space_icon_color_tertiary(&g_bar_manager, color);
       } else {
         daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
       }
@@ -342,58 +314,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       bar_manager_set_title(&g_bar_manager, true);
     } else {
       daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACES)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "%s\n", bool_str[g_bar_manager.spaces]);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
-      bar_manager_set_spaces(&g_bar_manager, false);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      bar_manager_set_spaces(&g_bar_manager, true);
-    } else {
-      daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACES_FOR_ALL_DISPLAYS)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "%s\n", bool_str[g_bar_manager.spaces_for_all_displays]);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
-      bar_manager_set_spaces_for_all_displays(&g_bar_manager, false);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      bar_manager_set_spaces_for_all_displays(&g_bar_manager, true);
-    } else {
-      daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "%s\n", bool_str[g_bar_manager.display_separator]);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
-      bar_manager_set_display_separator(&g_bar_manager, false);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      bar_manager_set_display_separator(&g_bar_manager, true);
-    } else {
-      daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON_COLOR)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.display_separator_icon_color.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_display_separator_icon_color(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY_SEPARATOR_ICON)) {
-    struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%s\n", g_bar_manager._display_separator_icon ? g_bar_manager._display_separator_icon : "");
-    } else {
-      bar_manager_set_display_separator_icon(&g_bar_manager, token_to_string(token));
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
