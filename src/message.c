@@ -226,7 +226,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item->label_spacing_left = token_to_uint32t(value);
   }  else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     struct token value = get_token(&message);
-    bar_item->label_spacing_left = token_to_uint32t(value);
+    bar_item->label_spacing_right = token_to_uint32t(value);
   } 
 
   bar_manager_refresh(&g_bar_manager);
