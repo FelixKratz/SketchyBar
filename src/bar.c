@@ -179,7 +179,7 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
   int total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (bar_item->position == 'c') {
+    if (bar_item->position == BAR_POSITION_CENTER) {
       total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       if (i > 0) {
         total_length += bar_manager->bar_items[i-1]->label_spacing_right + bar_item->icon_spacing_left;
@@ -218,7 +218,7 @@ void bar_refresh(struct bar *bar)
     
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
-      label_position.x = icon_position.x + label->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
     }
 
@@ -230,7 +230,7 @@ void bar_refresh(struct bar *bar)
     
     if (bar_item->position == BAR_POSITION_CENTER) {
       icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
-      label_position.x = icon_position.x + label->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
     }
 

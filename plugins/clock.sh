@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-spacebar -m set clock label $(date '+%d/%m %H:%M')
+spacebar -m set clock label "$(date '+%d/%m %H:%M')"
 
