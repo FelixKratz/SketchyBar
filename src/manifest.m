@@ -34,6 +34,8 @@
 #undef HASHTABLE_IMPLEMENTATION
 #include "misc/socket.h"
 #include "misc/socket.c"
+#include "misc/cpu.h"
+#include "misc/cpu.c"
 
 //#include "osax/sa.h"
 //#include "osax/sa_loader.c"

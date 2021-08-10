@@ -356,16 +356,12 @@ enum label_type
 
 void handle_message(FILE *rsp, char *message)
 {
-  printf("Handling Message \n");
   struct token domain = get_token(&message);
   if (token_equals(domain, DOMAIN_CONFIG)) {
-    printf("DOMAIN: CONFIG \n");
     handle_domain_config(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_ADD)){
-    printf("DOMAIN: ADD \n");
     handle_domain_add(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_SET)){
-    printf("DOMAIN: SET \n");
     handle_domain_set(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_UPDATE)) {
     bar_manager_script_update(&g_bar_manager, true);

@@ -2,7 +2,6 @@
 
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    printf("Name: %s with requested name: %s \n", bar_manager->bar_items[i]->name, name);
     if (strcmp(bar_manager->bar_items[i]->name, name) == 0) {
       return i;
     }

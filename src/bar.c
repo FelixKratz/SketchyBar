@@ -2,6 +2,7 @@
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
+struct cpu_info cpu_info;
 
 static POWER_CALLBACK(power_handler)
 {
@@ -110,6 +111,32 @@ static struct bar_line bar_prepare_line(CTFontRef font, char *cstring, struct rg
   };
 }
 
+void bar_draw_graph_line(struct bar *bar, const float data[], size_t ndata, float x, float y, struct rgba_color *color, bool fill, int sample_width) {
+  const float height = bar->frame.size.height * 0.9f;
+
+  CGContextSaveGState(bar->context);
+  CGContextSetRGBStrokeColor(bar->context, color->r, color->g, color->b, 1.0);
+  CGContextSetRGBFillColor(bar->context, color->r, color->g, color->b, 0.2);
+  CGContextSetLineWidth(bar->context, fill ? 0.5 : 0.75);
+  CGMutablePathRef p = CGPathCreateMutable();
+  float start_x = x;
+  CGPathMoveToPoint(p, NULL, x, y + data[ndata - 1] * height);
+  for (int i = ndata - 1; i > 0; --i, x -= sample_width) {
+    CGPathAddLineToPoint(p, NULL, x, y + data[i] * height);
+  }
+  CGContextAddPath(bar->context, p);
+  CGContextStrokePath(bar->context);
+  if (fill) {
+    CGPathAddLineToPoint(p, NULL, x + sample_width, 0);
+    CGPathAddLineToPoint(p, NULL, start_x, 0);
+    CGPathCloseSubpath(p);
+    CGContextAddPath(bar->context, p);
+    CGContextFillPath(bar->context);
+  }
+  CGPathRelease(p);
+  CGContextRestoreGState(bar->context);
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 static char * focused_window_title()
@@ -189,6 +216,32 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
   return total_length;
 }
 
+bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int sample_width) {
+  if (bar_item->type == BAR_COMPONENT && strcmp(bar_item->identifier, "cpu_graph") == 0) {
+    struct rgba_color cpu_user_color = rgba_color_from_hex(0xcccccc);
+    struct rgba_color cpu_sys_color = rgba_color_from_hex(0x86a9c4);
+    if (!cpu_info.is_running) {
+      cpu_info.update_freq = 1;
+      cpu_create(&cpu_info);
+    }
+
+    
+    bar_draw_graph_line(bar, cpu_info.load_avg, CPU_WINDOW_SZ, x, 0, &cpu_user_color, true, sample_width);
+    bar_draw_graph_line(bar, cpu_info.sys_avg, CPU_WINDOW_SZ, x, 0, &cpu_sys_color, false, sample_width);
+    return true;
+  }
+  else if (bar_item->type == BAR_COMPONENT && strcmp(bar_item->identifier, "mem_graph") == 0) {
+    struct rgba_color mem_color = rgba_color_from_hex(0xcccccc);
+    if (!cpu_info.is_running) {
+      cpu_info.update_freq = 1;
+      cpu_create(&cpu_info);
+    }
+    
+    bar_draw_graph_line(bar, cpu_info.used_mem, CPU_WINDOW_SZ, x, 0, &mem_color, true, sample_width);
+  }
+  return false;
+}
+
 void bar_refresh(struct bar *bar)
 {
   SLSDisableUpdate(g_connection);
@@ -204,6 +257,7 @@ void bar_refresh(struct bar *bar)
   int bar_left_final_item_x = g_bar_manager.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
+  const int sample_width = 3;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
@@ -219,23 +273,35 @@ void bar_refresh(struct bar *bar)
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
+      bar_draw_line(bar, *label, label_position.x, label_position.y);
       bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+      if (bar_draw_graphs(bar, bar_item, bar_left_final_item_x + sample_width, sample_width)) {
+        bar_left_final_item_x += sample_width;
+      }
     }
-
-    if (bar_item->position == BAR_POSITION_RIGHT) {
+    else if (bar_item->position == BAR_POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
       icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left;
+      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
+      bar_draw_line(bar, *label, label_position.x, label_position.y);
+
       bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
+      if (bar_draw_graphs(bar, bar_item, bar_right_first_item_x - sample_width, sample_width)) {
+        bar_right_first_item_x -= sample_width;
+      }
     }
-    
-    if (bar_item->position == BAR_POSITION_CENTER) {
+    else if (bar_item->position == BAR_POSITION_CENTER) {
       icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
-      bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
-    }
+      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
+      bar_draw_line(bar, *label, label_position.x, label_position.y);
 
-    bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-    bar_draw_line(bar, *label, label_position.x, label_position.y);
+      bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+      if (bar_draw_graphs(bar, bar_item, bar_center_first_item_x, sample_width)) {
+        bar_center_first_item_x += sample_width;
+      }
+    }
   }
 
   CGContextFlush(bar->context);
@@ -319,7 +385,7 @@ struct bar *bar_create(uint32_t did)
   CFRunLoopAddSource(CFRunLoopGetMain(), bar->power_source, kCFRunLoopCommonModes);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar->refresh_timer, kCFRunLoopCommonModes);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar->shell_refresh_timer, kCFRunLoopCommonModes);
-
+  
   bar_refresh(bar);
 
   return bar;
