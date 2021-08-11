@@ -215,6 +215,7 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->position == BAR_POSITION_CENTER) {
       total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      // TODO: Hier fehlt definitiv noch die breite des graphen
       if (i > 0) {
         total_length += bar_manager->bar_items[i-1]->label_spacing_right + bar_item->icon_spacing_left;
       }
@@ -232,7 +233,6 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int
       cpu_create(&cpu_info);
     }
 
-    
     bar_draw_graph_line(bar, cpu_info.load_avg, CPU_WINDOW_SZ, x, 0, &cpu_user_color, true, graph_width / CPU_WINDOW_SZ, right_to_left);
     bar_draw_graph_line(bar, cpu_info.sys_avg, CPU_WINDOW_SZ, x, 0, &cpu_sys_color, false, graph_width / CPU_WINDOW_SZ, right_to_left);
     return true;
@@ -264,6 +264,7 @@ void bar_refresh(struct bar *bar)
   int bar_left_final_item_x = g_bar_manager.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
+  // TODO: Graph breite wird noch in das bar_item aufgenommen, zusammen mit den data points
   const int graph_width = 150;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
