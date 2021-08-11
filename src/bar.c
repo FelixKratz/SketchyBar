@@ -276,7 +276,7 @@ void bar_refresh(struct bar *bar)
 
 
     if(bar_item->associated_display > 0 && bar_item->associated_display != did) continue;
-    if(bar_item->type != BAR_COMPONENT && bar_item->associated_space > 0 && bar_item->associated_space != sid) continue;
+    if((strcmp(bar_item->identifier, "space") != 0) && bar_item->associated_space > 0 && bar_item->associated_space != sid) continue;
     
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
