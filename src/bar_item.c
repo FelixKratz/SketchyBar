@@ -15,17 +15,17 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
-  bar_item->padding_left = 5;
-  bar_item->padding_right = 5;
+  bar_item->padding_left = 0;
+  bar_item->padding_right = 0;
   bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
   bar_item_set_icon(bar_item, string_copy(""));
-  bar_item->icon_spacing_left = 5;
-  bar_item->icon_spacing_right = 5;
+  bar_item->icon_spacing_left = 0;
+  bar_item->icon_spacing_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
   bar_item_set_label_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
   bar_item_set_label(bar_item, string_copy(""));
-  bar_item->label_spacing_left = 2;
-  bar_item->label_spacing_right = 2;
+  bar_item->label_spacing_left = 0;
+  bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
 }
 
