@@ -120,22 +120,29 @@ void bar_draw_graph_line(struct bar *bar, const float data[], size_t ndata, floa
   CGContextSetLineWidth(bar->context, fill ? 0.5 : 0.75);
   CGMutablePathRef p = CGPathCreateMutable();
   float start_x = x;
-  CGPathMoveToPoint(p, NULL, x, y + data[ndata - 1] * height);
   if (right_to_left) {
+    CGPathMoveToPoint(p, NULL, x, y + data[ndata - 1] * height);
     for (int i = ndata - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + data[i] * height);
     }
   }
   else {
-    for (int i = 0; i < ndata; i++, x += sample_width) {
+    CGPathMoveToPoint(p, NULL, x, y + data[0] * height);
+    for (int i = ndata - 1; i > 0; --i, x += sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + data[i] * height);
     }
   }
   CGContextAddPath(bar->context, p);
   CGContextStrokePath(bar->context);
   if (fill) {
-    CGPathAddLineToPoint(p, NULL, x + sample_width, 0);
-    CGPathAddLineToPoint(p, NULL, start_x, 0);
+    if (right_to_left) {
+      CGPathAddLineToPoint(p, NULL, x + sample_width, 0);
+      CGPathAddLineToPoint(p, NULL, start_x, 0);
+    }
+    else {
+      CGPathAddLineToPoint(p, NULL, x - sample_width, 0);
+      CGPathAddLineToPoint(p, NULL, start_x, 0);
+    }
     CGPathCloseSubpath(p);
     CGContextAddPath(bar->context, p);
     CGContextFillPath(bar->context);
@@ -245,6 +252,7 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int
     }
     
     bar_draw_graph_line(bar, cpu_info.used_mem, CPU_WINDOW_SZ, x, 0, &mem_color, true, graph_width / CPU_WINDOW_SZ, right_to_left);
+    return true;
   }
   return false;
 }
