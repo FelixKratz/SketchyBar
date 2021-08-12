@@ -231,7 +231,7 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
   return total_length;
 }
 
-bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int graph_width, bool right_to_left) {
+bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int sample_width, bool right_to_left) {
   if (bar_item->type == BAR_COMPONENT && strcmp(bar_item->identifier, "cpu_graph") == 0) {
     struct rgba_color cpu_user_color = rgba_color_from_hex(0xcccccc);
     struct rgba_color cpu_sys_color = rgba_color_from_hex(0x86a9c4);
@@ -240,8 +240,8 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int
       cpu_create(&cpu_info);
     }
 
-    bar_draw_graph_line(bar, cpu_info.load_avg, CPU_WINDOW_SZ, x, 0, &cpu_user_color, true, graph_width / CPU_WINDOW_SZ, right_to_left);
-    bar_draw_graph_line(bar, cpu_info.sys_avg, CPU_WINDOW_SZ, x, 0, &cpu_sys_color, false, graph_width / CPU_WINDOW_SZ, right_to_left);
+    bar_draw_graph_line(bar, cpu_info.load_avg, CPU_WINDOW_SZ, x, 0, &cpu_user_color, true, sample_width, right_to_left);
+    bar_draw_graph_line(bar, cpu_info.sys_avg, CPU_WINDOW_SZ, x, 0, &cpu_sys_color, false, sample_width, right_to_left);
     return true;
   }
   else if (bar_item->type == BAR_COMPONENT && strcmp(bar_item->identifier, "mem_graph") == 0) {
@@ -251,7 +251,7 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, int
       cpu_create(&cpu_info);
     }
     
-    bar_draw_graph_line(bar, cpu_info.used_mem, CPU_WINDOW_SZ, x, 0, &mem_color, true, graph_width / CPU_WINDOW_SZ, right_to_left);
+    bar_draw_graph_line(bar, cpu_info.used_mem, CPU_WINDOW_SZ, x, 0, &mem_color, true, sample_width, right_to_left);
     return true;
   }
   return false;
@@ -274,6 +274,8 @@ void bar_refresh(struct bar *bar)
   int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
   // TODO: Graph breite wird noch in das bar_item aufgenommen, zusammen mit den data points
   const int graph_width = 150;
+  const int sample_width = graph_width / CPU_WINDOW_SZ;
+  const int real_width = sample_width * CPU_WINDOW_SZ;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
@@ -292,8 +294,8 @@ void bar_refresh(struct bar *bar)
       bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
       bar_draw_line(bar, *label, label_position.x, label_position.y);
       bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
-      if (bar_draw_graphs(bar, bar_item, bar_left_final_item_x, graph_width, false)) {
-        bar_left_final_item_x += graph_width;
+      if (bar_draw_graphs(bar, bar_item, bar_left_final_item_x, sample_width, false)) {
+        bar_left_final_item_x += real_width;
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
@@ -303,8 +305,8 @@ void bar_refresh(struct bar *bar)
       bar_draw_line(bar, *label, label_position.x, label_position.y);
 
       bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
-      if (bar_draw_graphs(bar, bar_item, bar_right_first_item_x, graph_width, true)) {
-        bar_right_first_item_x -= graph_width;
+      if (bar_draw_graphs(bar, bar_item, bar_right_first_item_x, sample_width, true)) {
+        bar_right_first_item_x -= real_width;
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
@@ -314,8 +316,8 @@ void bar_refresh(struct bar *bar)
       bar_draw_line(bar, *label, label_position.x, label_position.y);
 
       bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
-      if (bar_draw_graphs(bar, bar_item, bar_center_first_item_x, graph_width, false)) {
-        bar_center_first_item_x += graph_width;
+      if (bar_draw_graphs(bar, bar_item, bar_center_first_item_x, sample_width, false)) {
+        bar_center_first_item_x += real_width;
       }
     }
   }
