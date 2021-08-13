@@ -28,19 +28,11 @@
 #include "misc/log.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"
-//#include "misc/sbuffer.h"
 #define HASHTABLE_IMPLEMENTATION
 #include "misc/hashtable.h"
 #undef HASHTABLE_IMPLEMENTATION
 #include "misc/socket.h"
 #include "misc/socket.c"
-#include "misc/cpu.h"
-#include "misc/cpu.c"
-
-//#include "osax/sa.h"
-//#include "osax/sa_loader.c"
-//#include "osax/sa_payload.c"
-//#include "osax/sa.m"
 
 #include "event_loop.h"
 #include "event.h"
@@ -52,6 +44,7 @@
 #include "display_manager.h"
 #include "application_manager.h"
 #include "bar.h"
+#include "graph_data.h"
 #include "bar_item.h"
 #include "bar_manager.h"
 
@@ -64,6 +57,7 @@
 #include "application.c"
 #include "display_manager.c"
 #include "bar.c"
+#include "graph_data.c"
 #include "bar_item.c"
 #include "bar_manager.c"
 #include "application_manager.c"

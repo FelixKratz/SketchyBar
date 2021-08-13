@@ -12,7 +12,7 @@ extern bool g_verbose;
 //TODO: Make builtin components for things we can not achive with external scripting
 
 // TODO: Rewrite these horrible interfaces
-#define DOMAIN_ADD "add"
+#define DOMAIN_ADD                                          "add"
 // Syntax: sketchybar -m add item <name> <position>
 #define COMMAND_ADD_ITEM                                    "item"                                  
 // Syntax: sketchybar -m add component <identifier> <name> <position>
@@ -20,47 +20,52 @@ extern bool g_verbose;
 // Syntax: sketchybar -m add plugin <identifier> <name> <position>
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 
-#define DOMAIN_SET "set"
+#define DOMAIN_UPDATE                                       "update"
 
-#define DOMAIN_UPDATE "update"
 
+#define DOMAIN_PUSH                                         "push"
+#define DOMAIN_CLEAR                                        "clear"
+
+#define DOMAIN_SET                                          "set"
 /* --------------------------------DOMAIN SET-------------------------------- */
 
 // Syntax: sketchybar -m set <name> <property> <value>
 #define COMMAND_SET_POSITION                                "position"
 #define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
-#define COMMAND_SET_ASSOCIATED_SPACE                       "associated_space"
+#define COMMAND_SET_ASSOCIATED_SPACE                        "associated_space"
 #define COMMAND_SET_UPDATE_FREQ                             "update_freq"
 #define COMMAND_SET_SCRIPT                                  "script"
-#define COMMAND_SET_ICON_PADDING_LEFT                            "icon_padding_left"
-#define COMMAND_SET_ICON_PADDING_RIGHT                            "icon_padding_right"
-#define COMMAND_SET_LABEL_PADDING_LEFT                            "label_padding_left"
-#define COMMAND_SET_LABEL_PADDING_RIGHT                            "label_padding_right"
+#define COMMAND_SET_ICON_PADDING_LEFT                       "icon_padding_left"
+#define COMMAND_SET_ICON_PADDING_RIGHT                      "icon_padding_right"
+#define COMMAND_SET_LABEL_PADDING_LEFT                      "label_padding_left"
+#define COMMAND_SET_LABEL_PADDING_RIGHT                     "label_padding_right"
 #define COMMAND_SET_ICON                                    "icon"
 #define COMMAND_SET_ICON_FONT                               "icon_font"
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
+#define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
 
-#define DOMAIN_CONFIG  "config"
+#define DOMAIN_CONFIG                                       "config"
 
 /* --------------------------------DOMAIN CONFIG-------------------------------- */
-#define COMMAND_CONFIG_DEBUG_OUTPUT                        "debug_output"
-#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                "space_icon_color"
-#define COMMAND_CONFIG_BAR_BACKGROUND                      "background_color"
-#define COMMAND_CONFIG_BAR_FOREGROUND                      "foreground_color"
-#define COMMAND_CONFIG_BAR_POSITION                        "position"
-#define COMMAND_CONFIG_BAR_HEIGHT                          "height"
-#define COMMAND_CONFIG_BAR_PADDING_LEFT                    "padding_left"
-#define COMMAND_CONFIG_BAR_PADDING_RIGHT                   "padding_right"
-#define COMMAND_CONFIG_BAR_TITLE                           "title"
-#define COMMAND_CONFIG_BAR_DISPLAY                         "display"
+#define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
+#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                 "space_icon_color"
+#define COMMAND_CONFIG_BAR_BACKGROUND                       "background_color"
+#define COMMAND_CONFIG_BAR_FOREGROUND                       "foreground_color"
+#define COMMAND_CONFIG_BAR_POSITION                         "position"
+#define COMMAND_CONFIG_BAR_HEIGHT                           "height"
+#define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
+#define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
+#define COMMAND_CONFIG_BAR_TITLE                            "title"
+#define COMMAND_CONFIG_BAR_DISPLAY                          "display"
 
 /* --------------------------------COMMON ARGUMENTS----------------------------- */
-#define ARGUMENT_COMMON_VAL_ON     "on"
-#define ARGUMENT_COMMON_VAL_OFF    "off"
+#define ARGUMENT_COMMON_VAL_ON                              "on"
+#define ARGUMENT_COMMON_VAL_OFF                             "off"
+#define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
 
 static bool token_equals(struct token token, char *match)
 {
@@ -96,6 +101,14 @@ static uint32_t token_to_uint32t(struct token token)
   buffer[token.length] = '\0';
   sscanf(buffer, "%x", &result);
   return result;
+}
+
+static float token_to_float(struct token token)
+{
+  char buffer[token.length + 1];
+  memcpy(buffer, token.text, token.length);
+  buffer[token.length] = '\0';
+  return strtof(buffer, NULL);
 }
 
 static struct token get_token(char **message)
@@ -138,13 +151,28 @@ static void daemon_fail(FILE *rsp, char *fmt, ...)
     view_flush(view); \
   }
 
+// Syntax: sketchybar -m clear <name> 
+static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
+}
+
+// Syntax: sketchybar -m push <name> <x> <y>
+static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
+  struct token name = get_token(&message);
+  struct token x = get_token(&message);
+  struct token y = get_token(&message);
+  
+  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
+  struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
+  graph_data_push_back(&bar_item->graph_data, token_to_float(x), token_to_float(y));
+}
+
 // Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
   struct token name;
   struct token position;
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
-        
+
   if (token_equals(command, COMMAND_ADD_ITEM)) {
     name = get_token(&message);
     position = get_token(&message);
@@ -157,6 +185,18 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
     bar_item->type = BAR_COMPONENT;
     bar_item->identifier = token_to_string(identifier);
+    if (strcmp(bar_item->identifier, "graph") == 0) {
+      struct token width = get_token(&message);
+      printf("%i \n", token_to_uint32t(width));
+      graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
+      if (message != NULL) {
+        struct token modifier = get_token(&message);
+        if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) {
+          bar_item->nospace = true;
+        }
+      }
+      bar_item->has_graph = true;
+    }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
     struct token identifier = get_token(&message);
     name = get_token(&message);
@@ -206,6 +246,9 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
     struct token value = get_token(&message);
     bar_item_set_icon_color(bar_item, token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item->graph_data.color = rgba_color_from_hex(token_to_uint32t(value));
   } else if (token_equals(property, COMMAND_SET_POSITION)) {
     struct token value = get_token(&message);
     bar_item->position = token_to_string(value)[0];
@@ -365,6 +408,10 @@ void handle_message(FILE *rsp, char *message)
     handle_domain_set(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_UPDATE)) {
     bar_manager_script_update(&g_bar_manager, true);
+  } else if (token_equals(domain, DOMAIN_PUSH)) {
+    handle_domain_push(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_CLEAR)) {
+    handle_domain_clear(rsp, domain, message);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }

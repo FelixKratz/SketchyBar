@@ -10,6 +10,7 @@
 #define BAR_POSITION_CENTER 'c'
 
 struct bar_item {
+  bool nospace;
   int counter;
   char type;
   char* identifier;
@@ -25,10 +26,6 @@ struct bar_item {
 
   // The position in the bar: l,r,c
   char position;
-
-  // Item padding setup
-  uint32_t padding_left;
-  uint32_t padding_right;
 
   // Icon properties
   struct bar_line icon_line;
@@ -46,12 +43,9 @@ struct bar_item {
   uint32_t label_spacing_right;
   struct rgba_color label_color;
 
-  // Seperator setup
-  struct bar_line separator_line;
-  char* separator_left;
-  struct rgba_color separator_left_color;
-  char* separator_right;
-  struct rgba_color separator_right_color;
+  // Graph Data
+  bool has_graph;
+  struct graph_data graph_data;
 };
 
 struct bar_item* bar_item_create();

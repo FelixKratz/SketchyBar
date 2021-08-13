@@ -7,6 +7,7 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_init(struct bar_item* bar_item) {
+  bar_item->nospace = false;
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
@@ -15,8 +16,6 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
-  bar_item->padding_left = 0;
-  bar_item->padding_right = 0;
   bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
   bar_item_set_icon(bar_item, string_copy(""));
   bar_item->icon_spacing_left = 0;
@@ -27,6 +26,7 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->label_spacing_left = 0;
   bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
+  bar_item->has_graph = false;
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {

@@ -16,11 +16,7 @@ install: clean $(BINS)
 
 stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 stats: clean $(BINS)
-
-man:
-	asciidoctor -b manpage $(DOC_PATH)/sketchybar.asciidoc -o $(DOC_PATH)/sketchybar.1 && \
-	sed -i 's/1980-01-01/$(shell date "+%Y-%m-%d")/g'  $(DOC_PATH)/sketchybar.1
-
+	
 clean:
 	rm -rf $(BUILD_PATH)
 
