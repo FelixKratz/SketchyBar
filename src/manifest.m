@@ -68,4 +68,4 @@
 #include "bar_manager.c"
 #include "application_manager.c"
 
-#include "spacebar.c"
+#include "sketchybar.c"

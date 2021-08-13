@@ -13,11 +13,11 @@ extern bool g_verbose;
 
 // TODO: Rewrite these horrible interfaces
 #define DOMAIN_ADD "add"
-// Syntax: spacebar -m add item <name> <position>
+// Syntax: sketchybar -m add item <name> <position>
 #define COMMAND_ADD_ITEM                                    "item"                                  
-// Syntax: spacebar -m add component <identifier> <name> <position>
+// Syntax: sketchybar -m add component <identifier> <name> <position>
 #define COMMAND_ADD_COMPONENT                               "component"
-// Syntax: spacebar -m add plugin <identifier> <name> <position>
+// Syntax: sketchybar -m add plugin <identifier> <name> <position>
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 
 #define DOMAIN_SET "set"
@@ -26,7 +26,7 @@ extern bool g_verbose;
 
 /* --------------------------------DOMAIN SET-------------------------------- */
 
-// Syntax: spacebar -m set <name> <property> <value>
+// Syntax: sketchybar -m set <name> <property> <value>
 #define COMMAND_SET_POSITION                                "position"
 #define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
 #define COMMAND_SET_ASSOCIATED_SPACE                       "associated_space"
@@ -138,7 +138,7 @@ static void daemon_fail(FILE *rsp, char *fmt, ...)
     view_flush(view); \
   }
 
-// Syntax: spacebar -m add <item|component|plugin> (<identifier>) <name> <position>
+// Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
   struct token name;
@@ -175,7 +175,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager);
 }
 
-// Syntax: spacebar -m set <name> <property> <value>
+// Syntax: sketchybar -m set <name> <property> <value>
 static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   struct token name  = get_token(&message);
   struct token property = get_token(&message);

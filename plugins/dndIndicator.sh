@@ -16,7 +16,7 @@ dnd_enabled=$(
 )
 
 if [ $dnd_enabled -eq 1 ]; then
-    spacebar -m set dndIndicator icon 
+    sketchybar -m set dndIndicator icon 
 else
-    spacebar -m set dndIndicator icon ""
+    sketchybar -m set dndIndicator icon ""
 fi

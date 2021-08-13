@@ -3,11 +3,9 @@ RUNNING=$(osascript -e 'if application "Mail" is running then return 0')
 COUNT=0
 
 if [ $RUNNING == 0 ]; then
-  COUNT=$(osascript -e 'if application "Mail" is running then tell application "Mail" to return the unread count of inbox')
-fi
-if [ $RUNNING == 0 ] && [ $COUNT -gt 0 ]; then
-  echo "  $COUNT | "
+  COUNT=$(osascript -e 'tell application "Mail" to return the unread count of inbox')
+  sketchybar -m set mailIndicator label "$COUNT"
 else
-  echo " "
+  sketchybar -m set mailIndicator label 
 fi
 

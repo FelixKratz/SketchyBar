@@ -132,8 +132,8 @@ bool event_loop_init(struct event_loop *event_loop)
 #ifdef STATS
     setlocale(LC_ALL, ""); // For fprintf digit grouping
 #endif
-    event_loop->semaphore = sem_open("spacebar_event_loop_semaphore", O_CREAT, 0600, 0);
-    sem_unlink("spacebar_event_loop_semaphore");
+    event_loop->semaphore = sem_open("skybar_event_loop_semaphore", O_CREAT, 0600, 0);
+    sem_unlink("skybar_event_loop_semaphore");
     return event_loop->semaphore != SEM_FAILED;
 }
 

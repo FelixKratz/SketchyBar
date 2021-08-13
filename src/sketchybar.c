@@ -1,5 +1,5 @@
-#define SOCKET_PATH_FMT         "/tmp/spacebar_%s.socket"
-#define LCFILE_PATH_FMT         "/tmp/spacebar_%s.lock"
+#define SOCKET_PATH_FMT         "/tmp/sketchybar_%s.socket"
+#define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
 #define CLIENT_OPT_LONG         "--message"
 #define CLIENT_OPT_SHRT         "-m"
@@ -12,7 +12,7 @@
 #define CONFIG_OPT_SHRT         "-c"
 
 #define MAJOR 1
-#define MINOR 3
+#define MINOR 0
 #define PATCH 0
 
 extern int SLSMainConnectionID(void);
@@ -38,12 +38,12 @@ bool g_verbose;
 static int client_send_message(int argc, char **argv)
 {
     if (argc <= 1) {
-        error("spacebar-msg: no arguments given! abort..\n");
+        error("sketchybar-msg: no arguments given! abort..\n");
     }
 
     char *user = getenv("USER");
     if (!user) {
-        error("spacebar-msg: 'env USER' not set! abort..\n");
+        error("sketchybar-msg: 'env USER' not set! abort..\n");
     }
 
     int sockfd;
@@ -51,7 +51,7 @@ static int client_send_message(int argc, char **argv)
     snprintf(socket_file, sizeof(socket_file), SOCKET_PATH_FMT, user);
 
     if (!socket_connect_un(&sockfd, socket_file)) {
-        error("spacebar-msg: failed to connect to socket..\n");
+        error("sketchybar-msg: failed to connect to socket..\n");
     }
 
     int message_length = argc;
@@ -73,7 +73,7 @@ static int client_send_message(int argc, char **argv)
     *temp++ = '\0';
 
     if (!socket_write_bytes(sockfd, message, message_length)) {
-        error("spacebar-msg: failed to send data..\n");
+        error("sketchybar-msg: failed to send data..\n");
     }
 
     shutdown(sockfd, SHUT_WR);
@@ -113,7 +113,7 @@ static void acquire_lockfile(void)
 {
     int handle = open(g_lock_file, O_CREAT | O_WRONLY, 0600);
     if (handle == -1) {
-        error("spacebar: could not create lock-file! abort..\n");
+        error("sketchybar: could not create lock-file! abort..\n");
     }
 
     struct flock lockfd = {
@@ -125,7 +125,7 @@ static void acquire_lockfile(void)
     };
 
     if (fcntl(handle, F_SETLK, &lockfd) == -1) {
-        error("spacebar: could not acquire lock-file! abort..\n");
+        error("sketchybar: could not acquire lock-file! abort..\n");
     }
 }
 
@@ -133,14 +133,14 @@ static bool get_config_file(char *restrict filename, char *restrict buffer, int 
 {
     char *xdg_home = getenv("XDG_CONFIG_HOME");
     if (xdg_home && *xdg_home) {
-        snprintf(buffer, buffer_size, "%s/spacebar/%s", xdg_home, filename);
+        snprintf(buffer, buffer_size, "%s/sketchybar/%s", xdg_home, filename);
         if (file_exists(buffer)) return true;
     }
 
     char *home = getenv("HOME");
     if (!home) return false;
 
-    snprintf(buffer, buffer_size, "%s/.config/spacebar/%s", home, filename);
+    snprintf(buffer, buffer_size, "%s/.config/sketchybar/%s", home, filename);
     if (file_exists(buffer)) return true;
 
     snprintf(buffer, buffer_size, "%s/.%s", home, filename);
@@ -149,7 +149,7 @@ static bool get_config_file(char *restrict filename, char *restrict buffer, int 
 
 static void exec_config_file(void)
 {
-    if (!*g_config_file && !get_config_file("spacebarrc", g_config_file, sizeof(g_config_file))) {
+    if (!*g_config_file && !get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
         notify("configuration", "could not locate config file..");
         return;
     }
@@ -176,7 +176,7 @@ static inline void init_misc_settings(void)
 {
     char *user = getenv("USER");
     if (!user) {
-        error("spacebar: 'env USER' not set! abort..\n");
+        error("sketchybar: 'env USER' not set! abort..\n");
     }
 
     snprintf(g_socket_file, sizeof(g_socket_file), SOCKET_PATH_FMT, user);
@@ -199,7 +199,7 @@ static void parse_arguments(int argc, char **argv)
 {
     if ((string_equals(argv[1], VERSION_OPT_LONG)) ||
         (string_equals(argv[1], VERSION_OPT_SHRT))) {
-        fprintf(stdout, "spacebar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
+        fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
         exit(EXIT_SUCCESS);
     }
 
@@ -217,10 +217,10 @@ static void parse_arguments(int argc, char **argv)
         } else if ((string_equals(opt, CONFIG_OPT_LONG)) ||
                    (string_equals(opt, CONFIG_OPT_SHRT))) {
             char *val = i < argc - 1 ? argv[++i] : NULL;
-            if (!val) error("spacebar: option '%s|%s' requires an argument!\n", CONFIG_OPT_LONG, CONFIG_OPT_SHRT);
+            if (!val) error("sketchybar: option '%s|%s' requires an argument!\n", CONFIG_OPT_LONG, CONFIG_OPT_SHRT);
             snprintf(g_config_file, sizeof(g_config_file), "%s", val);
         } else {
-            error("spacebar: '%s' is not a valid option!\n", opt);
+            error("sketchybar: '%s' is not a valid option!\n", opt);
         }
     }
 }
@@ -232,18 +232,18 @@ int main(int argc, char **argv)
     }
 
     if (is_root()) {
-        error("spacebar: running as root is not allowed! abort..\n");
+        error("sketchybar: running as root is not allowed! abort..\n");
     }
 
     if (!ax_privilege()) {
-        error("spacebar: could not access accessibility features! abort..\n");
+        error("sketchybar: could not access accessibility features! abort..\n");
     }
 
     init_misc_settings();
     acquire_lockfile();
 
     if (!event_loop_init(&g_event_loop)) {
-        error("spacebar: could not initialize event_loop! abort..\n");
+        error("sketchybar: could not initialize event_loop! abort..\n");
     }
 
     process_manager_init(&g_process_manager);
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
     SLSRegisterConnectionNotifyProc(g_connection, connection_handler, 1204, NULL);
 
     if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler)) {
-        error("spacebar: could not initialize daemon! abort..\n");
+        error("sketchybar: could not initialize daemon! abort..\n");
     }
 
     exec_config_file();

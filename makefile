@@ -4,8 +4,8 @@ BUILD_FLAGS    = -std=c99 -Wall -DDEBUG -g -O0 -fvisibility=hidden -mmacosx-vers
 BUILD_PATH     = ./bin
 DOC_PATH       = ./doc
 SMP_PATH       = ./examples
-SPACEBAR_SRC   = ./src/manifest.m
-BINS           = $(BUILD_PATH)/spacebar
+SKETCHYBAR_SRC   = ./src/manifest.m
+BINS           = $(BUILD_PATH)/sketchybar
 
 .PHONY: all clean install man
 
@@ -18,12 +18,12 @@ stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden -mmac
 stats: clean $(BINS)
 
 man:
-	asciidoctor -b manpage $(DOC_PATH)/spacebar.asciidoc -o $(DOC_PATH)/spacebar.1 && \
-	sed -i 's/1980-01-01/$(shell date "+%Y-%m-%d")/g'  $(DOC_PATH)/spacebar.1
+	asciidoctor -b manpage $(DOC_PATH)/sketchybar.asciidoc -o $(DOC_PATH)/sketchybar.1 && \
+	sed -i 's/1980-01-01/$(shell date "+%Y-%m-%d")/g'  $(DOC_PATH)/sketchybar.1
 
 clean:
 	rm -rf $(BUILD_PATH)
 
-$(BUILD_PATH)/spacebar: $(SPACEBAR_SRC)
+$(BUILD_PATH)/sketchybar: $(SKETCHYBAR_SRC)
 	mkdir -p $(BUILD_PATH)
 	clang $^ $(BUILD_FLAGS) $(FRAMEWORK_PATH) $(FRAMEWORK) -o $@
