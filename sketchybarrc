@@ -1,0 +1,154 @@
+# TODO: Cache scripts from files to reduce IO operations
+# TODO: Create a enable disable command to hide items and unsubscribe them from updates
+# TODO: Let items and components subscribe to events for refresh like in yabai
+# TODO: Implement the plugin system for easier setup of preconfigured items
+# TODO: make the graph a component with external data providers and generalize everything
+#       -> push new data points via a message (either x,y or only y with x being time)
+#       Remove the explicit cpu and mem graphs from the project and recreate them using
+#       external data providers
+
+sketchybar -m config position             top
+sketchybar -m config height               25
+sketchybar -m config padding_left         10
+sketchybar -m config padding_right        10
+sketchybar -m config background_color     0x44000000 #0xaf202020
+sketchybar -m config foreground_color     0xffffffff #0xffa8a8a8
+sketchybar -m config space_icon_color     0xff48aa2a #0xff48aa2a
+
+sketchybar -m add component space code left
+sketchybar -m set code associated_display 1
+sketchybar -m set code associated_space 1
+sketchybar -m set code icon_font "Hack Nerd Font:Bold:20.0"
+sketchybar -m set code icon  # #
+sketchybar -m set code label_padding_left 4
+sketchybar -m set code label code
+
+sketchybar -m add item spaceSep left
+sketchybar -m set spaceSep associated_display 1
+sketchybar -m set spaceSep icon_font "Hack Nerd Font:Bold:15.0"
+#sketchybar -m set spaceSep icon 
+sketchybar -m set spaceSep icon_padding_right 8
+sketchybar -m set spaceSep icon_padding_left 8
+
+sketchybar -m add component space writing left
+sketchybar -m set writing associated_display 1
+sketchybar -m set writing associated_space 2
+sketchybar -m set writing icon_font "Hack Nerd Font:Bold:17.0"
+sketchybar -m set writing icon  #
+sketchybar -m set writing label_padding_left 4
+sketchybar -m set writing label tex
+
+sketchybar -m add item spaceSep2 left
+sketchybar -m set spaceSep2 associated_display 1
+sketchybar -m set spaceSep2 icon_font "Hack Nerd Font:Bold:15.0"
+#sketchybar -m set spaceSep2 icon 
+sketchybar -m set spaceSep2 icon_padding_right 8
+sketchybar -m set spaceSep2 icon_padding_left 8
+
+sketchybar -m add component space reading left
+sketchybar -m set reading associated_display 1
+sketchybar -m set reading associated_space 3
+sketchybar -m set reading icon_font "Hack Nerd Font:Bold:17.0"
+sketchybar -m set reading icon 
+sketchybar -m set reading label_padding_left 4
+sketchybar -m set reading label web
+
+sketchybar -m add item spaceSep3 left
+sketchybar -m set spaceSep3 associated_display 1
+sketchybar -m set spaceSep3 icon_font "Hack Nerd Font:Bold:15.0"
+#sketchybar -m set spaceSep3 icon 
+sketchybar -m set spaceSep3 icon_padding_right 8
+sketchybar -m set spaceSep3 icon_padding_left 8
+
+sketchybar -m add component space entertainment left
+sketchybar -m set entertainment associated_display 1
+sketchybar -m set entertainment associated_space 4
+sketchybar -m set entertainment icon_font "Hack Nerd Font:Bold:19.0"
+sketchybar -m set entertainment icon  #鈴
+sketchybar -m set entertainment label_padding_left 4
+sketchybar -m set entertainment label idle
+
+sketchybar -m add component space zoom left
+sketchybar -m set zoom associated_display 2
+sketchybar -m set zoom associated_space 5
+sketchybar -m set zoom icon_font "Hack Nerd Font:Bold:17.0"
+sketchybar -m set zoom icon V
+sketchybar -m set zoom label_padding_left 4
+
+sketchybar -m add item vimSeparator left
+sketchybar -m set vimSeparator icon_font "Hack Nerd Font:Bold:15.0"
+sketchybar -m set vimSeparator icon 
+sketchybar -m set vimSeparator icon_padding_right 15
+sketchybar -m set vimSeparator icon_padding_left 15
+
+sketchybar -m add item vimIndicator left
+# Associate items with certain spaces or screens (components will ignore this, why? only the spaces component should really ignore this):
+# sketchybar -m set vimIndicator associated_space 1
+sketchybar -m set vimIndicator icon_font "Hack Nerd Font:Bold:19.0"
+sketchybar -m set vimIndicator icon ""
+sketchybar -m set vimIndicator icon_padding_right 4
+sketchybar -m set vimIndicator label "normal"
+sketchybar -m set vimIndicator label_padding_right 10
+
+sketchybar -m add item clock right
+sketchybar -m set clock update_freq 10
+sketchybar -m set clock script "/Users/felix/.config/sketchybar/plugins/clock.sh"
+sketchybar -m set clock icon_font "Hack Nerd Font:Bold:17.0"
+sketchybar -m set clock label_padding_left 10
+
+sketchybar -m add item mailIndicator right
+sketchybar -m set mailIndicator update_freq 10
+sketchybar -m set mailIndicator script "/Users/felix/.config/sketchybar/plugins/mailIndicator.sh"
+sketchybar -m set mailIndicator icon_font "Hack Nerd Font:Bold:20.0"
+sketchybar -m set mailIndicator icon 
+sketchybar -m set mailIndicator label_padding_left 4
+sketchybar -m set mailIndicator icon_padding_left 10
+
+sketchybar -m add item githubIndicator right
+sketchybar -m set githubIndicator associated_space 1
+sketchybar -m set githubIndicator script "/Users/felix/.config/sketchybar/plugins/githubIndicator.sh"
+sketchybar -m set githubIndicator update_freq 1000
+sketchybar -m set githubIndicator icon_font "Hack Nerd Font:Bold:18.0"
+sketchybar -m set githubIndicator icon  #
+sketchybar -m set githubIndicator label_padding_left 4
+sketchybar -m set githubIndicator icon_padding_left 10
+
+#sketchybar -m add item calendarIndicator right
+#sketchybar -m set calendarIndicator script "/Users/felix/.config/sketchybar/plugins/calendarIndicator.sh"
+#sketchybar -m set calendarIndicator update_freq 100
+#sketchybar -m set calendarIndicator icon_font "Hack Nerd Font:Bold:17.0"
+#sketchybar -m set calendarIndicator icon  
+#sketchybar -m set calendarIndicator label_padding_left 4
+#sketchybar -m set calendarIndicator icon_padding_left 10
+
+sketchybar -m add component cpu_graph cpu right
+sketchybar -m set cpu associated_space 1
+sketchybar -m set cpu icon_font "Hack Nerd Font:Bold:17.0"
+sketchybar -m set cpu icon  
+sketchybar -m set cpu icon_padding_left 4
+
+# Graph layout still a bit wonky
+#sketchybar -m add component mem_graph mem left
+#sketchybar -m set mem icon_font "Hack Nerd Font:Bold:17.0"
+#sketchybar -m set mem icon 
+#sketchybar -m set mem label_padding_left 10
+
+sketchybar -m add item topmem left
+sketchybar -m set topmem associated_space 1
+sketchybar -m set topmem script "/Users/felix/.config/sketchybar/plugins/topmem.sh"
+sketchybar -m set topmem update_freq 15
+
+#sketchybar -m add component title windowTitle center
+#sketchybar -m set windowTitle associated_space 3
+
+sketchybar -m add item spotifyIndicator center
+sketchybar -m set spotifyIndicator update_freq 10
+sketchybar -m set spotifyIndicator script "/Users/felix/.config/sketchybar/plugins/spotifyIndicator.sh"
+
+sketchybar -m add item topproc right
+sketchybar -m set topproc associated_space 1
+sketchybar -m set topproc icon_padding_left 10
+sketchybar -m set topproc script "/Users/felix/.config/sketchybar/plugins/topproc.sh"
+sketchybar -m set topproc update_freq 15
+sketchybar -m update
+echo "sketchybar configuration loaded.."
