@@ -11,6 +11,17 @@ What I have added:
 * Individual refresh frequencies for each widget
 * ... feel free to explore my sketchybarrc file for more details on the options
 
+I have many more plans for the project:
+* Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
+* Cache the scripts in RAM to reduce I/O operations
+* Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display
+* Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
+* Fix the currently static positioning of the bar
+* A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels
+* Add on_click events for the widgets
+* Create more plugins
+* ......
+
 This is my setup:
 ![](images/mySetup.png)
 where I have my screens and a vim mode indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
@@ -29,6 +40,11 @@ and finally run the bar via
 ```bash
 sketchybar
 ```
+If you want to use plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
+```bash
+chmod +x name/of/plugin.sh
+```
+You should of course vet the code from all plugins before granting them the executable bit to make sure they are not harming your computer.
 
 
 Credits:
