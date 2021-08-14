@@ -9,10 +9,10 @@ What I have added:
 * Draw arbitrary graphs in the bar with external data provider scripts that push the data into the graph
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
+* Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
 * ... feel free to explore my sketchybarrc file for more details on the options
 
 I have many more plans for the project:
-* Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
 * Cache the scripts in RAM to reduce I/O operations
 * Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
