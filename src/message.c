@@ -283,10 +283,10 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item->position = token_to_string(value)[0];
   } else if (token_equals(property, COMMAND_SET_ASSOCIATED_SPACE)) {
     struct token value = get_token(&message);
-    bar_item->associated_space = token_to_uint32t(value);
+    bar_item->associated_space |= 1 << token_to_uint32t(value);
   } else if (token_equals(property, COMMAND_SET_ASSOCIATED_DISPLAY)) {
     struct token value = get_token(&message);
-    bar_item->associated_display = token_to_uint32t(value);
+    bar_item->associated_display |= 1 << token_to_uint32t(value);
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
     struct token value = get_token(&message);
     bar_item->icon_spacing_left = token_to_uint32t(value);

@@ -18,6 +18,7 @@ struct bar_item {
   char type;
   char* identifier;
   
+  // These are 32bit masks where the ith bit represents the ith screen/display association
   uint32_t associated_display;
   uint32_t associated_space;
   uint32_t update_frequency;

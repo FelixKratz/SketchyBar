@@ -13,8 +13,9 @@ What I have added:
 * ... feel free to explore my sketchybarrc file for more details on the options
 
 I have many more plans for the project:
+* ~~Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)~~ (DONE)
 * Cache the scripts in RAM to reduce I/O operations
-* Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display
+* ~~Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display~~ (DONE)
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
 * Fix the currently static positioning of the bar
 * A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels

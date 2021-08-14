@@ -265,8 +265,8 @@ void bar_refresh(struct bar *bar)
     CGPoint label_position = bar_align_line(bar, *label, ALIGN_CENTER, ALIGN_CENTER);
 
 
-    if(bar_item->associated_display > 0 && bar_item->associated_display != did) continue;
-    if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && bar_item->associated_space != sid) continue;
+    if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
+    if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
     
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;

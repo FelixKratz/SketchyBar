@@ -46,7 +46,7 @@ void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t
     if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0)
       bar_item_set_label(bar_item, focused_window_title());
     else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
-      if (sid == bar_item->associated_space && did == bar_item->associated_display)
+      if ((1 << sid) & bar_item->associated_space && (1 << did) & bar_item->associated_display)
         bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_highlight_color);
       else 
         bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_color);
