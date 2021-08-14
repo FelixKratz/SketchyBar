@@ -16,17 +16,19 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
-  bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
-  bar_item_set_icon(bar_item, string_copy(""));
   bar_item->icon_spacing_left = 0;
   bar_item->icon_spacing_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
-  bar_item_set_label_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
-  bar_item_set_label(bar_item, string_copy(""));
+  bar_item->icon_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->label_spacing_left = 0;
   bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
+
+  bar_item_set_icon(bar_item, string_copy(""), bar_item->icon_color);
+  bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
+  bar_item_set_label_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
+  bar_item_set_label(bar_item, string_copy(""));
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
@@ -41,18 +43,14 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
 
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
   if (bar_item->type == BAR_COMPONENT) {
-    if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0) {
+    if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0)
       bar_item_set_label(bar_item, focused_window_title());
-    }
     else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
-      if (sid == bar_item->associated_space && did == bar_item->associated_display) {
-        bar_item->icon_color = g_bar_manager.space_icon_color;
-        bar_item_set_icon(bar_item, bar_item->icon);
-      }
-      else {
-        bar_item->icon_color = g_bar_manager.foreground_color;
-        bar_item_set_icon(bar_item, bar_item->icon);
-      }
+      if (sid == bar_item->associated_space && did == bar_item->associated_display)
+        bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_highlight_color);
+      else 
+        bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_color);
+      
     }
   }
 }
@@ -71,7 +69,7 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
   bar_item->script = script;
 }
 
-void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
+void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color) {
   if (bar_item->icon_line.line) {
     bar_destroy_line(bar_item->icon_line);
   }
@@ -79,12 +77,12 @@ void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
     free(bar_item->icon);
   }
   bar_item->icon = icon;
-  bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, bar_item->icon_color);
+  bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, color);
 }
 
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->icon_color = rgba_color_from_hex(color);
-  bar_item_set_icon(bar_item, bar_item->icon);
+  bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_color);
 }
 
 void bar_item_set_label(struct bar_item* bar_item, char* label) {

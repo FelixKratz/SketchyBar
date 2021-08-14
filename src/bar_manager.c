@@ -9,21 +9,9 @@ int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* n
   return -1;
 }
 
-void bar_manager_set_foreground_color(struct bar_manager *bar_manager, uint32_t color)
-{
-  bar_manager->foreground_color = rgba_color_from_hex(color);
-  bar_manager_refresh(bar_manager);
-}
-
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color)
 {
   bar_manager->background_color = rgba_color_from_hex(color);
-  bar_manager_refresh(bar_manager);
-}
-
-void bar_manager_set_space_icon_color(struct bar_manager *bar_manager, uint32_t color)
-{
-  bar_manager->space_icon_color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager);
 }
 
@@ -31,12 +19,6 @@ void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
 {
   bar_manager->position = pos;
   bar_manager_resize(bar_manager);
-}
-
-void bar_manager_set_title(struct bar_manager *bar_manager, bool value)
-{
-  bar_manager->title = value;
-  bar_manager_refresh(bar_manager);
 }
 
 void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
@@ -104,13 +86,8 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->display = "all";
   bar_manager->position = "top";
   bar_manager->height = 26;
-  bar_manager->title = true;
-  bar_manager->spaces = true;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
-  bar_manager->background_color = rgba_color_from_hex(0xff202020);
-  bar_manager->foreground_color = rgba_color_from_hex(0xffa8a8a8);
-  bar_manager->space_icon_color = rgba_color_from_hex(0xffd75f5f);
 }
 
 void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did, uint32_t sid) {

@@ -30,6 +30,7 @@ struct bar_item {
   uint32_t icon_spacing_left;
   uint32_t icon_spacing_right;
   struct rgba_color icon_color;
+  struct rgba_color icon_highlight_color;
 
   // Label properties
   struct bar_line label_line;
@@ -38,6 +39,7 @@ struct bar_item {
   uint32_t label_spacing_left;
   uint32_t label_spacing_right;
   struct rgba_color label_color;
+  struct rgba_color label_highlight_color;
 
   // Graph Data
   bool has_graph;
@@ -52,12 +54,10 @@ void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_padding_left(struct bar_item* bar_item, uint32_t pad);
 void bar_item_set_padding_right(struct bar_item* bar_item, uint32_t pad);
-void bar_item_set_icon(struct bar_item* bar_item, char* icon);
+void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color);
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color);
 void bar_item_set_label(struct bar_item* bar_item, char* label);
 void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color);
-void bar_item_set_separator_left(struct bar_item* bar_item, char* sep);
-void bar_item_set_separator_right(struct bar_item* bar_item, char* sep);
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string);
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string);
 

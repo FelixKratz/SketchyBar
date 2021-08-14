@@ -34,6 +34,7 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON                                    "icon"
 #define COMMAND_SET_ICON_FONT                               "icon_font"
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
+#define COMMAND_SET_ICON_HIGHLIGHT_COLOR                    "icon_highlight_color"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
@@ -41,14 +42,11 @@ extern bool g_verbose;
 
 #define DOMAIN_CONFIG                                       "config"
 #define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
-#define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                 "space_icon_color"
-#define COMMAND_CONFIG_BAR_BACKGROUND                       "background_color"
-#define COMMAND_CONFIG_BAR_FOREGROUND                       "foreground_color"
+#define COMMAND_CONFIG_BAR_BACKGROUND                       "bar_color"
 #define COMMAND_CONFIG_BAR_POSITION                         "position"
 #define COMMAND_CONFIG_BAR_HEIGHT                           "height"
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
-#define COMMAND_CONFIG_BAR_TITLE                            "title"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
@@ -225,7 +223,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
   if (token_equals(property, COMMAND_SET_ICON)) {
-    bar_item_set_icon(bar_item, string_copy(message));
+    bar_item_set_icon(bar_item, string_copy(message), bar_item->icon_color);
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     bar_item_set_icon_font(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_LABEL)) {
@@ -246,6 +244,9 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
     struct token value = get_token(&message);
     bar_item->graph_data.color = rgba_color_from_hex(token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(value));
   } else if (token_equals(property, COMMAND_SET_POSITION)) {
     struct token value = get_token(&message);
     bar_item->position = token_to_string(value)[0];
@@ -299,30 +300,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
         daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
       }
     }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_FOREGROUND)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.foreground_color.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_foreground_color(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_SPACE_ICON_COLOR)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.space_icon_color.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_space_icon_color(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_HEIGHT)) {
     struct token token = get_token(&message);
     if (!token_is_valid(token)) {
@@ -343,19 +320,6 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       fprintf(rsp, "%"PRIu32"\n", g_bar_manager.padding_right ? g_bar_manager.padding_right : 0);
     } else {
       bar_manager_set_padding_right(&g_bar_manager, atoi(token_to_string(token)));
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_TITLE)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "%s\n", bool_str[g_bar_manager.title]);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      daemon_fail(rsp, "'%.*s' cannot be 'on' when 'center_shell' is 'on'.\n", command.length, command.text);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
-      bar_manager_set_title(&g_bar_manager, false);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      bar_manager_set_title(&g_bar_manager, true);
-    } else {
-      daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
