@@ -107,7 +107,7 @@ sketchybar -m set githubIndicator label_padding_left 4
 sketchybar -m set githubIndicator icon_padding_left 10
 
 sketchybar -m add component graph cpu_user right 99 nospace
-sketchybar -m set cpu_user script "/Users/felix/.config/sketchybar/plugins/cpu_user.sh"
+sketchybar -m set cpu_user script "/Users/felix/.config/sketchybar/plugins/cpu_graph.sh"
 sketchybar -m set cpu_user graph_color 0xffffffff
 sketchybar -m set cpu_user update_freq 1
 sketchybar -m set cpu_user associated_space 1
@@ -116,9 +116,7 @@ sketchybar -m set cpu_user icon 
 sketchybar -m set cpu_user icon_padding_left 4
 
 sketchybar -m add component graph cpu_sys right 99
-sketchybar -m set cpu_sys update_freq 1
 sketchybar -m set cpu_sys graph_color 0xff48aa2a
-sketchybar -m set cpu_sys script "/Users/felix/.config/sketchybar/plugins/cpu_sys.sh"
 sketchybar -m set cpu_sys associated_space 1
 sketchybar -m set cpu_sys icon_font "Hack Nerd Font:Bold:17.0"
 sketchybar -m set cpu_sys icon 
@@ -131,16 +129,14 @@ sketchybar -m set network_down icon 
 sketchybar -m set network_down icon_padding_left 4
 sketchybar -m set network_down update_freq 1
 sketchybar -m set network_down graph_color 0xffffffff
-sketchybar -m set network_down script "/Users/felix/.config/sketchybar/plugins/network_down.sh"
+sketchybar -m set network_down script "/Users/felix/.config/sketchybar/plugins/network_graph.sh"
 
 sketchybar -m add component graph network_up right 99
 sketchybar -m set network_up icon_font "Hack Nerd Font:Bold:17.0"
 sketchybar -m set network_up icon 
 sketchybar -m set network_up icon_padding_left 4
 sketchybar -m set network_up associated_space 3
-sketchybar -m set network_up update_freq 1
 sketchybar -m set network_up graph_color 0xff48aa2a
-sketchybar -m set network_up script "/Users/felix/.config/sketchybar/plugins/network_up.sh"
 
 sketchybar -m add item topmem left
 sketchybar -m set topmem associated_space 1
