@@ -1,6 +1,5 @@
 # TODO: Cache scripts from files to reduce IO operations
 # TODO: Create a enable disable command to hide items and unsubscribe them from updates
-# TODO: Let items and components subscribe to events for refresh like in yabai
 # TODO: Implement the plugin system for easier setup of preconfigured items
 
 sketchybar -m config height               25
@@ -79,10 +78,14 @@ sketchybar -m set vimSeparator icon_font "Hack Nerd Font:Bold:15.0"
 #sketchybar -m set vimSeparator icon_color 0xff48aa2a
 #sketchybar -m set vimSeparator label_color 0xaf202020
 sketchybar -m set vimSeparator icon 
+sketchybar -m set vimSeparator associated_space 1
+sketchybar -m set vimSeparator associated_space 2
 sketchybar -m set vimSeparator icon_padding_right 15
 sketchybar -m set vimSeparator icon_padding_left 15
 
 sketchybar -m add item vimIndicator left
+sketchybar -m set vimIndicator associated_space 1
+sketchybar -m set vimIndicator associated_space 2
 sketchybar -m set vimIndicator icon_font "Hack Nerd Font:Bold:19.0"
 sketchybar -m set vimIndicator icon ""
 sketchybar -m set vimIndicator icon_padding_right 4
@@ -91,7 +94,7 @@ sketchybar -m set vimIndicator label_padding_right 10
 
 sketchybar -m add item clock right
 sketchybar -m set clock update_freq 10
-sketchybar -m set clock script "/Users/felix/.config/sketchybar/plugins/clock.sh"
+sketchybar -m set clock script "~/.config/sketchybar/plugins/clock.sh"
 sketchybar -m set clock icon_font "Hack Nerd Font:Bold:17.0"
 sketchybar -m set clock label_padding_left 10
 
@@ -101,7 +104,7 @@ sketchybar -m set mailIndicator associated_space 1
 sketchybar -m set mailIndicator associated_space 2
 sketchybar -m set mailIndicator associated_space 3
 sketchybar -m set mailIndicator update_freq 10
-sketchybar -m set mailIndicator script "/Users/felix/.config/sketchybar/plugins/mailIndicator.sh"
+sketchybar -m set mailIndicator script "~/.config/sketchybar/plugins/mailIndicator.sh"
 sketchybar -m set mailIndicator icon_font "Hack Nerd Font:Bold:20.0"
 sketchybar -m set mailIndicator icon 
 sketchybar -m set mailIndicator label_padding_left 4
@@ -109,7 +112,7 @@ sketchybar -m set mailIndicator icon_padding_left 10
 
 sketchybar -m add item githubIndicator right
 sketchybar -m set githubIndicator associated_space 1
-sketchybar -m set githubIndicator script "/Users/felix/.config/sketchybar/plugins/githubIndicator.sh"
+sketchybar -m set githubIndicator script "~/.config/sketchybar/plugins/githubIndicator.sh"
 sketchybar -m set githubIndicator update_freq 1000
 sketchybar -m set githubIndicator icon_font "Hack Nerd Font:Bold:18.0"
 sketchybar -m set githubIndicator icon  #
@@ -117,7 +120,7 @@ sketchybar -m set githubIndicator label_padding_left 4
 sketchybar -m set githubIndicator icon_padding_left 10
 
 sketchybar -m add component graph cpu_user right 99 nospace
-sketchybar -m set cpu_user script "/Users/felix/.config/sketchybar/plugins/cpu_graph.sh"
+sketchybar -m set cpu_user script "~/.config/sketchybar/plugins/cpu_graph.sh"
 sketchybar -m set cpu_user graph_color 0xffffffff
 sketchybar -m set cpu_user update_freq 1
 sketchybar -m set cpu_user associated_space 1
@@ -139,7 +142,7 @@ sketchybar -m set network_down icon 
 sketchybar -m set network_down icon_padding_left 4
 sketchybar -m set network_down update_freq 1
 sketchybar -m set network_down graph_color 0xffffffff
-sketchybar -m set network_down script "/Users/felix/.config/sketchybar/plugins/network_graph.sh"
+sketchybar -m set network_down script "~/.config/sketchybar/plugins/network_graph.sh"
 
 sketchybar -m add component graph network_up right 99
 sketchybar -m set network_up icon_font "Hack Nerd Font:Bold:17.0"
@@ -150,7 +153,7 @@ sketchybar -m set network_up graph_color 0xff48aa2a
 
 sketchybar -m add item topmem left
 sketchybar -m set topmem associated_space 1
-sketchybar -m set topmem script "/Users/felix/.config/sketchybar/plugins/topmem.sh"
+sketchybar -m set topmem script "~/.config/sketchybar/plugins/topmem.sh"
 sketchybar -m set topmem update_freq 15
 
 #sketchybar -m add component title windowTitle center
@@ -158,13 +161,13 @@ sketchybar -m set topmem update_freq 15
 
 sketchybar -m add item spotifyIndicator center
 sketchybar -m set spotifyIndicator update_freq 10
-sketchybar -m set spotifyIndicator script "/Users/felix/.config/sketchybar/plugins/spotifyIndicator.sh"
+sketchybar -m set spotifyIndicator script "~/.config/sketchybar/plugins/spotifyIndicator.sh"
 
 sketchybar -m add item topproc right
 sketchybar -m set topproc associated_space 1
 sketchybar -m set topproc icon_padding_left 10
 sketchybar -m set topproc label_padding_right 5
-sketchybar -m set topproc script "/Users/felix/.config/sketchybar/plugins/topproc.sh"
+sketchybar -m set topproc script "~/.config/sketchybar/plugins/topproc.sh"
 sketchybar -m set topproc update_freq 15
 
 # This is how to subscribe an item/component to a certain system event

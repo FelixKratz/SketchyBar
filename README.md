@@ -31,17 +31,19 @@ In the center I have a spotify indicator (only when music is playing) and on the
 The cpu and memory indicators are only shown on the "code" screen and are not visible on the other screens.
 
 ## Installation
-Clone the repo and run 
+Clone the repo and in it run 
 ```bash
-make install
-ln ./bin/sketchybar /usr/local/bin/sketchybar
+chmod +x install.sh
+./install.sh
 ```
-Now you can create you configuration inside of $HOME/.config/sketchybar/sketchybarrc
-and finally run the bar via
+This installs the app with my configuration preinstalled.
+
+You can customize the configuration inside of $HOME/.config/sketchybar/sketchybarrc
+and run the bar via
 ```bash
 sketchybar
 ```
-If you want to use plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
+If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
 ```bash
 chmod +x name/of/plugin.sh
 ```
