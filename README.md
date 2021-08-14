@@ -48,6 +48,12 @@ chmod +x name/of/plugin.sh
 ```
 You should of course vet the code from all plugins before granting them the executable bit to make sure they are not harming your computer.
 
+If you have problems with missing fonts you might need to install the Hack Nerd Font:
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-hack-nerd-font
+```
+
 
 Credits:
 yabai,
