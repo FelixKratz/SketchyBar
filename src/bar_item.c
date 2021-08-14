@@ -41,10 +41,10 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
 
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
   if (bar_item->type == BAR_COMPONENT) {
-    if (strcmp(bar_item->identifier, "title") == 0) {
+    if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0) {
       bar_item_set_label(bar_item, focused_window_title());
     }
-    else if (strcmp(bar_item->identifier, "space") == 0) {
+    else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
       if (sid == bar_item->associated_space && did == bar_item->associated_display) {
         bar_item->icon_color = g_bar_manager.space_icon_color;
         bar_item_set_icon(bar_item, bar_item->icon);

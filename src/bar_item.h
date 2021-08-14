@@ -5,10 +5,6 @@
 #define BAR_COMPONENT 'c'
 #define BAR_PLUGIN 'p'
 
-#define BAR_POSITION_LEFT 'l'
-#define BAR_POSITION_RIGHT 'r'
-#define BAR_POSITION_CENTER 'c'
-
 struct bar_item {
   bool nospace;
   int counter;

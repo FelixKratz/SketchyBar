@@ -9,27 +9,19 @@ extern struct bar_manager g_bar_manager;
 extern bool g_verbose;
 
 //TODO: Add signal setup for bar_item to listen on events and update dynamically
-//TODO: Make builtin components for things we can not achive with external scripting
 
-// TODO: Rewrite these horrible interfaces
 #define DOMAIN_ADD                                          "add"
-// Syntax: sketchybar -m add item <name> <position>
 #define COMMAND_ADD_ITEM                                    "item"                                  
-// Syntax: sketchybar -m add component <identifier> <name> <position>
 #define COMMAND_ADD_COMPONENT                               "component"
-// Syntax: sketchybar -m add plugin <identifier> <name> <position>
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 
 #define DOMAIN_UPDATE                                       "update"
 
-
 #define DOMAIN_PUSH                                         "push"
+
 #define DOMAIN_CLEAR                                        "clear"
 
 #define DOMAIN_SET                                          "set"
-/* --------------------------------DOMAIN SET-------------------------------- */
-
-// Syntax: sketchybar -m set <name> <property> <value>
 #define COMMAND_SET_POSITION                                "position"
 #define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
 #define COMMAND_SET_ASSOCIATED_SPACE                        "associated_space"
@@ -43,14 +35,11 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON_FONT                               "icon_font"
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
-
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
 
 #define DOMAIN_CONFIG                                       "config"
-
-/* --------------------------------DOMAIN CONFIG-------------------------------- */
 #define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
 #define COMMAND_CONFIG_BAR_SPACE_ICON_COLOR                 "space_icon_color"
 #define COMMAND_CONFIG_BAR_BACKGROUND                       "background_color"
@@ -62,10 +51,18 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_TITLE                            "title"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
 
-/* --------------------------------COMMON ARGUMENTS----------------------------- */
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_OFF                             "off"
 #define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
+
+#define BAR_COMPONENT_SPACE                                 "space"
+#define BAR_COMPONENT_GRAPH                                 "graph"
+#define BAR_COMPONENT_TITLE                                 "title"
+
+#define BAR_POSITION_LEFT                                   'l'
+#define BAR_POSITION_RIGHT                                  'r'
+#define BAR_POSITION_CENTER                                 'c'
+
 
 static bool token_equals(struct token token, char *match)
 {
@@ -185,7 +182,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
     bar_item->type = BAR_COMPONENT;
     bar_item->identifier = token_to_string(identifier);
-    if (strcmp(bar_item->identifier, "graph") == 0) {
+    if (strcmp(bar_item->identifier, BAR_COMPONENT_GRAPH) == 0) {
       struct token width = get_token(&message);
       printf("%i \n", token_to_uint32t(width));
       graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
