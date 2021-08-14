@@ -5,6 +5,13 @@
 #define BAR_COMPONENT 'c'
 #define BAR_PLUGIN 'p'
 
+#define UPDATE_FRONT_APP_SWITCHED 1
+#define UPDATE_WINDOW_FOCUS 1 << 1
+#define UPDATE_SPACE_CHANGE 1 << 2
+#define UPDATE_DISPLAY_CHANGE 1 << 3
+#define UPDATE_SYSTEM_WOKE 1 << 4
+#define UPDATE_TITLE_CHANGE 1 << 5
+
 struct bar_item {
   bool nospace;
   int counter;
@@ -44,6 +51,9 @@ struct bar_item {
   // Graph Data
   bool has_graph;
   struct graph_data graph_data;
+
+  // Update Events
+  uint32_t update_mask;
 };
 
 struct bar_item* bar_item_create();

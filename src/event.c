@@ -115,6 +115,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_TERMINATED)
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED)
 {
     debug("%s\n", __FUNCTION__);
+    bar_manager_handle_front_app_switch(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
@@ -123,6 +124,8 @@ static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED)
 static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_FOCUSED)
 {
     debug("%s\n", __FUNCTION__);
+    
+    bar_manager_handle_window_focus(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
@@ -133,6 +136,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_TITLE_CHANGED)
     debug("%s\n", __FUNCTION__);
 
     // TODO: we can optimize by checking if it the focused window
+    bar_manager_handle_title_change(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
@@ -142,6 +146,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED)
 {
     debug("%s\n", __FUNCTION__);
 
+    bar_manager_handle_space_change(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
@@ -154,6 +159,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED)
 
     debug("%s: %d\n", __FUNCTION__, g_display_manager.current_display_id);
 
+    bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;
@@ -201,6 +207,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED)
 static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE)
 {
     debug("%s:\n", __FUNCTION__);
+    bar_manager_handle_system_woke(&g_bar_manager);
     bar_manager_refresh(&g_bar_manager);
     return EVENT_SUCCESS;
 }

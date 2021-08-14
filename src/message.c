@@ -40,6 +40,14 @@ extern bool g_verbose;
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
 
+#define DOMAIN_SUBSCRIBE                                    "subscribe"
+#define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
+#define COMMAND_SUBSCRIBE_WINDOW_FOCUS                      "window_focus"
+#define COMMAND_SUBSCRIBE_SPACE_CHANGE                      "space_change"
+#define COMMAND_SUBSCRIBE_DISPLAY_CHANGE                    "display_change"
+#define COMMAND_SUBSCRIBE_TITLE_CHANGE                      "title_change"
+#define COMMAND_SUBSCRIBE_SYSTEM_WOKE                       "system_woke"
+
 #define DOMAIN_CONFIG                                       "config"
 #define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
 #define COMMAND_CONFIG_BAR_BACKGROUND                       "bar_color"
@@ -145,6 +153,29 @@ static void daemon_fail(FILE *rsp, char *fmt, ...)
     view_update(view); \
     view_flush(view); \
   }
+
+// Syntax: sketchybar -m subscribe <name> <event>
+static void handle_domain_subscribe(FILE* rsp, struct token domain, char* message) {
+  struct token name = get_token(&message);
+  struct token event = get_token(&message);
+
+  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
+  struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
+
+  if (token_equals(event, COMMAND_SUBSCRIBE_SYSTEM_WOKE)) {
+    bar_item->update_mask |= UPDATE_SYSTEM_WOKE;
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
+    bar_item->update_mask |= UPDATE_SPACE_CHANGE;
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_TITLE_CHANGE)) {
+    bar_item->update_mask |= UPDATE_TITLE_CHANGE;
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
+    bar_item->update_mask |= UPDATE_DISPLAY_CHANGE;
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED)) {
+    bar_item->update_mask |= UPDATE_FRONT_APP_SWITCHED;
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_WINDOW_FOCUS)) {
+    bar_item->update_mask |= UPDATE_WINDOW_FOCUS;
+  }
+}
 
 // Syntax: sketchybar -m clear <name> 
 static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
@@ -373,6 +404,8 @@ void handle_message(FILE *rsp, char *message)
     handle_domain_push(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_CLEAR)) {
     handle_domain_clear(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
+    handle_domain_subscribe(rsp, domain, message);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }

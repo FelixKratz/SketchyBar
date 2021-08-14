@@ -11,7 +11,7 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
-  bar_item->update_frequency = 10;
+  bar_item->update_frequency = 1000;
   bar_item->script = "";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;

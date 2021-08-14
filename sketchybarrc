@@ -162,6 +162,18 @@ sketchybar -m set topproc icon_padding_left 10
 sketchybar -m set topproc label_padding_right 5
 sketchybar -m set topproc script "/Users/felix/.config/sketchybar/plugins/topproc.sh"
 sketchybar -m set topproc update_freq 15
+
+# This is how to subscribe an item/component to a certain system event
+# It is possible to subscribe to more than one event
+#sketchybar -m add item random center
+#sketchybar -m set random script "/Users/felix/.config/sketchybar/plugins/random.sh"
+#sketchybar -m subscribe random front_app_switched
+#sketchybar -m subscribe random title_change
+#sketchybar -m subscribe random space_change
+#sketchybar -m subscribe random window_focus
+#sketchybar -m subscribe random display_change
+#sketchybar -m subscribe random system_woke
+
 sketchybar -m update
 
 echo "sketchybar configuration loaded.."

@@ -35,4 +35,10 @@ void bar_manager_resize(struct bar_manager *bar_manager);
 void bar_manager_begin(struct bar_manager *bar_manager);
 void bar_manager_init(struct bar_manager *bar_manager);
 
+void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager);
+void bar_manager_handle_window_focus(struct bar_manager* bar_manager);
+void bar_manager_handle_title_change(struct bar_manager* bar_manager);
+void bar_manager_handle_space_change(struct bar_manager* bar_manager);
+void bar_manager_handle_display_change(struct bar_manager* bar_manager);
+void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
 #endif

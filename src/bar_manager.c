@@ -123,3 +123,36 @@ void bar_manager_begin(struct bar_manager *bar_manager)
     }
   }
 }
+
+void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_manager, uint32_t pattern) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (bar_item->update_mask & pattern)
+      bar_item_script_update(bar_item, true);
+  }
+}
+
+void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_FRONT_APP_SWITCHED);
+}
+
+void bar_manager_handle_window_focus(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_WINDOW_FOCUS);
+}
+
+void bar_manager_handle_title_change(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_TITLE_CHANGE);
+}
+
+void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
+}
+
+void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_DISPLAY_CHANGE);
+}
+
+void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SYSTEM_WOKE);
+}
+
