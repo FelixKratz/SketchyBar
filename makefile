@@ -13,7 +13,14 @@ all: clean $(BINS)
 
 install: BUILD_FLAGS=-std=c99 -Wall -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 install: clean $(BINS)
-
+	ln ./bin/sketchybar /usr/local/bin/sketchybar
+	mkdir ~/.config/sketchybar
+	cp sketchybarrc ~/.config/sketchybar/sketchybarrc
+	cp -r plugins ~/.config/sketchybar
+	chmod +x ~/.config/sketchybar/sketchybarrc
+	chmod +x ~/.config/sketchybar/plugins/*
+	echo "Install complete..."
+	
 stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 stats: clean $(BINS)
 	

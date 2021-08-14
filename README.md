@@ -33,8 +33,7 @@ The cpu and memory indicators are only shown on the "code" screen and are not vi
 ## Installation
 Clone the repo and in it run 
 ```bash
-chmod +x install.sh
-./install.sh
+make install
 ```
 This installs the app with my configuration preinstalled.
 
