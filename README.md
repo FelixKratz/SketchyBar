@@ -20,6 +20,7 @@ I have many more plans for the project:
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
 * Fix the currently static positioning of the bar
 * A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels
+* ~~"click" events for the widgets, where a script can be specified to run on a mouse click~~ (DONE)
 * Create more plugins
 * ......
 
