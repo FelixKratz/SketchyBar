@@ -2,6 +2,8 @@
 #define HELPERS_H
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef ref, uint32_t *wid);
+extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
+extern int g_connection;
 
 static const char *bool_str[] = { "off", "on" };
 
@@ -44,6 +46,12 @@ static inline bool is_root(void)
 static inline bool string_equals(const char *a, const char *b)
 {
     return a && b && strcmp(a, b) == 0;
+}
+
+static bool cgrect_contains_point(CGRect* r, CGPoint* p)
+{
+    return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
+           p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;
 }
 
 static inline char *string_escape_quote(char *s)
@@ -163,6 +171,36 @@ static inline uint32_t ax_window_id(AXUIElementRef ref)
 static inline pid_t ax_window_pid(AXUIElementRef ref)
 {
     return *(pid_t *)((void *) ref + 0x10);
+}
+
+
+static inline int mission_control_index(uint64_t sid)
+{
+  uint64_t result = 0;
+  int desktop_cnt = 1;
+
+  CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
+  int display_spaces_count = CFArrayGetCount(display_spaces_ref);
+
+  for (int i = 0; i < display_spaces_count; ++i) {
+    CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
+    CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
+    int spaces_count = CFArrayGetCount(spaces_ref);
+
+    for (int j = 0; j < spaces_count; ++j) {
+      CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
+      CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
+      CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &result);
+      if (sid == result) goto out;
+
+      ++desktop_cnt;
+    }
+  }
+
+  desktop_cnt = 0;
+out:
+  CFRelease(display_spaces_ref);
+  return desktop_cnt;
 }
 
 #pragma clang diagnostic push

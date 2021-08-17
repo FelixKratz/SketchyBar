@@ -5,7 +5,7 @@ extern struct process_manager g_process_manager;
 extern struct display_manager g_display_manager;
 extern struct bar_manager g_bar_manager;
 extern struct application_manager g_application_manager;
-extern bool g_mission_control_active;
+extern struct mouse_state g_mouse_state;
 extern int g_connection;
 
 enum event_type event_type_from_string(const char *str)
@@ -246,5 +246,30 @@ out:
     socket_close(param1);
     free(context);
 
+    return EVENT_SUCCESS;
+}
+
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DOWN) {
+    return EVENT_SUCCESS;
+}
+
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP)
+{
+    CGPoint point = CGEventGetLocation(context);
+    printf("Mouse Up Event \n");
+    uint32_t sid = mission_control_index(display_space_id(display_manager_active_display_id()));
+    printf("sid: %i \n", sid);
+    struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, sid);
+    if (bar_item) bar_item_on_click(bar_item);
+    else { printf("No item found \n"); }
+
+    return EVENT_SUCCESS;
+}
+
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
+  return EVENT_SUCCESS;
+}
+
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_MOVED) {
     return EVENT_SUCCESS;
 }

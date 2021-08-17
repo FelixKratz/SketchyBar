@@ -36,6 +36,7 @@
 
 #include "event_loop.h"
 #include "event.h"
+#include "event_tap.h"
 #include "workspace.h"
 #include "message.h"
 #include "display.h"
@@ -47,9 +48,11 @@
 #include "graph_data.h"
 #include "bar_item.h"
 #include "bar_manager.h"
+#include "mouse.h"
 
 #include "event_loop.c"
 #include "event.c"
+#include "event_tap.c"
 #include "workspace.m"
 #include "message.c"
 #include "display.c"

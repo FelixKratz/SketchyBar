@@ -189,35 +189,6 @@ static char * focused_window_title()
 }
 #pragma clang diagnostic pop
 
-static int mission_control_index(uint64_t sid)
-{
-  uint64_t result = 0;
-  int desktop_cnt = 1;
-
-  CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
-  int display_spaces_count = CFArrayGetCount(display_spaces_ref);
-
-  for (int i = 0; i < display_spaces_count; ++i) {
-    CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
-    CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
-    int spaces_count = CFArrayGetCount(spaces_ref);
-
-    for (int j = 0; j < spaces_count; ++j) {
-      CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
-      CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
-      CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &result);
-      if (sid == result) goto out;
-
-      ++desktop_cnt;
-    }
-  }
-
-  desktop_cnt = 0;
-out:
-  CFRelease(display_spaces_ref);
-  return desktop_cnt;
-}
-
 int bar_get_center_length(struct bar_manager* bar_manager) {
   int total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
@@ -259,20 +230,19 @@ void bar_refresh(struct bar *bar)
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+    if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
+    if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
+
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, *icon, ALIGN_CENTER, ALIGN_CENTER);
     CGPoint label_position = bar_align_line(bar, *label, ALIGN_CENTER, ALIGN_CENTER);
 
-
-    if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
-    if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
-    
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
-      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-      bar_draw_line(bar, *label, label_position.x, label_position.y);
+      
       if (!bar_item->nospace) 
         bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
       if (bar_draw_graphs(bar, bar_item, bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x, false)) {
@@ -283,8 +253,6 @@ void bar_refresh(struct bar *bar)
     else if (bar_item->position == BAR_POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
       icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left;
-      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-      bar_draw_line(bar, *label, label_position.x, label_position.y);
 
       if (!bar_item->nospace) 
         bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
@@ -296,8 +264,6 @@ void bar_refresh(struct bar *bar)
     else if (bar_item->position == BAR_POSITION_CENTER) {
       icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
-      bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-      bar_draw_line(bar, *label, label_position.x, label_position.y);
 
       if (!bar_item->nospace) 
         bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
@@ -306,6 +272,11 @@ void bar_refresh(struct bar *bar)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
     }
+    bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
+    bar_draw_line(bar, *label, label_position.x, label_position.y);
+    bar_item->label_line.bounds.origin = label_position;
+    bar_item->icon_line.bounds.origin = icon_position;
+    bar_item_set_bounding_rect_for_space(bar_item, sid);
   }
 
   CGContextFlush(bar->context);

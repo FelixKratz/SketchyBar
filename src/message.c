@@ -27,6 +27,7 @@ extern bool g_verbose;
 #define COMMAND_SET_ASSOCIATED_SPACE                        "associated_space"
 #define COMMAND_SET_UPDATE_FREQ                             "update_freq"
 #define COMMAND_SET_SCRIPT                                  "script"
+#define COMMAND_SET_CLICK_SCRIPT                            "click_script"
 #define COMMAND_SET_ICON_PADDING_LEFT                       "icon_padding_left"
 #define COMMAND_SET_ICON_PADDING_RIGHT                      "icon_padding_right"
 #define COMMAND_SET_LABEL_PADDING_LEFT                      "label_padding_left"
@@ -160,6 +161,7 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   struct token event = get_token(&message);
 
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
+  if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
   if (token_equals(event, COMMAND_SUBSCRIBE_SYSTEM_WOKE)) {
@@ -181,15 +183,15 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
 }
 
-// Syntax: sketchybar -m push <name> <x> <y>
+// Syntax: sketchybar -m push <name> <y>
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
-  struct token x = get_token(&message);
   struct token y = get_token(&message);
   
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
+  if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-  graph_data_push_back(&bar_item->graph_data, token_to_float(x), token_to_float(y));
+  graph_data_push_back(&bar_item->graph_data, token_to_float(y));
 }
 
 // Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
@@ -263,6 +265,8 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item_set_label_font(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_SCRIPT)) {
     bar_item_set_script(bar_item, string_copy(message));
+  } else if (token_equals(property, COMMAND_SET_CLICK_SCRIPT)) {
+    bar_item_set_click_script(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_UPDATE_FREQ)) {
     struct token value = get_token(&message);
     bar_item->update_frequency = token_to_uint32t(value);

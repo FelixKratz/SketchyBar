@@ -41,4 +41,7 @@ void bar_manager_handle_title_change(struct bar_manager* bar_manager);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
+
+struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t sid);
+
 #endif

@@ -28,6 +28,8 @@ struct display_manager g_display_manager;
 struct application_manager g_application_manager;
 struct daemon g_daemon;
 struct bar_manager g_bar_manager;
+struct mouse_state g_mouse_state;
+struct event_tap g_event_tap;
 int g_connection;
 
 char g_socket_file[MAXLEN];
@@ -257,6 +259,7 @@ int main(int argc, char **argv)
     workspace_event_handler_begin(&g_workspace_context);
     application_manager_begin(&g_application_manager);
     bar_manager_begin(&g_bar_manager);
+    event_tap_begin(&g_event_tap, EVENT_MASK_MOUSE, mouse_handler);
     SLSRegisterConnectionNotifyProc(g_connection, connection_handler, 1204, NULL);
 
     if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler)) {

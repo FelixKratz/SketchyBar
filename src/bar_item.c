@@ -13,6 +13,7 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 1000;
   bar_item->script = "";
+  bar_item->on_click_script = "~/.config/sketchybar/plugins/random.sh";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
@@ -24,6 +25,8 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
+  bar_item->num_rects = 0;
+  bar_item->bounding_rects = NULL;
 
   bar_item_set_icon(bar_item, string_copy(""), bar_item->icon_color);
   bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
@@ -67,6 +70,13 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
     free(bar_item->script);
   }
   bar_item->script = script;
+}
+
+void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
+  if (script != bar_item->on_click_script && !bar_item->on_click_script) {
+    free(bar_item->on_click_script);
+  }
+  bar_item->on_click_script = script;
 }
 
 void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color) {
@@ -114,4 +124,34 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
   }
 
   bar_item->label_font = bar_create_font(font_string);
+}
+
+void bar_item_on_click(struct bar_item* bar_item) {
+  printf("%s \n", bar_item->name);
+  if (strcmp(bar_item->on_click_script, "") != 0)
+    fork_exec(bar_item->on_click_script, NULL);
+}
+
+CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
+  CGRect bounding_rect;
+  bounding_rect.origin = bar_item->icon_line.bounds.origin;
+  bounding_rect.size.width = CGRectGetMaxX(bar_item->label_line.bounds) - CGRectGetMinX(bar_item->icon_line.bounds);
+  bounding_rect.size.height = CGRectGetMaxY(bar_item->label_line.bounds) > CGRectGetMaxY(bar_item->icon_line.bounds) ? CGRectGetMaxY(bar_item->label_line.bounds) : CGRectGetMaxY(bar_item->icon_line.bounds);
+  return bounding_rect;
+}
+
+void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid) {
+  if (bar_item->num_rects < sid) {
+    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * sid);
+    memset(bar_item->bounding_rects, 0, sizeof(CGRect*) * sid);
+    bar_item->num_rects = sid;
+  }
+  if (!bar_item->bounding_rects[sid - 1]) {
+    bar_item->bounding_rects[sid - 1] = malloc(sizeof(CGRect));
+    memset(bar_item->bounding_rects[sid - 1], 0, sizeof(CGRect));
+  }
+  CGRect rect = bar_item_construct_bounding_rect(bar_item);
+
+  bar_item->bounding_rects[sid - 1]->origin = rect.origin;
+  bar_item->bounding_rects[sid - 1]->size = rect.size;
 }
