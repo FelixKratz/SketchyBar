@@ -10,6 +10,7 @@ What I have added:
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
 * Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
+* "click" events for the widgets, where a script can be specified to run on a mouse click
 * ... feel free to explore my sketchybarrc file for more details on the options
 
 I have many more plans for the project:
@@ -19,7 +20,6 @@ I have many more plans for the project:
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
 * Fix the currently static positioning of the bar
 * A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels
-* Add on_click events for the widgets
 * Create more plugins
 * ......
 
