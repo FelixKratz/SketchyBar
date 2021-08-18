@@ -3,12 +3,6 @@
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 
-static POWER_CALLBACK(power_handler)
-{
-  struct event *event = event_create(&g_event_loop, BAR_REFRESH, NULL);
-  event_loop_post(&g_event_loop, event);
-}
-
 static TIMER_CALLBACK(timer_handler)
 {
   struct event *event = event_create(&g_event_loop, BAR_REFRESH, NULL);
@@ -353,11 +347,9 @@ struct bar *bar_create(uint32_t did)
 
   int refresh_frequency = 1;
   int shell_refresh_frequency = 1;
-  bar->power_source = IOPSNotificationCreateRunLoopSource(power_handler, NULL);
   bar->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
   bar->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
 
-  CFRunLoopAddSource(CFRunLoopGetMain(), bar->power_source, kCFRunLoopCommonModes);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar->refresh_timer, kCFRunLoopCommonModes);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar->shell_refresh_timer, kCFRunLoopCommonModes);
   
@@ -368,9 +360,6 @@ struct bar *bar_create(uint32_t did)
 
 void bar_destroy(struct bar *bar)
 {
-  CFRunLoopRemoveSource(CFRunLoopGetMain(), bar->power_source, kCFRunLoopCommonModes);
-  CFRunLoopSourceInvalidate(bar->power_source);
-
   CFRunLoopRemoveTimer(CFRunLoopGetMain(), bar->refresh_timer, kCFRunLoopCommonModes);
   CFRunLoopTimerInvalidate(bar->refresh_timer);
 

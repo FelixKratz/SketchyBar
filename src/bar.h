@@ -52,7 +52,6 @@ struct bar
     uint32_t id;
     uint32_t did;
     CGContextRef context;
-    CFRunLoopSourceRef power_source;
     CFRunLoopTimerRef refresh_timer;
     CFRunLoopTimerRef shell_refresh_timer;
     CGRect frame;
