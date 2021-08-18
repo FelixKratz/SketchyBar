@@ -22,15 +22,6 @@ extern CGError CGSNewRegionWithRect(CGRect *rect, CFTypeRef *outRegion);
 #define kCGSIgnoreForExposeTagBit       (1 <<  7)
 #define kCGSStickyTagBit                (1 << 11)
 
-#define POWER_CALLBACK(name) void name(void *context)
-typedef POWER_CALLBACK(power_callback);
-
-#define TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
-typedef TIMER_CALLBACK(timer_callback);
-
-#define SHELL_TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
-typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
-
 #define ALIGN_NONE   0
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2

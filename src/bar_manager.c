@@ -1,5 +1,19 @@
 #include "bar_manager.h"
 
+extern struct event_loop g_event_loop;
+
+static TIMER_CALLBACK(timer_handler)
+{
+  struct event *event = event_create(&g_event_loop, BAR_REFRESH, NULL);
+  event_loop_post(&g_event_loop, event);
+}
+
+static SHELL_TIMER_CALLBACK(shell_timer_handler)
+{
+  struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
+  event_loop_post(&g_event_loop, event);
+}
+
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if (strcmp(bar_manager->bar_items[i]->name, name) == 0) {
@@ -122,6 +136,14 @@ void bar_manager_begin(struct bar_manager *bar_manager)
       bar_manager->bars[index - 1] = bar_create(did);
     }
   }
+
+  int refresh_frequency = 1;
+  int shell_refresh_frequency = 1;
+  bar_manager->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
+  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
+
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->refresh_timer, kCFRunLoopCommonModes);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
 
 void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_manager, uint32_t pattern) {

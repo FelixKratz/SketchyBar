@@ -1,16 +1,16 @@
 #ifndef BAR_ITEM_H
 #define BAR_ITEM_H
 
-#define BAR_ITEM 'i'
+#define BAR_ITEM      'i'
 #define BAR_COMPONENT 'c'
-#define BAR_PLUGIN 'p'
+#define BAR_PLUGIN    'p'
 
 #define UPDATE_FRONT_APP_SWITCHED 1
-#define UPDATE_WINDOW_FOCUS 1 << 1
-#define UPDATE_SPACE_CHANGE 1 << 2
-#define UPDATE_DISPLAY_CHANGE 1 << 3
-#define UPDATE_SYSTEM_WOKE 1 << 4
-#define UPDATE_TITLE_CHANGE 1 << 5
+#define UPDATE_WINDOW_FOCUS       1 << 1
+#define UPDATE_SPACE_CHANGE       1 << 2
+#define UPDATE_DISPLAY_CHANGE     1 << 3
+#define UPDATE_SYSTEM_WOKE        1 << 4
+#define UPDATE_TITLE_CHANGE       1 << 5
 
 struct bar_item {
   bool nospace;
@@ -22,9 +22,12 @@ struct bar_item {
   uint32_t associated_display;
   uint32_t associated_space;
   uint32_t update_frequency;
+
   // Execute with exec_fork, callback from command via messages
   char* script;
+  char* script_path;
   char* on_click_script;
+  char* on_click_script_path;
   
   // Name by which to refer to the bar_item in the configuration
   char* name;

@@ -1,8 +1,16 @@
 #ifndef BAR_MANAGER_H
 #define BAR_MANAGER_H
+#define TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
+typedef TIMER_CALLBACK(timer_callback);
+
+#define SHELL_TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
+typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
+
 
 struct bar_manager
 {
+  CFRunLoopTimerRef refresh_timer;
+  CFRunLoopTimerRef shell_refresh_timer;
   struct bar **bars;
   int bar_count;
   struct bar_item **bar_items;
