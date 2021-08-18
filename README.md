@@ -55,8 +55,16 @@ brew tap homebrew/cask-fonts
 brew install --cask font-hack-nerd-font
 ```
 
+## Updating
+Since this is a work-in-progress project, there might be big and radical changes along the way. You can update by pulling from master and in the
+up to date repo folder run:
+```bash
+make update
+```
+This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to
+update those files too.
 
-Credits:
+## Credits
 yabai,
 spacebar,
 reddit,
