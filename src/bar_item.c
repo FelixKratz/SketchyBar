@@ -137,10 +137,13 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   bounding_rect.origin = bar_item->icon_line.bounds.origin;
   bounding_rect.size.width = CGRectGetMaxX(bar_item->label_line.bounds) - CGRectGetMinX(bar_item->icon_line.bounds);
   bounding_rect.size.height = CGRectGetMaxY(bar_item->label_line.bounds) > CGRectGetMaxY(bar_item->icon_line.bounds) ? CGRectGetMaxY(bar_item->label_line.bounds) : CGRectGetMaxY(bar_item->icon_line.bounds);
+  uint32_t max_y = CGRectGetMaxY(bar_item->label_line.bounds) > CGRectGetMaxY(bar_item->icon_line.bounds) ? CGRectGetMaxY(bar_item->label_line.bounds) : CGRectGetMaxY(bar_item->icon_line.bounds);
+  uint32_t min_y = CGRectGetMinY(bar_item->label_line.bounds) < CGRectGetMinY(bar_item->icon_line.bounds) ? CGRectGetMinY(bar_item->label_line.bounds) : CGRectGetMinY(bar_item->icon_line.bounds);
+  bounding_rect.size.height = max_y - min_y;
   return bounding_rect;
 }
 
-void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid) {
+void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid, CGPoint bar_origin) {
   if (bar_item->num_rects < sid) {
     bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * sid);
     memset(bar_item->bounding_rects, 0, sizeof(CGRect*) * sid);
@@ -151,7 +154,7 @@ void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t si
     memset(bar_item->bounding_rects[sid - 1], 0, sizeof(CGRect));
   }
   CGRect rect = bar_item_construct_bounding_rect(bar_item);
-
-  bar_item->bounding_rects[sid - 1]->origin = rect.origin;
+  bar_item->bounding_rects[sid - 1]->origin.x = rect.origin.x + bar_origin.x;
+  bar_item->bounding_rects[sid - 1]->origin.y = rect.origin.y + bar_origin.y;
   bar_item->bounding_rects[sid - 1]->size = rect.size;
 }

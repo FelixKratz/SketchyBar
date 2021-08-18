@@ -84,6 +84,6 @@ void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string);
 void bar_item_on_click(struct bar_item* bar_item);
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
-void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid);
+void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid, CGPoint bar_origin);
 
 #endif

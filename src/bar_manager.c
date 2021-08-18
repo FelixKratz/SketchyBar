@@ -159,6 +159,7 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->num_rects < sid || bar_item->bounding_rects[sid - 1] == NULL) continue;
+    printf("Bounding rect: %f %f \n", bar_item->bounding_rects[sid - 1]->origin.x, bar_item->bounding_rects[sid - 1]->origin.y);
     if (cgrect_contains_point(bar_item->bounding_rects[sid - 1], &point)) {
       return bar_item;
     }

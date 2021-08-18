@@ -258,7 +258,7 @@ void bar_refresh(struct bar *bar)
     bar_draw_line(bar, *label, label_position.x, label_position.y);
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
-    bar_item_set_bounding_rect_for_space(bar_item, sid);
+    bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
   }
 
   CGContextFlush(bar->context);
@@ -266,7 +266,7 @@ void bar_refresh(struct bar *bar)
   SLSReenableUpdate(g_connection);
 }
 
-static CGPoint bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
+void bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
 {
   CGRect bounds = display_bounds(bar->did);
   CGPoint origin = bounds.origin;
@@ -282,19 +282,18 @@ static CGPoint bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
   }
 
   bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};
+  bar->origin = origin;
   CGSNewRegionWithRect(&bar->frame, frame_region);
-
-  return origin;
 }
 
 void bar_resize(struct bar *bar)
 {
   CFTypeRef frame_region;
-  CGPoint origin = bar_create_frame(bar, &frame_region);
+  bar_create_frame(bar, &frame_region);
 
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
-  SLSSetWindowShape(g_connection, bar->id, origin.x, origin.y, frame_region);
+  SLSSetWindowShape(g_connection, bar->id, bar->origin.x, bar->origin.y, frame_region);
   bar_refresh(bar);
   SLSOrderWindow(g_connection, bar->id, 1, 0);
   SLSReenableUpdate(g_connection);
@@ -319,9 +318,9 @@ struct bar *bar_create(uint32_t did)
   *((int8_t *)(clear_tags) + 0x5) = 0x20;
 
   CFTypeRef frame_region;
-  CGPoint origin = bar_create_frame(bar, &frame_region);
+  bar_create_frame(bar, &frame_region);
 
-  SLSNewWindow(g_connection, 2, origin.x, origin.y, frame_region, &bar->id);
+  SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, bar->id, 2.0f);

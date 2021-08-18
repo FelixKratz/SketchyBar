@@ -46,6 +46,7 @@ struct bar
     CFRunLoopTimerRef refresh_timer;
     CFRunLoopTimerRef shell_refresh_timer;
     CGRect frame;
+    CGPoint origin;
 };
 
 void bar_refresh(struct bar *bar);
