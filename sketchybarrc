@@ -3,6 +3,7 @@
 # TODO: Implement the plugin system for easier setup of preconfigured items
 
 sketchybar -m config height               25
+sketchybar -m config position             top
 sketchybar -m config padding_left         10
 sketchybar -m config padding_right        10
 sketchybar -m config bar_color            0x44000000 #0xaf202020
