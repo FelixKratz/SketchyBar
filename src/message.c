@@ -73,6 +73,9 @@ extern bool g_verbose;
 #define BAR_DISPLAY_MAIN_ONLY                               "main"
 #define BAR_DISPLAY_ALL                                     "all"
 
+#define BAR_POSITION_BOTTOM                                 "bottom"
+#define BAR_POSITION_TOP                                    "top"
+
 static bool token_equals(struct token token, char *match)
 {
   char *at = match;
@@ -360,15 +363,15 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
-    char * main = "main";
-    char * all = "all";
     if (length <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.display);
-    } else if ((strcmp(message,main) == 0) || (strcmp(message,all) == 0)) {
+    } else if ((strcmp(message,BAR_DISPLAY_MAIN_ONLY) == 0) || (strcmp(message,BAR_DISPLAY_ALL) == 0)) {
       bar_manager_set_display(&g_bar_manager, string_copy(message));
     } else {
       daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
     }
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_POSITION)) {
+    bar_manager_set_position(&g_bar_manager, string_copy(message));
   }
   else {
     daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);

@@ -276,9 +276,8 @@ static CGPoint bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
     origin.y   += menu.size.height;
   }
 
-  char *btm = "bottom";
   CGFloat display_bottom = CGRectGetMaxY(bounds);
-  if (strcmp(g_bar_manager.position, btm) == 0) {
+  if (strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM) == 0) {
     origin.y = display_bottom - g_bar_manager.height;
   }
 

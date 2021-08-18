@@ -98,7 +98,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
   bar_manager->display = BAR_DISPLAY_ALL;
-  bar_manager->position = "top";
+  bar_manager->position = BAR_POSITION_TOP;
   bar_manager->height = 25;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
