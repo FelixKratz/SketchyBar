@@ -256,12 +256,11 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DOWN) {
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP)
 {
     CGPoint point = CGEventGetLocation(context);
-    printf("Mouse Up Event \n");
     uint32_t sid = mission_control_index(display_space_id(display_manager_active_display_id()));
-    printf("sid: %i \n", sid);
+    debug("EVENT_HANDLER_MOUSE_UP: S#%d (x: %.0f, y: %.0f) -> ", sid, point.x, point.y);
     struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, sid);
-    if (bar_item) bar_item_on_click(bar_item);
-    else { printf("No item found \n"); }
+    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    bar_item_on_click(bar_item);
 
     return EVENT_SUCCESS;
 }

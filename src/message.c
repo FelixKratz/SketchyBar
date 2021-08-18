@@ -371,7 +371,13 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_POSITION)) {
-    bar_manager_set_position(&g_bar_manager, string_copy(message));
+    if (strlen(message) <= 0) {
+      fprintf(rsp, "%s\n", g_bar_manager.position);
+    } else if (strcmp(message, BAR_POSITION_TOP) != 0 && strcmp(message, BAR_POSITION_BOTTOM) != 0) {
+      daemon_fail(rsp, "value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
+    } else {
+      bar_manager_set_position(&g_bar_manager, string_copy(message));
+    }
   }
   else {
     daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
