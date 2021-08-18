@@ -261,7 +261,6 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP)
     struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, sid);
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item);
-
     return EVENT_SUCCESS;
 }
 
