@@ -97,11 +97,20 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
-  bar_manager->display = "all";
+  bar_manager->display = BAR_DISPLAY_ALL;
   bar_manager->position = "top";
-  bar_manager->height = 26;
+  bar_manager->height = 25;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
+  
+  int refresh_frequency = 1;
+  int shell_refresh_frequency = 1;
+
+  bar_manager->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->refresh_timer, kCFRunLoopCommonModes);
+  
+  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
 
 void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did, uint32_t sid) {
@@ -119,31 +128,23 @@ void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
 
 void bar_manager_begin(struct bar_manager *bar_manager)
 {
-  char * main = "main";
-  char * all = "all";
-
-  if (strcmp(bar_manager->display,main) == 0) {
+  if (strcmp(bar_manager->display, BAR_DISPLAY_MAIN_ONLY) == 0) {
     uint32_t did = display_manager_main_display_id();
-    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * 1);
     bar_manager->bar_count = 1;
+    bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
+    memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
-  } else if (strcmp(bar_manager->display,all) == 0) {
+  } 
+  else if (strcmp(bar_manager->display, BAR_DISPLAY_ALL) == 0) {
     bar_manager->bar_count = display_manager_active_display_count();
-    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
-
+    bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
+    memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_manager_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
     }
   }
-
-  int refresh_frequency = 1;
-  int shell_refresh_frequency = 1;
-  bar_manager->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
-  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
-
-  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->refresh_timer, kCFRunLoopCommonModes);
-  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
+  else return;
 }
 
 void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_manager, uint32_t pattern) {

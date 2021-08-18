@@ -70,6 +70,8 @@ extern bool g_verbose;
 #define BAR_POSITION_RIGHT                                  'r'
 #define BAR_POSITION_CENTER                                 'c'
 
+#define BAR_DISPLAY_MAIN_ONLY                               "main"
+#define BAR_DISPLAY_ALL                                     "all"
 
 static bool token_equals(struct token token, char *match)
 {

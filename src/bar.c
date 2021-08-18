@@ -203,6 +203,7 @@ void bar_refresh(struct bar *bar)
   CGContextStrokePath(bar->context);
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
+  if (sid == 0) return;
   bar_manager_update_components(&g_bar_manager, did, sid);
 
   int bar_left_final_item_x = g_bar_manager.padding_left;
