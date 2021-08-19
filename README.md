@@ -1,5 +1,6 @@
 # SketchyBar
 This is a rewrite of the spacebar project, which itself is a rewrite of the statusbar code from yabai.
+
 What I have added:
 * As many widgets as you like at any of the three positions: left, center, right
 * The order of the widgets in the sketchybarrc file will be the order in which they show in the bar
@@ -18,7 +19,7 @@ I have many more plans for the project:
 * Cache the scripts in RAM to reduce I/O operations
 * ~~Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display~~ (DONE)
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
-* Fix the currently static positioning of the bar
+* ~~Fix the currently static positioning of the bar~~ (DONE)
 * A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels
 * ~~"click" events for the widgets, where a script can be specified to run on a mouse click~~ (DONE)
 * Create more plugins
@@ -63,6 +64,91 @@ make update
 ```
 This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to
 update those files too.
+
+## Configuration
+Below is a list of all possible commands you can currently use in the configuration file located in *~/.config/sketchybar/sketchybarrc*:
+
+### Global configuration of the bar
+```bash
+sketchybar -m config <setting> <value>
+```
+where the settings currently are:
+* *position*: *top* or *bottom*
+* *height*: the height of the bar in pixels
+* *padding_left*: padding on the left before first item 
+* *padding_right*: just as padding_right
+* *bar_color*: the color of the bar itself
+* *display*: on which display to show bar (*main* or *all*)
+
+### Adding a simple menubar item (items will appear in the bar in the order they are added)
+```bash
+sketchybar -m add item <name> <position>
+```
+where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
+The *position* is the placement in the bar and can be either *left*, *right* or *center*.
+
+### Adding a component
+```bash
+sketchybar -m add component <type> <name> <position>
+```
+Components are essentially items, but with special properties. 
+Currently there are the component *types*: 
+* *title*: Showing the current window title, 
+* *graph*: showing a graph,
+* *space*: representing a mission control space
+
+### Changing the properties of an item
+```bash
+sketchybar -m set <name> <property> <value>
+```
+where the *name* is used to target the item with this name.
+A list of properties is listed below:
+* *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
+* *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
+ 
+* *label*: the label of the item
+* *label_font*: the font for the label
+* *label_color*: the color of the label
+* *label_padding_left*: left padding of label
+* *label_padding_right*: right padding of label
+ 
+ 
+* *icon*: the icon of the item
+* *icon_font*: the font for the icon
+* *icon_color*: the color of the icon
+* *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
+* *icon_padding_left*: left padding of icon
+* *icon_padding_right*: right padding of icon
+ 
+* *graph_color*: color of the associated graph
+ 
+* *script*: a script to run every *update_freq* seconds
+* *update_freq*: time in seconds between script executions
+ 
+* *click_script*: script to run when left clicking on item
+
+### Subscribing items to system events for their script execution
+```bash
+sketchybar -m subscribe <name> <event>
+```
+where the events are:
+* *front_app_switched*: when frontmost application changes
+* *window_focus*: when a window is focused
+* *space_change*: when the space is changed
+* *display_change*: when the display is changed
+* *title_change*: when the title of the window changes
+* *system_woke*: when the system has awaken from sleep
+
+### Supplying data for graphs
+```bash
+sketchybar -m push <name> <data>
+```
+This pushes the data point into the graph with name *name*.
+
+### Forcing all shell scripts to run and the bar to refresh
+```bash
+sketchybar -m update
+```
 
 ## Credits
 yabai,
