@@ -106,11 +106,11 @@ uint32_t display_manager_last_display_id(void)
     return display_manager_arrangement_display_id(arrangement);
 }
 
-bool display_manager_menu_bar_hidden(void)
+bool display_manager_menu_bar_visible(void)
 {
     int status = 0;
     SLSGetMenuBarAutohideEnabled(g_connection, &status);
-    return status;
+    return !status;
 }
 
 CGRect display_manager_menu_bar_rect(uint32_t did)

@@ -271,14 +271,12 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
   CGRect bounds = display_bounds(bar->did);
   CGPoint origin = bounds.origin;
 
-  if (!display_manager_menu_bar_hidden()) {
+
+  if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
+    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.height;
+  } else if (display_manager_menu_bar_visible()) {
     CGRect menu = display_manager_menu_bar_rect(bar->did);
     origin.y   += menu.size.height;
-  }
-
-  CGFloat display_bottom = CGRectGetMaxY(bounds);
-  if (strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM) == 0) {
-    origin.y = display_bottom - g_bar_manager.height;
   }
 
   bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};
