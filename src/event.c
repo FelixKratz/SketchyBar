@@ -6,6 +6,7 @@ extern struct display_manager g_display_manager;
 extern struct bar_manager g_bar_manager;
 extern struct application_manager g_application_manager;
 extern struct mouse_state g_mouse_state;
+extern struct window_manager g_window_manager;
 extern int g_connection;
 
 enum event_type event_type_from_string(const char *str)
@@ -253,9 +254,9 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DOWN) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP)
-{
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGPoint point = CGEventGetLocation(context);
+
     uint32_t sid = mission_control_index(display_space_id(display_manager_active_display_id()));
     debug("EVENT_HANDLER_MOUSE_UP: S#%d (x: %.0f, y: %.0f) -> ", sid, point.x, point.y);
     struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, sid);
