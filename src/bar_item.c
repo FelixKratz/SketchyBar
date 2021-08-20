@@ -46,8 +46,15 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
 
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
   if (bar_item->type == BAR_COMPONENT) {
-    if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0)
-      bar_item_set_label(bar_item, focused_window_title());
+    if (strcmp(bar_item->identifier, BAR_COMPONENT_TITLE) == 0) {
+      char* focused_window = focused_window_title();
+      if (focused_window) {
+        bar_item_set_label(bar_item, string_copy(focused_window));
+      }
+      else {
+        bar_item_set_label(bar_item, string_copy(""));
+      }
+    }
     else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
       if ((1 << sid) & bar_item->associated_space && (1 << did) & bar_item->associated_display)
         bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_highlight_color);
