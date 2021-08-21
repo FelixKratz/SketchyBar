@@ -102,14 +102,11 @@ static char *token_to_string(struct token token)
   return result;
 }
 
-static uint32_t token_to_uint32t(struct token token)
-{
-  uint32_t result = 0;
+static uint32_t token_to_uint32t(struct token token) {
   char buffer[token.length + 1];
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
-  sscanf(buffer, "%x", &result);
-  return result;
+  return   strtoul(buffer, NULL, 0);
 }
 
 static float token_to_float(struct token token)
@@ -220,7 +217,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item->identifier = token_to_string(identifier);
     if (strcmp(bar_item->identifier, BAR_COMPONENT_GRAPH) == 0) {
       struct token width = get_token(&message);
-      printf("%i \n", token_to_uint32t(width));
       graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
       if (message != NULL) {
         struct token modifier = get_token(&message);

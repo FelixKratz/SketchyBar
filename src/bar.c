@@ -175,8 +175,7 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->position == BAR_POSITION_CENTER) {
-      total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
-      // TODO: Hier fehlt definitiv noch die breite des graphen
+      total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
       if (i > 0) {
         total_length += bar_manager->bar_items[i-1]->label_spacing_right + bar_item->icon_spacing_left;
       }

@@ -250,8 +250,7 @@ out:
     return EVENT_SUCCESS;
 }
 
-bool is_bar_at_point(CGPoint point)
-{
+bool is_bar_at_point(CGPoint point) {
     CGPoint window_point;
     uint32_t window_id;
     int window_cid;
