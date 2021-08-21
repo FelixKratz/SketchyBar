@@ -20,10 +20,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE);
 static EVENT_CALLBACK(EVENT_HANDLER_BAR_REFRESH);
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH);
 static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE);
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DOWN);
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED);
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_MOVED);
 
 #define EVENT_QUEUED     0x0
 #define EVENT_PROCESSED  0x1
@@ -54,11 +51,7 @@ enum event_type
     BAR_REFRESH,
     SHELL_REFRESH,
     DAEMON_MESSAGE,
-    MOUSE_DOWN,
     MOUSE_UP,
-    MOUSE_DRAGGED,
-    MOUSE_MOVED,
-
 
     EVENT_TYPE_COUNT
 };
@@ -83,10 +76,7 @@ static const char *event_type_str[] =
     [BAR_REFRESH]                    = "bar_refresh",
     [SHELL_REFRESH]                  = "shell_refresh",
     [DAEMON_MESSAGE]                 = "daemon_message",
-    [MOUSE_DOWN]                     = "mouse_down",
     [MOUSE_UP]                       = "mouse_up",
-    [MOUSE_DRAGGED]                  = "mouse_dragged",
-    [MOUSE_MOVED]                    = "mouse_moved",
 
     [EVENT_TYPE_COUNT]               = "event_type_count"
 };
@@ -104,10 +94,7 @@ static event_callback *event_handler[] =
     [DISPLAY_MOVED]                  = EVENT_HANDLER_DISPLAY_MOVED,
     [DISPLAY_RESIZED]                = EVENT_HANDLER_DISPLAY_RESIZED,
     [DISPLAY_CHANGED]                = EVENT_HANDLER_DISPLAY_CHANGED,
-    [MOUSE_DOWN]                     = EVENT_HANDLER_MOUSE_DOWN,
     [MOUSE_UP]                       = EVENT_HANDLER_MOUSE_UP,
-    [MOUSE_DRAGGED]                  = EVENT_HANDLER_MOUSE_DRAGGED,
-    [MOUSE_MOVED]                    = EVENT_HANDLER_MOUSE_MOVED,
 
     [MENU_BAR_HIDDEN_CHANGED]        = EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED,
     [SYSTEM_WOKE]                    = EVENT_HANDLER_SYSTEM_WOKE,
