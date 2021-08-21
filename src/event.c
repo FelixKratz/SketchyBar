@@ -250,8 +250,20 @@ out:
     return EVENT_SUCCESS;
 }
 
+bool is_bar_at_point(CGPoint point)
+{
+    CGPoint window_point;
+    uint32_t window_id;
+    int window_cid;
+
+    SLSFindWindowByGeometry(g_connection, 0, 1, 0, &point, &window_point, &window_id, &window_cid);
+    return window_cid == g_connection;
+}
+
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGPoint point = CGEventGetLocation(context);
+
+    if (!is_bar_at_point(point)) return EVENT_SUCCESS;
 
     uint32_t sid = mission_control_index(display_space_id(display_manager_active_display_id()));
     debug("EVENT_HANDLER_MOUSE_UP: S#%d (x: %.0f, y: %.0f) -> ", sid, point.x, point.y);
