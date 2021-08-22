@@ -3,12 +3,6 @@
 
 extern struct event_loop g_event_loop;
 
-static TIMER_CALLBACK(timer_handler)
-{
-  struct event *event = event_create(&g_event_loop, BAR_REFRESH, NULL);
-  event_loop_post(&g_event_loop, event);
-}
-
 static SHELL_TIMER_CALLBACK(shell_timer_handler)
 {
   struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
@@ -106,12 +100,8 @@ void bar_manager_init(struct bar_manager *bar_manager)
 
   bar_item_init(&bar_manager->default_item, NULL);
   
-  int refresh_frequency = 1;
   int shell_refresh_frequency = 1;
 
-  bar_manager->refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + refresh_frequency, refresh_frequency, 0, 0, timer_handler, NULL);
-  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->refresh_timer, kCFRunLoopCommonModes);
-  
   bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
