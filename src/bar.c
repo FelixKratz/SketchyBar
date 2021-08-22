@@ -211,6 +211,7 @@ void bar_refresh(struct bar *bar)
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    bar_item->is_shown = false;
 
     if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
     if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
@@ -257,6 +258,7 @@ void bar_refresh(struct bar *bar)
     bar_draw_line(bar, *label, label_position.x, label_position.y);
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
+    bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
   }
 

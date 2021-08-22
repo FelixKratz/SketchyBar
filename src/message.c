@@ -352,7 +352,8 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item->cache_scripts = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } 
 
-  bar_manager_refresh(&g_bar_manager);
+  if (bar_item->is_shown)
+    bar_manager_refresh(&g_bar_manager);
 }
 
 static void handle_domain_config(FILE *rsp, struct token domain, char *message)

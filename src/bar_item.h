@@ -13,6 +13,7 @@
 #define UPDATE_TITLE_CHANGE       1 << 5
 
 struct bar_item {
+  bool is_shown;
   bool nospace;
   int counter;
   char type;
