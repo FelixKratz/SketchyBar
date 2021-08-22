@@ -12,6 +12,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 1000;
+  bar_item->cache_scripts = false;
   bar_item->script = "";
   bar_item->on_click_script = "";
   bar_item->position = BAR_POSITION_RIGHT;
@@ -40,6 +41,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
     bar_item->label_spacing_left = default_item->label_spacing_left;
     bar_item->label_spacing_right = default_item->label_spacing_right;
     bar_item->update_frequency = default_item->update_frequency;
+    bar_item->cache_scripts = default_item->cache_scripts;
   }
 
   bar_item_set_icon(bar_item, string_copy(""), bar_item->icon_color);
@@ -88,26 +90,28 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
-  if (script != bar_item->script && !bar_item->script) {
+  if (script != bar_item->script && !bar_item->script)
     free(bar_item->script);
-  }
-  bar_item->script = script;
+  if (bar_item->cache_scripts && file_exists(resolve_path(script)))
+    bar_item->script = read_file(resolve_path(script));
+  else
+    bar_item->script = script;
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
-  if (script != bar_item->on_click_script && !bar_item->on_click_script) {
+  if (script != bar_item->on_click_script && !bar_item->on_click_script)
     free(bar_item->on_click_script);
-  }
-  bar_item->on_click_script = script;
+  if (bar_item->cache_scripts && file_exists(resolve_path(script)))
+    bar_item->on_click_script = read_file(resolve_path(script));
+  else 
+    bar_item->on_click_script = script;
 }
 
 void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color) {
-  if (bar_item->icon_line.line) {
+  if (bar_item->icon_line.line)
     bar_destroy_line(bar_item->icon_line);
-  }
-  if (icon != bar_item->icon && !bar_item->icon) {
+  if (icon != bar_item->icon && !bar_item->icon)
     free(bar_item->icon);
-  }
   bar_item->icon = icon;
   bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, color);
 }
@@ -118,12 +122,10 @@ void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
 }
 
 void bar_item_set_label(struct bar_item* bar_item, char* label) {
-  if (bar_item->label_line.line) {
+  if (bar_item->label_line.line)
     bar_destroy_line(bar_item->label_line);
-  }
-  if (label != bar_item->label && !bar_item->label) {
+  if (label != bar_item->label && !bar_item->label)
     free(bar_item->label);
-  }
   bar_item->label = label;
   bar_item->label_line = bar_prepare_line(bar_item->label_font, bar_item->label, bar_item->label_color);
 } 
@@ -133,18 +135,16 @@ void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
   bar_item_set_label(bar_item, bar_item->label);
 }
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
-  if (bar_item->icon_font) {
+  if (bar_item->icon_font)
     CFRelease(bar_item->icon_font);
-  }
 
   bar_item->icon_font = bar_create_font(font_string);
   bar_item->icon_font_name = font_string;
 }
 
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
-  if (bar_item->label_font) {
+  if (bar_item->label_font)
     CFRelease(bar_item->label_font);
-  }
 
   bar_item->label_font = bar_create_font(font_string);
   bar_item->label_font_name = font_string;

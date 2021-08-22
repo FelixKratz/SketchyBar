@@ -24,10 +24,9 @@ struct bar_item {
   uint32_t update_frequency;
 
   // Execute with exec_fork, callback from command via messages
+  bool cache_scripts;
   char* script;
-  char* script_path;
   char* on_click_script;
-  char* on_click_script_path;
   
   // Name by which to refer to the bar_item in the configuration
   char* name;

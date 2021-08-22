@@ -9,6 +9,9 @@ sketchybar -m config padding_left         10
 sketchybar -m config padding_right        10
 sketchybar -m config bar_color            0x44000000 #0xaf202020
 
+############## SCRIPT CACHING ############
+sketchybar -m default cache_scripts on
+
 ############## SPACES ###############
 sketchybar -m default icon_font "Hack Nerd Font:Bold:17.0"
 sketchybar -m default icon_color 0xffffffff

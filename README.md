@@ -12,11 +12,12 @@ What I have added:
 * Individual refresh frequencies for each widget
 * Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
 * "click" events for the widgets, where a script can be specified to run on a mouse click
+* Cache the scripts in RAM to reduce I/O operations
 * ... feel free to explore my sketchybarrc file for more details on the options
 
 I have many more plans for the project:
 * ~~Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)~~ (DONE)
-* Cache the scripts in RAM to reduce I/O operations
+* ~~Cache the scripts in RAM to reduce I/O operations~~ (DONE)
 * ~~Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display~~ (DONE)
 * Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
 * ~~Fix the currently static positioning of the bar~~ (DONE)
@@ -124,8 +125,8 @@ A list of properties is listed below:
  
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
- 
 * *click_script*: script to run when left clicking on item
+* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*)
 
 ### Changing the default values for all further items
 ```bash
@@ -143,6 +144,7 @@ this currently works for the properties:
 * *icon_padding_left*
 * *icon_padding_right*
 * *update_freq*
+* *cache_scripts*
 
 It is also possible to reset the defaults via the command
 ```bash

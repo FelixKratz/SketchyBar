@@ -44,6 +44,7 @@ extern bool g_verbose;
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
+#define COMMAND_SET_CACHE_SCRIPTS                           "cache_scripts"
 
 #define DOMAIN_SUBSCRIBE                                    "subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
@@ -216,9 +217,12 @@ static void handle_domain_default(FILE* rsp, struct token domain, char* message)
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
     struct token value = get_token(&message);
     bar_item->label_spacing_left = token_to_uint32t(value);
-  }  else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
+  } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     struct token value = get_token(&message);
     bar_item->label_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
+    struct token value = get_token(&message);
+    bar_item->cache_scripts = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   }
@@ -290,7 +294,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
 
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
   if (item_index_for_name < 0) {
-    printf("Name not found in bar items");
+    printf("Name not found in bar items \n");
     return;
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
@@ -340,9 +344,12 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
     struct token value = get_token(&message);
     bar_item->label_spacing_left = token_to_uint32t(value);
-  }  else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
+  } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     struct token value = get_token(&message);
     bar_item->label_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
+    struct token value = get_token(&message);
+    bar_item->cache_scripts = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } 
 
   bar_manager_refresh(&g_bar_manager);

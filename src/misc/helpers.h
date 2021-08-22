@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <string.h>
 extern AXError _AXUIElementGetWindow(AXUIElementRef ref, uint32_t *wid);
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern int g_connection;
@@ -103,6 +104,22 @@ static inline char *string_copy(char *s)
     memcpy(result, s, length);
     result[length] = '\0';
     return result;
+}
+
+char* read_file(char* path) {
+  int fd = open(path, O_RDONLY);
+  int len = lseek(fd, 0, SEEK_END);
+  return mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+}
+
+static inline char* resolve_path(char* path) {
+  if (path[0] == '~') {
+    char* home = getenv("HOME");
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%s%s", home, &path[1]);
+    return string_copy(buf);
+  }
+  return path;
 }
 
 static inline bool file_exists(char *filename)
