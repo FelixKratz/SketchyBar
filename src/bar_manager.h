@@ -14,6 +14,7 @@ struct bar_manager
   struct bar **bars;
   int bar_count;
   struct bar_item **bar_items;
+  struct bar_item default_item;
   int bar_item_count;
   char *position;
   char *display;

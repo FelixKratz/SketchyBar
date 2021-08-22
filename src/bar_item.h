@@ -38,6 +38,7 @@ struct bar_item {
   // Icon properties
   struct bar_line icon_line;
   char* icon;
+  char* icon_font_name;
   CTFontRef icon_font;
   uint32_t icon_spacing_left;
   uint32_t icon_spacing_right;
@@ -47,6 +48,7 @@ struct bar_item {
   // Label properties
   struct bar_line label_line;
   char* label;
+  char* label_font_name;
   CTFontRef label_font;
   uint32_t label_spacing_left;
   uint32_t label_spacing_right;
@@ -68,7 +70,7 @@ struct bar_item {
 struct bar_item* bar_item_create();
 void bar_item_script_update(struct bar_item* bar_item, bool forced);
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid);
-void bar_item_init(struct bar_item* bar_item);
+void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
 void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);

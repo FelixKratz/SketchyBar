@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "bar_item.h"
 
 extern struct event_loop g_event_loop;
 
@@ -87,7 +88,7 @@ struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager) {
     bar_manager->bar_items = (struct bar_item**) realloc(bar_manager->bar_items, sizeof(struct bar_item*) * (bar_manager->bar_item_count + 1));
     bar_manager->bar_item_count += 1;
     struct bar_item* bar_item = bar_item_create();
-    bar_item_init(bar_item);
+    bar_item_init(bar_item, &bar_manager->default_item);
     bar_manager->bar_items[bar_manager->bar_item_count - 1] = bar_item;
     return bar_item;
 }
@@ -102,6 +103,8 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->height = 25;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
+
+  bar_item_init(&bar_manager->default_item, NULL);
   
   int refresh_frequency = 1;
   int shell_refresh_frequency = 1;

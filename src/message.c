@@ -1,4 +1,5 @@
 #include "message.h"
+#include "bar_item.h"
 
 extern struct event_loop g_event_loop;
 extern struct display_manager g_display_manager;
@@ -20,6 +21,9 @@ extern bool g_verbose;
 #define DOMAIN_PUSH                                         "push"
 
 #define DOMAIN_CLEAR                                        "clear"
+
+#define DOMAIN_DEFAULT                                      "default"
+#define COMMAND_DEFAULT_RESET                               "reset"
 
 #define DOMAIN_SET                                          "set"
 #define COMMAND_SET_POSITION                                "position"
@@ -57,6 +61,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
+
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_OFF                             "off"
@@ -185,6 +190,40 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
 }
 
+// Syntax: sketchybar -m default <property> <value>
+static void handle_domain_default(FILE* rsp, struct token domain, char* message) {
+  struct token property = get_token(&message);
+  struct bar_item* bar_item = &g_bar_manager.default_item;
+  if (token_equals(property, COMMAND_SET_ICON_FONT)) {
+    bar_item_set_icon_font(bar_item, string_copy(message));
+  } else if (token_equals(property, COMMAND_SET_LABEL_FONT)) {
+    bar_item_set_label_font(bar_item, string_copy(message));
+  } else if (token_equals(property, COMMAND_SET_UPDATE_FREQ)) {
+    struct token value = get_token(&message);
+    bar_item->update_frequency = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_LABEL_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item_set_label_color(bar_item, token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item_set_icon_color(bar_item, token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
+    struct token value = get_token(&message);
+    bar_item->icon_spacing_left = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->icon_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
+    struct token value = get_token(&message);
+    bar_item->label_spacing_left = token_to_uint32t(value);
+  }  else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->label_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
+    bar_item_init(&g_bar_manager.default_item, NULL);
+  }
+
+}
 // Syntax: sketchybar -m push <name> <y>
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
@@ -417,6 +456,8 @@ void handle_message(FILE *rsp, char *message)
     handle_domain_clear(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
     handle_domain_subscribe(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_DEFAULT)) {
+    handle_domain_default(rsp, domain, message);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }

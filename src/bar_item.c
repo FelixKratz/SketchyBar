@@ -6,17 +6,19 @@ struct bar_item* bar_item_create() {
   return bar_item;
 }
 
-void bar_item_init(struct bar_item* bar_item) {
+void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->nospace = false;
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 1000;
   bar_item->script = "";
-  bar_item->on_click_script = "~/.config/sketchybar/plugins/random.sh";
+  bar_item->on_click_script = "";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
+  bar_item->icon_font_name = "Hack Nerd Font:Bold:14.0";
+  bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->icon_spacing_left = 0;
   bar_item->icon_spacing_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
@@ -28,10 +30,23 @@ void bar_item_init(struct bar_item* bar_item) {
   bar_item->num_rects = 0;
   bar_item->bounding_rects = NULL;
 
+  if (default_item) {
+    bar_item->icon_color = default_item->icon_color;
+    bar_item->icon_font_name = default_item->icon_font_name;
+    bar_item->label_color = default_item->label_color;
+    bar_item->label_font_name = default_item->label_font_name;
+    bar_item->icon_spacing_left = default_item->icon_spacing_left;
+    bar_item->icon_spacing_right = default_item->icon_spacing_right;
+    bar_item->label_spacing_left = default_item->label_spacing_left;
+    bar_item->label_spacing_right = default_item->label_spacing_right;
+    bar_item->update_frequency = default_item->update_frequency;
+  }
+
   bar_item_set_icon(bar_item, string_copy(""), bar_item->icon_color);
-  bar_item_set_icon_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
-  bar_item_set_label_font(bar_item, string_copy("Hack Nerd Font:Bold:14.0"));
+  bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name));
+  bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name));
   bar_item_set_label(bar_item, string_copy(""));
+
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
@@ -123,6 +138,7 @@ void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
   }
 
   bar_item->icon_font = bar_create_font(font_string);
+  bar_item->icon_font_name = font_string;
 }
 
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
@@ -131,6 +147,7 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
   }
 
   bar_item->label_font = bar_create_font(font_string);
+  bar_item->label_font_name = font_string;
 }
 
 void bar_item_on_click(struct bar_item* bar_item) {

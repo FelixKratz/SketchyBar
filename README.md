@@ -127,6 +127,28 @@ A list of properties is listed below:
  
 * *click_script*: script to run when left clicking on item
 
+### Changing the default values for all further items
+```bash
+sketchybar -m default <property> <value>
+```
+this currently works for the properties:
+* *label_font*
+* *label_color*
+* *label_padding_left*
+* *label_padding_right*
+
+
+* *icon_font*
+* *icon_color*
+* *icon_padding_left*
+* *icon_padding_right*
+* *update_freq*
+
+It is also possible to reset the defaults via the command
+```bash
+sketchybar -m default reset
+```
+
 ### Subscribing items to system events for their script execution
 ```bash
 sketchybar -m subscribe <name> <event>
