@@ -134,42 +134,6 @@ void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_
   CGContextRestoreGState(bar->context);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static char * focused_window_title()
-{
-  ProcessSerialNumber psn = {};
-  _SLPSGetFrontProcess(&psn);
-
-  pid_t pid;
-  GetProcessPID(&psn, &pid);
-
-  AXUIElementRef application_ref = AXUIElementCreateApplication(pid);
-  if (!application_ref)
-    return NULL;
-
-  CFTypeRef window_ref = NULL;
-  AXUIElementCopyAttributeValue(application_ref, kAXFocusedWindowAttribute, &window_ref);
-  if (!window_ref) {
-    CFRelease(application_ref);
-    return NULL;
-  }
-
-  char *title = NULL;
-  CFTypeRef value = NULL;
-  AXUIElementCopyAttributeValue(window_ref, kAXTitleAttribute, &value);
-  if (value) {
-    title = cfstring_copy(value);
-    CFRelease(value);
-  }
-
-  CFRelease(window_ref);
-  CFRelease(application_ref);
-
-  return title;
-}
-#pragma clang diagnostic pop
-
 int bar_get_center_length(struct bar_manager* bar_manager) {
   int total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
