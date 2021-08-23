@@ -57,6 +57,7 @@
 #include "bar.c"
 #include "graph_data.c"
 #include "bar_item.c"
+#include "custom_events.c"
 #include "bar_manager.c"
 
 #include "sketchybar.c"

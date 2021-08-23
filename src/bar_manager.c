@@ -99,6 +99,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->padding_right = 20;
 
   bar_item_init(&bar_manager->default_item, NULL);
+  custom_events_init(&bar_manager->custom_events);
   
   int shell_refresh_frequency = 1;
 
@@ -158,11 +159,6 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
   }
   return NULL;
 }
-
-uint32_t bar_manager_get_event_flag(struct bar_manager* bar_manager, char* event) {
-  return 0;
-}
-
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_FRONT_APP_SWITCHED);

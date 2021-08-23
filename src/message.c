@@ -180,7 +180,7 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   } else if (token_equals(event, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED)) {
     bar_item->update_mask |= UPDATE_FRONT_APP_SWITCHED;
   } else {
-    bar_item->update_mask |= bar_manager_get_event_flag(&g_bar_manager, token_to_string(event));
+    bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events, token_to_string(event));
   }
 }
 

@@ -26,7 +26,6 @@ struct bar_manager
 };
 
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name);
-uint32_t bar_manager_get_event_flag(struct bar_manager* bar_manager, char* event);
 
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager);
 
