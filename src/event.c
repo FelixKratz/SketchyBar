@@ -4,7 +4,6 @@ extern struct event_loop g_event_loop;
 extern struct process_manager g_process_manager;
 extern struct display_manager g_display_manager;
 extern struct bar_manager g_bar_manager;
-extern struct mouse_state g_mouse_state;
 extern struct window_manager g_window_manager;
 extern int g_connection;
 

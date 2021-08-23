@@ -26,7 +26,6 @@ void *g_workspace_context;
 struct display_manager g_display_manager;
 struct daemon g_daemon;
 struct bar_manager g_bar_manager;
-struct mouse_state g_mouse_state;
 struct event_tap g_event_tap;
 int g_connection;
 

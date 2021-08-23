@@ -45,7 +45,6 @@
 #include "graph_data.h"
 #include "bar_item.h"
 #include "bar_manager.h"
-#include "mouse.h"
 
 #include "event_loop.c"
 #include "event.c"

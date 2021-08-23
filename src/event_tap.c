@@ -1,11 +1,9 @@
 #include "event_tap.h"
 
 extern struct event_loop g_event_loop;
-extern struct mouse_state g_mouse_state;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch"
-static bool consume_mouse_click;
 static EVENT_TAP_CALLBACK(mouse_handler)
 {
     switch (type) {
