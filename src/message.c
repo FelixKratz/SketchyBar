@@ -175,14 +175,12 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
     bar_item->update_mask |= UPDATE_SYSTEM_WOKE;
   } else if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
-  } else if (token_equals(event, COMMAND_SUBSCRIBE_TITLE_CHANGE)) {
-    bar_item->update_mask |= UPDATE_TITLE_CHANGE;
   } else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
     bar_item->update_mask |= UPDATE_DISPLAY_CHANGE;
   } else if (token_equals(event, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED)) {
     bar_item->update_mask |= UPDATE_FRONT_APP_SWITCHED;
-  } else if (token_equals(event, COMMAND_SUBSCRIBE_WINDOW_FOCUS)) {
-    bar_item->update_mask |= UPDATE_WINDOW_FOCUS;
+  } else {
+    bar_item->update_mask |= bar_manager_get_event_flag(&g_bar_manager, token_to_string(event));
   }
 }
 

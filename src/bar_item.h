@@ -6,11 +6,9 @@
 #define BAR_PLUGIN    'p'
 
 #define UPDATE_FRONT_APP_SWITCHED 1
-#define UPDATE_WINDOW_FOCUS       1 << 1
-#define UPDATE_SPACE_CHANGE       1 << 2
-#define UPDATE_DISPLAY_CHANGE     1 << 3
-#define UPDATE_SYSTEM_WOKE        1 << 4
-#define UPDATE_TITLE_CHANGE       1 << 5
+#define UPDATE_SPACE_CHANGE       1 << 1
+#define UPDATE_DISPLAY_CHANGE     1 << 2
+#define UPDATE_SYSTEM_WOKE        1 << 3
 
 struct bar_item {
   bool is_shown;

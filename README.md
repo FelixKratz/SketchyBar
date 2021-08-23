@@ -174,6 +174,7 @@ This triggers a custom event that has been added before
 ```bash
 sketchybar -m trigger <event>
 ```
+This could be used to link the powerful event system of yabai to sketchybar by triggering the custom action via a yabai event.
 
 ### Supplying data for graphs
 ```bash

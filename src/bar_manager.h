@@ -22,9 +22,12 @@ struct bar_manager
   uint32_t padding_left;
   uint32_t padding_right;
   struct rgba_color background_color;
+  struct custom_events custom_events;
 };
 
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name);
+uint32_t bar_manager_get_event_flag(struct bar_manager* bar_manager, char* event);
+
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager);
 
 void bar_manager_script_update(struct bar_manager* bar_manager, bool forced);
@@ -45,8 +48,6 @@ void bar_manager_begin(struct bar_manager *bar_manager);
 void bar_manager_init(struct bar_manager *bar_manager);
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager);
-void bar_manager_handle_window_focus(struct bar_manager* bar_manager);
-void bar_manager_handle_title_change(struct bar_manager* bar_manager);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);

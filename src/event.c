@@ -33,10 +33,6 @@ struct event *event_create_p1(struct event_loop *event_loop, enum event_type typ
     event->context = context;
     event->param1 = param1;
     event->info = 0;
-#ifdef DEBUG
-    uint64_t count = __sync_add_and_fetch(&event_loop->count, 1);
-    assert(count > 0 && count < EVENT_MAX_COUNT);
-#endif
     return event;
 }
 
@@ -44,27 +40,6 @@ static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED)
 {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_front_app_switch(&g_bar_manager);
-    //bar_manager_refresh(&g_bar_manager);
-
-    return EVENT_SUCCESS;
-}
-
-static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_FOCUSED)
-{
-    debug("%s\n", __FUNCTION__);
-    
-    bar_manager_handle_window_focus(&g_bar_manager);
-    //bar_manager_refresh(&g_bar_manager);
-
-    return EVENT_SUCCESS;
-}
-
-static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_TITLE_CHANGED)
-{
-    debug("%s\n", __FUNCTION__);
-
-    // TODO: we can optimize by checking if it the focused window
-    bar_manager_handle_title_change(&g_bar_manager);
     //bar_manager_refresh(&g_bar_manager);
 
     return EVENT_SUCCESS;

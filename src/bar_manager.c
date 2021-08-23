@@ -159,16 +159,13 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
   return NULL;
 }
 
+uint32_t bar_manager_get_event_flag(struct bar_manager* bar_manager, char* event) {
+  return 0;
+}
+
+
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_FRONT_APP_SWITCHED);
-}
-
-void bar_manager_handle_window_focus(struct bar_manager* bar_manager) {
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_WINDOW_FOCUS);
-}
-
-void bar_manager_handle_title_change(struct bar_manager* bar_manager) {
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_TITLE_CHANGE);
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {

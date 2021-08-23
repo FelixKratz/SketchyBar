@@ -7,8 +7,6 @@ extern OSStatus SLSFindWindowByGeometry(int cid, int zero, int one, int zero_aga
 typedef EVENT_CALLBACK(event_callback);
 
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED);
-static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_FOCUSED);
-static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_TITLE_CHANGED);
 static EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED);
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED);
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED);
@@ -35,8 +33,6 @@ enum event_type
 {
     EVENT_TYPE_UNKNOWN,
     APPLICATION_FRONT_SWITCHED,
-    WINDOW_FOCUSED,
-    WINDOW_TITLE_CHANGED,
     SPACE_CHANGED,
     DISPLAY_ADDED,
     DISPLAY_REMOVED,
@@ -57,8 +53,6 @@ static const char *event_type_str[] =
     [EVENT_TYPE_UNKNOWN]             = "event_type_unknown",
 
     [APPLICATION_FRONT_SWITCHED]     = "application_front_switched",
-    [WINDOW_FOCUSED]                 = "window_focused",
-    [WINDOW_TITLE_CHANGED]           = "window_title_changed",
     [SPACE_CHANGED]                  = "space_changed",
     [DISPLAY_ADDED]                  = "display_added",
     [DISPLAY_REMOVED]                = "display_removed",
@@ -77,8 +71,6 @@ static const char *event_type_str[] =
 static event_callback *event_handler[] =
 {
     [APPLICATION_FRONT_SWITCHED]     = EVENT_HANDLER_APPLICATION_FRONT_SWITCHED,
-    [WINDOW_FOCUSED]                 = EVENT_HANDLER_WINDOW_FOCUSED,
-    [WINDOW_TITLE_CHANGED]           = EVENT_HANDLER_WINDOW_TITLE_CHANGED,
     [SPACE_CHANGED]                  = EVENT_HANDLER_SPACE_CHANGED,
     [DISPLAY_ADDED]                  = EVENT_HANDLER_DISPLAY_ADDED,
     [DISPLAY_REMOVED]                = EVENT_HANDLER_DISPLAY_REMOVED,
