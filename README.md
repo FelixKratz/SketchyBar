@@ -156,12 +156,24 @@ sketchybar -m default reset
 sketchybar -m subscribe <name> <event>
 ```
 where the events are:
-* *front_app_switched*: when frontmost application changes
-* *window_focus*: when a window is focused
+* *front_app_switched*: when frontmost application changes (not triggered if a different app of the same window is focused)
+* ~~*window_focus*: when a window is focused~~ (DEPRECATED, see custom event section)
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
-* *title_change*: when the title of the window changes
+* ~~*title_change*: when the title of the window changes~~ (DEPRECATED, see custom event section)
 * *system_woke*: when the system has awaken from sleep
+
+### Creating custom events
+This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
+```bash
+sketchybar -m add event <name>
+```
+
+### Triggering custom events
+This triggers a custom event that has been added before
+```bash
+sketchybar -m trigger <event>
+```
 
 ### Supplying data for graphs
 ```bash
