@@ -70,7 +70,6 @@ extern bool g_verbose;
 
 #define BAR_COMPONENT_SPACE                                 "space"
 #define BAR_COMPONENT_GRAPH                                 "graph"
-#define BAR_COMPONENT_TITLE                                 "title"
 
 #define BAR_POSITION_LEFT                                   'l'
 #define BAR_POSITION_RIGHT                                  'r'
@@ -255,6 +254,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item->identifier = token_to_string(name);
   } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
     struct token identifier = get_token(&message);
+    if (token_equals(identifier, "title")) printf("Title component deprecated please use windowTitle.sh script");
     name = get_token(&message);
     position = get_token(&message);
 
