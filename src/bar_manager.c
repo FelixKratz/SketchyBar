@@ -160,6 +160,11 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
   return NULL;
 }
 
+void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name) {
+  uint32_t flag = custom_events_get_flag_for_name(&bar_manager->custom_events, name);
+  bar_manager_check_bar_items_for_update_pattern(bar_manager, flag);
+}
+
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_FRONT_APP_SWITCHED);
 }

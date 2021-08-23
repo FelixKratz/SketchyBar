@@ -15,11 +15,13 @@ extern bool g_verbose;
 #define COMMAND_ADD_ITEM                                    "item"                                  
 #define COMMAND_ADD_COMPONENT                               "component"
 #define COMMAND_ADD_PLUGIN                                  "plugin"
+#define COMMAND_ADD_EVENT                                   "event"
 
 #define DOMAIN_UPDATE                                       "update"
 
 #define DOMAIN_PUSH                                         "push"
 
+#define DOMAIN_TRIGGER                                      "trigger"
 #define DOMAIN_CLEAR                                        "clear"
 
 #define DOMAIN_DEFAULT                                      "default"
@@ -48,10 +50,8 @@ extern bool g_verbose;
 
 #define DOMAIN_SUBSCRIBE                                    "subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
-#define COMMAND_SUBSCRIBE_WINDOW_FOCUS                      "window_focus"
 #define COMMAND_SUBSCRIBE_SPACE_CHANGE                      "space_change"
 #define COMMAND_SUBSCRIBE_DISPLAY_CHANGE                    "display_change"
-#define COMMAND_SUBSCRIBE_TITLE_CHANGE                      "title_change"
 #define COMMAND_SUBSCRIBE_SYSTEM_WOKE                       "system_woke"
 
 #define DOMAIN_CONFIG                                       "config"
@@ -188,6 +188,13 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
 }
 
+// Syntax: sketchybar -m trigger <event> 
+static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
+  struct token event = get_token(&message);
+  bar_manager_custom_events_trigger(&g_bar_manager, token_to_string(event));
+}
+
+
 // Syntax: sketchybar -m default <property> <value>
 static void handle_domain_default(FILE* rsp, struct token domain, char* message) {
   struct token property = get_token(&message);
@@ -241,10 +248,17 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
 // Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
+
+  if (token_equals(command, COMMAND_ADD_EVENT)) {
+    struct token event = get_token(&message);
+    custom_events_append(&g_bar_manager.custom_events, string_copy(token_to_string(event)));
+    return;
+  }
+
   struct token name;
   struct token position;
-  struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
+  struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
   if (token_equals(command, COMMAND_ADD_ITEM)) {
     name = get_token(&message);
     position = get_token(&message);
@@ -276,8 +290,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
     bar_item->type = BAR_PLUGIN;
     bar_item->identifier = token_to_string(identifier);
-  }
-  else {
+  }   else {
     exit(1);
   }
 
@@ -294,7 +307,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
 
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
   if (item_index_for_name < 0) {
-    printf("Name not found in bar items \n");
+    printf("Name: %s not found in bar items \n", token_to_string(name));
     return;
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
@@ -466,6 +479,8 @@ void handle_message(FILE *rsp, char *message)
     handle_domain_subscribe(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_DEFAULT)) {
     handle_domain_default(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_TRIGGER)) {
+    handle_domain_trigger(rsp, domain, message);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }
