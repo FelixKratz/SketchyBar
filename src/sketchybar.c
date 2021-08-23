@@ -235,10 +235,6 @@ int main(int argc, char **argv)
         error("sketchybar: running as root is not allowed! abort..\n");
     }
 
-    if (!ax_privilege()) {
-        error("sketchybar: could not access accessibility features! abort..\n");
-    }
-
     init_misc_settings();
     acquire_lockfile();
 

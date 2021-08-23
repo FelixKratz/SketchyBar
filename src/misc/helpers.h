@@ -2,7 +2,6 @@
 #define HELPERS_H
 
 #include <string.h>
-extern AXError _AXUIElementGetWindow(AXUIElementRef ref, uint32_t *wid);
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern int g_connection;
 
@@ -167,29 +166,6 @@ static bool fork_exec(char *command, struct signal_args *args)
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
     exit(execvp(exec[0], exec));
 }
-
-static bool ax_privilege(void)
-{
-    const void *keys[] = { kAXTrustedCheckOptionPrompt };
-    const void *values[] = { kCFBooleanTrue };
-    CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFCopyStringDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    bool result = AXIsProcessTrustedWithOptions(options);
-    CFRelease(options);
-    return result;
-}
-
-static inline uint32_t ax_window_id(AXUIElementRef ref)
-{
-    uint32_t wid = 0;
-    _AXUIElementGetWindow(ref, &wid);
-    return wid;
-}
-
-static inline pid_t ax_window_pid(AXUIElementRef ref)
-{
-    return *(pid_t *)((void *) ref + 0x10);
-}
-
 
 static inline int mission_control_index(uint64_t sid)
 {

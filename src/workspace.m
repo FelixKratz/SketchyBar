@@ -24,22 +24,23 @@ void workspace_event_handler_end(void *context)
 - (id)init
 {
     if ((self = [super init])) {
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(activeDisplayDidChange:)
                 name:@"NSWorkspaceActiveDisplayDidChangeNotification"
                 object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(activeSpaceDidChange:)
                 name:NSWorkspaceActiveSpaceDidChangeNotification
                 object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(appSwitched:)
+                name:NSWorkspaceDidActivateApplicationNotification
+                object:nil];
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didWake:)
                 name:NSWorkspaceDidWakeNotification
                 object:nil];
-
-       [[NSDistributedNotificationCenter defaultCenter] addObserver:self
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self
                 selector:@selector(didChangeMenuBarHiding:)
                 name:@"AppleInterfaceMenuBarHidingChangedNotification"
                 object:nil];
@@ -59,6 +60,12 @@ void workspace_event_handler_end(void *context)
 - (void)didWake:(NSNotification *)notification
 {
     struct event *event = event_create(&g_event_loop, SYSTEM_WOKE, NULL);
+    event_loop_post(&g_event_loop, event);
+}
+
+- (void)appSwitched:(NSNotification *)notification
+{
+    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, NULL);
     event_loop_post(&g_event_loop, event);
 }
 

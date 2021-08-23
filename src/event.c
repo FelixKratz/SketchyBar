@@ -24,10 +24,6 @@ struct event *event_create(struct event_loop *event_loop, enum event_type type, 
     event->context = context;
     event->param1 = 0;
     event->info = 0;
-#ifdef DEBUG
-    uint64_t count = __sync_add_and_fetch(&event_loop->count, 1);
-    assert(count > 0 && count < EVENT_MAX_COUNT);
-#endif
     return event;
 }
 
