@@ -126,7 +126,8 @@ A list of properties is listed below:
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
-* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*)
+* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, default: *off*)
+* *enabled*: Set to *off* deactivates script updated and drawing, reactivate with *on* (values: *on*, *off*, default: *on*)
 
 ### Changing the default values for all further items
 ```bash

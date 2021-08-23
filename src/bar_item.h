@@ -11,6 +11,7 @@
 #define UPDATE_SYSTEM_WOKE        1 << 3
 
 struct bar_item {
+  bool enabled;
   bool is_shown;
   bool nospace;
   int counter;
