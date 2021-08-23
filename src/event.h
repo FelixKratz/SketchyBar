@@ -1,11 +1,11 @@
 #ifndef EVENT_LOOP_EVENT_H
 #define EVENT_LOOP_EVENT_H
 
+extern OSStatus SLSFindWindowByGeometry(int cid, int zero, int one, int zero_again, CGPoint *screen_point, CGPoint *window_point, uint32_t *wid, int *wcid);
+
 #define EVENT_CALLBACK(name) uint32_t name(void *context, int param1)
 typedef EVENT_CALLBACK(event_callback);
 
-static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_LAUNCHED);
-static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_TERMINATED);
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED);
 static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_FOCUSED);
 static EVENT_CALLBACK(EVENT_HANDLER_WINDOW_TITLE_CHANGED);
@@ -34,8 +34,6 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
 enum event_type
 {
     EVENT_TYPE_UNKNOWN,
-    APPLICATION_LAUNCHED,
-    APPLICATION_TERMINATED,
     APPLICATION_FRONT_SWITCHED,
     WINDOW_FOCUSED,
     WINDOW_TITLE_CHANGED,
@@ -58,8 +56,6 @@ static const char *event_type_str[] =
 {
     [EVENT_TYPE_UNKNOWN]             = "event_type_unknown",
 
-    [APPLICATION_LAUNCHED]           = "application_launched",
-    [APPLICATION_TERMINATED]         = "application_terminated",
     [APPLICATION_FRONT_SWITCHED]     = "application_front_switched",
     [WINDOW_FOCUSED]                 = "window_focused",
     [WINDOW_TITLE_CHANGED]           = "window_title_changed",
@@ -80,8 +76,6 @@ static const char *event_type_str[] =
 
 static event_callback *event_handler[] =
 {
-    [APPLICATION_LAUNCHED]           = EVENT_HANDLER_APPLICATION_LAUNCHED,
-    [APPLICATION_TERMINATED]         = EVENT_HANDLER_APPLICATION_TERMINATED,
     [APPLICATION_FRONT_SWITCHED]     = EVENT_HANDLER_APPLICATION_FRONT_SWITCHED,
     [WINDOW_FOCUSED]                 = EVENT_HANDLER_WINDOW_FOCUSED,
     [WINDOW_TITLE_CHANGED]           = EVENT_HANDLER_WINDOW_TITLE_CHANGED,

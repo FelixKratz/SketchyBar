@@ -1,6 +1,8 @@
 #ifndef DISPLAY_MANAGER_H
 #define DISPLAY_MANAGER_H
 
+extern CFStringRef SLSCopyBestManagedDisplayForRect(int cid, CGRect rect);
+extern CGError SLSGetCurrentCursorLocation(int cid, CGPoint *point);
 extern CFStringRef SLSCopyActiveMenuBarDisplayIdentifier(int cid);
 extern CFStringRef SLSCopyBestManagedDisplayForPoint(int cid, CGPoint point);
 extern bool SLSManagedDisplayIsAnimating(int cid, CFStringRef uuid);

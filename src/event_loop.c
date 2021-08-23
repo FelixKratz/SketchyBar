@@ -105,7 +105,6 @@ static void *event_loop_run(void *context)
 #endif
             if (event->info) *event->info = (result << 0x1) | EVENT_PROCESSED;
 
-            event_destroy(event_loop, event);
         } else {
             sem_wait(event_loop->semaphore);
         }

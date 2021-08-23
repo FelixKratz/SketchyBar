@@ -23,9 +23,7 @@ extern CGError SLSRegisterConnectionNotifyProc(int cid, connection_callback *han
 
 struct event_loop g_event_loop;
 void *g_workspace_context;
-struct process_manager g_process_manager;
 struct display_manager g_display_manager;
-struct application_manager g_application_manager;
 struct daemon g_daemon;
 struct bar_manager g_bar_manager;
 struct mouse_state g_mouse_state;
@@ -248,16 +246,12 @@ int main(int argc, char **argv)
         error("sketchybar: could not initialize event_loop! abort..\n");
     }
 
-    process_manager_init(&g_process_manager);
     workspace_event_handler_init(&g_workspace_context);
-    application_manager_init(&g_application_manager);
     bar_manager_init(&g_bar_manager);
 
     event_loop_begin(&g_event_loop);
     display_manager_begin(&g_display_manager);
-    process_manager_begin(&g_process_manager);
     workspace_event_handler_begin(&g_workspace_context);
-    application_manager_begin(&g_application_manager);
     bar_manager_begin(&g_bar_manager);
     event_tap_begin(&g_event_tap, EVENT_MASK_MOUSE, mouse_handler);
     SLSRegisterConnectionNotifyProc(g_connection, connection_handler, 1204, NULL);
