@@ -1,30 +1,40 @@
 # SketchyBar
 This is a rewrite of the spacebar project, which itself is a rewrite of the statusbar code from yabai.
 
-What I have added:
+Features:
 * As many widgets as you like at any of the three positions: left, center, right
 * The order of the widgets in the sketchybarrc file will be the order in which they show in the bar
 * Associate widgets to certain displays or spaces, to show specific information on the relevant screens/displays
 * The widgets are highly customizable with settings for different fonts, colors, icon paddings, label paddings, etc. for each individual element
-* Relocate *all* visible components of the bar (even spaces or the window title, etc.)
 * Draw arbitrary graphs in the bar with external data provider scripts that push the data into the graph
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
-* Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)
+* Let items subscribe to system events (e.g. space changed, etc.) for their refresh action
+* Create custom events and trigger them externaly
 * "click" events for the widgets, where a script can be specified to run on a mouse click
 * Cache the scripts in RAM to reduce I/O operations
-* ... feel free to explore my sketchybarrc file for more details on the options
+* Performance friendly
 
-I have many more plans for the project:
-* ~~Let items subscribe to system events (e.g. space changed, window focused, etc.) for their refresh action (like in yabai)~~ (DONE)
-* ~~Cache the scripts in RAM to reduce I/O operations~~ (DONE)
-* ~~Make the associated_space / associated_display properties more powerful by allowing to associate to more than one screen/display~~ (DONE)
-* Make application specific widgets with associated_app argument (e.g. when gvim is open show the vim mode indicator in the status bar)
-* ~~Fix the currently static positioning of the bar~~ (DONE)
-* A y_offset property for all items to create (in combination with the nospace modifier) vertically stacked labels
-* ~~"click" events for the widgets, where a script can be specified to run on a mouse click~~ (DONE)
-* Create more plugins
-* ......
+
+## Description
+This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
+shell scripts and want to make their statusbar show exactly the information they need for their workflow.
+
+The configuration of the bar takes place in a confiuration file where almost everything can be configured.
+Bascially, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
+An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
+*scripts* that can be attached to the *item*. It is also possible to *subscribe* and *item* to certain *events* for their *script* execution action,
+which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
+Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
+of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
+These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
+the plugins folder.
+
+Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
+extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
+is a *graph* component, which can be used to display graphs in the bar.
+
+For more details on how the configuration works, see the Configuration section below.
 
 This is my setup:
 ![](images/mySetup.png)
@@ -110,16 +120,15 @@ A list of properties is listed below:
 * *label*: the label of the item
 * *label_font*: the font for the label
 * *label_color*: the color of the label
-* *label_padding_left*: left padding of label
-* *label_padding_right*: right padding of label
- 
+* *label_padding_left*: left padding of label (default: 0)
+* *label_padding_right*: right padding of label (default: 0)
  
 * *icon*: the icon of the item
 * *icon_font*: the font for the icon
 * *icon_color*: the color of the icon
 * *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
-* *icon_padding_left*: left padding of icon
-* *icon_padding_right*: right padding of icon
+* *icon_padding_left*: left padding of icon (default: 0)
+* *icon_padding_right*: right padding of icon (default: 0)
  
 * *graph_color*: color of the associated graph
  
@@ -128,6 +137,7 @@ A list of properties is listed below:
 * *click_script*: script to run when left clicking on item
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, default: *off*)
 * *enabled*: Set to *off* deactivates script updated and drawing, reactivate with *on* (values: *on*, *off*, default: *on*)
+* *hidden*: Only deactivates drawing and keeps scripts running (values: *on*, *off*, default:*off*)
 
 ### Changing the default values for all further items
 ```bash
@@ -138,7 +148,6 @@ this currently works for the properties:
 * *label_color*
 * *label_padding_left*
 * *label_padding_right*
-
 
 * *icon_font*
 * *icon_color*
