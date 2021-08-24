@@ -12,6 +12,7 @@
 
 struct bar_item {
   bool enabled;
+  bool hidden;
   bool is_shown;
   bool nospace;
   int counter;

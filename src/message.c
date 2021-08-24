@@ -29,6 +29,7 @@ extern bool g_verbose;
 
 #define DOMAIN_SET                                          "set"
 #define COMMAND_SET_ENABLED                                 "enabled"
+#define COMMAND_SET_HIDDEN                                  "hidden"
 #define COMMAND_SET_POSITION                                "position"
 #define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
 #define COMMAND_SET_ASSOCIATED_SPACE                        "associated_space"
@@ -367,7 +368,11 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_ENABLED)) {
     struct token value = get_token(&message);
     bar_item->enabled = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
+  } else if (token_equals(property, COMMAND_SET_HIDDEN)) {
+    struct token value = get_token(&message);
+    bar_item->hidden = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } 
+
 
 
   if (bar_item->is_shown)

@@ -175,7 +175,7 @@ void bar_refresh(struct bar *bar)
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-    if (!bar_item->enabled) continue;
+    if (!bar_item->enabled || bar_item->hidden) continue;
     bar_item->is_shown = false;
 
     if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;

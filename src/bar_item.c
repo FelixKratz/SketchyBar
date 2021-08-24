@@ -8,6 +8,7 @@ struct bar_item* bar_item_create() {
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->enabled = true;
+  bar_item->hidden = false;
   bar_item->is_shown = false;
   bar_item->nospace = false;
   bar_item->counter = 0;
