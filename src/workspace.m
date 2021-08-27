@@ -1,4 +1,5 @@
 #include "workspace.h"
+#include "misc/helpers.h"
 
 extern struct event_loop g_event_loop;
 
@@ -18,6 +19,11 @@ void workspace_event_handler_end(void *context)
 {
     workspace_context *ws_context = (workspace_context *) context;
     [ws_context dealloc];
+}
+
+void workspace_create_custom_observer (void **context, char* notification) {
+    workspace_context *ws_context = *context;
+    [ws_context addCustomObserver:@(notification)];
 }
 
 @implementation workspace_context
@@ -49,12 +55,26 @@ void workspace_event_handler_end(void *context)
     return self;
 }
 
+- (void)addCustomObserver:(NSString *)name {
+  [[NSDistributedNotificationCenter defaultCenter] addObserver:self
+                                                  selector:@selector(allDistributedNotifications:)
+                                                  name:name
+                                                  object:nil];
+}
+
 - (void)dealloc
 {
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
+}
+
+- (void) allDistributedNotifications:(NSNotification *)note 
+{
+    char* name = (char*)[[note name] UTF8String];
+    struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, string_copy(name));
+    event_loop_post(&g_event_loop, event);
 }
 
 - (void)didWake:(NSNotification *)notification

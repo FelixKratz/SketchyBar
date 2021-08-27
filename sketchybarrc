@@ -159,10 +159,12 @@ sketchybar -m set network_up graph_color 0xff48aa2a
 sketchybar -m default label_padding_right 15
 sketchybar -m default icon_padding_right 4
 
+sketchybar -m add event spotify_change "com.spotify.client.PlaybackStateChanged"
+
 sketchybar -m add item spotifyIndicator center
-sketchybar -m set spotifyIndicator update_freq 10
 sketchybar -m set spotifyIndicator script "~/.config/sketchybar/plugins/spotifyIndicator.sh"
 sketchybar -m set spotifyIndicator click_script "osascript -e 'tell application \"Spotify\" to pause'"
+sketchybar -m subscribe spotifyIndicator spotify_change
 
 sketchybar -m update
 

@@ -176,8 +176,11 @@ where the events are:
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash
-sketchybar -m add event <name>
+sketchybar -m add event <name> [optional: <NSDistributedNotificationName>]
 ```
+Optional: You can hook the notifications sent to the NSDistributedNotificationCenter e.g.
+the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged"
+to create more responsive items
 
 ### Triggering custom events
 This triggers a custom event that has been added before

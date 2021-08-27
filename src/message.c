@@ -253,7 +253,13 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   if (token_equals(command, COMMAND_ADD_EVENT)) {
     struct token event = get_token(&message);
-    custom_events_append(&g_bar_manager.custom_events, string_copy(token_to_string(event)));
+    if (message != NULL) {
+      struct token notification = get_token(&message);
+      custom_events_append(&g_bar_manager.custom_events, string_copy(token_to_string(event)), string_copy(token_to_string(notification)));
+    }
+    else
+      custom_events_append(&g_bar_manager.custom_events, string_copy(token_to_string(event)), NULL);
+
     return;
   }
 

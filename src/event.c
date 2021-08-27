@@ -36,6 +36,14 @@ struct event *event_create_p1(struct event_loop *event_loop, enum event_type typ
     return event;
 }
 
+static EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION)
+{
+    debug("%s\n", context);
+
+    bar_manager_handle_notification(&g_bar_manager, context);
+    return EVENT_SUCCESS;
+}
+
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED)
 {
     debug("%s\n", __FUNCTION__);
