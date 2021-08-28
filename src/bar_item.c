@@ -14,7 +14,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
-  bar_item->update_frequency = 1000;
+  bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
   bar_item->script = "";
   bar_item->on_click_script = "";
@@ -55,7 +55,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
-  if (!bar_item->enabled) return;
+  if (!bar_item->enabled || bar_item->update_frequency == 0) return;
   if (strcmp(bar_item->script, "") != 0) {
     bar_item->counter++;
     if (bar_item->update_frequency < bar_item->counter || forced) { 
