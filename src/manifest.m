@@ -24,7 +24,6 @@
 
 #include "misc/timing.h"
 #include "misc/macros.h"
-#include "misc/notify.h"
 #include "misc/log.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"

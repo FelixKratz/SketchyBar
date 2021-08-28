@@ -149,22 +149,22 @@ static bool get_config_file(char *restrict filename, char *restrict buffer, int 
 static void exec_config_file(void)
 {
     if (!*g_config_file && !get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
-        notify("configuration", "could not locate config file..");
+        printf("could not locate config file..");
         return;
     }
 
     if (!file_exists(g_config_file)) {
-        notify("configuration", "file '%s' does not exist..", g_config_file);
+        printf("file '%s' does not exist..", g_config_file);
         return;
     }
 
     if (!ensure_executable_permission(g_config_file)) {
-        notify("configuration", "could not set the executable permission bit for '%s'", g_config_file);
+        printf("could not set the executable permission bit for '%s'", g_config_file);
         return;
     }
 
     if (!fork_exec(g_config_file, NULL)) {
-        notify("configuration", "failed to execute file '%s'", g_config_file);
+        printf("failed to execute file '%s'", g_config_file);
         return;
     }
 }
