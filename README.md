@@ -104,7 +104,7 @@ sketchybar -m add component <type> <name> <position>
 ```
 Components are essentially items, but with special properties. 
 Currently there are the component *types*: 
-* *title*: Showing the current window title, 
+* ~~*title*: Showing the current window title,~~ (DEPRECATED, see https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932)
 * *graph*: showing a graph,
 * *space*: representing a mission control space
 
