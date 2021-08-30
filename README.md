@@ -199,6 +199,12 @@ This pushes the data point into the graph with name *name*.
 ```bash
 sketchybar -m update
 ```
+### Completely remove an item
+```bash
+sketchybar -m remove item <name>
+```
+This also works for components, just reference it by name.
+
 
 ## Credits
 yabai,

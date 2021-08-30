@@ -1,5 +1,6 @@
 #include "message.h"
 #include "bar_item.h"
+#include "bar_manager.h"
 
 extern struct event_loop g_event_loop;
 extern struct display_manager g_display_manager;
@@ -16,6 +17,8 @@ extern bool g_verbose;
 #define COMMAND_ADD_COMPONENT                               "component"
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 #define COMMAND_ADD_EVENT                                   "event"
+
+#define DOMAIN_REMOVE                                       "remove"
 
 #define DOMAIN_UPDATE                                       "update"
 
@@ -247,6 +250,16 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
     bar_manager_refresh(&g_bar_manager);
 }
 
+static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
+  struct token command  = get_token(&message);
+  if (token_equals(command, COMMAND_ADD_ITEM) || token_equals(command, COMMAND_ADD_COMPONENT)) {
+    struct token name = get_token(&message);
+    int index = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
+    if (index < 0) return;
+    bar_manager_destroy_item(&g_bar_manager, g_bar_manager.bar_items[index]);
+  }
+  bar_manager_refresh(&g_bar_manager);
+}
 // Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
@@ -300,6 +313,12 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item->identifier = token_to_string(identifier);
   }   else {
     exit(1);
+  }
+  
+  if (bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name)) >= 0) {
+    bar_manager_destroy_item(&g_bar_manager, bar_item);
+    printf("Name already exists... skipping");
+    return;
   }
 
   bar_item->position = token_to_string(position)[0];
@@ -483,6 +502,8 @@ void handle_message(FILE *rsp, char *message)
     handle_domain_config(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_ADD)){
     handle_domain_add(rsp, domain, message); 
+  } else if (token_equals(domain, DOMAIN_REMOVE)){
+    handle_domain_remove(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_SET)){
     handle_domain_set(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_UPDATE)) {

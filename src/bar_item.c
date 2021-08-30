@@ -1,4 +1,5 @@
 #include "bar_item.h"
+#include "graph_data.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -14,6 +15,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
+  bar_item->identifier = "";
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
   bar_item->script = "";
@@ -23,10 +25,12 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_space = 0;
   bar_item->icon_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
+  bar_item->icon = "";
   bar_item->icon_spacing_left = 0;
   bar_item->icon_spacing_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
   bar_item->icon_highlight_color = rgba_color_from_hex(0xffffffff);
+  bar_item->label = "";
   bar_item->label_spacing_left = 0;
   bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
@@ -181,4 +185,26 @@ void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t si
   bar_item->bounding_rects[sid - 1]->origin.x = rect.origin.x + bar_origin.x;
   bar_item->bounding_rects[sid - 1]->origin.y = rect.origin.y + bar_origin.y;
   bar_item->bounding_rects[sid - 1]->size = rect.size;
+}
+
+void bar_item_destroy(struct bar_item* bar_item) {
+  if (bar_item->name) free(bar_item->name);
+  if (bar_item->script && !bar_item->cache_scripts) free(bar_item->script);
+  if (bar_item->on_click_script && !bar_item->cache_scripts) free(bar_item->on_click_script);
+  if (bar_item->icon) free(bar_item->icon);
+  if (bar_item->icon_font_name) free(bar_item->icon_font_name);
+  if (bar_item->label) free(bar_item->label);
+  if (bar_item->label_font_name) free(bar_item->label_font_name);
+  if (bar_item->identifier) free(bar_item->identifier);
+
+  if (bar_item->bounding_rects) {  
+    for (int j = 0; j < bar_item->num_rects; j++) {
+      free(bar_item->bounding_rects[j]);
+    }
+    free(bar_item->bounding_rects);
+  }
+  if (bar_item->has_graph) {
+    graph_data_destroy(&bar_item->graph_data);
+  }
+  free(bar_item);
 }

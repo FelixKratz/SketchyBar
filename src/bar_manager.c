@@ -1,5 +1,7 @@
 #include "bar_manager.h"
 #include "bar_item.h"
+#include <_types/_uint32_t.h>
+#include <string.h>
 
 extern struct event_loop g_event_loop;
 
@@ -12,6 +14,15 @@ static SHELL_TIMER_CALLBACK(shell_timer_handler)
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if (strcmp(bar_manager->bar_items[i]->name, name) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int bar_manager_get_item_index_by_address(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    if (bar_manager->bar_items[i] == bar_item) {
       return i;
     }
   }
@@ -79,12 +90,20 @@ void bar_manager_resize(struct bar_manager *bar_manager)
 }
 
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager) {
-    bar_manager->bar_items = (struct bar_item**) realloc(bar_manager->bar_items, sizeof(struct bar_item*) * (bar_manager->bar_item_count + 1));
-    bar_manager->bar_item_count += 1;
-    struct bar_item* bar_item = bar_item_create();
-    bar_item_init(bar_item, &bar_manager->default_item);
-    bar_manager->bar_items[bar_manager->bar_item_count - 1] = bar_item;
-    return bar_item;
+  bar_manager->bar_items = (struct bar_item**) realloc(bar_manager->bar_items, sizeof(struct bar_item*) * (bar_manager->bar_item_count + 1));
+  bar_manager->bar_item_count += 1;
+  struct bar_item* bar_item = bar_item_create();
+  bar_item_init(bar_item, &bar_manager->default_item);
+  bar_manager->bar_items[bar_manager->bar_item_count - 1] = bar_item;
+  return bar_item;
+}
+
+void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  int index = bar_manager_get_item_index_by_address(bar_manager, bar_item);
+  memmove(bar_manager->bar_items + index, bar_manager->bar_items + index + 1, bar_manager->bar_item_count - index - 1);
+  bar_manager->bar_items = (struct bar_item**) realloc(bar_manager->bar_items, sizeof(struct bar_item*) * (bar_manager->bar_item_count - 1));
+  bar_manager->bar_item_count -= 1;
+  bar_item_destroy(bar_item);
 }
 
 void bar_manager_init(struct bar_manager *bar_manager)
