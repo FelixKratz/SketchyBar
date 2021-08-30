@@ -7,8 +7,8 @@ typedef TIMER_CALLBACK(timer_callback);
 typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 
 
-struct bar_manager
-{
+struct bar_manager {
+  bool frozen;
   CFRunLoopTimerRef refresh_timer;
   CFRunLoopTimerRef shell_refresh_timer;
   struct bar **bars;

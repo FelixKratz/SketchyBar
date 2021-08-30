@@ -5,8 +5,7 @@
 
 extern struct event_loop g_event_loop;
 
-static SHELL_TIMER_CALLBACK(shell_timer_handler)
-{
+static SHELL_TIMER_CALLBACK(shell_timer_handler) {
   struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
   event_loop_post(&g_event_loop, event);
 }
@@ -29,46 +28,39 @@ int bar_manager_get_item_index_by_address(struct bar_manager* bar_manager, struc
   return -1;
 }
 
-void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color)
-{
+void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color) {
   bar_manager->background_color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager);
 }
 
-void bar_manager_set_position(struct bar_manager *bar_manager, char *pos)
-{
+void bar_manager_set_position(struct bar_manager *bar_manager, char *pos) {
   bar_manager->position = pos;
   bar_manager_resize(bar_manager);
 }
 
-void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height)
-{
+void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height) {
   bar_manager->height = height;
   bar_manager_resize(bar_manager);
 }
 
-void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding)
-{
+void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding) {
   bar_manager->padding_left = padding;
   bar_manager_refresh(bar_manager);
 }
 
-void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding)
-{
+void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding) {
   bar_manager->padding_right = padding;
   bar_manager_refresh(bar_manager);
 }
 
-void bar_manager_display_changed(struct bar_manager *bar_manager)
-{
+void bar_manager_display_changed(struct bar_manager *bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_destroy(bar_manager->bars[i]);
 
   bar_manager_begin(bar_manager);
 }
 
-void bar_manager_set_display(struct bar_manager *bar_manager, char *display)
-{
+void bar_manager_set_display(struct bar_manager *bar_manager, char *display) {
   bar_manager->display = display;
 
   for (int i = 0; i < bar_manager->bar_count; ++i)
@@ -77,14 +69,13 @@ void bar_manager_set_display(struct bar_manager *bar_manager, char *display)
   bar_manager_begin(bar_manager);
 }
 
-void bar_manager_refresh(struct bar_manager *bar_manager)
-{
+void bar_manager_refresh(struct bar_manager *bar_manager) {
+  if (bar_manager->frozen) return;
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_refresh(bar_manager->bars[i]);
 }
 
-void bar_manager_resize(struct bar_manager *bar_manager)
-{
+void bar_manager_resize(struct bar_manager *bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_resize(bar_manager->bars[i]);
 }
@@ -106,8 +97,7 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
   bar_item_destroy(bar_item);
 }
 
-void bar_manager_init(struct bar_manager *bar_manager)
-{
+void bar_manager_init(struct bar_manager *bar_manager) {
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
@@ -116,6 +106,7 @@ void bar_manager_init(struct bar_manager *bar_manager)
   bar_manager->height = 25;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
+  bar_manager->frozen = false;
 
   bar_item_init(&bar_manager->default_item, NULL);
   custom_events_init(&bar_manager->custom_events);
@@ -139,8 +130,7 @@ void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
   }
 }
 
-void bar_manager_begin(struct bar_manager *bar_manager)
-{
+void bar_manager_begin(struct bar_manager *bar_manager) {
   if (strcmp(bar_manager->display, BAR_DISPLAY_MAIN_ONLY) == 0) {
     uint32_t did = display_manager_main_display_id();
     bar_manager->bar_count = 1;
