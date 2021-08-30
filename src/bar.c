@@ -71,6 +71,7 @@ static struct bar_line bar_prepare_line(CTFontRef font, char *cstring, struct rg
   const void *values[] = { font, kCFBooleanTrue };
   CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   CFStringRef string = CFStringCreateWithCString(NULL, cstring, kCFStringEncodingUTF8);
+  if (!string) string = CFStringCreateWithCString(NULL, "Warning: Malformed UTF-8 string", kCFStringEncodingUTF8);
   CFAttributedStringRef attr_string = CFAttributedStringCreate(NULL, string, attributes);
   CTLineRef line = CTLineCreateWithAttributedString(attr_string);
 
