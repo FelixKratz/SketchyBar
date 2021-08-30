@@ -314,14 +314,14 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   }   else {
     exit(1);
   }
-  
+  bar_item->position = token_to_string(position)[0];
+
+  bar_item_set_name(bar_item, string_copy(""));
   if (bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name)) >= 0) {
     bar_manager_destroy_item(&g_bar_manager, bar_item);
-    printf("Name already exists... skipping");
+    printf("Name already exists... skipping \n");
     return;
   }
-
-  bar_item->position = token_to_string(position)[0];
   bar_item_set_name(bar_item, string_copy(token_to_string(name)));
 
   bar_manager_refresh(&g_bar_manager);
