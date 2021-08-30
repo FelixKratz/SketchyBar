@@ -78,6 +78,7 @@ void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t
 }
 
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
+  if (!name) return;
   if (name != bar_item->name && !bar_item->name) {
     free(bar_item->name);
   }
@@ -85,6 +86,7 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
+  if (!script) return;
   if (script != bar_item->script && !bar_item->script)
     free(bar_item->script);
   if (bar_item->cache_scripts && file_exists(resolve_path(script)))
@@ -94,6 +96,7 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
+  if (!script) return;
   if (script != bar_item->on_click_script && !bar_item->on_click_script)
     free(bar_item->on_click_script);
   if (bar_item->cache_scripts && file_exists(resolve_path(script)))
@@ -117,6 +120,7 @@ void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
 }
 
 void bar_item_set_label(struct bar_item* bar_item, char* label) {
+  if (!label) return;
   if (bar_item->label_line.line)
     bar_destroy_line(bar_item->label_line);
   if (label != bar_item->label && !bar_item->label)
@@ -130,6 +134,7 @@ void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
   bar_item_set_label(bar_item, bar_item->label);
 }
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
+  if (!font_string) return;
   if (bar_item->icon_font)
     CFRelease(bar_item->icon_font);
 
@@ -138,6 +143,7 @@ void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
 }
 
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
+  if (!font_string) return;
   if (bar_item->label_font)
     CFRelease(bar_item->label_font);
 
