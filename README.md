@@ -86,6 +86,8 @@ sketchybar -m config <setting> <value>
 where the settings currently are:
 * *position*: *top* or *bottom*
 * *height*: the height of the bar in pixels
+* *margin*: the screen padding around the bar itself
+* *y_offset*: the y-offset in pixels from the default position
 * *padding_left*: padding on the left before first item 
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself

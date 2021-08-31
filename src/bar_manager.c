@@ -104,6 +104,8 @@ void bar_manager_init(struct bar_manager *bar_manager) {
   bar_manager->display = BAR_DISPLAY_ALL;
   bar_manager->position = BAR_POSITION_TOP;
   bar_manager->height = 25;
+  bar_manager->y_offset = 0;
+  bar_manager->margin = 0;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
   bar_manager->frozen = false;

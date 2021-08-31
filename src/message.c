@@ -67,6 +67,8 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_BACKGROUND                       "bar_color"
 #define COMMAND_CONFIG_BAR_POSITION                         "position"
 #define COMMAND_CONFIG_BAR_HEIGHT                           "height"
+#define COMMAND_CONFIG_BAR_YOFFSET                          "y_offset"
+#define COMMAND_CONFIG_BAR_MARGIN                           "margin"
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
@@ -464,6 +466,20 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
       fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
     } else {
       bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
+    }
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_MARGIN)) {
+    struct token token = get_token(&message);
+    if (!token_is_valid(token)) {
+      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
+    } else {
+      g_bar_manager.margin = token_to_uint32t(token);
+    }
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_YOFFSET)) {
+    struct token token = get_token(&message);
+    if (!token_is_valid(token)) {
+      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
+    } else {
+      g_bar_manager.y_offset = token_to_uint32t(token);
     }
   } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_LEFT)) {
     struct token token = get_token(&message);
