@@ -21,6 +21,7 @@ extern bool g_verbose;
 #define DOMAIN_REMOVE                                       "remove"
 
 #define DOMAIN_UPDATE                                       "update"
+#define DOMAIN_FREEZE                                       "freeze"
 
 #define DOMAIN_PUSH                                         "push"
 
@@ -189,9 +190,17 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   }
 }
 
-// Syntax: sketchybar -m clear <name> 
-static void handle_domain_clear(FILE* rsp, struct token domain, char* message) {
+// Syntax: sketchybar -m freeze <on/off>
+static void handle_domain_freeze(FILE* rsp, struct token domain, char* message) {
+  struct token state = get_token(&message);
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON))
+    g_bar_manager.frozen = true;
+  else if (token_equals(state, ARGUMENT_COMMON_VAL_OFF)) 
+    g_bar_manager.frozen = false;
+
+  bar_manager_refresh(&g_bar_manager);
 }
+
 
 // Syntax: sketchybar -m trigger <event> 
 static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
@@ -398,8 +407,6 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item->hidden = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } 
 
-
-
   if (bar_item->is_shown)
     bar_manager_refresh(&g_bar_manager);
 }
@@ -510,14 +517,14 @@ void handle_message(FILE *rsp, char *message)
     bar_manager_script_update(&g_bar_manager, true);
   } else if (token_equals(domain, DOMAIN_PUSH)) {
     handle_domain_push(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_CLEAR)) {
-    handle_domain_clear(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
     handle_domain_subscribe(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_DEFAULT)) {
     handle_domain_default(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_TRIGGER)) {
     handle_domain_trigger(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_FREEZE)) {
+    handle_domain_freeze(rsp, domain, message);
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }

@@ -205,6 +205,14 @@ sketchybar -m remove item <name>
 ```
 This also works for components, just reference it by name.
 
+### Freeze and unfreeze the bar
+```bash
+sketchybar -m freeze <on/off>
+```
+This stops the redrawing of the bar entirely and "freezes" it. Can be used during initialization to
+create a cleaner startup by freezing the bar at the beginning of the configuration and unfreezing it after the
+setup is done.
+
 
 ## Credits
 yabai,
