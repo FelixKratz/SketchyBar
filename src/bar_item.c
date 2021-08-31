@@ -8,8 +8,8 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
-  bar_item->enabled = true;
-  bar_item->hidden = false;
+  bar_item->drawing = true;
+  bar_item->scripting = true;
   bar_item->is_shown = false;
   bar_item->nospace = false;
   bar_item->counter = 0;
@@ -39,6 +39,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->bounding_rects = NULL;
 
   if (default_item) {
+    bar_item->scripting = default_item->scripting;
+    bar_item->drawing = default_item->drawing;
     bar_item->icon_color = default_item->icon_color;
     bar_item->icon_font_name = default_item->icon_font_name;
     bar_item->label_color = default_item->label_color;
@@ -59,7 +61,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
-  if (!bar_item->enabled || (bar_item->update_frequency == 0 && !forced)) return;
+  if (!bar_item->scripting || (bar_item->update_frequency == 0 && !forced)) return;
   if (strcmp(bar_item->script, "") != 0) {
     bar_item->counter++;
     if (bar_item->update_frequency < bar_item->counter || forced) { 
@@ -70,7 +72,6 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
 }
 
 void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
-  if (!bar_item->enabled) return;
   if (bar_item->type == BAR_COMPONENT) {
     if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
       if ((1 << sid) & bar_item->associated_space && (1 << did) & bar_item->associated_display)
@@ -156,6 +157,7 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
 }
 
 void bar_item_on_click(struct bar_item* bar_item) {
+  if (!bar_item->scripting) return;
   if (bar_item && strlen(bar_item->on_click_script) > 0)
     fork_exec(bar_item->on_click_script, NULL);
 }

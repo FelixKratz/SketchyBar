@@ -136,8 +136,8 @@ A list of properties is listed below:
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, default: *off*)
-* *enabled*: Set to *off* deactivates script updated and drawing, reactivate with *on* (values: *on*, *off*, default: *on*)
-* *hidden*: Only deactivates drawing and keeps scripts running (values: *on*, *off*, default:*off*)
+* *scripting*: If scripts should be executed (values: *on*, *off*, default: *on*)
+* *drawing*: If the item should be drawn into the bar (values: *on*, *off*, default: *on*)
 
 ### Changing the default values for all further items
 ```bash
@@ -155,6 +155,8 @@ this currently works for the properties:
 * *icon_padding_right*
 * *update_freq*
 * *cache_scripts*
+* *scripting*
+* *drawing*
 
 It is also possible to reset the defaults via the command
 ```bash
