@@ -61,8 +61,7 @@ and run the bar via
 ```bash
 brew services start sketchybar
 ```
-Accessibility features are currently needed for mouse click handling, if you dont want to use
-clicking you can simply deny the accessibility permissions.
+
 ### Development Version
 Clone the repo and in it run 
 ```bash
