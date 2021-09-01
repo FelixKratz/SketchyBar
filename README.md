@@ -59,7 +59,7 @@ chmod +x ~/.config/sketchybar/plugins/*
 ```
 and run the bar via
 ```bash
-brew services start felixkratz/formulae/sketchybar
+brew services start sketchybar
 ```
 Accessibility features are currently needed for mouse click handling, if you dont want to use
 clicking you can simply deny the accessibility permissions.
