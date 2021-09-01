@@ -20,6 +20,9 @@ install: clean $(BINS)
 	chmod +x ~/.config/sketchybar/plugins/*
 	echo "Install complete..."
 
+uninstall: clean
+	rm /usr/local/bin/sketchybar
+
 debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -fsanitize=address -fsanitize=undefined -g -O0 -fvisibility=hidden -mmacosx-version-min=10.13
 debug: clean $(BINS)
 

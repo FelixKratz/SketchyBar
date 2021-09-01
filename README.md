@@ -44,6 +44,18 @@ In the center I have a spotify indicator (only when music is playing) and on the
 The cpu and memory indicators are only shown on the "code" screen and are not visible on the other screens.
 
 ## Installation
+### Stable Version
+```bash
+brew tap FelixKratz/formulae
+brew install sketchybar
+```
+Do not forget to copy the example configuration files to your home directory and run the bar via
+```bash
+brew services start felixkratz/formulae/sketchybar
+```
+Accessibility features are currently needed for mouse click handling, if you dont want to use
+clicking you can simply deny the accessibility permissions.
+### Development Version
 Clone the repo and in it run 
 ```bash
 make install
@@ -55,6 +67,20 @@ and run the bar via
 ```bash
 sketchybar
 ```
+### Switching branches and uninstalling
+You can always switch branches by removing the current installation and reinstalling the selected branch
+To uninstall the development version perform
+```bash
+make uninstall
+```
+in the cloned repo.
+
+To uninstall the brew version simply run
+```bash
+brew uninstall sketchybar
+```
+
+### Plugins and Fonts
 If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
 ```bash
 chmod +x name/of/plugin.sh
