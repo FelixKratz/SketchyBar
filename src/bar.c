@@ -163,8 +163,6 @@ void bar_refresh(struct bar *bar)
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   CGContextClearRect(bar->context, bar->frame);
   CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
-  CGContextSetRGBStrokeColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
-  CGContextSetLineWidth(bar->context, 0);
   
   CGFloat radius = g_bar_manager.corner_radius; 
   CGFloat minx = CGRectGetMinX(bar->frame), midx = CGRectGetMidX(bar->frame), maxx = CGRectGetMaxX(bar->frame);
@@ -175,10 +173,8 @@ void bar_refresh(struct bar *bar)
   CGContextAddArcToPoint(bar->context, maxx, maxy, midx, maxy, radius); 
   CGContextAddArcToPoint(bar->context, minx, maxy, minx, midy, radius); 
   CGContextClosePath(bar->context); 
-  CGContextDrawPath(bar->context, kCGPathFillStroke);
+  CGContextFillPath(bar->context);
   
-  //CGContextFillRect(bar->context, bar->frame);
-  //CGContextStrokePath(bar->context);
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
   if (sid == 0) return;
