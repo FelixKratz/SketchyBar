@@ -49,9 +49,17 @@ The cpu and memory indicators are only shown on the "code" screen and are not vi
 brew tap FelixKratz/formulae
 brew install sketchybar
 ```
-Do not forget to copy the example configuration files to your home directory and run the bar via
+Do not forget to copy the example configuration files to your home directory:
 ```bash
-brew services start felixkratz/formulae/sketchybar
+mkdir ~/.config/sketchybar
+cp /usr/local/opt/sketchybar/share/sketchybar/examples/sketchybarrc ~/.config/sketchybar/sketchybarrc
+mkdir ~/.config/sketchybar/plugins
+cp -r /usr/local/opt/sketchybar/share/sketchybar/examples/plugins/ ~/.config/sketchybar/plugins
+chmod +x ~/.config/sketchybar/plugins/*
+```
+and run the bar via
+```bash
+brew services start sketchybar
 ```
 Accessibility features are currently needed for mouse click handling, if you dont want to use
 clicking you can simply deny the accessibility permissions.
@@ -99,6 +107,7 @@ up to date repo folder run:
 ```bash
 make update
 ```
+or simply update via brew.
 This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to
 update those files too.
 
