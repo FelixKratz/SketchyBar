@@ -34,8 +34,8 @@
 #include "misc/socket.c"
 
 #include "event_loop.h"
+#include "mouse.h"
 #include "event.h"
-#include "event_tap.h"
 #include "workspace.h"
 #include "message.h"
 #include "display.h"
@@ -47,8 +47,8 @@
 #include "bar_manager.h"
 
 #include "event_loop.c"
+#include "mouse.c"
 #include "event.c"
-#include "event_tap.c"
 #include "workspace.m"
 #include "message.c"
 #include "display.c"

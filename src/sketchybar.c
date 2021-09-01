@@ -16,17 +16,16 @@
 #define PATCH 0
 
 extern int SLSMainConnectionID(void);
+extern int RunApplicationEventLoop(void);
 
 #define CONNECTION_CALLBACK(name) void name(uint32_t type, void *data, size_t data_length, void *context, int cid)
 typedef CONNECTION_CALLBACK(connection_callback);
-extern CGError SLSRegisterConnectionNotifyProc(int cid, connection_callback *handler, uint32_t event, void *context);
 
 struct event_loop g_event_loop;
 void *g_workspace_context;
 struct display_manager g_display_manager;
 struct daemon g_daemon;
 struct bar_manager g_bar_manager;
-struct event_tap g_event_tap;
 int g_connection;
 
 char g_socket_file[MAXLEN];
@@ -190,10 +189,6 @@ static inline void init_misc_settings(void)
 }
 #pragma clang diagnostic pop
 
-static CONNECTION_CALLBACK(connection_handler)
-{
-}
-
 static void parse_arguments(int argc, char **argv)
 {
     if ((string_equals(argv[1], VERSION_OPT_LONG)) ||
@@ -245,17 +240,16 @@ int main(int argc, char **argv)
     bar_manager_init(&g_bar_manager);
 
     event_loop_begin(&g_event_loop);
+    mouse_begin();
     display_manager_begin(&g_display_manager);
     workspace_event_handler_begin(&g_workspace_context);
     bar_manager_begin(&g_bar_manager);
-    event_tap_begin(&g_event_tap, EVENT_MASK_MOUSE, mouse_handler);
-    SLSRegisterConnectionNotifyProc(g_connection, connection_handler, 1204, NULL);
 
     if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler)) {
         error("sketchybar: could not initialize daemon! abort..\n");
     }
 
     exec_config_file();
-    CFRunLoopRun();
+    RunApplicationEventLoop();
     return 0;
 }
