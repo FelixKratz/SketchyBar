@@ -20,6 +20,7 @@ struct bar_manager {
   char *display;
   uint32_t height;
   uint32_t margin;
+  uint32_t corner_radius;
   uint32_t y_offset;
   uint32_t padding_left;
   uint32_t padding_right;

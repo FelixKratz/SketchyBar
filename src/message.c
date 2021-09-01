@@ -69,6 +69,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_HEIGHT                           "height"
 #define COMMAND_CONFIG_BAR_YOFFSET                          "y_offset"
 #define COMMAND_CONFIG_BAR_MARGIN                           "margin"
+#define COMMAND_CONFIG_BAR_CORNER_RADIUS                    "corner_radius"
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
@@ -100,11 +101,6 @@ static bool token_equals(struct token token, char *match)
     }
   }
   return *at == 0;
-}
-
-static bool token_is_valid(struct token token)
-{
-  return token.text && token.length > 0;
 }
 
 static char *token_to_string(struct token token)
@@ -437,64 +433,28 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 {
   struct token command  = get_token(&message);
 
-  if (token_equals(command, COMMAND_CONFIG_DEBUG_OUTPUT)) {
+  if (token_equals(command, COMMAND_CONFIG_BAR_BACKGROUND)) {
     struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "%s\n", bool_str[g_verbose]);
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_OFF)) {
-      g_verbose = false;
-    } else if (token_equals(value, ARGUMENT_COMMON_VAL_ON)) {
-      g_verbose = true;
-    } else {
-      daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-    }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_BACKGROUND)) {
-    struct token value = get_token(&message);
-    if (!token_is_valid(value)) {
-      fprintf(rsp, "0x%x\n", g_bar_manager.background_color.p);
-    } else {
-      uint32_t color = token_to_uint32t(value);
-      if (color) {
-        bar_manager_set_background_color(&g_bar_manager, color);
-      } else {
-        daemon_fail(rsp, "unknown value '%.*s' given to command '%.*s' for domain '%.*s'\n", value.length, value.text, command.length, command.text, domain.length, domain.text);
-      }
-    }
+    uint32_t color = token_to_uint32t(value);
+    bar_manager_set_background_color(&g_bar_manager, color);
   } else if (token_equals(command, COMMAND_CONFIG_BAR_HEIGHT)) {
     struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
-    } else {
-      bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
-    }
+    bar_manager_set_height(&g_bar_manager, atoi(token_to_string(token)));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_MARGIN)) {
     struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
-    } else {
-      g_bar_manager.margin = token_to_uint32t(token);
-    }
+    g_bar_manager.margin = token_to_uint32t(token);
   } else if (token_equals(command, COMMAND_CONFIG_BAR_YOFFSET)) {
     struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.height ? g_bar_manager.height : 0);
-    } else {
-      g_bar_manager.y_offset = token_to_uint32t(token);
-    }
+    g_bar_manager.y_offset = token_to_uint32t(token);
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_CORNER_RADIUS)) {
+    struct token token = get_token(&message);
+    g_bar_manager.corner_radius = token_to_uint32t(token);
   } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_LEFT)) {
     struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.padding_left ? g_bar_manager.padding_left : 0);
-    } else {
-      bar_manager_set_padding_left(&g_bar_manager, atoi(token_to_string(token)));
-    }
+    bar_manager_set_padding_left(&g_bar_manager, atoi(token_to_string(token)));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_RIGHT)) {
     struct token token = get_token(&message);
-    if (!token_is_valid(token)) {
-      fprintf(rsp, "%"PRIu32"\n", g_bar_manager.padding_right ? g_bar_manager.padding_right : 0);
-    } else {
-      bar_manager_set_padding_right(&g_bar_manager, atoi(token_to_string(token)));
-    }
+    bar_manager_set_padding_right(&g_bar_manager, atoi(token_to_string(token)));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
     if (length <= 0) {

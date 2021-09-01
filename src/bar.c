@@ -163,8 +163,20 @@ void bar_refresh(struct bar *bar)
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   CGContextClearRect(bar->context, bar->frame);
   CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
-  CGContextFillRect(bar->context, bar->frame);
-  CGContextStrokePath(bar->context);
+  CGContextSetRGBStrokeColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
+  CGFloat radius = g_bar_manager.corner_radius; 
+  CGFloat minx = CGRectGetMinX(bar->frame), midx = CGRectGetMidX(bar->frame), maxx = CGRectGetMaxX(bar->frame);
+  CGFloat miny = CGRectGetMinY(bar->frame), midy = CGRectGetMidY(bar->frame), maxy = CGRectGetMaxY(bar->frame);
+  CGContextMoveToPoint(bar->context, minx, midy); 
+  CGContextAddArcToPoint(bar->context, minx, miny, midx, miny, radius); 
+  CGContextAddArcToPoint(bar->context, maxx, miny, maxx, midy, radius); 
+  CGContextAddArcToPoint(bar->context, maxx, maxy, midx, maxy, radius); 
+  CGContextAddArcToPoint(bar->context, minx, maxy, minx, midy, radius); 
+  CGContextClosePath(bar->context); 
+  CGContextDrawPath(bar->context, kCGPathFillStroke);
+  
+  //CGContextFillRect(bar->context, bar->frame);
+  //CGContextStrokePath(bar->context);
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
   if (sid == 0) return;
