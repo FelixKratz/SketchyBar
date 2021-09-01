@@ -301,7 +301,7 @@ struct bar *bar_create(uint32_t did)
   SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
   CFRelease(frame_region);
 
-  SLSSetWindowResolution(g_connection, bar->id, 2.0f);
+  SLSSetWindowResolution(g_connection, bar->id, 1.0f);
   SLSSetWindowTags(g_connection, bar->id, set_tags, 64);
   SLSClearWindowTags(g_connection, bar->id, clear_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
