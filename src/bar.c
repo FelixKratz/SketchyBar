@@ -164,6 +164,8 @@ void bar_refresh(struct bar *bar)
   CGContextClearRect(bar->context, bar->frame);
   CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
   CGContextSetRGBStrokeColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
+  CGContextSetLineWidth(bar->context, 0);
+  
   CGFloat radius = g_bar_manager.corner_radius; 
   CGFloat minx = CGRectGetMinX(bar->frame), midx = CGRectGetMidX(bar->frame), maxx = CGRectGetMaxX(bar->frame);
   CGFloat miny = CGRectGetMinY(bar->frame), midy = CGRectGetMidY(bar->frame), maxy = CGRectGetMaxY(bar->frame);
