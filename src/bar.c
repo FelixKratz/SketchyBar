@@ -158,15 +158,9 @@ void bar_refresh(struct bar *bar) {
   CGContextClearRect(bar->context, bar->frame);
   CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
   
-  CGFloat radius = g_bar_manager.corner_radius; 
-  CGFloat minx = CGRectGetMinX(bar->frame), midx = CGRectGetMidX(bar->frame), maxx = CGRectGetMaxX(bar->frame);
-  CGFloat miny = CGRectGetMinY(bar->frame), midy = CGRectGetMidY(bar->frame), maxy = CGRectGetMaxY(bar->frame);
-  CGContextMoveToPoint(bar->context, minx, midy); 
-  CGContextAddArcToPoint(bar->context, minx, miny, midx, miny, radius); 
-  CGContextAddArcToPoint(bar->context, maxx, miny, maxx, midy, radius); 
-  CGContextAddArcToPoint(bar->context, maxx, maxy, midx, maxy, radius); 
-  CGContextAddArcToPoint(bar->context, minx, maxy, minx, midy, radius); 
-  CGContextClosePath(bar->context); 
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRoundedRect(path, NULL, bar->frame, g_bar_manager.corner_radius, g_bar_manager.corner_radius);
+  CGContextAddPath(bar->context, path);
   CGContextFillPath(bar->context);
   
   uint32_t did = display_arrangement(bar->did);
