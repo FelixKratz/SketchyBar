@@ -17,8 +17,7 @@ typedef SOCKET_DAEMON_HANDLER(socket_daemon_handler);
 #include <netdb.h>
 #include <poll.h>
 
-struct daemon
-{
+struct daemon {
     int sockfd;
     bool is_running;
     pthread_t thread;

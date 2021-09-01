@@ -4,8 +4,7 @@ extern struct event_loop g_event_loop;
 extern struct bar g_bar;
 extern int g_connection;
 
-static DISPLAY_EVENT_HANDLER(display_handler)
-{
+static DISPLAY_EVENT_HANDLER(display_handler) {
     if (flags & kCGDisplayAddFlag) {
         struct event *event = event_create(&g_event_loop, DISPLAY_ADDED, (void *)(intptr_t) did);
         event_loop_post(&g_event_loop, event);
@@ -21,8 +20,7 @@ static DISPLAY_EVENT_HANDLER(display_handler)
     }
 }
 
-CFStringRef display_uuid(uint32_t did)
-{
+CFStringRef display_uuid(uint32_t did) {
     CFUUIDRef uuid_ref = CGDisplayCreateUUIDFromDisplayID(did);
     if (!uuid_ref) return NULL;
 
@@ -32,13 +30,11 @@ CFStringRef display_uuid(uint32_t did)
     return uuid_str;
 }
 
-CGRect display_bounds(uint32_t did)
-{
+CGRect display_bounds(uint32_t did) {
     return CGDisplayBounds(did);
 }
 
-uint64_t display_space_id(uint32_t did)
-{
+uint64_t display_space_id(uint32_t did) {
     CFStringRef uuid = display_uuid(did);
     if (!uuid) return 0;
 
@@ -47,8 +43,7 @@ uint64_t display_space_id(uint32_t did)
     return sid;
 }
 
-uint64_t *display_space_list(uint32_t did, int *count)
-{
+uint64_t *display_space_list(uint32_t did, int *count) {
     CFStringRef uuid = display_uuid(did);
     if (!uuid) return NULL;
 
@@ -75,15 +70,13 @@ uint64_t *display_space_list(uint32_t did, int *count)
             CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &space_list[j]);
         }
     }
-
     CFRelease(display_spaces_ref);
     CFRelease(uuid);
 
     return space_list;
 }
 
-int display_arrangement(uint32_t did)
-{
+int display_arrangement(uint32_t did) {
     CFStringRef uuid = display_uuid(did);
     if (!uuid) return 0;
 
@@ -99,7 +92,6 @@ int display_arrangement(uint32_t did)
             break;
         }
     }
-
     CFRelease(displays);
     CFRelease(uuid);
     return result;

@@ -7,14 +7,12 @@ typedef TABLE_HASH_FUNC(table_hash_func);
 #define TABLE_COMPARE_FUNC(name) int name(void *key_a, void *key_b)
 typedef TABLE_COMPARE_FUNC(table_compare_func);
 
-struct bucket
-{
+struct bucket {
     void *key;
     void *value;
     struct bucket *next;
 };
-struct table
-{
+struct table {
     int count;
     int capacity;
     float max_load;
@@ -34,8 +32,7 @@ void *table_find(struct table *table, void *key);
 #endif
 
 #ifdef HASHTABLE_IMPLEMENTATION
-void table_init(struct table *table, int capacity, table_hash_func hash, table_compare_func cmp)
-{
+void table_init(struct table *table, int capacity, table_hash_func hash, table_compare_func cmp) {
     table->count = 0;
     table->capacity = capacity;
     table->max_load = 0.75f;
@@ -45,8 +42,7 @@ void table_init(struct table *table, int capacity, table_hash_func hash, table_c
     memset(table->buckets, 0, sizeof(struct bucket *) * capacity);
 }
 
-void table_free(struct table *table)
-{
+void table_free(struct table *table) {
     for (int i = 0; i < table->capacity; ++i) {
         struct bucket *next, *bucket = table->buckets[i];
         while (bucket) {
@@ -63,9 +59,7 @@ void table_free(struct table *table)
     }
 }
 
-static struct bucket **
-table_get_bucket(struct table *table, void *key)
-{
+static struct bucket **table_get_bucket(struct table *table, void *key) {
     struct bucket **bucket = table->buckets + (table->hash(key) % table->capacity);
     while (*bucket) {
         if (table->cmp((*bucket)->key, key)) {
@@ -76,9 +70,7 @@ table_get_bucket(struct table *table, void *key)
     return bucket;
 }
 
-static void
-table_rehash(struct table *table)
-{
+static void table_rehash(struct table *table) {
     struct bucket **old_buckets = table->buckets;
     int old_capacity = table->capacity;
 
@@ -105,8 +97,7 @@ table_rehash(struct table *table)
     free(old_buckets);
 }
 
-void _table_add(struct table *table, void *key, int key_size, void *value)
-{
+void _table_add(struct table *table, void *key, int key_size, void *value) {
     struct bucket **bucket = table_get_bucket(table, key);
     if (*bucket) {
         if (!(*bucket)->value) {
@@ -127,8 +118,7 @@ void _table_add(struct table *table, void *key, int key_size, void *value)
     }
 }
 
-void table_remove(struct table *table, void *key)
-{
+void table_remove(struct table *table, void *key) {
     struct bucket *next, **bucket = table_get_bucket(table, key);
     if (*bucket) {
         free((*bucket)->key);
@@ -139,8 +129,7 @@ void table_remove(struct table *table, void *key)
     }
 }
 
-void *table_find(struct table *table, void *key)
-{
+void *table_find(struct table *table, void *key) {
     struct bucket *bucket = *table_get_bucket(table, key);
     return bucket ? bucket->value : NULL;
 }

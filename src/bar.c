@@ -2,8 +2,7 @@
 
 extern struct bar_manager g_bar_manager;
 
-static CTFontRef bar_create_font(char *cstring)
-{
+static CTFontRef bar_create_font(char *cstring) {
   float size = 10.0f;
   char font_properties[2][255] = { {}, {} };
   sscanf(cstring, "%254[^:]:%254[^:]:%f", font_properties[0], font_properties[1], &size);
@@ -26,8 +25,7 @@ static CTFontRef bar_create_font(char *cstring)
   return font;
 }
 
-static CGPoint bar_align_line(struct bar *bar, struct bar_line line, int align_x, int align_y)
-{
+static CGPoint bar_align_line(struct bar *bar, struct bar_line line, int align_x, int align_y) {
   float x = 0, y = 0;
 
   if (align_x == ALIGN_NONE) {
@@ -53,20 +51,17 @@ static CGPoint bar_align_line(struct bar *bar, struct bar_line line, int align_x
   return (CGPoint) { x, y };
 }
 
-static void bar_draw_line(struct bar *bar, struct bar_line line, float x, float y)
-{
+static void bar_draw_line(struct bar *bar, struct bar_line line, float x, float y) {
   CGContextSetRGBFillColor(bar->context, line.color.r, line.color.g, line.color.b, line.color.a);
   CGContextSetTextPosition(bar->context, x, y);
   CTLineDraw(line.line, bar->context);
 }
 
-static void bar_destroy_line(struct bar_line line)
-{
+static void bar_destroy_line(struct bar_line line) {
   CFRelease(line.line);
 }
 
-static struct bar_line bar_prepare_line(CTFontRef font, char *cstring, struct rgba_color color)
-{
+static struct bar_line bar_prepare_line(CTFontRef font, char *cstring, struct rgba_color color) {
   const void *keys[] = { kCTFontAttributeName, kCTForegroundColorFromContextAttributeName };
   const void *values[] = { font, kCFBooleanTrue };
   CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -157,8 +152,7 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, boo
   return false;
 }
 
-void bar_refresh(struct bar *bar)
-{
+void bar_refresh(struct bar *bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   CGContextClearRect(bar->context, bar->frame);
@@ -243,8 +237,7 @@ void bar_refresh(struct bar *bar)
   SLSReenableUpdate(g_connection);
 }
 
-void bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
-{
+void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
   CGRect bounds = display_bounds(bar->did);
   bounds.size.width -= 2*g_bar_manager.margin;
   CGPoint origin = bounds.origin;
@@ -264,8 +257,7 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region)
   CGSNewRegionWithRect(&bar->frame, frame_region);
 }
 
-void bar_resize(struct bar *bar)
-{
+void bar_resize(struct bar *bar) {
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
 
@@ -278,8 +270,7 @@ void bar_resize(struct bar *bar)
   CFRelease(frame_region);
 }
 
-struct bar *bar_create(uint32_t did)
-{
+struct bar *bar_create(uint32_t did) {
   struct bar *bar = malloc(sizeof(struct bar));
   memset(bar, 0, sizeof(struct bar));
   bar->did = did;
@@ -313,8 +304,7 @@ struct bar *bar_create(uint32_t did)
   return bar;
 }
 
-void bar_destroy(struct bar *bar)
-{
+void bar_destroy(struct bar *bar) {
   CGContextRelease(bar->context);
   SLSReleaseWindow(g_connection, bar->id);
   free(bar);

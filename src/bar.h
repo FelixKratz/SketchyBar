@@ -29,8 +29,7 @@ extern CGError CGSNewRegionWithRect(CGRect *rect, CFTypeRef *outRegion);
 #define ALIGN_BOTTOM 4
 #define ALIGN_CENTER 5
 
-struct bar_line
-{
+struct bar_line {
     CTLineRef line;
     CGFloat ascent;
     CGFloat descent;
@@ -38,8 +37,7 @@ struct bar_line
     struct rgba_color color;
 };
 
-struct bar
-{
+struct bar {
     uint32_t id;
     uint32_t did;
     CGContextRef context;

@@ -1,13 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-extern int SLSGetSpaceManagementMode(int cid);
-extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
-extern CGError SLSProcessAssignToSpace(int cid, pid_t pid, uint64_t sid);
-extern CGError SLSProcessAssignToAllSpaces(int cid, pid_t pid);
-extern void SLSMoveWindowsToManagedSpace(int cid, CFArrayRef window_list, uint64_t sid);
-extern CGError CoreDockSendNotification(CFStringRef notification, int unknown);
-
 #define DISPLAY_EVENT_HANDLER(name) void name(uint32_t did, CGDisplayChangeSummaryFlags flags, void *context)
 typedef DISPLAY_EVENT_HANDLER(display_callback);
 

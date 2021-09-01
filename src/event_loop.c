@@ -1,8 +1,7 @@
 #include "event_loop.h"
 
 #ifdef STATS
-struct cycle_counter
-{
+struct cycle_counter {
     uint64_t cycle_count;
     uint64_t hit_count;
 };
@@ -10,8 +9,7 @@ struct cycle_counter
 static struct cycle_counter queue_counters[2];
 static struct cycle_counter event_counters[EVENT_TYPE_COUNT];
 
-static inline void cycle_counter_tick(const char *name, struct cycle_counter *counter, uint64_t elapsed_cycles)
-{
+static inline void cycle_counter_tick(const char *name, struct cycle_counter *counter, uint64_t elapsed_cycles) {
     uint64_t cycle_count = __sync_add_and_fetch(&counter->cycle_count, elapsed_cycles);
     uint64_t hit_count = __sync_add_and_fetch(&counter->hit_count, 1);
     fprintf(stdout, "%30s: hits %'25lld | cur %'25lld | avg %'25lld\n",
@@ -19,8 +17,7 @@ static inline void cycle_counter_tick(const char *name, struct cycle_counter *co
 }
 #endif
 
-static bool queue_init(struct queue *queue)
-{
+static bool queue_init(struct queue *queue) {
     if (!memory_pool_init(&queue->pool, QUEUE_POOL_SIZE)) return false;
     queue->head = memory_pool_push(&queue->pool, struct queue_item);
     queue->head->data = NULL;
@@ -32,8 +29,7 @@ static bool queue_init(struct queue *queue)
     return true;
 };
 
-static void queue_push(struct queue *queue, struct event *event)
-{
+static void queue_push(struct queue *queue, struct event *event) {
     bool success;
     struct queue_item *tail, *new_tail;
 
@@ -63,8 +59,7 @@ static void queue_push(struct queue *queue, struct event *event)
 #endif
 }
 
-static struct event *queue_pop(struct queue *queue)
-{
+static struct event *queue_pop(struct queue *queue) {
     struct queue_item *head;
 
 #ifdef STATS
@@ -88,8 +83,7 @@ static struct event *queue_pop(struct queue *queue)
     return head->next->data;
 }
 
-static void *event_loop_run(void *context)
-{
+static void *event_loop_run(void *context) {
     struct event_loop *event_loop = (struct event_loop *) context;
     struct queue *queue = (struct queue *) &event_loop->queue;
 
@@ -113,15 +107,13 @@ static void *event_loop_run(void *context)
     return NULL;
 }
 
-void event_loop_post(struct event_loop *event_loop, struct event *event)
-{
+void event_loop_post(struct event_loop *event_loop, struct event *event) {
     assert(event_loop->is_running);
     queue_push(&event_loop->queue, event);
     sem_post(event_loop->semaphore);
 }
 
-bool event_loop_init(struct event_loop *event_loop)
-{
+bool event_loop_init(struct event_loop *event_loop) {
     if (!queue_init(&event_loop->queue)) return false;
     if (!memory_pool_init(&event_loop->pool, EVENT_POOL_SIZE)) return false;
     event_loop->is_running = false;
@@ -136,16 +128,14 @@ bool event_loop_init(struct event_loop *event_loop)
     return event_loop->semaphore != SEM_FAILED;
 }
 
-bool event_loop_begin(struct event_loop *event_loop)
-{
+bool event_loop_begin(struct event_loop *event_loop) {
     if (event_loop->is_running) return false;
     event_loop->is_running = true;
     pthread_create(&event_loop->thread, NULL, &event_loop_run, event_loop);
     return true;
 }
 
-bool event_loop_end(struct event_loop *event_loop)
-{
+bool event_loop_end(struct event_loop *event_loop) {
     if (!event_loop->is_running) return false;
     event_loop->is_running = false;
     pthread_join(event_loop->thread, NULL);

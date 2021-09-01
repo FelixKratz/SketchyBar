@@ -194,7 +194,6 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, char* context) {
-  
   char* name = custom_events_get_name_for_notification(&bar_manager->custom_events, context);
   if (!name) return;
   bar_manager_custom_events_trigger(bar_manager, name);

@@ -57,7 +57,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name));
   bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name));
   bar_item_set_label(bar_item, string_copy(""));
-
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {

@@ -16,8 +16,7 @@ extern void CoreDockGetOrientationAndPinning(int *orientation, int *pinning);
 #define DOCK_ORIENTATION_LEFT   3
 #define DOCK_ORIENTATION_RIGHT  4
 
-struct display_manager
-{
+struct display_manager {
     uint32_t current_display_id;
     uint32_t last_display_id;
 };

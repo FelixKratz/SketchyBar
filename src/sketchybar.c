@@ -33,8 +33,7 @@ char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_verbose;
 
-static int client_send_message(int argc, char **argv)
-{
+static int client_send_message(int argc, char **argv) {
     if (argc <= 1) {
         error("sketchybar-msg: no arguments given! abort..\n");
     }
@@ -107,8 +106,7 @@ static int client_send_message(int argc, char **argv)
     return result;
 }
 
-static void acquire_lockfile(void)
-{
+static void acquire_lockfile(void) {
     int handle = open(g_lock_file, O_CREAT | O_WRONLY, 0600);
     if (handle == -1) {
         error("sketchybar: could not create lock-file! abort..\n");
@@ -127,8 +125,7 @@ static void acquire_lockfile(void)
     }
 }
 
-static bool get_config_file(char *restrict filename, char *restrict buffer, int buffer_size)
-{
+static bool get_config_file(char *restrict filename, char *restrict buffer, int buffer_size) {
     char *xdg_home = getenv("XDG_CONFIG_HOME");
     if (xdg_home && *xdg_home) {
         snprintf(buffer, buffer_size, "%s/sketchybar/%s", xdg_home, filename);
@@ -145,8 +142,7 @@ static bool get_config_file(char *restrict filename, char *restrict buffer, int 
     return file_exists(buffer);
 }
 
-static void exec_config_file(void)
-{
+static void exec_config_file(void) {
     if (!*g_config_file && !get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
         printf("could not locate config file..");
         return;
@@ -170,8 +166,7 @@ static void exec_config_file(void)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static inline void init_misc_settings(void)
-{
+static inline void init_misc_settings(void) {
     char *user = getenv("USER");
     if (!user) {
         error("sketchybar: 'env USER' not set! abort..\n");
@@ -189,8 +184,7 @@ static inline void init_misc_settings(void)
 }
 #pragma clang diagnostic pop
 
-static void parse_arguments(int argc, char **argv)
-{
+static void parse_arguments(int argc, char **argv) {
     if ((string_equals(argv[1], VERSION_OPT_LONG)) ||
         (string_equals(argv[1], VERSION_OPT_SHRT))) {
         fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
@@ -219,8 +213,7 @@ static void parse_arguments(int argc, char **argv)
     }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc > 1) {
         parse_arguments(argc, argv);
     }

@@ -7,14 +7,12 @@
 #define QUEUE_POOL_SIZE KILOBYTES(16)
 #define QUEUE_MAX_COUNT ((QUEUE_POOL_SIZE) / (sizeof(struct queue_item)))
 
-struct queue_item
-{
+struct queue_item {
     struct event *data;
     struct queue_item *next;
 };
 
-struct queue
-{
+struct queue {
     struct memory_pool pool;
     struct queue_item *head;
     struct queue_item *tail;
@@ -23,8 +21,7 @@ struct queue
 #endif
 };
 
-struct event_loop
-{
+struct event_loop {
     bool is_running;
     pthread_t thread;
     sem_t *semaphore;

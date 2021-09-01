@@ -7,16 +7,14 @@ extern int g_connection;
 
 static const char *bool_str[] = { "off", "on" };
 
-struct signal_args
-{
+struct signal_args {
     char name[2][255];
     char value[2][255];
     void *entity;
     void *param1;
 };
 
-struct rgba_color
-{
+struct rgba_color {
     bool is_valid;
     uint32_t p;
     float r;
@@ -26,8 +24,7 @@ struct rgba_color
 };
 
 static struct rgba_color
-rgba_color_from_hex(uint32_t color)
-{
+rgba_color_from_hex(uint32_t color) {
     struct rgba_color result;
     result.is_valid = true;
     result.p = color;
@@ -38,24 +35,20 @@ rgba_color_from_hex(uint32_t color)
     return result;
 }
 
-static inline bool is_root(void)
-{
+static inline bool is_root(void) {
     return getuid() == 0 || geteuid() == 0;
 }
 
-static inline bool string_equals(const char *a, const char *b)
-{
+static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
 
-static bool cgrect_contains_point(CGRect* r, CGPoint* p)
-{
+static bool cgrect_contains_point(CGRect* r, CGPoint* p) {
     return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
            p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;
 }
 
-static inline char *string_escape_quote(char *s)
-{
+static inline char *string_escape_quote(char *s) {
     if (!s) return NULL;
 
     char *cursor = s;
@@ -80,8 +73,7 @@ static inline char *string_escape_quote(char *s)
     return result;
 }
 
-static inline char *cfstring_copy(CFStringRef string)
-{
+static inline char *cfstring_copy(CFStringRef string) {
     CFIndex num_bytes = CFStringGetMaximumSizeForEncoding(CFStringGetLength(string), kCFStringEncodingUTF8);
     char *result = malloc(num_bytes + 1);
     if (!result) return NULL;
@@ -94,8 +86,7 @@ static inline char *cfstring_copy(CFStringRef string)
     return result;
 }
 
-static inline char *string_copy(char *s)
-{
+static inline char *string_copy(char *s) {
     int length = strlen(s);
     char *result = malloc(length + 1);
     if (!result) return NULL;
@@ -121,8 +112,7 @@ static inline char* resolve_path(char* path) {
   return path;
 }
 
-static inline bool file_exists(char *filename)
-{
+static inline bool file_exists(char *filename) {
     struct stat buffer;
 
     if (stat(filename, &buffer) != 0) {
@@ -136,8 +126,7 @@ static inline bool file_exists(char *filename)
     return true;
 }
 
-static inline bool ensure_executable_permission(char *filename)
-{
+static inline bool ensure_executable_permission(char *filename) {
     struct stat buffer;
 
     if (stat(filename, &buffer) != 0) {
@@ -148,12 +137,10 @@ static inline bool ensure_executable_permission(char *filename)
     if (!is_executable && chmod(filename, S_IXUSR | buffer.st_mode) != 0) {
         return false;
     }
-
     return true;
 }
 
-static bool fork_exec(char *command, struct signal_args *args)
-{
+static bool fork_exec(char *command, struct signal_args *args) {
     int pid = fork();
     if (pid == -1) return false;
     if (pid !=  0) return true;
@@ -167,8 +154,7 @@ static bool fork_exec(char *command, struct signal_args *args)
     exit(execvp(exec[0], exec));
 }
 
-static inline int mission_control_index(uint64_t sid)
-{
+static inline int mission_control_index(uint64_t sid) {
   uint64_t result = 0;
   int desktop_cnt = 1;
 
@@ -198,16 +184,14 @@ out:
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static inline bool psn_equals(ProcessSerialNumber *a, ProcessSerialNumber *b)
-{
+static inline bool psn_equals(ProcessSerialNumber *a, ProcessSerialNumber *b) {
     Boolean result;
     SameProcess(a, b, &result);
     return result == 1;
 }
 #pragma clang diagnostic pop
 
-static inline float clampf_range(float value, float min, float max)
-{
+static inline float clampf_range(float value, float min, float max) {
     if (value < min) return min;
     if (value > max) return max;
     return value;

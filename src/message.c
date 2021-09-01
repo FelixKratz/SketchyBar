@@ -92,8 +92,7 @@ extern bool g_verbose;
 #define BAR_POSITION_BOTTOM                                 "bottom"
 #define BAR_POSITION_TOP                                    "top"
 
-static bool token_equals(struct token token, char *match)
-{
+static bool token_equals(struct token token, char *match) {
   char *at = match;
   for (int i = 0; i < token.length; ++i, ++at) {
     if ((*at == 0) || (token.text[i] != *at)) {
@@ -103,8 +102,7 @@ static bool token_equals(struct token token, char *match)
   return *at == 0;
 }
 
-static char *token_to_string(struct token token)
-{
+static char *token_to_string(struct token token) {
   char *result = malloc(token.length + 1);
   if (!result) return NULL;
 
@@ -120,16 +118,14 @@ static uint32_t token_to_uint32t(struct token token) {
   return   strtoul(buffer, NULL, 0);
 }
 
-static float token_to_float(struct token token)
-{
+static float token_to_float(struct token token) {
   char buffer[token.length + 1];
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
   return strtof(buffer, NULL);
 }
 
-static struct token get_token(char **message)
-{
+static struct token get_token(char **message) {
   struct token token;
 
   token.text = *message;
@@ -147,8 +143,7 @@ static struct token get_token(char **message)
   return token;
 }
 
-static void daemon_fail(FILE *rsp, char *fmt, ...)
-{
+static void daemon_fail(FILE *rsp, char *fmt, ...) {
   if (!rsp) return;
 
   fprintf(rsp, FAILURE_MESSAGE);
@@ -250,7 +245,6 @@ static void handle_domain_default(FILE* rsp, struct token domain, char* message)
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   }
-
 }
 // Syntax: sketchybar -m push <name> <y>
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
@@ -293,8 +287,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   struct token name;
   struct token position;
-
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
+
   if (token_equals(command, COMMAND_ADD_ITEM)) {
     name = get_token(&message);
     position = get_token(&message);
@@ -429,8 +423,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_manager_refresh(&g_bar_manager);
 }
 
-static void handle_domain_config(FILE *rsp, struct token domain, char *message)
-{
+static void handle_domain_config(FILE *rsp, struct token domain, char *message) {
   struct token command  = get_token(&message);
 
   if (token_equals(command, COMMAND_CONFIG_BAR_BACKGROUND)) {
@@ -480,8 +473,7 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message)
 
 #undef VIEW_SET_PROPERTY
 
-struct selector
-{
+struct selector {
   struct token token;
   bool did_parse;
 
@@ -493,13 +485,11 @@ struct selector
   };
 };
 
-enum label_type
-{
+enum label_type {
   LABEL_SPACE,
 };
 
-void handle_message(FILE *rsp, char *message)
-{
+void handle_message(FILE *rsp, char *message) {
   struct token domain = get_token(&message);
   if (token_equals(domain, DOMAIN_CONFIG)) {
     handle_domain_config(rsp, domain, message);
@@ -526,8 +516,7 @@ void handle_message(FILE *rsp, char *message)
   }
 }
 
-static SOCKET_DAEMON_HANDLER(message_handler)
-{
+static SOCKET_DAEMON_HANDLER(message_handler) {
   struct event *event = event_create_p1(&g_event_loop, DAEMON_MESSAGE, message, sockfd);
   event_loop_post(&g_event_loop, event);
 }

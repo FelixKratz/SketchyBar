@@ -1,8 +1,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-struct token
-{
+struct token {
     char *text;
     unsigned int length;
 };

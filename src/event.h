@@ -29,8 +29,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION);
 #define event_status(e) ((e)  & 0x1)
 #define event_result(e) ((e) >> 0x1)
 
-enum event_type
-{
+enum event_type {
     EVENT_TYPE_UNKNOWN,
     APPLICATION_FRONT_SWITCHED,
     SPACE_CHANGED,
@@ -49,8 +48,7 @@ enum event_type
     EVENT_TYPE_COUNT
 };
 
-static const char *event_type_str[] =
-{
+static const char *event_type_str[] = {
     [EVENT_TYPE_UNKNOWN]             = "event_type_unknown",
 
     [APPLICATION_FRONT_SWITCHED]     = "application_front_switched",
@@ -70,8 +68,7 @@ static const char *event_type_str[] =
     [EVENT_TYPE_COUNT]               = "event_type_count"
 };
 
-static event_callback *event_handler[] =
-{
+static event_callback *event_handler[] = {
     [APPLICATION_FRONT_SWITCHED]     = EVENT_HANDLER_APPLICATION_FRONT_SWITCHED,
     [SPACE_CHANGED]                  = EVENT_HANDLER_SPACE_CHANGED,
     [DISPLAY_ADDED]                  = EVENT_HANDLER_DISPLAY_ADDED,
@@ -88,8 +85,7 @@ static event_callback *event_handler[] =
     [DAEMON_MESSAGE]                 = EVENT_HANDLER_DAEMON_MESSAGE,
 };
 
-struct event
-{
+struct event {
     void *context;
     volatile uint32_t *info;
     enum event_type type;

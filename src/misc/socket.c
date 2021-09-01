@@ -1,7 +1,6 @@
 #include "socket.h"
 
-char *socket_read(int sockfd, int *len)
-{
+char *socket_read(int sockfd, int *len) {
     int cursor = 0;
     int bytes_read = 0;
     char *result = NULL;
@@ -42,18 +41,15 @@ err:
     return result;
 }
 
-bool socket_write_bytes(int sockfd, char *message, int len)
-{
+bool socket_write_bytes(int sockfd, char *message, int len) {
     return send(sockfd, message, len, 0) != -1;
 }
 
-bool socket_write(int sockfd, char *message)
-{
+bool socket_write(int sockfd, char *message) {
     return send(sockfd, message, strlen(message), 0) != -1;
 }
 
-bool socket_connect_in(int *sockfd, int port)
-{
+bool socket_connect_in(int *sockfd, int port) {
     struct sockaddr_in socket_address;
 
     *sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -67,8 +63,7 @@ bool socket_connect_in(int *sockfd, int port)
     return connect(*sockfd, (struct sockaddr*) &socket_address, sizeof(struct sockaddr)) != -1;
 }
 
-bool socket_connect_un(int *sockfd, char *socket_path)
-{
+bool socket_connect_un(int *sockfd, char *socket_path) {
     struct sockaddr_un socket_address;
     socket_address.sun_family = AF_UNIX;
 
@@ -79,8 +74,7 @@ bool socket_connect_un(int *sockfd, char *socket_path)
     return connect(*sockfd, (struct sockaddr *) &socket_address, sizeof(socket_address)) != -1;
 }
 
-void socket_wait(int sockfd)
-{
+void socket_wait(int sockfd) {
     struct pollfd fds[] = {
         { sockfd, POLLIN, 0 }
     };
@@ -97,14 +91,12 @@ void socket_wait(int sockfd)
     }
 }
 
-void socket_close(int sockfd)
-{
+void socket_close(int sockfd) {
     shutdown(sockfd, SHUT_RDWR);
     close(sockfd);
 }
 
-static void *socket_connection_handler(void *context)
-{
+static void *socket_connection_handler(void *context) {
     struct daemon *daemon = context;
 
     while (daemon->is_running) {
@@ -123,8 +115,7 @@ static void *socket_connection_handler(void *context)
     return NULL;
 }
 
-bool socket_daemon_begin_in(struct daemon *daemon, int port, socket_daemon_handler *handler)
-{
+bool socket_daemon_begin_in(struct daemon *daemon, int port, socket_daemon_handler *handler) {
     struct sockaddr_in socket_address;
     socket_address.sin_family = AF_INET;
     socket_address.sin_port = htons(port);
@@ -150,8 +141,7 @@ bool socket_daemon_begin_in(struct daemon *daemon, int port, socket_daemon_handl
     return true;
 }
 
-bool socket_daemon_begin_un(struct daemon *daemon, char *socket_path, socket_daemon_handler *handler)
-{
+bool socket_daemon_begin_un(struct daemon *daemon, char *socket_path, socket_daemon_handler *handler) {
     struct sockaddr_un socket_address;
     socket_address.sun_family = AF_UNIX;
     snprintf(socket_address.sun_path, sizeof(socket_address.sun_path), "%s", socket_path);
@@ -180,8 +170,7 @@ bool socket_daemon_begin_un(struct daemon *daemon, char *socket_path, socket_dae
     return true;
 }
 
-void socket_daemon_end(struct daemon *daemon)
-{
+void socket_daemon_end(struct daemon *daemon) {
     daemon->is_running = false;
     pthread_join(daemon->thread, NULL);
     socket_close(daemon->sockfd);
