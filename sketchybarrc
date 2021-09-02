@@ -1,8 +1,6 @@
-# TODO: Cache scripts from files to reduce IO operations
-# TODO: Create a enable disable command to hide items and unsubscribe them from updates
 # TODO: Implement the plugin system for easier setup of preconfigured items
 
-############## BAR ##################
+############## BAR CONFIGURATION ##################
 sketchybar -m config height               25
 sketchybar -m config position             top
 sketchybar -m config padding_left         10
@@ -12,7 +10,7 @@ sketchybar -m config bar_color            0x44000000 #0xaf202020
 ############## SCRIPT CACHING ############
 sketchybar -m default cache_scripts on
 
-############## SPACES ###############
+############# SETTING DEFAULT VALUES #######
 sketchybar -m default icon_font "Hack Nerd Font:Bold:17.0"
 sketchybar -m default icon_color 0xffffffff
 sketchybar -m default label_font "Hack Nerd Font:Bold:14.0"
@@ -20,6 +18,7 @@ sketchybar -m default label_color 0xffffffff
 sketchybar -m default label_padding_left 4
 sketchybar -m default icon_padding_left 16
 
+############## CREATING SPACES ###############
 sketchybar -m add component space code left
 sketchybar -m set code associated_display 1
 sketchybar -m set code associated_space 1
@@ -61,7 +60,7 @@ sketchybar -m set zoom associated_space 5
 sketchybar -m set zoom icon V
 sketchybar -m set zoom icon_padding_left 0
 
-################## LEFT ITEMS ##################
+################## CREATING LEFT ITEMS ##################
 sketchybar -m default label_padding_left 0
 sketchybar -m default icon_padding_left 0
 
@@ -88,12 +87,13 @@ sketchybar -m set topmem script "~/.config/sketchybar/plugins/topmem.sh"
 sketchybar -m set topmem update_freq 15
 
 
-################# RIGHT ITEMS ####################
+################# CREATING RIGHT ITEMS ####################
 sketchybar -m add item clock right
 sketchybar -m set clock update_freq 10
 sketchybar -m set clock script "~/.config/sketchybar/plugins/clock.sh"
 sketchybar -m set clock label_padding_left 15
 
+# Switching up the defaults for further items
 sketchybar -m default label_padding_left 4
 sketchybar -m default icon_padding_left 15
 
@@ -115,10 +115,12 @@ sketchybar -m set githubIndicator update_freq 1000
 sketchybar -m set githubIndicator icon_font "Hack Nerd Font:Bold:18.0"
 sketchybar -m set githubIndicator icon 
 sketchybar -m set githubIndicator click_script "open https://github.com"
+# Subscribing to system events for refresh
 sketchybar -m subscribe githubIndicator system_woke
 
 sketchybar -m default icon_padding_left 4
 
+########### CREATING GRAPHS ###################
 sketchybar -m add component graph cpu_user right 200 nospace
 sketchybar -m set cpu_user script "~/.config/sketchybar/plugins/cpu_graph.sh"
 sketchybar -m set cpu_user graph_color 0xffffffff
@@ -132,13 +134,6 @@ sketchybar -m set cpu_sys graph_color 0xff48aa2a
 sketchybar -m set cpu_sys label_padding_left 0
 sketchybar -m set cpu_sys associated_space 1
 sketchybar -m set cpu_sys icon 
-
-sketchybar -m add item topproc right
-sketchybar -m set topproc associated_space 1
-sketchybar -m set topproc icon_padding_left 10
-sketchybar -m set topproc label_padding_right 5
-sketchybar -m set topproc script "~/.config/sketchybar/plugins/topproc.sh"
-sketchybar -m set topproc update_freq 15
 
 sketchybar -m add component graph network_down right 200 nospace
 sketchybar -m set network_down associated_space 3
@@ -154,11 +149,18 @@ sketchybar -m set network_up label_padding_left 0
 sketchybar -m set network_up associated_space 3
 sketchybar -m set network_up graph_color 0xff48aa2a
 
+sketchybar -m add item topproc right
+sketchybar -m set topproc associated_space 1
+sketchybar -m set topproc icon_padding_left 10
+sketchybar -m set topproc label_padding_right 5
+sketchybar -m set topproc script "~/.config/sketchybar/plugins/topproc.sh"
+sketchybar -m set topproc update_freq 15
 
 ###################### CENTER ITEMS ###################
 sketchybar -m default label_padding_right 15
 sketchybar -m default icon_padding_right 4
 
+# Adding custom events which can listen on distributed notifications from other running processes
 sketchybar -m add event spotify_change "com.spotify.client.PlaybackStateChanged"
 
 sketchybar -m add item spotifyIndicator center
@@ -166,6 +168,7 @@ sketchybar -m set spotifyIndicator script "~/.config/sketchybar/plugins/spotifyI
 sketchybar -m set spotifyIndicator click_script "osascript -e 'tell application \"Spotify\" to pause'"
 sketchybar -m subscribe spotifyIndicator spotify_change
 
+#################### RUN ALL SCRIPTS AND REDRAW ###############
 sketchybar -m update
 
 echo "sketchybar configuration loaded.."

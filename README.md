@@ -92,6 +92,7 @@ If you want to use your own plugins, make sure that they are referenced in the r
 ```bash
 chmod +x name/of/plugin.sh
 ```
+Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) about plugins and share your own if you want to.
 You should of course vet the code from all plugins before granting them the executable bit to make sure they are not harming your computer.
 
 If you have problems with missing fonts you might need to install the Hack Nerd Font:
@@ -141,7 +142,7 @@ sketchybar -m add component <type> <name> <position>
 ```
 Components are essentially items, but with special properties. 
 Currently there are the component *types*: 
-* ~~*title*: Showing the current window title,~~ (DEPRECATED, see https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932)
+* ~~*title*: Showing the current window title,~~ (DEPRECATED, see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932))
 * *graph*: showing a graph,
 * *space*: representing a mission control space
 
