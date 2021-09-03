@@ -143,18 +143,18 @@ void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
 
 void bar_manager_begin(struct bar_manager *bar_manager) {
   if (strcmp(bar_manager->display, BAR_DISPLAY_MAIN_ONLY) == 0) {
-    uint32_t did = display_manager_main_display_id();
+    uint32_t did = display_main_display_id();
     bar_manager->bar_count = 1;
     bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
     memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
   } 
   else if (strcmp(bar_manager->display, BAR_DISPLAY_ALL) == 0) {
-    bar_manager->bar_count = display_manager_active_display_count();
+    bar_manager->bar_count = display_active_display_count();
     bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
     memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
-      uint32_t did = display_manager_arrangement_display_id(index);
+      uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
     }
   }

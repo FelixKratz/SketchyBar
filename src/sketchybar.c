@@ -23,7 +23,6 @@ typedef CONNECTION_CALLBACK(connection_callback);
 
 struct event_loop g_event_loop;
 void *g_workspace_context;
-struct display_manager g_display_manager;
 struct daemon g_daemon;
 struct bar_manager g_bar_manager;
 int g_connection;
@@ -234,7 +233,7 @@ int main(int argc, char **argv) {
 
     event_loop_begin(&g_event_loop);
     mouse_begin();
-    display_manager_begin(&g_display_manager);
+    display_begin();
     workspace_event_handler_begin(&g_workspace_context);
     bar_manager_begin(&g_bar_manager);
 

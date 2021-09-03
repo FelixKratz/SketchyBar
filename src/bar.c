@@ -241,8 +241,8 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 
   if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
     origin.y = CGRectGetMaxY(bounds) - g_bar_manager.height - 2*g_bar_manager.y_offset;
-  } else if (display_manager_menu_bar_visible()) {
-    CGRect menu = display_manager_menu_bar_rect(bar->did);
+  } else if (display_menu_bar_visible()) {
+    CGRect menu = display_menu_bar_rect(bar->did);
     origin.y   += menu.size.height;
   }
 
