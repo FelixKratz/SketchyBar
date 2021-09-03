@@ -27,9 +27,6 @@
 #include "misc/log.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"
-#define HASHTABLE_IMPLEMENTATION
-#include "misc/hashtable.h"
-#undef HASHTABLE_IMPLEMENTATION
 #include "misc/socket.h"
 #include "misc/socket.c"
 
