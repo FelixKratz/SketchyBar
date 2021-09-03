@@ -28,6 +28,13 @@ int bar_manager_get_item_index_by_address(struct bar_manager* bar_manager, struc
   return -1;
 }
 
+void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
+  bar_manager->blur_radius = radius;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    SLSSetWindowBackgroundBlurRadius(g_connection, bar_manager->bars[i]->id, radius);
+  }
+}
+
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color) {
   bar_manager->background_color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager);
@@ -106,6 +113,7 @@ void bar_manager_init(struct bar_manager *bar_manager) {
   bar_manager->height = 25;
   bar_manager->y_offset = 0;
   bar_manager->corner_radius = 0;
+  bar_manager->blur_radius = 0;
   bar_manager->margin = 0;
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;

@@ -70,6 +70,7 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_YOFFSET                          "y_offset"
 #define COMMAND_CONFIG_BAR_MARGIN                           "margin"
 #define COMMAND_CONFIG_BAR_CORNER_RADIUS                    "corner_radius"
+#define COMMAND_CONFIG_BAR_BLUR_RADIUS                      "blur_radius"
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
@@ -442,6 +443,9 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
   } else if (token_equals(command, COMMAND_CONFIG_BAR_CORNER_RADIUS)) {
     struct token token = get_token(&message);
     g_bar_manager.corner_radius = token_to_uint32t(token);
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_BLUR_RADIUS)) {
+    struct token token = get_token(&message);
+    bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_LEFT)) {
     struct token token = get_token(&message);
     bar_manager_set_padding_left(&g_bar_manager, atoi(token_to_string(token)));

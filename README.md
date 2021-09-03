@@ -13,6 +13,7 @@ Features:
 * Create custom events and trigger them externaly
 * "click" events for the widgets, where a script can be specified to run on a mouse click
 * Cache the scripts in RAM to reduce I/O operations
+* Offset the bar from its original location, rounded corners and background blur
 * Performance friendly
 
 
@@ -124,6 +125,7 @@ where the settings currently are:
 * *margin*: the screen padding around the bar itself
 * *y_offset*: the y-offset in pixels from the default position
 * *corner_radius*: the corner radius of the bar itself
+* *blur_radius*: the blur radius to be applied to the background of the bar itself
 * *padding_left*: padding on the left before first item 
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself

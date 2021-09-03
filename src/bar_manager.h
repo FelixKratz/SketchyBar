@@ -21,6 +21,7 @@ struct bar_manager {
   uint32_t height;
   uint32_t margin;
   uint32_t corner_radius;
+  uint32_t blur_radius;
   uint32_t y_offset;
   uint32_t padding_left;
   uint32_t padding_right;
@@ -38,6 +39,7 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, char* cont
 
 void bar_manager_script_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did, uint32_t sid);
+void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius);
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value);
