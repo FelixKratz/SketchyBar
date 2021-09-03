@@ -19,7 +19,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
   bar_item->script = "";
-  bar_item->on_click_script = "";
+  bar_item->click_script = "";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
@@ -101,12 +101,12 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
-  if (script != bar_item->on_click_script && !bar_item->on_click_script)
-    free(bar_item->on_click_script);
+  if (script != bar_item->click_script && !bar_item->click_script)
+    free(bar_item->click_script);
   if (bar_item->cache_scripts && file_exists(resolve_path(script)))
-    bar_item->on_click_script = read_file(resolve_path(script));
+    bar_item->click_script = read_file(resolve_path(script));
   else 
-    bar_item->on_click_script = script;
+    bar_item->click_script = script;
 }
 
 void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color) {
@@ -158,8 +158,8 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
 void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
   if (!bar_item->scripting) return;
-  if (bar_item && strlen(bar_item->on_click_script) > 0)
-    fork_exec(bar_item->on_click_script, NULL);
+  if (bar_item && strlen(bar_item->click_script) > 0)
+    fork_exec(bar_item->click_script, NULL);
 }
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
@@ -192,7 +192,7 @@ void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t si
 void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script && !bar_item->cache_scripts) free(bar_item->script);
-  if (bar_item->on_click_script && !bar_item->cache_scripts) free(bar_item->on_click_script);
+  if (bar_item->click_script && !bar_item->cache_scripts) free(bar_item->click_script);
   if (bar_item->icon) free(bar_item->icon);
   if (bar_item->icon_font_name) free(bar_item->icon_font_name);
   if (bar_item->label) free(bar_item->label);

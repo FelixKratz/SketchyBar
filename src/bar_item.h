@@ -27,7 +27,7 @@ struct bar_item {
   // Execute with exec_fork, callback from command via messages
   bool cache_scripts;
   char* script;
-  char* on_click_script;
+  char* click_script;
   
   // Name by which to refer to the bar_item in the configuration
   char* name;
