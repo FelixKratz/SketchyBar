@@ -63,6 +63,9 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name));
   bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name));
   bar_item_set_label(bar_item, string_copy(""));
+
+  strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
+  strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
@@ -71,8 +74,6 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
     bar_item->counter++;
     if (bar_item->update_frequency <= bar_item->counter || forced) {
       bar_item->counter = 0; 
-      strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
-      strncpy(&bar_item->signal_args.value[1][0], bar_item->selected ? "true" : "false", 255);
       fork_exec(bar_item->script, &bar_item->signal_args);
     }
   }
@@ -84,7 +85,6 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
     free(bar_item->name);
   }
   bar_item->name = name;
-  strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.value[0][0], name, 255);
 }
 

@@ -341,6 +341,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   }
   bar_item_set_name(bar_item, string_copy(token_to_string(name)));
+  bar_manager_update_components(&g_bar_manager);
   bar_manager_refresh(&g_bar_manager);
 }
 
@@ -420,10 +421,12 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     struct token value = get_token(&message);
     bar_item->label_highlight = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
     bar_item_set_label(bar_item, bar_item->label);
+    bar_manager_refresh(&g_bar_manager);
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
     struct token value = get_token(&message);
     bar_item->icon_highlight = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
     bar_item_set_icon(bar_item, bar_item->icon);
+    bar_manager_refresh(&g_bar_manager);
   } 
   // DEPRECATED
   else if (token_equals(property, COMMAND_SET_ENABLED)) {

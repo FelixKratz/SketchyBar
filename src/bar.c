@@ -1,4 +1,5 @@
 #include "bar.h"
+#include "bar_item.h"
 
 extern struct bar_manager g_bar_manager;
 
@@ -158,8 +159,16 @@ void bar_refresh_components(struct bar *bar) {
   if (sid == 0) return;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-    if(strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0 && (bar_item->associated_space & (1 << sid)) && (1 << did) & bar_item->associated_display) bar_item->selected = true;
-    else bar_item->selected = false;
+    if (((1 << did) & bar_item->associated_display) && strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0) {
+      if (!bar_item->selected && bar_item->associated_space & (1 << sid)) {
+        bar_item->selected = true;
+        strncpy(&bar_item->signal_args.value[1][0], "true", 255);
+      }
+      else if (bar_item->selected && !(bar_item->associated_space & (1 << sid))) {
+        bar_item->selected = false;
+        strncpy(&bar_item->signal_args.value[1][0], "false", 255);
+      }
+    } 
   }
 }
 
@@ -184,13 +193,10 @@ void bar_refresh(struct bar *bar) {
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-    if (!bar_item->drawing) continue;
     bar_item->is_shown = false;
-
+    if (!bar_item->drawing) continue;
     if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
-    if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
-    if(strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0 && (bar_item->associated_space & (1 << sid))) bar_item->selected = true;
-    else bar_item->selected = false;
+    if(bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0)) continue;
 
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
