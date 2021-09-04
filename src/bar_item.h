@@ -28,6 +28,7 @@ struct bar_item {
   bool cache_scripts;
   char* script;
   char* click_script;
+  struct signal_args signal_args;
   
   // Name by which to refer to the bar_item in the configuration
   char* name;

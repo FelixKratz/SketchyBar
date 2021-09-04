@@ -65,7 +65,7 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
     bar_item->counter++;
     if (bar_item->update_frequency <= bar_item->counter || forced) {
       bar_item->counter = 0; 
-      fork_exec(bar_item->script, NULL);
+      fork_exec(bar_item->script, &bar_item->signal_args);
     }
   }
 }
@@ -87,6 +87,8 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
     free(bar_item->name);
   }
   bar_item->name = name;
+  strncpy(bar_item->signal_args.name[0], "NAME", 255);
+  strncpy(bar_item->signal_args.value[0], name, 255);
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {

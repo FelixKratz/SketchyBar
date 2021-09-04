@@ -5,11 +5,11 @@ COUNT=$(curl https://github.com/users/FelixKratz/contributions | grep $(date '+%
 
 echo $COUNT
 if [ $COUNT -gt 0 ]; then
-  sketchybar -m set githubIndicator icon_color 0xff48aa2a
-  sketchybar -m set githubIndicator label_padding_left 4
-  sketchybar -m set githubIndicator label $COUNT
+  sketchybar -m set $NAME icon_color 0xff48aa2a
+  sketchybar -m set $NAME label_padding_left 4
+  sketchybar -m set $NAME label $COUNT
 else
-  sketchybar -m set githubIndicator icon_color 0xaaffffff
-  sketchybar -m set githubIndicator label_padding_left 0
-  sketchybar -m set githubIndicator label ""
+  sketchybar -m set $NAME icon_color 0xaaffffff
+  sketchybar -m set $NAME label_padding_left 0
+  sketchybar -m set $NAME label ""
 fi

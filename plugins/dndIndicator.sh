@@ -16,7 +16,7 @@ dnd_enabled=$(
 )
 
 if [ $dnd_enabled -eq 1 ]; then
-    sketchybar -m set dndIndicator icon 
+    sketchybar -m set $NAME icon 
 else
-    sketchybar -m set dndIndicator icon ""
+    sketchybar -m set $NAME icon ""
 fi
