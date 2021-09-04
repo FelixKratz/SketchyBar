@@ -152,6 +152,17 @@ bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, boo
   return false;
 }
 
+void bar_refresh_components(struct bar *bar) {
+  uint32_t did = display_arrangement(bar->did);
+  uint32_t sid = mission_control_index(display_space_id(bar->did));
+  if (sid == 0) return;
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    if(strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0 && (bar_item->associated_space & (1 << sid)) && (1 << did) & bar_item->associated_display) bar_item->selected = true;
+    else bar_item->selected = false;
+  }
+}
+
 void bar_refresh(struct bar *bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
@@ -166,7 +177,6 @@ void bar_refresh(struct bar *bar) {
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
   if (sid == 0) return;
-  bar_manager_update_components(&g_bar_manager, did, sid);
 
   int bar_left_final_item_x = g_bar_manager.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
@@ -179,6 +189,8 @@ void bar_refresh(struct bar *bar) {
 
     if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
     if((strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0) && bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid))) continue;
+    if(strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0 && (bar_item->associated_space & (1 << sid))) bar_item->selected = true;
+    else bar_item->selected = false;
 
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;

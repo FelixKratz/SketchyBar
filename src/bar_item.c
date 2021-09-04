@@ -12,6 +12,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->scripting = true;
   bar_item->is_shown = false;
   bar_item->nospace = false;
+  bar_item->selected = false;
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
@@ -25,15 +26,18 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_space = 0;
   bar_item->icon_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
+  bar_item->icon_highlight = false;
   bar_item->icon = "";
   bar_item->icon_spacing_left = 0;
   bar_item->icon_spacing_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
   bar_item->icon_highlight_color = rgba_color_from_hex(0xffffffff);
+  bar_item->label_highlight = false;
   bar_item->label = "";
   bar_item->label_spacing_left = 0;
   bar_item->label_spacing_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
+  bar_item->label_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
   bar_item->num_rects = 0;
   bar_item->bounding_rects = NULL;
@@ -51,9 +55,11 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
     bar_item->label_spacing_right = default_item->label_spacing_right;
     bar_item->update_frequency = default_item->update_frequency;
     bar_item->cache_scripts = default_item->cache_scripts;
+    bar_item->icon_highlight_color = default_item->icon_highlight_color;
+    bar_item->label_highlight_color = default_item->label_highlight_color;
   }
 
-  bar_item_set_icon(bar_item, string_copy(""), bar_item->icon_color);
+  bar_item_set_icon(bar_item, string_copy(""));
   bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name));
   bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name));
   bar_item_set_label(bar_item, string_copy(""));
@@ -61,22 +67,13 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
   if (!bar_item->scripting || (bar_item->update_frequency == 0 && !forced)) return;
-  if (strcmp(bar_item->script, "") != 0) {
+  if (strlen(bar_item->script) > 0) {
     bar_item->counter++;
     if (bar_item->update_frequency <= bar_item->counter || forced) {
       bar_item->counter = 0; 
+      strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
+      strncpy(&bar_item->signal_args.value[1][0], bar_item->selected ? "true" : "false", 255);
       fork_exec(bar_item->script, &bar_item->signal_args);
-    }
-  }
-}
-
-void bar_item_update_component(struct bar_item* bar_item, uint32_t did, uint32_t sid) {
-  if (bar_item->type == BAR_COMPONENT) {
-    if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
-      if ((1 << sid) & bar_item->associated_space && (1 << did) & bar_item->associated_display)
-        bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_highlight_color);
-      else 
-        bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_color);
     }
   }
 }
@@ -87,8 +84,8 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
     free(bar_item->name);
   }
   bar_item->name = name;
-  strncpy(bar_item->signal_args.name[0], "NAME", 255);
-  strncpy(bar_item->signal_args.value[0], name, 255);
+  strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
+  strncpy(&bar_item->signal_args.value[0][0], name, 255);
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
@@ -111,18 +108,18 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
     bar_item->click_script = script;
 }
 
-void bar_item_set_icon(struct bar_item* bar_item, char* icon, struct rgba_color color) {
+void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
   if (bar_item->icon_line.line)
     bar_destroy_line(bar_item->icon_line);
   if (icon != bar_item->icon && !bar_item->icon)
     free(bar_item->icon);
   bar_item->icon = icon;
-  bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, color);
+  bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color);
 }
 
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->icon_color = rgba_color_from_hex(color);
-  bar_item_set_icon(bar_item, bar_item->icon, bar_item->icon_color);
+  bar_item_set_icon(bar_item, bar_item->icon);
 }
 
 void bar_item_set_label(struct bar_item* bar_item, char* label) {
@@ -132,7 +129,7 @@ void bar_item_set_label(struct bar_item* bar_item, char* label) {
   if (label != bar_item->label && !bar_item->label)
     free(bar_item->label);
   bar_item->label = label;
-  bar_item->label_line = bar_prepare_line(bar_item->label_font, bar_item->label, bar_item->label_color);
+  bar_item->label_line = bar_prepare_line(bar_item->label_font, bar_item->label, bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color);
 } 
 
 void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
@@ -161,7 +158,7 @@ void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
   if (!bar_item->scripting) return;
   if (bar_item && strlen(bar_item->click_script) > 0)
-    fork_exec(bar_item->click_script, NULL);
+    fork_exec(bar_item->click_script, &bar_item->signal_args);
 }
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {

@@ -160,8 +160,10 @@ A list of properties is listed below:
 * *label*: the label of the item
 * *label_font*: the font for the label
 * *label_color*: the color of the label
+* *label_highlight_color*: the highlight color of the label (e.g. for active space icon)
 * *label_padding_left*: left padding of label (default: 0)
 * *label_padding_right*: right padding of label (default: 0)
+* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, default: *off*)
  
 * *icon*: the icon of the item
 * *icon_font*: the font for the icon
@@ -169,6 +171,7 @@ A list of properties is listed below:
 * *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
 * *icon_padding_left*: left padding of icon (default: 0)
 * *icon_padding_right*: right padding of icon (default: 0)
+* *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, default: *off*)
  
 * *graph_color*: color of the associated graph
  
@@ -186,11 +189,13 @@ sketchybar -m default <property> <value>
 this currently works for the properties:
 * *label_font*
 * *label_color*
+* *label_highlight_color*
 * *label_padding_left*
 * *label_padding_right*
 
 * *icon_font*
 * *icon_color*
+* *icon_highlight_color*
 * *icon_padding_left*
 * *icon_padding_right*
 * *update_freq*
@@ -255,6 +260,28 @@ This stops the redrawing of the bar entirely and "freezes" it. Can be used durin
 create a cleaner startup by freezing the bar at the beginning of the configuration and unfreezing it after the
 setup is done.
 
+## Scripting
+The bar supports scripts where ever possible to make it as customizable and versatile as possible.
+When an item invokes a script, the script has access to some environment variables, such as:
+```bash
+$NAME 
+```
+Which is the name of the item that has invoked the script.
+The space component has an additional variable
+```bash
+$SELECTED
+```
+which has the value *true* if the associated space is selected and *false* if the selected space is not selected.
+By default the space component invokes the script:
+```bash
+if [ "$SELECTED" = "true" ]; then 
+  sketchybar -m set $NAME icon_highlight on 
+else 
+  sketchybar -m set $NAME icon_highlight off 
+fi
+```
+which you can freely configure to your liking by supplying a different script to the space component.
+I plan on increasing the available environment variables in scripting step by step but if you have a suggestion let me know in the issues.
 
 ## Credits
 yabai,

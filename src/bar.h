@@ -47,6 +47,7 @@ struct bar {
     CGPoint origin;
 };
 
+void bar_refresh_components(struct bar *bar);
 void bar_refresh(struct bar *bar);
 void bar_resize(struct bar *bar);
 struct bar *bar_create(uint32_t did);

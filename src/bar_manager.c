@@ -128,10 +128,9 @@ void bar_manager_init(struct bar_manager *bar_manager) {
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
 
-void bar_manager_update_components(struct bar_manager* bar_manager, uint32_t did, uint32_t sid) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    struct bar_item* bar_item = bar_manager->bar_items[i];
-    bar_item_update_component(bar_item, did, sid);
+void bar_manager_update_components(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    bar_refresh_components(bar_manager->bars[i]);
   }
 }
 
@@ -190,6 +189,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
+  bar_manager_update_components(bar_manager);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
 }
 

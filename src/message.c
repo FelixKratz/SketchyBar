@@ -46,10 +46,13 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON_FONT                               "icon_font"
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
 #define COMMAND_SET_ICON_HIGHLIGHT_COLOR                    "icon_highlight_color"
+#define COMMAND_SET_ICON_HIGHLIGHT                          "icon_highlight"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
+#define COMMAND_SET_LABEL_HIGHLIGHT_COLOR                   "label_highlight_color"
+#define COMMAND_SET_LABEL_HIGHLIGHT                         "label_highlight"
 #define COMMAND_SET_CACHE_SCRIPTS                           "cache_scripts"
 
 #define DOMAIN_SUBSCRIBE                                    "subscribe"
@@ -230,6 +233,12 @@ static void handle_domain_default(FILE* rsp, struct token domain, char* message)
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     struct token value = get_token(&message);
     bar_item->label_spacing_right = token_to_uint32t(value);
+  } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item->label_highlight_color = rgba_color_from_hex(token_to_uint32t(value));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
     struct token value = get_token(&message);
     bar_item->cache_scripts = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
@@ -293,7 +302,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item->identifier = token_to_string(name);
   } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
     struct token identifier = get_token(&message);
-    if (token_equals(identifier, "title")) printf("Title component deprecated please use windowTitle.sh script");
     name = get_token(&message);
     position = get_token(&message);
 
@@ -309,6 +317,10 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
         }
       }
       bar_item->has_graph = true;
+    }
+    else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
+      bar_item->script = "if [ \"$SELECTED\" = \"true\" ]; then sketchybar -m set $NAME icon_highlight on; else sketchybar -m set $NAME icon_highlight off; fi";
+      bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
     struct token identifier = get_token(&message);
@@ -329,7 +341,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   }
   bar_item_set_name(bar_item, string_copy(token_to_string(name)));
-
   bar_manager_refresh(&g_bar_manager);
 }
 
@@ -346,7 +357,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
   if (token_equals(property, COMMAND_SET_ICON)) {
-    bar_item_set_icon(bar_item, string_copy(message), bar_item->icon_color);
+    bar_item_set_icon(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     bar_item_set_icon_font(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_LABEL)) {
@@ -372,6 +383,9 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
     struct token value = get_token(&message);
     bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(value));
+  } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT_COLOR)) {
+    struct token value = get_token(&message);
+    bar_item->label_highlight_color = rgba_color_from_hex(token_to_uint32t(value));
   } else if (token_equals(property, COMMAND_SET_POSITION)) {
     struct token value = get_token(&message);
     bar_item->position = token_to_string(value)[0];
@@ -402,6 +416,14 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(property, COMMAND_SET_DRAWING)) {
     struct token value = get_token(&message);
     bar_item->drawing = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
+  } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->label_highlight = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item_set_label(bar_item, bar_item->label);
+  } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
+    struct token value = get_token(&message);
+    bar_item->icon_highlight = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item_set_icon(bar_item, bar_item->icon);
   } 
   // DEPRECATED
   else if (token_equals(property, COMMAND_SET_ENABLED)) {
