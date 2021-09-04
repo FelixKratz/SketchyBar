@@ -195,7 +195,6 @@ void bar_refresh(struct bar *bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
     if(bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0)) continue;
-    bar_item->is_shown = false;
     if (!bar_item->drawing) continue;
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;

@@ -76,8 +76,15 @@ void bar_manager_set_display(struct bar_manager *bar_manager, char *display) {
   bar_manager_begin(bar_manager);
 }
 
+void bar_manager_clear_shown(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    bar_manager->bar_items[i]->is_shown = false;
+  }
+}
+
 void bar_manager_refresh(struct bar_manager *bar_manager) {
   if (bar_manager->frozen) return;
+  bar_manager_clear_shown(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_refresh(bar_manager->bars[i]);
 }
