@@ -63,7 +63,7 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
   if (!bar_item->scripting || (bar_item->update_frequency == 0 && !forced)) return;
   if (strcmp(bar_item->script, "") != 0) {
     bar_item->counter++;
-    if (bar_item->update_frequency < bar_item->counter || forced) { 
+    if (bar_item->update_frequency <= bar_item->counter || forced) {
       bar_item->counter = 0; 
       fork_exec(bar_item->script, NULL);
     }
