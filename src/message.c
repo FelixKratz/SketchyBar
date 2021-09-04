@@ -319,7 +319,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       bar_item->has_graph = true;
     }
     else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
-      bar_item->script = "if [ \"$SELECTED\" = \"true\" ]; then sketchybar -m set $NAME icon_highlight on; else sketchybar -m set $NAME icon_highlight off; fi";
+      bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then sketchybar -m set $NAME icon_highlight on; else sketchybar -m set $NAME icon_highlight off; fi"));
       bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
