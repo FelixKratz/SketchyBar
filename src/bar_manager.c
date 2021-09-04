@@ -135,9 +135,11 @@ void bar_manager_update_components(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
+  bar_manager->frozen = true;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     bar_item_script_update(bar_manager->bar_items[i], forced);
   }
+  bar_manager->frozen = false;
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager) {
