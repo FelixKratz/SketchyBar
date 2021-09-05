@@ -52,14 +52,14 @@ static CGPoint bar_align_line(struct bar *bar, struct bar_line line, int align_x
   return (CGPoint) { x, y };
 }
 
-static void bar_draw_line(struct bar *bar, struct bar_line line, float x, float y) {
-  CGContextSetRGBFillColor(bar->context, line.color.r, line.color.g, line.color.b, line.color.a);
+static void bar_draw_line(struct bar *bar, struct bar_line* line, float x, float y) {
+  CGContextSetRGBFillColor(bar->context, line->color.r, line->color.g, line->color.b, line->color.a);
   CGContextSetTextPosition(bar->context, x, y);
-  CTLineDraw(line.line, bar->context);
+  CTLineDraw(line->line, bar->context);
 }
 
-static void bar_destroy_line(struct bar_line line) {
-  CFRelease(line.line);
+static void bar_destroy_line(struct bar_line* line) {
+  CFRelease(line->line);
 }
 
 static struct bar_line bar_prepare_line(CTFontRef font, char *cstring, struct rgba_color color) {
@@ -234,8 +234,8 @@ void bar_refresh(struct bar *bar) {
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
     }
-    bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-    bar_draw_line(bar, *label, label_position.x, label_position.y);
+    bar_draw_line(bar, icon, icon_position.x, icon_position.y);
+    bar_draw_line(bar, label, label_position.x, label_position.y);
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item->is_shown = true;

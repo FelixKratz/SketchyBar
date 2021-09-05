@@ -110,7 +110,7 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
 
 void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
   if (bar_item->icon_line.line)
-    bar_destroy_line(bar_item->icon_line);
+    bar_destroy_line(&bar_item->icon_line);
   if (icon != bar_item->icon && !bar_item->icon)
     free(bar_item->icon);
   bar_item->icon = icon;
@@ -125,7 +125,7 @@ void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
 void bar_item_set_label(struct bar_item* bar_item, char* label) {
   if (!label) return;
   if (bar_item->label_line.line)
-    bar_destroy_line(bar_item->label_line);
+    bar_destroy_line(&bar_item->label_line);
   if (label != bar_item->label && !bar_item->label)
     free(bar_item->label);
   bar_item->label = label;
