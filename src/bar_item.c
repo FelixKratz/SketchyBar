@@ -115,12 +115,16 @@ void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
   if (icon != bar_item->icon && !bar_item->icon)
     free(bar_item->icon);
   bar_item->icon = icon;
-  bar_item->icon_line = bar_prepare_line(bar_item->icon_font, bar_item->icon, bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color);
+  bar_prepare_line(&bar_item->icon_line, bar_item->icon_font, bar_item->icon, bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color);
+}
+
+void bar_item_update_icon_color(struct bar_item *bar_item) {
+  bar_item->icon_line.color = bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color;
 }
 
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->icon_color = rgba_color_from_hex(color);
-  bar_item_set_icon(bar_item, bar_item->icon);
+  bar_item->icon_line.color = rgba_color_from_hex(color);
 }
 
 void bar_item_set_label(struct bar_item* bar_item, char* label) {
@@ -130,13 +134,19 @@ void bar_item_set_label(struct bar_item* bar_item, char* label) {
   if (label != bar_item->label && !bar_item->label)
     free(bar_item->label);
   bar_item->label = label;
-  bar_item->label_line = bar_prepare_line(bar_item->label_font, bar_item->label, bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color);
+  bar_prepare_line(&bar_item->label_line, bar_item->label_font, bar_item->label, bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color);
 } 
+
 
 void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->label_color = rgba_color_from_hex(color);
-  bar_item_set_label(bar_item, bar_item->label);
+  bar_item->label_line.color = rgba_color_from_hex(color);
 }
+
+void bar_item_update_label_color(struct bar_item *bar_item) {
+  bar_item->label_line.color = bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color;
+}
+
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
   if (!font_string) return;
   if (bar_item->icon_font)
