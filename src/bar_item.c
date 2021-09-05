@@ -40,6 +40,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->label_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
   bar_item->num_rects = 0;
+  bar_item->background_color = rgba_color_from_hex(0x44ff0000);
   bar_item->bounding_rects = NULL;
 
   if (default_item) {

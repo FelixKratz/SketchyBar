@@ -183,7 +183,7 @@ void bar_draw_background(struct bar* bar) {
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
   CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x, bar->frame.origin.y}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
   CGContextClearRect(bar->context, draw_region);
-  CGContextSetRGBFillColor(bar->context, bar_item->icon_color.r, bar_item->icon_color.g, bar_item->icon_color.b, bar_item->icon_color.a);
+  CGContextSetRGBFillColor(bar->context, bar_item->background_color.r, bar_item->background_color.g, bar_item->background_color.b, bar_item->background_color.a);
   
   CGMutablePathRef path = CGPathCreateMutable();
   CGPathAddRect(path, NULL, draw_region);
@@ -261,7 +261,7 @@ void bar_refresh(struct bar* bar) {
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
     
     // Actual drawing
-    //bar_draw_item_background(bar, bar_item, sid);
+    bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
     bar_draw_line(bar, *label, label_position.x, label_position.y);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
