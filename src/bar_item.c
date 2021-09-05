@@ -67,6 +67,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 
   strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
+  strncpy(&bar_item->signal_args.value[1][0], "false", 255);
 }
 
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {

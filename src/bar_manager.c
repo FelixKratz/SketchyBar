@@ -136,8 +136,26 @@ void bar_manager_init(struct bar_manager *bar_manager) {
 }
 
 void bar_manager_update_components(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_count; i++) {
-    bar_refresh_components(bar_manager->bars[i]);
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+    for (int j = 0; j < bar_manager->bar_count; j++) {
+      struct bar* bar = bar_manager->bars[j];
+      uint32_t did = display_arrangement(bar->did);
+      uint32_t sid = mission_control_index(display_space_id(bar->did));
+      if (sid == 0) continue;
+
+      if (((1 << did) & bar_item->associated_display) && strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0) {
+        if (!bar_item->selected && bar_item->associated_space & (1 << sid)) {
+          bar_item->selected = true;
+          strncpy(&bar_item->signal_args.value[1][0], "true", 255);
+        }
+        else if (bar_item->selected && !(bar_item->associated_space & (1 << sid))) {
+          bar_item->selected = false;
+          strncpy(&bar_item->signal_args.value[1][0], "false", 255);
+        }
+      } 
+    }
   }
 }
 

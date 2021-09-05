@@ -419,6 +419,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     bar_item->drawing = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {
     struct token value = get_token(&message);
+    printf("Name: %s, value %s \n", token_to_string(name), token_to_string(value));
     bar_item->label_highlight = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
     bar_item_update_label_color(bar_item);
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
