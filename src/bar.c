@@ -180,6 +180,18 @@ void bar_draw_background(struct bar* bar) {
   CFRelease(path);
 }
 
+void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
+  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x, bar->frame.origin.y}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
+  CGContextClearRect(bar->context, draw_region);
+  CGContextSetRGBFillColor(bar->context, bar_item->icon_color.r, bar_item->icon_color.g, bar_item->icon_color.b, bar_item->icon_color.a);
+  
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRect(path, NULL, draw_region);
+  CGContextAddPath(bar->context, path);
+  CGContextFillPath(bar->context);
+  CFRelease(path);
+}
+
 void bar_refresh(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
@@ -243,13 +255,16 @@ void bar_refresh(struct bar* bar) {
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
     }
-    bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
-    bar_draw_line(bar, *label, label_position.x, label_position.y);
-    bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
+    
+    // Actual drawing
+    //bar_draw_item_background(bar, bar_item, sid);
+    bar_draw_line(bar, *icon, icon_position.x, icon_position.y);
+    bar_draw_line(bar, *label, label_position.x, label_position.y);
+    bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
 
   CGContextFlush(bar->context);
