@@ -140,18 +140,22 @@ static inline bool ensure_executable_permission(char *filename) {
     return true;
 }
 
-static bool fork_exec(char *command, struct signal_args *args) {
-    int pid = fork();
-    if (pid == -1) return false;
-    if (pid !=  0) return true;
-
+static bool sync_exec(char *command, struct signal_args *args) {
     if (args) {
         if (*args->name[0]) setenv(args->name[0], args->value[0], 1);
         if (*args->name[1]) setenv(args->name[1], args->value[1], 1);
     }
 
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
-    exit(execvp(exec[0], exec));
+    return execvp(exec[0], exec);
+}
+
+static bool fork_exec(char *command, struct signal_args *args) {
+    int pid = fork();
+    if (pid == -1) return false;
+    if (pid !=  0) return true;
+
+   exit(sync_exec(command, args)); 
 }
 
 static inline int mission_control_index(uint64_t sid) {
