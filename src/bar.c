@@ -145,12 +145,9 @@ int bar_get_center_length(struct bar_manager* bar_manager) {
   return total_length;
 }
 
-bool bar_draw_graphs(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
-  if (bar_item->has_graph) {
-    bar_draw_graph_line(bar, &bar_item->graph_data, x, 0, right_to_left);
-    return true;
-  }
-  return false;
+void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
+  if (!bar_item->has_graph) return;
+  bar_draw_graph_line(bar, &bar_item->graph_data, x, 0, right_to_left);
 }
 
 void bar_refresh_components(struct bar *bar) {
@@ -172,9 +169,7 @@ void bar_refresh_components(struct bar *bar) {
   }
 }
 
-void bar_refresh(struct bar *bar) {
-  SLSDisableUpdate(g_connection);
-  SLSOrderWindow(g_connection, bar->id, -1, 0);
+void bar_draw_background(struct bar* bar) {
   CGContextClearRect(bar->context, bar->frame);
   CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
   
@@ -182,6 +177,26 @@ void bar_refresh(struct bar *bar) {
   CGPathAddRoundedRect(path, NULL, bar->frame, g_bar_manager.corner_radius, g_bar_manager.corner_radius);
   CGContextAddPath(bar->context, path);
   CGContextFillPath(bar->context);
+  CFRelease(path);
+}
+
+void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
+  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x, bar->frame.origin.y}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
+  CGContextClearRect(bar->context, draw_region);
+  CGContextSetRGBFillColor(bar->context, bar_item->background_color.r, bar_item->background_color.g, bar_item->background_color.b, bar_item->background_color.a);
+  
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRect(path, NULL, draw_region);
+  CGContextAddPath(bar->context, path);
+  CGContextFillPath(bar->context);
+  CFRelease(path);
+}
+
+void bar_refresh(struct bar* bar) {
+  SLSDisableUpdate(g_connection);
+  SLSOrderWindow(g_connection, bar->id, -1, 0);
+
+  bar_draw_background(bar);
   
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
@@ -200,6 +215,8 @@ void bar_refresh(struct bar *bar) {
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, *icon, ALIGN_CENTER, ALIGN_CENTER);
     CGPoint label_position = bar_align_line(bar, *label, ALIGN_CENTER, ALIGN_CENTER);
+    uint32_t graph_x = 0;
+    bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
@@ -207,7 +224,8 @@ void bar_refresh(struct bar *bar) {
       
       if (!bar_item->nospace) 
         bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
-      if (bar_draw_graphs(bar, bar_item, bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x, false)) {
+      if (bar_item->has_graph) {
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x;
         if (!bar_item->nospace) 
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
@@ -218,7 +236,9 @@ void bar_refresh(struct bar *bar) {
 
       if (!bar_item->nospace) 
         bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
-      if (bar_draw_graphs(bar, bar_item, bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left : bar_right_first_item_x, true)) {
+      if (bar_item->has_graph) {
+        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left : bar_right_first_item_x;
+        graph_rtl = true;
         if (!bar_item->nospace) 
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
       }
@@ -229,17 +249,22 @@ void bar_refresh(struct bar *bar) {
 
       if (!bar_item->nospace) 
         bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
-      if (bar_draw_graphs(bar, bar_item, bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_center_first_item_x, false)) {
+      if (bar_item->has_graph) {
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_center_first_item_x;
         if (!bar_item->nospace) 
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
     }
-    bar_draw_line(bar, icon, icon_position.x, icon_position.y);
-    bar_draw_line(bar, label, label_position.x, label_position.y);
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
+    
+    // Actual drawing
+    //bar_draw_item_background(bar, bar_item, sid);
+    bar_draw_line(bar, icon, icon_position.x, icon_position.y);
+    bar_draw_line(bar, label, label_position.x, label_position.y);
+    bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
 
   CGContextFlush(bar->context);

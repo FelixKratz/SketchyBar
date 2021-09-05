@@ -37,6 +37,9 @@ struct bar_item {
   // The position in the bar: l,r,c
   char position;
 
+  // Background
+  struct rgba_color background_color;
+
   // Icon properties
   bool icon_highlight;
   struct bar_line icon_line;
