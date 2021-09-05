@@ -73,36 +73,8 @@ static int client_send_message(int argc, char **argv) {
     }
 
     shutdown(sockfd, SHUT_WR);
-
-    int result = EXIT_SUCCESS;
-    int byte_count = 0;
-    char rsp[BUFSIZ];
-
-    struct pollfd fds[] = {
-        { sockfd, POLLIN, 0 }
-    };
-
-    while (poll(fds, 1, -1) > 0) {
-        if (fds[0].revents & POLLIN) {
-            if ((byte_count = recv(sockfd, rsp, sizeof(rsp)-1, 0)) <= 0) {
-                break;
-            }
-
-            rsp[byte_count] = '\0';
-
-            if (rsp[0] == FAILURE_MESSAGE[0]) {
-                result = EXIT_FAILURE;
-                fprintf(stderr, "%s", rsp + 1);
-                fflush(stderr);
-            } else {
-                fprintf(stdout, "%s", rsp);
-                fflush(stdout);
-            }
-        }
-    }
-
     socket_close(sockfd);
-    return result;
+    return EXIT_SUCCESS;
 }
 
 static void acquire_lockfile(void) {
