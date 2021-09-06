@@ -1,0 +1,215 @@
+############## BAR ############## 
+sketchybar -m batch --config height=25 \
+                             blur_radius=50 \
+                             position=top \
+                             padding_left=10 \
+                             padding_right=10 \
+                             bar_color=0x44000000
+
+############## GLOBAL DEFAULTS ############## 
+sketchybar -m batch --default scripting=on \
+                              drawing=on \
+                              cache_scripts=on \
+                              icon_font="Hack Nerd Font:Bold:17.0" \
+                              icon_color=0xffffffff \
+                              label_font="Hack Nerd Font:Bold:14.0" \
+                              label_color=0xffffffff
+
+############## SPACE DEFAULTS ############## 
+sketchybar -m batch --default label_padding_left=2 \
+                              label_padding_right=2 \
+                              icon_padding_left=8 \
+                              label_padding_right=8
+
+############## SPACES ############## 
+sketchybar -m add component space code left
+sketchybar -m batch --set code associated_space=1 \
+                               associated_display=1 \
+                               icon_font="Hack Nerd Font:Bold:20.0" \
+                               icon= \
+                               icon_highlight_color=0xff48aa2a \
+                               label_highlight_color=0xff48aa2a \
+                               label=code \
+                               click_script="yabai -m space --focus 1"
+
+sketchybar -m add component space writing left
+sketchybar -m batch --set writing associated_display=1 \
+                                  associated_space=2 \
+                                  icon_highlight_color=0xfffab402 \
+                                  label_highlight_color=0xfffab402 \
+                                  icon= \
+                                  label=tex \
+                                  click_script="yabai -m space --focus 2"
+
+sketchybar -m add component space reading left
+sketchybar -m batch --set reading associated_display=1 \
+                                  associated_space=3 \
+                                  icon_highlight_color=0xff7fe5f0 \
+                                  label_highlight_color=0xff7fe5f0 \
+                                  icon= \
+                                  label=web \
+                                  click_script="yabai -m space --focus 3"
+
+sketchybar -m add component space entertainment left
+sketchybar -m batch --set entertainment associated_display=1 \
+                                        associated_space=4 \
+                                        icon_font="Hack Nerd Font:Bold:19.0" \
+                                        icon_highlight_color=0xfffff68f \
+                                        label_highlight_color=0xfffff68f \
+                                        icon= \
+                                        label=idle \
+                                        click_script="yabai -m space --focus 4"
+
+sketchybar -m add component space misc left
+sketchybar -m batch --set misc associated_display=2 \
+                               associated_space=5 \
+                               icon_font="Hack Nerd Font:Bold:20.0" \
+                               icon= \
+                               icon_highlight_color=0xff48aa2a \
+                               label_highlight_color=0xff48aa2a \
+                               icon_padding_left=0 \
+                               label=misc \
+                               click_script="yabai -m space --focus 5"
+
+sketchybar -m add component space doc left
+sketchybar -m batch --set doc associated_display=2 \
+                              associated_space=6 \
+                              icon_highlight_color=0xfffab402 \
+                              label_highlight_color=0xfffab402 \
+                              icon= \
+                              label=doc \
+                              click_script="yabai -m space --focus 6"
+
+sketchybar -m add component space help left
+sketchybar -m batch --set help associated_display=2 \
+                               associated_space=7 \
+                               icon_highlight_color=0xff7fe5f0 \
+                               label_highlight_color=0xff7fe5f0 \
+                               icon= \
+                               label=help \
+                               click_script="yabai -m space --focus 7"
+
+sketchybar -m add component space relax left
+sketchybar -m batch --set relax associated_display=2 \
+                                associated_space=8 \
+                                icon_font="Hack Nerd Font:Bold:19.0" \
+                                icon_highlight_color=0xfffff68f \
+                                label_highlight_color=0xfffff68f \
+                                icon= \
+                                label=relax \
+                                click_script="yabai -m space --focus 8"
+
+############## ITEM DEFAULTS ###############
+sketchybar -m batch --default label_padding_left=2 \
+                              icon_padding_right=2 \
+                              icon_padding_left=6 \
+                              label_padding_right=6 \
+                              label_padding_left=0
+
+
+############## LEFT ITEMS ############## 
+sketchybar -m add item space_separator left
+sketchybar -m batch --set space_separator icon= \
+                                          associated_space=1 \
+                                          associated_space=3 \
+                                          icon_padding_left=15 \
+                                          label_padding_right=15 \
+                                          icon_font="Hack Nerd Font:Bold:15.0"
+
+sketchybar -m add item gitNotifications left
+sketchybar -m batch --set gitNotifications associated_space=1 \
+                                           update_freq=100 \
+                                           icon_font="Hack Nerd Font:Bold:18.0" \
+                                           icon= \
+                                           script="~/.config/sketchybar/plugins/gitNotifications" \
+                                           click_script="open https://github.com/notifications"
+sketchybar -m subscribe gitNotifications system_woke
+
+sketchybar -m add item githubIndicator left
+sketchybar -m batch --set githubIndicator associated_space=1 \
+                                          update_freq=1000 \
+                                          icon_font="Hack Nerd Font:Bold:18.0" \
+                                          icon= \
+                                          click_script="open https://github.com" \
+                                          script="~/.config/sketchybar/plugins/githubIndicator.sh"
+sketchybar -m subscribe githubIndicator system_woke
+
+sketchybar -m add item topmem left
+sketchybar -m batch --set topmem associated_space=1 \
+                                 icon_padding_left=10 \
+                                 update_freq=15 \
+                                 script="~/.config/sketchybar/plugins/topmem.sh"
+
+sketchybar -m add item network_label left
+sketchybar -m set network_label associated_space 3
+
+############## RIGHT ITEMS ############## 
+sketchybar -m add item clock right
+sketchybar -m set clock update_freq 20
+sketchybar -m set clock script "~/.config/sketchybar/plugins/clock.sh"
+
+
+sketchybar -m add item mailIndicator right
+sketchybar -m batch --set mailIndicator associated_space=1,2,3 \
+                                        update_freq=15 \
+                                        script="~/.config/sketchybar/plugins/mailIndicator.sh" \
+                                        icon_font="Hack Nerd Font:Bold:20.0" \
+                                        icon= \
+                                        click_script="osascript -e 'tell application \"Mail\" to activate'"
+
+sketchybar -m add item caffeinate right
+sketchybar -m batch --set caffeinate associated_space=4 \
+                                     update_freq=100 \
+                                     icon_font="Hack Nerd Font:Bold:19.0" \
+                                     script="~/.config/sketchybar/plugins/caffeinate.sh" \
+                                     click_script="~/.config/sketchybar/plugins/caffeinate_click.sh"
+
+# Creating Graphs
+sketchybar -m add component graph cpu_user right 200 nospace
+sketchybar -m batch --set cpu_user graph_color=0xffffffff \
+                                   update_freq=1 \
+                                   associated_space=1 \
+                                   label_padding_left=0 \
+                                   icon=  \
+                                   script="~/.config/sketchybar/plugins/cpu_graph.sh"
+
+sketchybar -m add component graph cpu_sys right 200
+sketchybar -m batch --set cpu_sys label_padding_left=0 \
+                                  associated_space=1 \
+                                  icon= \
+                                  graph_color=0xff48aa2a
+
+sketchybar -m add item topproc right
+sketchybar -m batch --set topproc associated_space=1 \
+                                  label_padding_right=10 \
+                                  update_freq=15 \
+                                  script="~/.config/sketchybar/plugins/topproc.sh"
+
+sketchybar -m add component graph network_down right 200 nospace
+sketchybar -m batch --set network_down associated_space=3 \
+                                       label_padding_left=0 \
+                                       icon= \
+                                       update_freq=1 \
+                                       graph_color=0xffffffff \
+                                       script="~/.config/sketchybar/plugins/network_graph.sh"
+
+sketchybar -m add component graph network_up right 200
+sketchybar -m batch --set network_up icon= \
+                                     label_padding_left=0 \
+                                     associated_space=3 \
+                                     graph_color=0xff48aa2a
+
+###################### CENTER ITEMS ###################
+
+# Adding custom events which can listen on distributed notifications from other running processes
+sketchybar -m add event spotify_change "com.spotify.client.PlaybackStateChanged"
+
+sketchybar -m add item spotifyIndicator center
+sketchybar -m set spotifyIndicator script "~/.config/sketchybar/plugins/spotifyIndicator.sh"
+sketchybar -m set spotifyIndicator click_script "osascript -e 'tell application \"Spotify\" to pause'"
+sketchybar -m subscribe spotifyIndicator spotify_change
+
+############## FINALIZING THE SETUP ##############
+sketchybar -m update
+
+echo "sketchybar configuration loaded.."
