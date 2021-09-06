@@ -155,6 +155,7 @@ void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
 
   bar_item->icon_font = bar_create_font(font_string);
   bar_item->icon_font_name = font_string;
+  bar_item_set_icon(bar_item, bar_item->icon);
 }
 
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
@@ -164,6 +165,7 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
 
   bar_item->label_font = bar_create_font(font_string);
   bar_item->label_font_name = font_string;
+  bar_item_set_label(bar_item, bar_item->label);
 }
 
 void bar_item_on_click(struct bar_item* bar_item) {
