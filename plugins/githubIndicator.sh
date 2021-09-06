@@ -5,11 +5,7 @@ COUNT=$(curl https://github.com/users/FelixKratz/contributions | grep $(date '+%
 
 echo $COUNT
 if [ $COUNT -gt 0 ]; then
-  sketchybar -m set $NAME icon_color 0xff48aa2a
-  sketchybar -m set $NAME label_padding_left 4
-  sketchybar -m set $NAME label $COUNT
+  sketchybar -m batch --set $NAME icon_color=0xff48aa2a label_padding_left=4 label="$COUNT"
 else
-  sketchybar -m set $NAME icon_color 0xaaffffff
-  sketchybar -m set $NAME label_padding_left 0
-  sketchybar -m set $NAME label ""
+  sketchybar -m batch --set $NAME icon_color=0xaaffffff label_padding_left=0 label=""
 fi

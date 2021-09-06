@@ -14,6 +14,7 @@ Features:
 * "click" events for the widgets, where a script can be specified to run on a mouse click
 * Cache the scripts in RAM to reduce I/O operations
 * Offset the bar from its original location, rounded corners and background blur
+* Batch configuration messages for easy configuration
 * Performance friendly
 
 
@@ -119,6 +120,11 @@ Below is a list of all possible commands you can currently use in the configurat
 ```bash
 sketchybar -m config <setting> <value>
 ```
+or when you want to batch configurations:
+```bash
+sketchybar -m batch --config <setting>=<value> ... <setting>=<value>
+```
+
 where the settings currently are:
 * *position*: *top* or *bottom*
 * *height*: the height of the bar in pixels
@@ -151,6 +157,10 @@ Currently there are the component *types*:
 ### Changing the properties of an item
 ```bash
 sketchybar -m set <name> <property> <value>
+```
+here batching is also possible with:
+```bash
+sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
 A list of properties is listed below:
@@ -185,6 +195,10 @@ A list of properties is listed below:
 ### Changing the default values for all further items
 ```bash
 sketchybar -m default <property> <value>
+```
+batching is again possible via:
+```bash
+sketchybar -m batch --default <property>=<value> ... <property>=<value>
 ```
 this currently works for the properties:
 * *label_font*

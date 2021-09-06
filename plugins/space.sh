@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
+echo "Ich heiße: $NAME und bin $SELECTED";
+
 if [ "$SELECTED" = "true" ]; then
-  sketchybar -m freeze on
-  sketchybar -m set $NAME icon_highlight on
-  sketchybar -m set $NAME label_highlight on
-  sketchybar -m freeze off
+  sketchybar -m batch --set $NAME label_highlight=on icon_highlight=on
 else
-  sketchybar -m freeze on
-  sketchybar -m set $NAME icon_highlight off
-  sketchybar -m set $NAME label_highlight off
-  sketchybar -m freeze off
+  sketchybar -m batch --set $NAME label_highlight=off icon_highlight=off
 fi
