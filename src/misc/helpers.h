@@ -43,6 +43,17 @@ static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
 
+static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_color color, uint32_t corner_radius) {
+  CGContextClearRect(context, region);
+  CGContextSetRGBFillColor(context, color.r, color.g, color.b, color.a);
+  
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRoundedRect(path, NULL, region, corner_radius, corner_radius);
+  CGContextAddPath(context, path);
+  CGContextFillPath(context);
+  CFRelease(path);
+}
+
 static bool cgrect_contains_point(CGRect* r, CGPoint* p) {
     return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
            p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;

@@ -1,5 +1,6 @@
 #include "bar.h"
 #include "bar_item.h"
+#include <_types/_uint32_t.h>
 
 extern struct bar_manager g_bar_manager;
 
@@ -123,7 +124,7 @@ void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_
   CGContextRestoreGState(bar->context);
 }
 
-int bar_get_center_length(struct bar_manager* bar_manager) {
+static int bar_get_center_length(struct bar_manager* bar_manager) {
   int total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
@@ -142,34 +143,17 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
   bar_draw_graph_line(bar, &bar_item->graph_data, x, 0, right_to_left);
 }
 
-void bar_draw_background(struct bar* bar) {
-  CGContextClearRect(bar->context, bar->frame);
-  CGContextSetRGBFillColor(bar->context, g_bar_manager.background_color.r, g_bar_manager.background_color.g, g_bar_manager.background_color.b, g_bar_manager.background_color.a);
-  
-  CGMutablePathRef path = CGPathCreateMutable();
-  CGPathAddRoundedRect(path, NULL, bar->frame, g_bar_manager.corner_radius, g_bar_manager.corner_radius);
-  CGContextAddPath(bar->context, path);
-  CGContextFillPath(bar->context);
-  CFRelease(path);
-}
-
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
-  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x, bar->frame.origin.y}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
-  CGContextClearRect(bar->context, draw_region);
-  CGContextSetRGBFillColor(bar->context, bar_item->background_color.r, bar_item->background_color.g, bar_item->background_color.b, bar_item->background_color.a);
-  
-  CGMutablePathRef path = CGPathCreateMutable();
-  CGPathAddRect(path, NULL, draw_region);
-  CGContextAddPath(bar->context, path);
-  CGContextFillPath(bar->context);
-  CFRelease(path);
+  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, 0}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
+
+  draw_rect(bar->context, draw_region, bar_item->background_color, 0);
 }
 
 void bar_refresh(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
 
-  bar_draw_background(bar);
+  draw_rect(bar->context, bar->frame, g_bar_manager.background_color, g_bar_manager.corner_radius);
   
   uint32_t did = display_arrangement(bar->did);
   uint32_t sid = mission_control_index(display_space_id(bar->did));
