@@ -13,12 +13,7 @@ all: clean $(BINS)
 
 install: clean $(BINS)
 	ln ./bin/sketchybar /usr/local/bin/sketchybar
-	mkdir ~/.config/sketchybar
-	cp sketchybarrc ~/.config/sketchybar/sketchybarrc
-	cp -r plugins ~/.config/sketchybar
-	chmod +x ~/.config/sketchybar/sketchybarrc
-	chmod +x ~/.config/sketchybar/plugins/*
-	echo "Install complete..."
+	echo "Install complete... Do not forget to setup the configuration file."
 
 uninstall: clean
 	rm /usr/local/bin/sketchybar

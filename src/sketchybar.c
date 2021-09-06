@@ -46,8 +46,10 @@ static int client_send_message(int argc, char **argv) {
     char socket_file[MAXLEN];
     snprintf(socket_file, sizeof(socket_file), SOCKET_PATH_FMT, user);
 
-    if (!socket_connect_un(&sockfd, socket_file)) {
-        error("sketchybar-msg: failed to connect to socket..\n");
+    int count = 0;
+    while (!socket_connect_un(&sockfd, socket_file)) {
+      count++;
+      if (count > 100) error("sketchybar-msg: failed to connect to socket..\n");
     }
 
     int message_length = argc;
@@ -68,8 +70,10 @@ static int client_send_message(int argc, char **argv) {
     }
     *temp++ = '\0';
 
-    if (!socket_write_bytes(sockfd, message, message_length)) {
-        error("sketchybar-msg: failed to send data..\n");
+    count = 0;
+    while (!socket_write_bytes(sockfd, message, message_length)) {
+      count++;
+      if (count > 100) error("sketchybar-msg: failed to send data..\n");
     }
 
     shutdown(sockfd, SHUT_WR);
