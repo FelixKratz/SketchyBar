@@ -13,7 +13,6 @@ extern bool g_verbose;
 #define DOMAIN_BATCH                                        "batch"
 #define COMMAND_BATCH_CONFIG                                "--config"
 #define COMMAND_BATCH_SET                                   "--set"
-#define COMMAND_BATCH_SUBSCRIBE                             "--subscribe"
 #define COMMAND_BATCH_DEFAULT                               "--default"
 
 #define DOMAIN_ADD                                          "add"
@@ -206,16 +205,19 @@ static void daemon_fail(FILE *rsp, char *fmt, ...) {
 static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
   struct token event = get_token(&message);
 
-  if (token_equals(event, COMMAND_SUBSCRIBE_SYSTEM_WOKE)) {
-    bar_item->update_mask |= UPDATE_SYSTEM_WOKE;
-  } else if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
-    bar_item->update_mask |= UPDATE_SPACE_CHANGE;
-  } else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
-    bar_item->update_mask |= UPDATE_DISPLAY_CHANGE;
-  } else if (token_equals(event, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED)) {
-    bar_item->update_mask |= UPDATE_FRONT_APP_SWITCHED;
-  } else {
-    bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events, token_to_string(event));
+  while (event.text && event.length > 0) {
+    if (token_equals(event, COMMAND_SUBSCRIBE_SYSTEM_WOKE)) {
+      bar_item->update_mask |= UPDATE_SYSTEM_WOKE;
+    } else if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
+      bar_item->update_mask |= UPDATE_SPACE_CHANGE;
+    } else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
+      bar_item->update_mask |= UPDATE_DISPLAY_CHANGE;
+    } else if (token_equals(event, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED)) {
+      bar_item->update_mask |= UPDATE_FRONT_APP_SWITCHED;
+    } else {
+      bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events, token_to_string(event));
+    }
+    event = get_token(&message);
   }
 }
 
@@ -532,8 +534,7 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
       pack_key_value_pair(rbr_msg, key, value);
 
-      if (key && value) bar_item_parse_set_message(bar_item, rbr_msg);
-      else break;
+      bar_item_parse_set_message(bar_item, rbr_msg);
       token = get_token(&message);
     }
   } else if (token_equals(command, COMMAND_BATCH_DEFAULT)) {
@@ -545,28 +546,7 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
       pack_key_value_pair(rbr_msg, key, value);
 
-      if (key && value) handle_domain_default(rsp, domain, rbr_msg);
-      else break;
-      token = get_token(&message);
-    }
-  } else if (token_equals(command, COMMAND_BATCH_SUBSCRIBE)) {
-    struct token name  = get_token(&message);
-    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, token_to_string(name));
-    if (item_index_for_name < 0) {
-      printf("Name: %s not found in bar items \n", token_to_string(name));
-      return;
-    }
-    struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-    struct token token = get_token(&message);
-    while (token.text && token.length > 0) {
-      char* key = NULL;
-      char* value = NULL;
-      get_key_value_pair(token.text, &key, &value);
-      char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
-      pack_key_value_pair(rbr_msg, key, value);
-
-      if (key && value) bar_item_parse_subscribe_message(bar_item, rbr_msg);
-      else break;
+      handle_domain_default(rsp, domain, rbr_msg);
       token = get_token(&message);
     }
   } else if (token_equals(command, COMMAND_BATCH_CONFIG)) {
@@ -579,7 +559,6 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       pack_key_value_pair(rbr_msg, key, value);
 
       if (key && value) handle_domain_config(rsp, domain, rbr_msg);
-      else break;
       token = get_token(&message);
     }
   }

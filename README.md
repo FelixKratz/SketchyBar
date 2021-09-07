@@ -224,7 +224,7 @@ sketchybar -m default reset
 
 ### Subscribing items to system events for their script execution
 ```bash
-sketchybar -m subscribe <name> <event>
+sketchybar -m subscribe <name> <event> ... <event>
 ```
 where the events are:
 * *front_app_switched*: when frontmost application changes (not triggered if a different app of the same window is focused)
