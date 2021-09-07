@@ -1,6 +1,9 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#define array_count(a) (sizeof((a)) / sizeof(*(a)))
+#define MAXLEN 512
+
 #include <string.h>
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern int g_connection;

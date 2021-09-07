@@ -1,29 +1,17 @@
-#include <ScriptingBridge/ScriptingBridge.h>
 #include <Carbon/Carbon.h>
 #include <Cocoa/Cocoa.h>
-#include <IOKit/ps/IOPowerSources.h>
-#include <IOKit/ps/IOPSKeys.h>
-#include <Foundation/Foundation.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <dirent.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <fcntl.h>
-#include <regex.h>
-#include <execinfo.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
 #include <semaphore.h>
 #include <pthread.h>
 
 #include "misc/timing.h"
-#include "misc/macros.h"
 #include "misc/log.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"
