@@ -107,10 +107,12 @@ static inline char *string_copy(char *s) {
     return result;
 }
 
-char* read_file(char* path) {
+static inline char* read_file(char* path) {
   int fd = open(path, O_RDONLY);
   int len = lseek(fd, 0, SEEK_END);
-  return mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+  char* file = mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+  close(fd);
+  return file;
 }
 
 static inline char* resolve_path(char* path) {
