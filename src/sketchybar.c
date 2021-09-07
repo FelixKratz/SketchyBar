@@ -1,3 +1,4 @@
+#include "misc/socket.h"
 #define SOCKET_PATH_FMT         "/tmp/sketchybar_%s.socket"
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
@@ -73,7 +74,11 @@ static int client_send_message(int argc, char **argv) {
     count = 0;
     while (!socket_write_bytes(sockfd, message, message_length)) {
       count++;
-      if (count > 100) error("sketchybar-msg: failed to send data..\n");
+      if (count > 100) {
+        shutdown(sockfd, SHUT_WR);
+        socket_close(sockfd);
+        error("sketchybar-msg: failed to send data..\n");
+      }
     }
 
     shutdown(sockfd, SHUT_WR);
