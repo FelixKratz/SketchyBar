@@ -121,7 +121,7 @@ sketchybar -m batch --set gitNotifications associated_space=1 \
                                            update_freq=100 \
                                            icon_font="Hack Nerd Font:Bold:18.0" \
                                            icon= \
-                                           script="~/.config/sketchybar/plugins/gitNotifications" \
+                                           script="~/.config/sketchybar/plugins/gitNotifications.sh" \
                                            click_script="open https://github.com/notifications"
 sketchybar -m subscribe gitNotifications system_woke
 
