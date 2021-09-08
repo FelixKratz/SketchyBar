@@ -15,16 +15,6 @@ struct event *event_create(struct event_loop *event_loop, enum event_type type, 
     struct event *event = memory_pool_push(&event_loop->pool, struct event);
     event->type = type;
     event->context = context;
-    event->param1 = 0;
-    event->info = 0;
-    return event;
-}
-
-struct event *event_create_p1(struct event_loop *event_loop, enum event_type type, void *context, int param1) {
-    struct event *event = memory_pool_push(&event_loop->pool, struct event);
-    event->type = type;
-    event->context = context;
-    event->param1 = param1;
     event->info = 0;
     return event;
 }
@@ -44,31 +34,35 @@ static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
 static EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_space_change(&g_bar_manager);
-    bar_manager_refresh(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
@@ -82,19 +76,17 @@ static EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
 static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
     debug("%s:\n", __FUNCTION__);
     bar_manager_handle_system_woke(&g_bar_manager);
-    bar_manager_refresh(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
+    debug("%s\n", __FUNCTION__);
     bar_manager_script_update(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
-    FILE *rsp = fdopen(param1, "w");
-    if (!rsp) goto out;
-
+    debug("%s\n", __FUNCTION__);
     if (g_verbose) {
         fprintf(stdout, "%s:", __FUNCTION__);
         for (char *message = context; *message;) {
@@ -104,18 +96,13 @@ static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
         fflush(stdout);
     }
 
-    handle_message(rsp, context);
-    fflush(rsp);
-    fclose(rsp);
-
-out:
-    socket_close(param1);
+    handle_message(NULL, context);
     free(context);
-
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
+    debug("%s\n", __FUNCTION__);
     CGPoint point = CGEventGetLocation(context);
 
     uint32_t sid = mission_control_index(display_space_id(display_active_display_id()));

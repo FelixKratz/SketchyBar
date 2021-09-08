@@ -1,5 +1,7 @@
 #include "bar_item.h"
 #include "graph_data.h"
+#include "misc/helpers.h"
+#include <string.h>
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -8,6 +10,8 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
+  bar_item->needs_update = true;
+  bar_item->lazy = false;
   bar_item->drawing = true;
   bar_item->scripting = true;
   bar_item->is_shown = false;
@@ -60,10 +64,10 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
     bar_item->label_highlight_color = default_item->label_highlight_color;
   }
 
-  bar_item_set_icon(bar_item, string_copy(""));
-  bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name));
-  bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name));
-  bar_item_set_label(bar_item, string_copy(""));
+  bar_item_set_icon(bar_item, string_copy(""), false);
+  bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name), true);
+  bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name), true);
+  bar_item_set_label(bar_item, string_copy(""), false);
 
   strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
@@ -81,91 +85,107 @@ void bar_item_script_update(struct bar_item* bar_item, bool forced) {
   }
 }
 
+void bar_item_needs_update(struct bar_item* bar_item) {
+  bar_item->needs_update = true;
+}
+
+void bar_item_clear_needs_update(struct bar_item* bar_item) {
+  bar_item->needs_update = false;
+}
+
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (!name) return;
-  if (name != bar_item->name && !bar_item->name) {
-    free(bar_item->name);
-  }
+  if (bar_item->name && strcmp(bar_item->name, name) == 0) { free(name); return; }
+  if (name != bar_item->name && !bar_item->name) free(bar_item->name);
   bar_item->name = name;
   strncpy(&bar_item->signal_args.value[0][0], name, 255);
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
-  if (script != bar_item->script && !bar_item->script)
-    free(bar_item->script);
-  if (bar_item->cache_scripts && file_exists(resolve_path(script)))
-    bar_item->script = read_file(resolve_path(script));
-  else
-    bar_item->script = script;
+  if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
+  if (script != bar_item->script && !bar_item->script) free(bar_item->script);
+  if (bar_item->cache_scripts && file_exists(resolve_path(script))) bar_item->script = read_file(resolve_path(script));
+  else bar_item->script = script;
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
-  if (script != bar_item->click_script && !bar_item->click_script)
-    free(bar_item->click_script);
-  if (bar_item->cache_scripts && file_exists(resolve_path(script)))
-    bar_item->click_script = read_file(resolve_path(script));
-  else 
-    bar_item->click_script = script;
+  if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) { free(script); return; }
+  if (script != bar_item->click_script && !bar_item->click_script) free(bar_item->click_script);
+  if (bar_item->cache_scripts && file_exists(resolve_path(script))) bar_item->click_script = read_file(resolve_path(script));
+  else bar_item->click_script = script;
 }
 
-void bar_item_set_icon(struct bar_item* bar_item, char* icon) {
-  if (bar_item->icon_line.line)
-    bar_destroy_line(&bar_item->icon_line);
-  if (icon != bar_item->icon && !bar_item->icon)
-    free(bar_item->icon);
+void bar_item_set_icon(struct bar_item* bar_item, char* icon, bool forced) {
+  if (!icon) return;
+  if (!forced && bar_item->icon && strcmp(bar_item->icon, icon) == 0) { free(icon); return; }
+  if (bar_item->icon_line.line) bar_destroy_line(&bar_item->icon_line);
+  if (icon != bar_item->icon && !bar_item->icon) free(bar_item->icon);
   bar_item->icon = icon;
   bar_prepare_line(&bar_item->icon_line, bar_item->icon_font, bar_item->icon, bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color);
+  bar_item_needs_update(bar_item);
 }
 
 void bar_item_update_icon_color(struct bar_item *bar_item) {
-  bar_item->icon_line.color = bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color;
+  struct rgba_color target_color = bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color;
+  if (bar_item->icon_line.color.r == target_color.r 
+      && bar_item->icon_line.color.g == target_color.g 
+      && bar_item->icon_line.color.b == target_color.b 
+      && bar_item->icon_line.color.a == target_color.a) return;
+  bar_item->icon_line.color = target_color;
+  bar_item_needs_update(bar_item);
 }
 
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->icon_color = rgba_color_from_hex(color);
-  bar_item->icon_line.color = rgba_color_from_hex(color);
+  bar_item_update_icon_color(bar_item);
 }
 
-void bar_item_set_label(struct bar_item* bar_item, char* label) {
+void bar_item_set_label(struct bar_item* bar_item, char* label, bool forced) {
   if (!label) return;
-  if (bar_item->label_line.line)
-    bar_destroy_line(&bar_item->label_line);
-  if (label != bar_item->label && !bar_item->label)
-    free(bar_item->label);
+  if (!forced && bar_item->label && strcmp(bar_item->label, label) == 0) { free(label); return; }
+  if (bar_item->label_line.line) bar_destroy_line(&bar_item->label_line);
+  if (label != bar_item->label && !bar_item->label) free(bar_item->label);
   bar_item->label = label;
   bar_prepare_line(&bar_item->label_line, bar_item->label_font, bar_item->label, bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color);
+  bar_item_needs_update(bar_item);
 } 
 
 
 void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
   bar_item->label_color = rgba_color_from_hex(color);
-  bar_item->label_line.color = rgba_color_from_hex(color);
+  bar_item_update_label_color(bar_item);
 }
 
 void bar_item_update_label_color(struct bar_item *bar_item) {
-  bar_item->label_line.color = bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color;
+  struct rgba_color target_color = bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color;
+  if (bar_item->label_line.color.r == target_color.r 
+      && bar_item->label_line.color.g == target_color.g 
+      && bar_item->label_line.color.b == target_color.b 
+      && bar_item->label_line.color.a == target_color.a) return;
+  bar_item->label_line.color = target_color;
+  bar_item_needs_update(bar_item);
 }
 
-void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string) {
+void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string, bool forced) {
   if (!font_string) return;
-  if (bar_item->icon_font)
-    CFRelease(bar_item->icon_font);
+  if (!forced && bar_item->icon_font_name && strcmp(bar_item->icon_font_name, font_string) == 0) { free(font_string); return; }
+  if (bar_item->icon_font) CFRelease(bar_item->icon_font);
 
   bar_item->icon_font = bar_create_font(font_string);
   bar_item->icon_font_name = font_string;
-  bar_item_set_icon(bar_item, bar_item->icon);
+  bar_item_set_icon(bar_item, bar_item->icon, true);
 }
 
-void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
+void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool forced) {
   if (!font_string) return;
-  if (bar_item->label_font)
-    CFRelease(bar_item->label_font);
+  if (!forced && bar_item->label_font_name && strcmp(bar_item->label_font_name, font_string) == 0) { free(font_string); return; }
+  if (bar_item->label_font) CFRelease(bar_item->label_font);
 
   bar_item->label_font = bar_create_font(font_string);
   bar_item->label_font_name = font_string;
-  bar_item_set_label(bar_item, bar_item->label);
+  bar_item_set_label(bar_item, bar_item->label, true);
 }
 
 void bar_item_on_click(struct bar_item* bar_item) {

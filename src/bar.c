@@ -149,7 +149,7 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
   draw_rect(bar->context, draw_region, bar_item->background_color, 0);
 }
 
-void bar_refresh(struct bar* bar) {
+void bar_redraw(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
 
@@ -165,9 +165,9 @@ void bar_refresh(struct bar* bar) {
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-    if(bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
-    if(bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0)) continue;
     if (!bar_item->drawing) continue;
+    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
+    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0)) continue;
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
@@ -216,6 +216,7 @@ void bar_refresh(struct bar* bar) {
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
+    bar_item_clear_needs_update(bar_item);
     
     // Actual drawing
     //bar_draw_item_background(bar, bar_item, sid);
@@ -256,7 +257,7 @@ void bar_resize(struct bar *bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   SLSSetWindowShape(g_connection, bar->id, bar->origin.x, bar->origin.y, frame_region);
-  bar_refresh(bar);
+  bar_redraw(bar);
   SLSOrderWindow(g_connection, bar->id, 1, 0);
   SLSReenableUpdate(g_connection);
   CFRelease(frame_region);
@@ -293,7 +294,7 @@ struct bar *bar_create(uint32_t did) {
   SLSSetWindowLevel(g_connection, bar->id, CGWindowLevelForKey(4));
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
  
-  bar_refresh(bar);
+  bar_redraw(bar);
   return bar;
 }
 

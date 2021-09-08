@@ -191,6 +191,7 @@ A list of properties is listed below:
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, default: *off*)
 * *scripting*: If scripts should be executed (values: *on*, *off*, default: *on*)
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, default: *on*)
+* *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, default: *off*)
 
 ### Changing the default values for all further items
 ```bash
@@ -295,6 +296,7 @@ else
 fi
 ```
 which you can freely configure to your liking by supplying a different script to the space component.
+For performance reasons the space script is only run on change.
 I plan on increasing the available environment variables in scripting step by step but if you have a suggestion let me know in the issues.
 
 ## Credits

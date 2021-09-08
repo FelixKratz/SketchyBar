@@ -3,7 +3,7 @@
 
 extern OSStatus SLSFindWindowByGeometry(int cid, int zero, int one, int zero_again, CGPoint *screen_point, CGPoint *window_point, uint32_t *wid, int *wcid);
 
-#define EVENT_CALLBACK(name) uint32_t name(void *context, int param1)
+#define EVENT_CALLBACK(name) uint32_t name(void *context)
 typedef EVENT_CALLBACK(event_callback);
 
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED);
@@ -89,11 +89,9 @@ struct event {
     void *context;
     volatile uint32_t *info;
     enum event_type type;
-    int param1;
 };
 
 struct event *event_create(struct event_loop *event_loop, enum event_type type, void *context);
-struct event *event_create_p1(struct event_loop *event_loop, enum event_type type, void *context, int param1);
 void event_destroy(struct event_loop *event_loop, struct event *event);
 enum event_type event_type_from_string(const char *str);
 

@@ -50,7 +50,7 @@ void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t pad
 void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
 
 void bar_manager_display_changed(struct bar_manager *bar_manager);
-void bar_manager_refresh(struct bar_manager *bar_manager);
+void bar_manager_refresh(struct bar_manager *bar_manager, bool forced);
 void bar_manager_resize(struct bar_manager *bar_manager);
 void bar_manager_begin(struct bar_manager *bar_manager);
 void bar_manager_init(struct bar_manager *bar_manager);
