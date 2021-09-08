@@ -142,6 +142,7 @@ sketchybar -m batch --set topmem associated_space=1 \
 
 sketchybar -m add item network_label left
 sketchybar -m set network_label associated_space 3
+sketchybar -m set network_label lazy on
 
 ############## RIGHT ITEMS ############## 
 sketchybar -m add item clock right
@@ -171,7 +172,8 @@ sketchybar -m batch --set cpu_user graph_color=0xffffffff \
                                    associated_space=1 \
                                    label_padding_left=0 \
                                    icon=  \
-                                   script="~/.config/sketchybar/plugins/cpu_graph.sh"
+                                   script="~/.config/sketchybar/plugins/cpu_graph.sh" \
+                                   lazy=on
 
 sketchybar -m add component graph cpu_sys right 200
 sketchybar -m batch --set cpu_sys label_padding_left=0 \
@@ -191,7 +193,8 @@ sketchybar -m batch --set network_down associated_space=3 \
                                        icon= \
                                        update_freq=1 \
                                        graph_color=0xffffffff \
-                                       script="~/.config/sketchybar/plugins/network_graph.sh"
+                                       script="~/.config/sketchybar/plugins/network_graph.sh" \
+                                       lazy=on
 
 sketchybar -m add component graph network_up right 200
 sketchybar -m batch --set network_up icon= \
