@@ -260,6 +260,7 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   graph_data_push_back(&bar_item->graph_data, token_to_float(y));
+  bar_item_needs_update(bar_item);
   if (bar_item->is_shown) bar_manager_refresh(&g_bar_manager, false);
 }
 
