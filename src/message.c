@@ -341,7 +341,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   }
   bar_item_set_name(bar_item, token_to_string(name));
-  bar_manager_update_components(&g_bar_manager);
   bar_manager_refresh(&g_bar_manager);
 }
 
@@ -601,6 +600,7 @@ void handle_message(FILE *rsp, char *message) {
   } else if (token_equals(domain, DOMAIN_REMOVE)){
     handle_domain_remove(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_UPDATE)) {
+    bar_manager_update_components(&g_bar_manager, true);
     bar_manager_script_update(&g_bar_manager, true);
   } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
     handle_domain_subscribe(rsp, domain, message);

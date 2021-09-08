@@ -35,7 +35,7 @@ bool g_verbose;
 
 static int client_send_message(int argc, char **argv) {
     if (argc <= 1) {
-        error("sketchybar-msg: no arguments given! abort..\n");
+        return EXIT_SUCCESS;
     }
 
     char *user = getenv("USER");

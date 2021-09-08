@@ -135,24 +135,30 @@ void bar_manager_init(struct bar_manager *bar_manager) {
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
 
-void bar_manager_update_components(struct bar_manager* bar_manager) {
+void bar_manager_update_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    if (!bar_item->is_shown && !forced) continue;
 
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
       uint32_t did = display_arrangement(bar->did);
-      uint32_t sid = mission_control_index(display_space_id(bar->did));
-      if (sid == 0) continue;
 
       if (((1 << did) & bar_item->associated_display) && strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0) {
-        if (!bar_item->selected && bar_item->associated_space & (1 << sid)) {
+        uint32_t sid = mission_control_index(display_space_id(bar->did));
+        if (sid == 0) continue;
+        if ((!bar_item->selected || forced) && bar_item->associated_space & (1 << sid)) {
           bar_item->selected = true;
+          bar_item->scripting = true;
           strncpy(&bar_item->signal_args.value[1][0], "true", 255);
         }
-        else if (bar_item->selected && !(bar_item->associated_space & (1 << sid))) {
+        else if ((bar_item->selected || forced) && !(bar_item->associated_space & (1 << sid))) {
           bar_item->selected = false;
+          bar_item->scripting = true;
           strncpy(&bar_item->signal_args.value[1][0], "false", 255);
+        }
+        else {
+          bar_item->scripting = false;
         }
       } 
     }
@@ -214,7 +220,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
-  bar_manager_update_components(bar_manager);
+  bar_manager_update_components(bar_manager, false);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
 }
 

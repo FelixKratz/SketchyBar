@@ -74,23 +74,6 @@ bool socket_connect_un(int *sockfd, char *socket_path) {
     return connect(*sockfd, (struct sockaddr *) &socket_address, sizeof(socket_address)) != -1;
 }
 
-void socket_wait(int sockfd) {
-    struct pollfd fds[] = {
-        { sockfd, POLLIN, 0 }
-    };
-
-    char dummy[1];
-    int bytes = 0;
-
-    while (poll(fds, 1, -1) > 0) {
-        if (fds[0].revents & POLLIN) {
-            if ((bytes = recv(sockfd, dummy, 0, 0)) <= 0) {
-                break;
-            }
-        }
-    }
-}
-
 void socket_close(int sockfd) {
     shutdown(sockfd, SHUT_RDWR);
     close(sockfd);

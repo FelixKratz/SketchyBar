@@ -170,7 +170,6 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string) {
 
 void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
-  if (!bar_item->scripting) return;
   if (bar_item && strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);
 }

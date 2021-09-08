@@ -11,6 +11,7 @@
 #define UPDATE_SYSTEM_WOKE        1 << 3
 
 struct bar_item {
+  bool needs_update;
   bool drawing;
   bool scripting;
   bool is_shown;

@@ -38,7 +38,7 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, char* context);
 
 void bar_manager_script_update(struct bar_manager* bar_manager, bool forced);
-void bar_manager_update_components(struct bar_manager* bar_manager);
+void bar_manager_update_components(struct bar_manager* bar_manager, bool forced);
 void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius);
 void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
