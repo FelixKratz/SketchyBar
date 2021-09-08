@@ -273,7 +273,7 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
     if (index < 0) return;
     bar_manager_destroy_item(&g_bar_manager, g_bar_manager.bar_items[index]);
   }
-  bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_refresh(&g_bar_manager, true);
 }
 
 // Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>

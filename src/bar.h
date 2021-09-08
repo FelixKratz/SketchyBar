@@ -41,6 +41,8 @@ struct bar_line {
 struct bar {
     uint32_t id;
     uint32_t did;
+    uint32_t sid;
+    uint32_t adid;
     CGContextRef context;
     CFRunLoopTimerRef shell_refresh_timer;
     CGRect frame;

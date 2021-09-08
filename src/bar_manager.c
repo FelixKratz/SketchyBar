@@ -76,26 +76,25 @@ void bar_manager_set_display(struct bar_manager* bar_manager, char *display) {
   bar_manager_begin(bar_manager);
 }
 
-void bar_manager_clear_shown(struct bar_manager* bar_manager) {
+bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* bar) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_manager->bar_items[i]->is_shown = false;
-  }
-}
-
-bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    struct bar_item* bar_item = bar_manager->bar_items[i]; 
-    if (bar_item->is_shown && bar_item->needs_update && !bar_item->lazy) return true;
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
+    bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
+    if (bar_item->needs_update && (is_associated_space_shown || is_associated_display_shown) && !bar_item->lazy) {
+      bar_manager->bar_items[i]->is_shown = false;
+      return true;
+    }
   }
   return false;
 }
 
 void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   if (bar_manager->frozen) return;
-  if (!forced && !bar_manager_bar_needs_redraw(bar_manager)) return;
-  bar_manager_clear_shown(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_redraw(bar_manager->bars[i]);
+    if (forced || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) bar_redraw(bar_manager->bars[i]);
+
+  for (int i = 0; i < bar_manager->bar_item_count; i++) bar_item_clear_needs_update(bar_manager->bar_items[i]);
 }
 
 void bar_manager_resize(struct bar_manager* bar_manager) {
@@ -154,7 +153,7 @@ void bar_manager_update_components(struct bar_manager* bar_manager, bool forced)
       uint32_t did = display_arrangement(bar->did);
 
       if (((1 << did) & bar_item->associated_display) && strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0) {
-        uint32_t sid = mission_control_index(display_space_id(bar->did));
+        uint32_t sid = bar->sid;
         if (sid == 0) continue;
         if ((!bar_item->selected || forced) && bar_item->associated_space & (1 << sid)) {
           bar_item->selected = true;
@@ -229,6 +228,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; i++) bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
   bar_manager_update_components(bar_manager, false);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
   bar_manager_refresh(bar_manager, true);

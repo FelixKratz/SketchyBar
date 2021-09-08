@@ -1,5 +1,7 @@
 #include "bar.h"
 #include "bar_item.h"
+#include "display.h"
+#include "misc/helpers.h"
 #include <_types/_uint32_t.h>
 
 extern struct bar_manager g_bar_manager;
@@ -155,8 +157,8 @@ void bar_redraw(struct bar* bar) {
 
   draw_rect(bar->context, bar->frame, g_bar_manager.background_color, g_bar_manager.corner_radius);
   
-  uint32_t did = display_arrangement(bar->did);
-  uint32_t sid = mission_control_index(display_space_id(bar->did));
+  uint32_t did = bar->adid;
+  uint32_t sid = bar->sid;
   if (sid == 0) return;
 
   int bar_left_final_item_x = g_bar_manager.padding_left;
@@ -216,7 +218,6 @@ void bar_redraw(struct bar* bar) {
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
-    bar_item_clear_needs_update(bar_item);
     
     // Actual drawing
     //bar_draw_item_background(bar, bar_item, sid);
@@ -267,6 +268,8 @@ struct bar *bar_create(uint32_t did) {
   struct bar *bar = malloc(sizeof(struct bar));
   memset(bar, 0, sizeof(struct bar));
   bar->did = did;
+  bar->sid = mission_control_index(display_space_id(did));
+  bar->adid = display_arrangement(did);
 
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
