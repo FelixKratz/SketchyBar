@@ -512,10 +512,11 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       char* key = NULL;
       char* value = NULL;
       get_key_value_pair(token.text, &key, &value);
-      char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
+      char* rbr_msg = malloc((strlen(key) + strlen(value) + 3) * sizeof(char)); 
       pack_key_value_pair(rbr_msg, key, value);
 
       bar_item_parse_set_message(bar_item, rbr_msg);
+      free(rbr_msg);
       token = get_token(&message);
     }
   } else if (token_equals(command, COMMAND_BATCH_DEFAULT)) {
@@ -524,10 +525,11 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       char* key = NULL;
       char* value = NULL;
       get_key_value_pair(token.text, &key, &value);
-      char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
+      char* rbr_msg = malloc((strlen(key) + strlen(value) + 3) * sizeof(char)); 
       pack_key_value_pair(rbr_msg, key, value);
 
       handle_domain_default(rsp, domain, rbr_msg);
+      free(rbr_msg);
       token = get_token(&message);
     }
   } else if (token_equals(command, COMMAND_BATCH_CONFIG)) {
@@ -536,10 +538,11 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       char* key = NULL;
       char* value = NULL;
       get_key_value_pair(token.text, &key, &value);
-      char rbr_msg[strlen(key) + (value ? strlen(value) : 1)];
+      char* rbr_msg = malloc((strlen(key) + strlen(value) + 3) * sizeof(char)); 
       pack_key_value_pair(rbr_msg, key, value);
 
       if (key && value) handle_domain_config(rsp, domain, rbr_msg);
+      free(rbr_msg);
       token = get_token(&message);
     }
   }
