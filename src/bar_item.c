@@ -44,6 +44,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->label_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
   bar_item->num_rects = 0;
+  bar_item->draws_background = false;
   bar_item->background_color = rgba_color_from_hex(0x44ff0000);
   bar_item->bounding_rects = NULL;
 
@@ -62,6 +63,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
     bar_item->cache_scripts = default_item->cache_scripts;
     bar_item->icon_highlight_color = default_item->icon_highlight_color;
     bar_item->label_highlight_color = default_item->label_highlight_color;
+    bar_item->background_color = default_item->background_color;
+    bar_item->draws_background = default_item->draws_background;
   }
 
   bar_item_set_icon(bar_item, string_copy(""), false);
@@ -192,6 +195,12 @@ void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
   if (bar_item && strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);
+}
+
+void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color) {
+  bar_item->background_color = rgba_color_from_hex(color);
+  bar_item->draws_background = true;
+  bar_item_needs_update(bar_item);
 }
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {

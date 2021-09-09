@@ -54,6 +54,7 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
 #define COMMAND_SET_ICON_HIGHLIGHT_COLOR                    "icon_highlight_color"
 #define COMMAND_SET_ICON_HIGHLIGHT                          "icon_highlight"
+#define COMMAND_SET_BACKGROUND_COLOR                        "background_color"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
@@ -374,6 +375,8 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
     bar_item->graph_data.color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
+    bar_item_set_background_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
     bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT_COLOR)) {

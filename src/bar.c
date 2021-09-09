@@ -146,8 +146,8 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
+  if (!bar_item->draws_background) return;
   CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, 0}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
-
   draw_rect(bar->context, draw_region, bar_item->background_color, 0);
 }
 
@@ -220,7 +220,7 @@ void bar_redraw(struct bar* bar) {
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
     
     // Actual drawing
-    //bar_draw_item_background(bar, bar_item, sid);
+    bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y);
     bar_draw_line(bar, label, label_position.x, label_position.y);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);

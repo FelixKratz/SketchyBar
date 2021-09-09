@@ -163,6 +163,11 @@ here batching is also possible with:
 sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
+
+An item always has the following structure in the bar:  <br>
+|----------------|----|------------------|------------------|-----|-------------------| <br>
+icon_padding_left icon icon_padding_right label_padding_left label label_padding_right  <br>
+
 A list of properties is listed below:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
@@ -184,6 +189,7 @@ A list of properties is listed below:
 * *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, default: *off*)
  
 * *graph_color*: color of the associated graph
+* *background_color*: Draws a rectangular background for this item in the given color
  
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
@@ -213,6 +219,7 @@ this currently works for the properties:
 * *icon_highlight_color*
 * *icon_padding_left*
 * *icon_padding_right*
+* *background_color*
 * *update_freq*
 * *cache_scripts*
 * *scripting*
