@@ -165,8 +165,7 @@ sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 where the *name* is used to target the item with this name.
 
 An item always has the following structure in the bar:  <br>
-|----------------|----|------------------|------------------|-----|-------------------| <br>
-icon_padding_left icon icon_padding_right label_padding_left label label_padding_right  <br>
+|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-| <br>
 
 A list of properties is listed below:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
