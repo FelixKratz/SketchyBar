@@ -103,8 +103,7 @@ sketchybar -m batch --set relax associated_display=2 \
 sketchybar -m batch --default label_padding_left=2 \
                               icon_padding_right=2 \
                               icon_padding_left=6 \
-                              label_padding_right=6 \
-                              label_padding_left=0
+                              label_padding_right=6
 
 
 ############## LEFT ITEMS ############## 
@@ -118,7 +117,7 @@ sketchybar -m batch --set space_separator icon= \
 
 sketchybar -m add item gitNotifications left
 sketchybar -m batch --set gitNotifications associated_space=1 \
-                                           update_freq=100 \
+                                           update_freq=300 \
                                            icon_font="Hack Nerd Font:Bold:18.0" \
                                            icon= \
                                            script="~/.config/sketchybar/plugins/gitNotifications.sh" \
@@ -140,19 +139,15 @@ sketchybar -m batch --set topmem associated_space=1 \
                                  update_freq=15 \
                                  script="~/.config/sketchybar/plugins/topmem.sh"
 
-sketchybar -m add item network_label left
-sketchybar -m set network_label associated_space 3
-sketchybar -m set network_label lazy on
-
 ############## RIGHT ITEMS ############## 
 sketchybar -m add item clock right
-sketchybar -m set clock update_freq 20
+sketchybar -m set clock update_freq 10
 sketchybar -m set clock script "~/.config/sketchybar/plugins/clock.sh"
 
 
 sketchybar -m add item mailIndicator right
 sketchybar -m batch --set mailIndicator associated_space=1,2,3 \
-                                        update_freq=15 \
+                                        update_freq=30 \
                                         script="~/.config/sketchybar/plugins/mailIndicator.sh" \
                                         icon_font="Hack Nerd Font:Bold:20.0" \
                                         icon= \
@@ -168,7 +163,7 @@ sketchybar -m batch --set caffeinate associated_space=4 \
 # Creating Graphs
 sketchybar -m add component graph cpu_user right 200 nospace
 sketchybar -m batch --set cpu_user graph_color=0xffffffff \
-                                   update_freq=1 \
+                                   update_freq=2 \
                                    associated_space=1 \
                                    label_padding_left=0 \
                                    icon=  \
@@ -191,7 +186,7 @@ sketchybar -m add component graph network_down right 200 nospace
 sketchybar -m batch --set network_down associated_space=3 \
                                        label_padding_left=0 \
                                        icon= \
-                                       update_freq=1 \
+                                       update_freq=2 \
                                        graph_color=0xffffffff \
                                        script="~/.config/sketchybar/plugins/network_graph.sh" \
                                        lazy=on
