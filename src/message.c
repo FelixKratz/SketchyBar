@@ -303,12 +303,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     if (strcmp(bar_item->identifier, BAR_COMPONENT_GRAPH) == 0) {
       struct token width = get_token(&message);
       graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
-      if (message != NULL) {
-        struct token modifier = get_token(&message);
-        if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) {
-          bar_item->nospace = true;
-        }
-      }
+      
       bar_item->has_graph = true;
     }
     else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
@@ -325,6 +320,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   }   else {
     printf("Command: %s not found \n", command.text);
   }
+  struct token modifier = get_token(&message);
+  if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) bar_item->nospace = true;
   bar_item->position = position.text[0];
 
   bar_item_set_name(bar_item, string_copy(""));
