@@ -86,6 +86,7 @@ extern bool g_verbose;
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_OFF                             "off"
+#define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
 #define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
 
 #define BAR_COMPONENT_SPACE                                 "space"
@@ -184,6 +185,13 @@ static void pack_key_value_pair(char* cursor, char* key, char* value) {
   *cursor++ = '\0';
 }
 
+
+static bool evaluate_boolean_state(struct token state, bool previous_state) {
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON)) return true;
+  else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
+  else return false;
+}
+
 static void daemon_fail(FILE *rsp, char *fmt, ...) {
   if (!rsp) printf(FAILURE_MESSAGE);
   else fprintf(rsp, FAILURE_MESSAGE);
@@ -194,15 +202,6 @@ static void daemon_fail(FILE *rsp, char *fmt, ...) {
   else vfprintf(rsp, fmt, ap);
   va_end(ap);
 }
-
-#define VIEW_SET_PROPERTY(p) \
-  int p_val = 0; \
-  if (token_to_int(value, &p_val)) { \
-    view->custom_##p = true; \
-    view->p = p_val; \
-    view_update(view); \
-    view_flush(view); \
-  }
 
 static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
   struct token event = get_token(&message);
@@ -237,11 +236,7 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 // Syntax: sketchybar -m freeze <on/off>
 static void handle_domain_freeze(FILE* rsp, struct token domain, char* message) {
   struct token state = get_token(&message);
-  if (token_equals(state, ARGUMENT_COMMON_VAL_ON))
-    g_bar_manager.frozen = true;
-  else if (token_equals(state, ARGUMENT_COMMON_VAL_OFF)) 
-    g_bar_manager.frozen = false;
-
+  g_bar_manager.frozen = evaluate_boolean_state(state, g_bar_manager.frozen);
   bar_manager_refresh(&g_bar_manager, true);
 }
 
@@ -354,14 +349,14 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
     bar_item_set_icon_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_SCRIPTING)) {
-    bar_item->scripting = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->scripting = evaluate_boolean_state(get_token(&message), bar_item->scripting);
   } else if (token_equals(property, COMMAND_SET_DRAWING)) {
-    bar_item->drawing = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {
-    bar_item->label_highlight = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->label_highlight = evaluate_boolean_state(get_token(&message), bar_item->label_highlight);
     bar_item_update_label_color(bar_item);
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
-    bar_item->icon_highlight = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->icon_highlight = evaluate_boolean_state(get_token(&message), bar_item->icon_highlight);
     bar_item_update_icon_color(bar_item);
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     bar_item_set_icon_font(bar_item, string_copy(message), false);
@@ -406,23 +401,21 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     bar_item->label_spacing_right = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
-    bar_item->cache_scripts = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->cache_scripts = evaluate_boolean_state(get_token(&message), bar_item->cache_scripts);
   } else if (token_equals(property, COMMAND_SET_LAZY)) {
-    bar_item->lazy = token_equals(get_token(&message), ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   }
 
   // DEPRECATED
   else if (token_equals(property, COMMAND_SET_ENABLED)) {
-    struct token value = get_token(&message);
     printf("Command: enabled soon to be deprecated: Use drawing and scripting commands \n");
-    bar_item->drawing = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
-    bar_item->scripting = token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false;
+    bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
+    bar_item->scripting = evaluate_boolean_state(get_token(&message), bar_item->scripting);
   } else if (token_equals(property, COMMAND_SET_HIDDEN)) {
     printf("Command: hidden soon to be deprecated: Use drawing command \n");
-    struct token value = get_token(&message);
-    bar_item->drawing = !(token_equals(value, ARGUMENT_COMMON_VAL_ON) ? true : false);
+    bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
   } 
 }
 
@@ -441,9 +434,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
     return;
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-
   bar_item_parse_set_message(bar_item, message);
-  
   if (bar_item->is_shown) bar_manager_refresh(&g_bar_manager, false);
 }
 
@@ -554,26 +545,6 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
   }
   bar_manager_refresh(&g_bar_manager, false);
 }
-
-
-
-#undef VIEW_SET_PROPERTY
-
-struct selector {
-  struct token token;
-  bool did_parse;
-
-  union {
-    int dir;
-    uint32_t did;
-    uint64_t sid;
-    struct window *window;
-  };
-};
-
-enum label_type {
-  LABEL_SPACE,
-};
 
 void handle_message(FILE *rsp, char *message) {
   struct token domain = get_token(&message);

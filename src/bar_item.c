@@ -191,6 +191,13 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool 
   bar_item_set_label(bar_item, bar_item->label, true);
 }
 
+void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
+  if (bar_item->drawing == state) return;
+  bar_item->drawing = state;
+  bar_item->is_shown = true;
+  bar_item_needs_update(bar_item);
+}
+
 void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
   if (bar_item && strlen(bar_item->click_script) > 0)

@@ -177,7 +177,7 @@ A list of properties is listed below:
 * *label_highlight_color*: the highlight color of the label (e.g. for active space icon)
 * *label_padding_left*: left padding of label (default: 0)
 * *label_padding_right*: right padding of label (default: 0)
-* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, default: *off*)
+* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
  
 * *icon*: the icon of the item
 * *icon_font*: the font for the icon
@@ -185,7 +185,7 @@ A list of properties is listed below:
 * *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
 * *icon_padding_left*: left padding of icon (default: 0)
 * *icon_padding_right*: right padding of icon (default: 0)
-* *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, default: *off*)
+* *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
  
 * *graph_color*: color of the associated graph
 * *background_color*: Draws a rectangular background for this item in the given color
@@ -193,10 +193,10 @@ A list of properties is listed below:
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
-* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, default: *off*)
-* *scripting*: If scripts should be executed (values: *on*, *off*, default: *on*)
-* *drawing*: If the item should be drawn into the bar (values: *on*, *off*, default: *on*)
-* *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, default: *off*)
+* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
+* *scripting*: If scripts should be executed (values: *on*, *off*, *toggle*,  default: *on*)
+* *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
+* *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
 ### Changing the default values for all further items
 ```bash

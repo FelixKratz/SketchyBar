@@ -94,6 +94,7 @@ void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color);
 void bar_item_update_label_color(struct bar_item* bar_item);
 void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool forced);
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string, bool forced);
+void bar_item_set_drawing(struct bar_item* bar_item, bool state);
 void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color);
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
