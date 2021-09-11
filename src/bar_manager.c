@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "bar.h"
 #include "bar_item.h"
 #include <_types/_uint32_t.h>
 #include <string.h>
@@ -133,6 +134,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->padding_left = 20;
   bar_manager->padding_right = 20;
   bar_manager->frozen = false;
+  bar_manager->window_level = NSFloatingWindowLevel;
 
   bar_item_init(&bar_manager->default_item, NULL);
   custom_events_init(&bar_manager->custom_events);
@@ -141,6 +143,31 @@ void bar_manager_init(struct bar_manager* bar_manager) {
 
   bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
+}
+
+void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
+  bar_manager_freeze(bar_manager);
+  for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
+  if (hidden) {
+    uint32_t level = bar_manager->window_level;
+    bar_manager->window_level = NSNormalWindowLevel;
+    bar_manager_begin(bar_manager);
+    bar_manager->window_level = level;
+  }
+  else {
+    bar_manager_begin(bar_manager);
+    bar_manager_unfreeze(bar_manager);
+    bar_manager_refresh(bar_manager, false);
+  }
+}
+
+void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
+  bar_manager_freeze(bar_manager);
+  for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
+  if (topmost) bar_manager->window_level = NSScreenSaverWindowLevel;
+  else bar_manager->window_level = NSFloatingWindowLevel;
+  bar_manager_begin(bar_manager);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_update_components(struct bar_manager* bar_manager, bool forced) {

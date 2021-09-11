@@ -1,5 +1,6 @@
 #ifndef BAR_MANAGER_H
 #define BAR_MANAGER_H
+#include <stdint.h>
 #define TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef TIMER_CALLBACK(timer_callback);
 
@@ -9,6 +10,7 @@ typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 
 struct bar_manager {
   bool frozen;
+  uint32_t window_level;
   CFRunLoopTimerRef refresh_timer;
   CFRunLoopTimerRef shell_refresh_timer;
   struct bar **bars;
@@ -48,6 +50,8 @@ void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
 void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
+void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden);
+void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
 void bar_manager_freeze(struct bar_manager *bar_manager);
 void bar_manager_unfreeze(struct bar_manager *bar_manager);
 

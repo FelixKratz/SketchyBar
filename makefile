@@ -2,12 +2,10 @@ FRAMEWORK_PATH = -F/System/Library/PrivateFrameworks
 FRAMEWORK      = -framework Carbon -framework Cocoa -framework SkyLight 
 BUILD_FLAGS    = -std=c99 -Wall -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 BUILD_PATH     = ./bin
-DOC_PATH       = ./doc
-SMP_PATH       = ./examples
-SKETCHYBAR_SRC   = ./src/manifest.m
+SKETCHYBAR_SRC = ./src/manifest.m
 BINS           = $(BUILD_PATH)/sketchybar
 
-.PHONY: all clean install man
+.PHONY: all clean install
 
 all: clean $(BINS)
 

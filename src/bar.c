@@ -294,10 +294,9 @@ struct bar *bar_create(uint32_t did) {
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   SLSSetWindowBackgroundBlurRadius(g_connection, bar->id, g_bar_manager.blur_radius);
   SLSSetMouseEventEnableFlags(g_connection, bar->id, false);
-  SLSSetWindowLevel(g_connection, bar->id, CGWindowLevelForKey(4));
+  SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
  
-  bar_redraw(bar);
   return bar;
 }
 

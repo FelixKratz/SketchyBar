@@ -116,6 +116,24 @@ update those files too.
 ## Configuration
 Below is a list of all possible commands you can currently use in the configuration file located in *~/.config/sketchybar/sketchybarrc*:
 
+### Note on batching configuration commands
+It is possible to batch commands together into a single call to sketchybar, this can be helpful to
+keep the configuration file a bit cleaner and also to reduce startup times.
+There always is a *standalone* version of a command and a *batch* version of the same command, with the
+difference being, that all *batch* commands can be joined into a single call, for example:
+```bash
+sketchybar -m config position top
+sketchybar -m add item demo left
+sketchybar -m set demo label Hello
+sketchybar -m subscribe demo system_woke
+```
+turns into:
+```bash
+sketchybar -m batch --config position=top        \
+                    --add item demo left         \
+                    --set demo label=Hello       \
+                    --subscribe demo system_woke
+```
 ### Global configuration of the bar
 ```bash
 sketchybar -m config <setting> <value>
@@ -136,10 +154,16 @@ where the settings currently are:
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself
 * *display*: on which display to show bar (*main* or *all*)
+* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*)
+* *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash
 sketchybar -m add item <name> <position>
+```
+with batching possible via:
+```bash
+sketchybar -m batch --add item <name> <position>
 ```
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*.
@@ -147,6 +171,10 @@ The *position* is the placement in the bar and can be either *left*, *right* or 
 ### Adding a component
 ```bash
 sketchybar -m add component <type> <name> <position>
+```
+or for batching of commands:
+```bash
+sketchybar -m batch --add component <type> <name> <position>
 ```
 Components are essentially items, but with special properties. 
 Currently there are the component *types*: 
@@ -233,18 +261,24 @@ sketchybar -m default reset
 ```bash
 sketchybar -m subscribe <name> <event> ... <event>
 ```
+the batching command is very similar:
+```bash
+sketchybar -m batch --subscribe <name> <event> ... <event>
+```
 where the events are:
 * *front_app_switched*: when frontmost application changes (not triggered if a different app of the same window is focused)
-* ~~*window_focus*: when a window is focused~~ (DEPRECATED, see custom event section)
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
-* ~~*title_change*: when the title of the window changes~~ (DEPRECATED, see custom event section)
 * *system_woke*: when the system has awaken from sleep
 
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash
 sketchybar -m add event <name> [optional: <NSDistributedNotificationName>]
+```
+and the batch version of this:
+```bash
+sketchybar -m batch --add event <name> [optional: <NSDistributedNotificationName>]
 ```
 Optional: You can hook the notifications sent to the NSDistributedNotificationCenter e.g.
 the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged"

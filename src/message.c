@@ -84,6 +84,8 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
 #define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
 #define COMMAND_CONFIG_BAR_DISPLAY                          "display"
+#define COMMAND_CONFIG_TOPMOST                              "topmost"
+#define COMMAND_CONFIG_HIDDEN                               "hidden"
 
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
@@ -465,6 +467,12 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
   } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_RIGHT)) {
     struct token token = get_token(&message);
     bar_manager_set_padding_right(&g_bar_manager, atoi(token.text));
+  } else if (token_equals(command, COMMAND_CONFIG_HIDDEN)) {
+    struct token token = get_token(&message);
+    bar_manager_set_hidden(&g_bar_manager, token_equals(token, ARGUMENT_COMMON_VAL_ON));
+  } else if (token_equals(command, COMMAND_CONFIG_TOPMOST)) {
+    struct token token = get_token(&message);
+    bar_manager_set_topmost(&g_bar_manager, token_equals(token, ARGUMENT_COMMON_VAL_ON));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
     if (length <= 0) {
