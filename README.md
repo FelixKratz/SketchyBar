@@ -154,8 +154,8 @@ where the settings currently are:
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself
 * *display*: on which display to show bar (*main* or *all*)
-* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*)
-* *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*)
+* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*)
+* *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash

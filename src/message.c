@@ -469,10 +469,10 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
     bar_manager_set_padding_right(&g_bar_manager, atoi(token.text));
   } else if (token_equals(command, COMMAND_CONFIG_HIDDEN)) {
     struct token token = get_token(&message);
-    bar_manager_set_hidden(&g_bar_manager, token_equals(token, ARGUMENT_COMMON_VAL_ON));
+    bar_manager_set_hidden(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.hidden));
   } else if (token_equals(command, COMMAND_CONFIG_TOPMOST)) {
     struct token token = get_token(&message);
-    bar_manager_set_topmost(&g_bar_manager, token_equals(token, ARGUMENT_COMMON_VAL_ON));
+    bar_manager_set_topmost(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.topmost));
   } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
     int length = strlen(message);
     if (length <= 0) {

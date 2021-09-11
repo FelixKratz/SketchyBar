@@ -135,6 +135,8 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->padding_right = 20;
   bar_manager->frozen = false;
   bar_manager->window_level = NSFloatingWindowLevel;
+  bar_manager->hidden = false;
+  bar_manager->topmost = false;
 
   bar_item_init(&bar_manager->default_item, NULL);
   custom_events_init(&bar_manager->custom_events);
@@ -157,8 +159,9 @@ void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
   else {
     bar_manager_begin(bar_manager);
     bar_manager_unfreeze(bar_manager);
-    bar_manager_refresh(bar_manager, false);
+    bar_manager_refresh(bar_manager, true);
   }
+  bar_manager->hidden = hidden;
 }
 
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
@@ -168,6 +171,8 @@ void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   else bar_manager->window_level = NSFloatingWindowLevel;
   bar_manager_begin(bar_manager);
   bar_manager_unfreeze(bar_manager);
+  bar_manager_refresh(bar_manager, true);
+  bar_manager->topmost = topmost;
 }
 
 void bar_manager_update_components(struct bar_manager* bar_manager, bool forced) {

@@ -10,6 +10,8 @@ typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 
 struct bar_manager {
   bool frozen;
+  bool hidden;
+  bool topmost;
   uint32_t window_level;
   CFRunLoopTimerRef refresh_timer;
   CFRunLoopTimerRef shell_refresh_timer;
