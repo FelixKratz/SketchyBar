@@ -12,8 +12,10 @@ extern bool g_verbose;
 
 #define DOMAIN_BATCH                                        "batch"
 #define COMMAND_BATCH_CONFIG                                "--config"
+#define COMMAND_BATCH_ADD                                   "--add"
 #define COMMAND_BATCH_SET                                   "--set"
 #define COMMAND_BATCH_DEFAULT                               "--default"
+#define COMMAND_BATCH_SUBSCRIBE                             "--subscribe"
 
 #define DOMAIN_ADD                                          "add"
 #define COMMAND_ADD_ITEM                                    "item"                                  
@@ -486,60 +488,86 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
   }
 }
 
-// Syntax: sketchybar -m batch --<key>=<value> ... <key>=<value>
-static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
-  struct token command = get_token(&message);
+static char* reformat_batch_key_value_pair(struct token token) {
+  char* key = NULL;
+  char* value = NULL;
+  get_key_value_pair(token.text, &key, &value);
+  if (!key) return NULL;
+  char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
+  pack_key_value_pair(rbr_msg, key, value);
+  return rbr_msg;
+}
 
-  if (token_equals(command, COMMAND_BATCH_SET)) {
-    struct token name  = get_token(&message);
-    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-    if (item_index_for_name < 0) {
-      printf("Name: %s not found in bar items \n", name.text);
-      return;
-    }
-    struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-    struct token token = get_token(&message);
-    while (token.text && token.length > 0) {
-      char* key = NULL;
-      char* value = NULL;
-      get_key_value_pair(token.text, &key, &value);
-      char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
-      pack_key_value_pair(rbr_msg, key, value);
-      if (!key) break;
-
-      bar_item_parse_set_message(bar_item, rbr_msg);
-      free(rbr_msg);
-      token = get_token(&message);
-    }
-  } else if (token_equals(command, COMMAND_BATCH_DEFAULT)) {
-    struct token token = get_token(&message);
-    while (token.text && token.length > 0) {
-      char* key = NULL;
-      char* value = NULL;
-      get_key_value_pair(token.text, &key, &value);
-      if (!key) break;
-      char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
-      pack_key_value_pair(rbr_msg, key, value);
-
-      handle_domain_default(rsp, domain, rbr_msg);
-      free(rbr_msg);
-      token = get_token(&message);
-    }
-  } else if (token_equals(command, COMMAND_BATCH_CONFIG)) {
-    struct token token = get_token(&message);
-    while (token.text && token.length > 0) {
-      char* key = NULL;
-      char* value = NULL;
-      get_key_value_pair(token.text, &key, &value);
-      if (!key) break;
-      char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
-      pack_key_value_pair(rbr_msg, key, value);
-
-      if (key && value) handle_domain_config(rsp, domain, rbr_msg);
-      free(rbr_msg);
-      token = get_token(&message);
-    }
+static char* get_batch_line(char** message) {
+  char* cursor = *message;
+  bool end_of_batch = false;
+  while (true) {
+    if (*cursor == '\0' && *(cursor + 1) == '\0') { end_of_batch = true; break; }
+    if (*cursor == '\0' && *(cursor + 1) == '-') break;
+    cursor++;
   }
+  char* rbr_msg = malloc(sizeof(char) * (cursor - *message + 2));
+  memcpy(rbr_msg, *message, sizeof(char) * (cursor - *message + 1));
+  *(rbr_msg + (cursor - *message + 1)) = '\0';
+  if (end_of_batch) *message = cursor;
+  else *message = cursor + 1;
+  return rbr_msg;
+}
+// Syntax: sketchybar -m batch --<mode> <key>=<value> ... <key>=<value> \
+//                             --<mode> <key>=<value> ... <key>=<value>
+static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
+  bar_manager_freeze(&g_bar_manager);
+  struct token command = get_token(&message);
+  while (command.text && command.length > 0) {
+    if (token_equals(command, COMMAND_BATCH_SET)) {
+      struct token name  = get_token(&message);
+      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+      if (item_index_for_name < 0) {
+        printf("Name: %s not found in bar items \n", name.text);
+        break;
+      }
+      struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        bar_item_parse_set_message(bar_item, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, COMMAND_BATCH_DEFAULT)) {
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        handle_domain_default(rsp, domain, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, COMMAND_BATCH_CONFIG)) {
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        handle_domain_config(rsp, domain, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, COMMAND_BATCH_ADD)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_add(rsp, domain, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, COMMAND_BATCH_SUBSCRIBE)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_subscribe(rsp, domain, rbr_msg);
+      free(rbr_msg);
+    }
+    command = get_token(&message);
+  }
+  bar_manager_unfreeze(&g_bar_manager);
   bar_manager_refresh(&g_bar_manager, false);
 }
 

@@ -250,3 +250,11 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, char* cont
   if (!name) return;
   bar_manager_custom_events_trigger(bar_manager, name);
 }
+
+void bar_manager_freeze(struct bar_manager *bar_manager) {
+  bar_manager->frozen = true;
+}
+
+void bar_manager_unfreeze(struct bar_manager *bar_manager) {
+  bar_manager->frozen = false;
+}
