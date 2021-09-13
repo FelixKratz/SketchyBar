@@ -29,7 +29,10 @@ struct bar_manager {
   uint32_t y_offset;
   uint32_t padding_left;
   uint32_t padding_right;
+
+  uint32_t border_width;
   struct rgba_color background_color;
+  struct rgba_color border_color;
   struct custom_events custom_events;
 };
 
@@ -54,6 +57,8 @@ void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t pad
 void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
 void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden);
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
+void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width);
+void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color);
 void bar_manager_freeze(struct bar_manager *bar_manager);
 void bar_manager_unfreeze(struct bar_manager *bar_manager);
 

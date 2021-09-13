@@ -75,6 +75,8 @@ extern bool g_verbose;
 #define DOMAIN_CONFIG                                       "config"
 #define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
 #define COMMAND_CONFIG_BAR_BACKGROUND                       "bar_color"
+#define COMMAND_CONFIG_BAR_BORDER_COLOR                     "border_color"
+#define COMMAND_CONFIG_BAR_BORDER_WIDTH                     "border_width"
 #define COMMAND_CONFIG_BAR_POSITION                         "position"
 #define COMMAND_CONFIG_BAR_HEIGHT                           "height"
 #define COMMAND_CONFIG_BAR_YOFFSET                          "y_offset"
@@ -449,6 +451,13 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
   } else if (token_equals(command, COMMAND_CONFIG_BAR_HEIGHT)) {
     struct token token = get_token(&message);
     bar_manager_set_height(&g_bar_manager, atoi(token.text));
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_BORDER_WIDTH)) {
+    struct token token = get_token(&message);
+    bar_manager_set_border_width(&g_bar_manager, atoi(token.text));
+  } else if (token_equals(command, COMMAND_CONFIG_BAR_BORDER_COLOR)) {
+    struct token token = get_token(&message);
+    uint32_t color = token_to_uint32t(token);
+    bar_manager_set_border_color(&g_bar_manager, color);
   } else if (token_equals(command, COMMAND_CONFIG_BAR_MARGIN)) {
     struct token token = get_token(&message);
     g_bar_manager.margin = token_to_uint32t(token);

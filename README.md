@@ -149,6 +149,8 @@ where the settings currently are:
 * *margin*: the screen padding around the bar itself
 * *y_offset*: the y-offset in pixels from the default position
 * *corner_radius*: the corner radius of the bar itself
+* *border_width*: the width of the bars border
+* *border_color*: the color of the bars border
 * *blur_radius*: the blur radius to be applied to the background of the bar itself
 * *padding_left*: padding on the left before first item 
 * *padding_right*: just as padding_right

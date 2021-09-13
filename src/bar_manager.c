@@ -1,6 +1,7 @@
 #include "bar_manager.h"
 #include "bar.h"
 #include "bar_item.h"
+#include "misc/helpers.h"
 #include <_types/_uint32_t.h>
 #include <string.h>
 
@@ -38,6 +39,16 @@ void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
 
 void bar_manager_set_background_color(struct bar_manager* bar_manager, uint32_t color) {
   bar_manager->background_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager, true);
+}
+
+void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color) {
+  bar_manager->border_color = rgba_color_from_hex(color);
+  bar_manager_refresh(bar_manager, true);
+}
+
+void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width) {
+  bar_manager->border_width = width;
   bar_manager_refresh(bar_manager, true);
 }
 
@@ -137,6 +148,9 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->window_level = NSFloatingWindowLevel;
   bar_manager->hidden = false;
   bar_manager->topmost = false;
+  bar_manager->border_width = 0;
+  bar_manager->border_color = rgba_color_from_hex(0xffff0000);
+  bar_manager->background_color = rgba_color_from_hex(0x44000000);
 
   bar_item_init(&bar_manager->default_item, NULL);
   custom_events_init(&bar_manager->custom_events);
