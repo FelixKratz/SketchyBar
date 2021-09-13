@@ -111,12 +111,12 @@ void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_
   CGContextStrokePath(bar->context);
   if (fill) {
     if (right_to_left) {
-      CGPathAddLineToPoint(p, NULL, x + sample_width, 0);
-      CGPathAddLineToPoint(p, NULL, start_x, 0);
+      CGPathAddLineToPoint(p, NULL, x + sample_width, y);
+      CGPathAddLineToPoint(p, NULL, start_x, y);
     }
     else {
-      CGPathAddLineToPoint(p, NULL, x - sample_width, 0);
-      CGPathAddLineToPoint(p, NULL, start_x, 0);
+      CGPathAddLineToPoint(p, NULL, x - sample_width, y);
+      CGPathAddLineToPoint(p, NULL, start_x, y);
     }
     CGPathCloseSubpath(p);
     CGContextAddPath(bar->context, p);
@@ -142,7 +142,7 @@ static int bar_get_center_length(struct bar_manager* bar_manager) {
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
-  bar_draw_graph_line(bar, &bar_item->graph_data, x, 0, right_to_left);
+  bar_draw_graph_line(bar, &bar_item->graph_data, x, g_bar_manager.border_width + 1, right_to_left);
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
