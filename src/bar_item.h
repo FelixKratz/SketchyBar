@@ -1,6 +1,7 @@
 #ifndef BAR_ITEM_H
 #define BAR_ITEM_H
 
+#include <_types/_uint32_t.h>
 #define BAR_ITEM      'i'
 #define BAR_COMPONENT 'c'
 #define BAR_PLUGIN    'p'
@@ -41,7 +42,11 @@ struct bar_item {
 
   // Background
   bool draws_background;
+  uint32_t background_height;
+  uint32_t background_corner_radius;
+  uint32_t background_border_width;
   struct rgba_color background_color;
+  struct rgba_color background_border_color;
 
   // Icon properties
   bool icon_highlight;
@@ -96,6 +101,11 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool 
 void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string, bool forced);
 void bar_item_set_drawing(struct bar_item* bar_item, bool state);
 void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color);
+void bar_item_set_background_border_color(struct bar_item* bar_item, uint32_t color);
+void bar_item_set_draws_background(struct bar_item* bar_item, bool enabled);
+void bar_item_set_background_height(struct bar_item* bar_item, uint32_t height);
+void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius);
+void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t border_width);
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
 

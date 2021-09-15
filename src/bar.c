@@ -147,15 +147,18 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
   if (!bar_item->draws_background) return;
-  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, 0}, {bar_item->bounding_rects[sid - 1]->size.width, bar->frame.size.height}};
-  draw_rect(bar->context, draw_region, &bar_item->background_color, 0, 0, NULL);
+  bool custom_height = bar_item->background_height != 0;
+  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)}, 
+                        {bar_item->bounding_rects[sid - 1]->size.width, custom_height ? bar_item->background_height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
+  draw_region = CGRectInset(draw_region, bar_item->background_border_width / 2, bar_item->background_border_width / 2);
+  draw_rect(bar->context, draw_region, &bar_item->background_color, bar_item->background_corner_radius, bar_item->background_border_width, &bar_item->background_border_color, false);
 }
 
 void bar_redraw(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
 
-  draw_rect(bar->context, bar->frame, &g_bar_manager.background_color, g_bar_manager.corner_radius, g_bar_manager.border_width, &g_bar_manager.border_color);
+  draw_rect(bar->context, bar->frame, &g_bar_manager.background_color, g_bar_manager.corner_radius, g_bar_manager.border_width, &g_bar_manager.border_color, true);
   
   uint32_t did = bar->adid;
   uint32_t sid = bar->sid;

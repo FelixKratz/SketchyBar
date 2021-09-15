@@ -216,9 +216,13 @@ A list of properties is listed below:
 * *icon_padding_left*: left padding of icon (default: 0)
 * *icon_padding_right*: right padding of icon (default: 0)
 * *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *draws_background*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
+* *background_color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
+* *background_border_color*: the color of the backgrounds border
+* *background_corner_radius*: the corner radius of the items background (default: 0)
+* *background_border_width*: the border width of the items background (default: 0)
  
 * *graph_color*: color of the associated graph
-* *background_color*: Draws a rectangular background for this item in the given color
  
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
@@ -249,6 +253,11 @@ this currently works for the properties:
 * *icon_padding_left*
 * *icon_padding_right*
 * *background_color*
+* *draws_background*
+* *background_color*
+* *background_border_color*
+* *background_corner_radius*
+* *background_border_width*
 * *update_freq*
 * *cache_scripts*
 * *scripting*

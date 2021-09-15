@@ -57,6 +57,11 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON_HIGHLIGHT_COLOR                    "icon_highlight_color"
 #define COMMAND_SET_ICON_HIGHLIGHT                          "icon_highlight"
 #define COMMAND_SET_BACKGROUND_COLOR                        "background_color"
+#define COMMAND_SET_BACKGROUND_BORDER_COLOR                 "background_border_color"
+#define COMMAND_SET_DRAWS_BACKGROUND                        "draws_background"
+#define COMMAND_SET_BACKGROUND_HEIGHT                       "background_height"
+#define COMMAND_SET_BACKGROUND_CORNER_RADIUS                "background_corner_radius"
+#define COMMAND_SET_BACKGROUND_BORDER_WIDTH                 "background_border_width"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
@@ -361,6 +366,14 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
     bar_item->icon_highlight = evaluate_boolean_state(get_token(&message), bar_item->icon_highlight);
     bar_item_update_icon_color(bar_item);
+  } else if (token_equals(property, COMMAND_SET_DRAWS_BACKGROUND)) {
+    bar_item_set_draws_background(bar_item, evaluate_boolean_state(get_token(&message), bar_item->draws_background));
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_HEIGHT)) {
+    bar_item_set_background_height(bar_item, token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_CORNER_RADIUS)) {
+    bar_item_set_background_corner_radius(bar_item, token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_WIDTH)) {
+    bar_item_set_background_border_width(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     bar_item_set_icon_font(bar_item, string_copy(message), false);
   } else if (token_equals(property, COMMAND_SET_LABEL_FONT)) {
@@ -375,6 +388,8 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     bar_item->graph_data.color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
     bar_item_set_background_color(bar_item, token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_COLOR)) {
+    bar_item_set_background_border_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
     bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT_COLOR)) {

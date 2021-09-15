@@ -9,6 +9,30 @@ struct bar_item* bar_item_create() {
   return bar_item;
 }
 
+void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
+  bar_item->scripting = ancestor->scripting;
+  bar_item->drawing = ancestor->drawing;
+  bar_item->icon_color = ancestor->icon_color;
+  bar_item->icon_font_name = ancestor->icon_font_name;
+  bar_item->label_color = ancestor->label_color;
+  bar_item->label_font_name = ancestor->label_font_name;
+  bar_item->icon_spacing_left = ancestor->icon_spacing_left;
+  bar_item->icon_spacing_right = ancestor->icon_spacing_right;
+  bar_item->label_spacing_left = ancestor->label_spacing_left;
+  bar_item->label_spacing_right = ancestor->label_spacing_right;
+  bar_item->update_frequency = ancestor->update_frequency;
+  bar_item->cache_scripts = ancestor->cache_scripts;
+  bar_item->icon_highlight_color = ancestor->icon_highlight_color;
+  bar_item->label_highlight_color = ancestor->label_highlight_color;
+  bar_item->background_color = ancestor->background_color;
+  bar_item->draws_background = ancestor->draws_background;
+  bar_item->background_height = ancestor->background_height;
+  bar_item->background_corner_radius = ancestor->background_corner_radius;
+  bar_item->background_border_color = ancestor->background_border_color;
+  bar_item->background_border_width = ancestor->background_border_width;
+
+}
+
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->needs_update = true;
   bar_item->lazy = false;
@@ -46,26 +70,13 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->num_rects = 0;
   bar_item->draws_background = false;
   bar_item->background_color = rgba_color_from_hex(0x44ff0000);
+  bar_item->background_border_color = rgba_color_from_hex(0x44ff0000);
+  bar_item->background_height = 0;
+  bar_item->background_corner_radius = 0;
+  bar_item->background_border_width = 0;
   bar_item->bounding_rects = NULL;
 
-  if (default_item) {
-    bar_item->scripting = default_item->scripting;
-    bar_item->drawing = default_item->drawing;
-    bar_item->icon_color = default_item->icon_color;
-    bar_item->icon_font_name = default_item->icon_font_name;
-    bar_item->label_color = default_item->label_color;
-    bar_item->label_font_name = default_item->label_font_name;
-    bar_item->icon_spacing_left = default_item->icon_spacing_left;
-    bar_item->icon_spacing_right = default_item->icon_spacing_right;
-    bar_item->label_spacing_left = default_item->label_spacing_left;
-    bar_item->label_spacing_right = default_item->label_spacing_right;
-    bar_item->update_frequency = default_item->update_frequency;
-    bar_item->cache_scripts = default_item->cache_scripts;
-    bar_item->icon_highlight_color = default_item->icon_highlight_color;
-    bar_item->label_highlight_color = default_item->label_highlight_color;
-    bar_item->background_color = default_item->background_color;
-    bar_item->draws_background = default_item->draws_background;
-  }
+  if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 
   bar_item_set_icon(bar_item, string_copy(""), false);
   bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name), true);
@@ -205,8 +216,47 @@ void bar_item_on_click(struct bar_item* bar_item) {
 }
 
 void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color) {
-  bar_item->background_color = rgba_color_from_hex(color);
-  bar_item->draws_background = true;
+  struct rgba_color target_color = rgba_color_from_hex(color);
+  if (bar_item->background_color.r == target_color.r 
+      && bar_item->background_color.g == target_color.g 
+      && bar_item->background_color.b == target_color.b 
+      && bar_item->background_color.a == target_color.a) return;
+  bar_item->background_color = target_color;
+  bar_item_set_draws_background(bar_item, true);
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_background_border_color(struct bar_item* bar_item, uint32_t color) {
+  struct rgba_color target_color = rgba_color_from_hex(color);
+  if (bar_item->background_border_color.r == target_color.r 
+      && bar_item->background_border_color.g == target_color.g 
+      && bar_item->background_border_color.b == target_color.b 
+      && bar_item->background_border_color.a == target_color.a) return;
+  bar_item->background_border_color = target_color;
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_draws_background(struct bar_item* bar_item, bool enabled) {
+  if (bar_item->draws_background == enabled) return;
+  bar_item->draws_background = enabled;
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_background_height(struct bar_item* bar_item, uint32_t height) {
+  if (bar_item->background_height == height) return;
+  bar_item->background_height = height;
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t border_width) {
+  if (bar_item->background_border_width == border_width) return;
+  bar_item->background_border_width = border_width;
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius) {
+  if (bar_item->background_corner_radius == corner_radius) return;
+  bar_item->background_corner_radius = corner_radius;
   bar_item_needs_update(bar_item);
 }
 

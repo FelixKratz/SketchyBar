@@ -46,12 +46,12 @@ static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
 
-static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_color* fill_color, uint32_t corner_radius, uint32_t line_width, struct rgba_color* stroke_color ) {
+static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_color* fill_color, uint32_t corner_radius, uint32_t line_width, struct rgba_color* stroke_color, bool clear) {
   CGContextSetLineWidth(context, line_width);
   if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
   CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
   
-  CGContextClearRect(context, region);
+  if (clear) CGContextClearRect(context, region);
   CGMutablePathRef path = CGPathCreateMutable();
   CGPathAddRoundedRect(path, NULL, CGRectInset(region, line_width / 2, line_width / 2), corner_radius, corner_radius);
   CGContextAddPath(context, path);
