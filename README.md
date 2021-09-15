@@ -17,6 +17,33 @@ Features:
 * Batch configuration messages for easy configuration
 * Performance friendly
 
+Table of Contents
+=================
+
+* [SketchyBar](#sketchybar)
+   * [Description](#description)
+   * [Installation](#installation)
+      * [Stable Version](#stable-version)
+      * [Development Version](#development-version)
+      * [Switching branches and uninstalling](#switching-branches-and-uninstalling)
+      * [Plugins and Fonts](#plugins-and-fonts)
+   * [Updating](#updating)
+   * [Configuration](#configuration)
+      * [Note on batching configuration commands](#note-on-batching-configuration-commands)
+      * [Global configuration of the bar](#global-configuration-of-the-bar)
+      * [Adding a simple menubar item (items will appear in the bar in the order they are added)](#adding-a-simple-menubar-item-items-will-appear-in-the-bar-in-the-order-they-are-added)
+      * [Adding a component](#adding-a-component)
+      * [Changing the properties of an item](#changing-the-properties-of-an-item)
+      * [Changing the default values for all further items](#changing-the-default-values-for-all-further-items)
+      * [Subscribing items to system events for their script execution](#subscribing-items-to-system-events-for-their-script-execution)
+      * [Creating custom events](#creating-custom-events)
+      * [Triggering custom events](#triggering-custom-events)
+      * [Supplying data for graphs](#supplying-data-for-graphs)
+      * [Forcing all shell scripts to run and the bar to refresh](#forcing-all-shell-scripts-to-run-and-the-bar-to-refresh)
+      * [Completely remove an item](#completely-remove-an-item)
+      * [Freeze and unfreeze the bar](#freeze-and-unfreeze-the-bar)
+   * [Scripting](#scripting)
+   * [Credits](#credits)
 
 ## Description
 This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
