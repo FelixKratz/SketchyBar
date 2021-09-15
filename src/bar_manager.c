@@ -196,9 +196,9 @@ void bar_manager_update_components(struct bar_manager* bar_manager, bool forced)
 
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
-      uint32_t did = display_arrangement(bar->did);
+      uint32_t did = bar->adid;
 
-      if (((1 << did) & bar_item->associated_display) && strcmp(bar_item->identifier, BAR_COMPONENT_SPACE)== 0) {
+      if (((1 << did) & bar_item->associated_display) && bar_item->type == BAR_COMPONENT_SPACE) {
         uint32_t sid = bar->sid;
         if (sid == 0) continue;
         if ((!bar_item->selected || forced) && bar_item->associated_space & (1 << sid)) {
@@ -240,9 +240,10 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
+      bar_redraw(bar_manager->bars[index - 1]);
     }
   }
-  else return;
+
 }
 
 void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_manager, uint32_t pattern) {

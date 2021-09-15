@@ -359,11 +359,15 @@ When an item invokes a script, the script has access to some environment variabl
 $NAME 
 ```
 Which is the name of the item that has invoked the script.
-The space component has an additional variable
+The space component has additional variables:
 ```bash
 $SELECTED
+$SID
+$DID
 ```
-which has the value *true* if the associated space is selected and *false* if the selected space is not selected.
+where $SELETCTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
+$SID holds the space id and $DID the display id.
+
 By default the space component invokes the script:
 ```bash
 if [ "$SELECTED" = "true" ]; then 

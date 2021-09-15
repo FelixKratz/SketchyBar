@@ -2,9 +2,14 @@
 #define BAR_ITEM_H
 
 #include <_types/_uint32_t.h>
-#define BAR_ITEM      'i'
-#define BAR_COMPONENT 'c'
-#define BAR_PLUGIN    'p'
+#define BAR_ITEM            'i'
+#define BAR_COMPONENT_GRAPH 'g'
+#define BAR_COMPONENT_SPACE 's'
+#define BAR_PLUGIN          'p'
+
+#define BAR_POSITION_LEFT   'l'
+#define BAR_POSITION_RIGHT  'r'
+#define BAR_POSITION_CENTER 'c'
 
 #define UPDATE_FRONT_APP_SWITCHED 1
 #define UPDATE_SPACE_CHANGE       1 << 1
@@ -21,7 +26,6 @@ struct bar_item {
   bool selected;
   int counter;
   char type;
-  char* identifier;
   
   // These are 32bit masks where the ith bit represents the ith screen/display association
   uint32_t associated_display;
@@ -86,7 +90,10 @@ struct bar_item* bar_item_create();
 void bar_item_destroy(struct bar_item* bar_item);
 void bar_item_script_update(struct bar_item* bar_item, bool forced);
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
+void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);
+void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit);
 void bar_item_set_name(struct bar_item* bar_item, char* name);
+void bar_item_set_type(struct bar_item* bar_item, char type);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);
 void bar_item_set_padding_left(struct bar_item* bar_item, uint32_t pad);

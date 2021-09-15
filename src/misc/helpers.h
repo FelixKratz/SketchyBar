@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <stdint.h>
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
 
@@ -8,11 +9,9 @@
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern int g_connection;
 
-static const char *bool_str[] = { "off", "on" };
-
 struct signal_args {
-    char name[2][255];
-    char value[2][255];
+    char name[4][255];
+    char value[4][255];
     void *entity;
     void *param1;
 };
@@ -26,8 +25,7 @@ struct rgba_color {
     float a;
 };
 
-static struct rgba_color
-rgba_color_from_hex(uint32_t color) {
+static struct rgba_color rgba_color_from_hex(uint32_t color) {
     struct rgba_color result;
     result.is_valid = true;
     result.p = color;
@@ -46,6 +44,16 @@ static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
 
+static inline uint32_t get_set_bit_position(uint32_t mask) {
+  if (mask == 0) return UINT32_MAX;
+  uint32_t pos = 0;
+  while (!(mask & 1)) {
+    mask >>= 1;
+    pos++;
+  }
+  return pos;
+}
+
 static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_color* fill_color, uint32_t corner_radius, uint32_t line_width, struct rgba_color* stroke_color, bool clear) {
   CGContextSetLineWidth(context, line_width);
   if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
@@ -59,7 +67,7 @@ static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_co
   CFRelease(path);
 }
 
-static bool cgrect_contains_point(CGRect* r, CGPoint* p) {
+static inline bool cgrect_contains_point(CGRect* r, CGPoint* p) {
     return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
            p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;
 }
@@ -162,6 +170,8 @@ static bool sync_exec(char *command, struct signal_args *args) {
     if (args) {
         if (*args->name[0]) setenv(args->name[0], args->value[0], 1);
         if (*args->name[1]) setenv(args->name[1], args->value[1], 1);
+        if (*args->name[2]) setenv(args->name[2], args->value[2], 1);
+        if (*args->name[3]) setenv(args->name[3], args->value[3], 1);
     }
 
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};

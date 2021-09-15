@@ -94,7 +94,6 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_TOPMOST                              "topmost"
 #define COMMAND_CONFIG_HIDDEN                               "hidden"
 
-
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_TRUE                            "true"
 #define ARGUMENT_COMMON_VAL_YES                             "yes"
@@ -103,13 +102,6 @@ extern bool g_verbose;
 #define ARGUMENT_COMMON_VAL_NO                              "no"
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
 #define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
-
-#define BAR_COMPONENT_SPACE                                 "space"
-#define BAR_COMPONENT_GRAPH                                 "graph"
-
-#define BAR_POSITION_LEFT                                   'l'
-#define BAR_POSITION_RIGHT                                  'r'
-#define BAR_POSITION_CENTER                                 'c'
 
 #define BAR_DISPLAY_MAIN_ONLY                               "main"
 #define BAR_DISPLAY_ALL                                     "all"
@@ -306,22 +298,19 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   if (token_equals(command, COMMAND_ADD_ITEM)) {
     name = get_token(&message);
     position = get_token(&message);
-    bar_item->type = BAR_ITEM;
-    bar_item->identifier = token_to_string(name);
+    bar_item_set_type(bar_item, BAR_ITEM);
   } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
     struct token identifier = get_token(&message);
     name = get_token(&message);
     position = get_token(&message);
 
-    bar_item->type = BAR_COMPONENT;
-    bar_item->identifier = token_to_string(identifier);
-    if (strcmp(bar_item->identifier, BAR_COMPONENT_GRAPH) == 0) {
+    bar_item_set_type(bar_item, identifier.text[0]);
+    if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
       graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
-      
       bar_item->has_graph = true;
     }
-    else if (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) == 0) {
+    else if (bar_item->type == BAR_COMPONENT_SPACE) {
       bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then sketchybar -m set $NAME icon_highlight on; else sketchybar -m set $NAME icon_highlight off; fi"));
       bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     }
@@ -329,10 +318,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     struct token identifier = get_token(&message);
     name = get_token(&message);
     position = get_token(&message);
-
-    bar_item->type = BAR_PLUGIN;
-    bar_item->identifier = token_to_string(identifier);
-  }   else {
+    bar_item_set_type(bar_item, identifier.text[0]);
+  } else {
     printf("Command: %s not found \n", command.text);
   }
   struct token modifier = get_token(&message);
@@ -405,14 +392,14 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item->associated_space |= 1 << strtoul(&token.text[sep + 1], NULL, 0);
+      bar_item_append_associated_space(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
   } else if (token_equals(property, COMMAND_SET_ASSOCIATED_DISPLAY)) {
     struct token token = get_token(&message);
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item->associated_display |= 1 << strtoul(&token.text[sep + 1], NULL, 0);
+      bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
     bar_item->icon_spacing_left = token_to_uint32t(get_token(&message));

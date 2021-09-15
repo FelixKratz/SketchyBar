@@ -1,6 +1,7 @@
 #include "bar_item.h"
 #include "graph_data.h"
 #include "misc/helpers.h"
+#include <stdint.h>
 #include <string.h>
 
 struct bar_item* bar_item_create() {
@@ -44,7 +45,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
-  bar_item->identifier = "";
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
   bar_item->script = "";
@@ -88,6 +88,26 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   strncpy(&bar_item->signal_args.value[1][0], "false", 255);
 }
 
+void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
+  bar_item->associated_space |= bit;
+  if (bar_item->type == BAR_COMPONENT_SPACE) {
+    bar_item->associated_space = bit;
+    char sid_str[32];
+    sprintf(sid_str, "%u", get_set_bit_position(bit));
+    strncpy(&bar_item->signal_args.value[2][0], sid_str, 255);
+  }
+}
+
+void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit) {
+  bar_item->associated_display |= bit;
+  if (bar_item->type == BAR_COMPONENT_SPACE) {
+    bar_item->associated_display = bit;
+    char did_str[32];
+    sprintf(did_str, "%u", get_set_bit_position(bit));
+    strncpy(&bar_item->signal_args.value[3][0], did_str, 255);
+  }
+}
+
 void bar_item_script_update(struct bar_item* bar_item, bool forced) {
   if (!bar_item->scripting || (bar_item->update_frequency == 0 && !forced)) return;
   if (strlen(bar_item->script) > 0) {
@@ -113,6 +133,17 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (name != bar_item->name && !bar_item->name) free(bar_item->name);
   bar_item->name = name;
   strncpy(&bar_item->signal_args.value[0][0], name, 255);
+}
+
+void bar_item_set_type(struct bar_item* bar_item, char type) {
+  bar_item->type = type;
+  if (type == BAR_COMPONENT_SPACE) {
+    bar_item->scripting = false;
+    strncpy(&bar_item->signal_args.name[2][0], "SID", 255);
+    strncpy(&bar_item->signal_args.value[2][0], "0", 255);
+    strncpy(&bar_item->signal_args.name[3][0], "DID", 255);
+    strncpy(&bar_item->signal_args.value[3][0], "0", 255);
+  }
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
@@ -296,7 +327,6 @@ void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->icon_font_name) free(bar_item->icon_font_name);
   if (bar_item->label) free(bar_item->label);
   if (bar_item->label_font_name) free(bar_item->label_font_name);
-  if (bar_item->identifier) free(bar_item->identifier);
 
   if (bar_item->bounding_rects) {  
     for (int j = 0; j < bar_item->num_rects; j++) {

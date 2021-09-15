@@ -155,11 +155,6 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
 }
 
 void bar_redraw(struct bar* bar) {
-  SLSDisableUpdate(g_connection);
-  SLSOrderWindow(g_connection, bar->id, -1, 0);
-
-  draw_rect(bar->context, bar->frame, &g_bar_manager.background_color, g_bar_manager.corner_radius, g_bar_manager.border_width, &g_bar_manager.border_color, true);
-  
   uint32_t did = bar->adid;
   uint32_t sid = bar->sid;
   if (sid == 0) return;
@@ -168,11 +163,15 @@ void bar_redraw(struct bar* bar) {
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
 
+  SLSDisableUpdate(g_connection);
+  SLSOrderWindow(g_connection, bar->id, -1, 0);
+  draw_rect(bar->context, bar->frame, &g_bar_manager.background_color, g_bar_manager.corner_radius, g_bar_manager.border_width, &g_bar_manager.border_color, true);
+
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     if (!bar_item->drawing) continue;
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
-    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (strcmp(bar_item->identifier, BAR_COMPONENT_SPACE) != 0)) continue;
+    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
@@ -222,7 +221,6 @@ void bar_redraw(struct bar* bar) {
     bar_item->is_shown = true;
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
     
-    // Actual drawing
     bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y);
     bar_draw_line(bar, label, label_position.x, label_position.y);
