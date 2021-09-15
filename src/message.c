@@ -96,7 +96,11 @@ extern bool g_verbose;
 
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
+#define ARGUMENT_COMMON_VAL_TRUE                            "true"
+#define ARGUMENT_COMMON_VAL_YES                             "yes"
 #define ARGUMENT_COMMON_VAL_OFF                             "off"
+#define ARGUMENT_COMMON_VAL_FALSE                           "false"
+#define ARGUMENT_COMMON_VAL_NO                              "no"
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
 #define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
 
@@ -198,7 +202,7 @@ static void pack_key_value_pair(char* cursor, char* key, char* value) {
 
 
 static bool evaluate_boolean_state(struct token state, bool previous_state) {
-  if (token_equals(state, ARGUMENT_COMMON_VAL_ON)) return true;
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE)) return true;
   else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
   else return false;
 }

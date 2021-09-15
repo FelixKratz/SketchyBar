@@ -252,7 +252,6 @@ this currently works for the properties:
 * *icon_highlight_color*
 * *icon_padding_left*
 * *icon_padding_right*
-* *background_color*
 * *draws_background*
 * *background_color*
 * *background_border_color*
