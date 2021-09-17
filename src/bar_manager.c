@@ -163,6 +163,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
 
 void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
   bar_manager_freeze(bar_manager);
+  bar_manager->hidden = hidden;
   for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
   if (hidden) {
     uint32_t level = bar_manager->window_level;
@@ -175,7 +176,6 @@ void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
     bar_manager_unfreeze(bar_manager);
     bar_manager_refresh(bar_manager, true);
   }
-  bar_manager->hidden = hidden;
 }
 
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
@@ -240,7 +240,7 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
-      bar_redraw(bar_manager->bars[index - 1]);
+      if (!bar_manager->hidden) bar_redraw(bar_manager->bars[index - 1]);
     }
   }
 
