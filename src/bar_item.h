@@ -5,6 +5,7 @@
 #define BAR_ITEM            'i'
 #define BAR_COMPONENT_GRAPH 'g'
 #define BAR_COMPONENT_SPACE 's'
+#define BAR_COMPONENT_ALIAS 'a'
 #define BAR_PLUGIN          'p'
 
 #define BAR_POSITION_LEFT   'l'
@@ -77,6 +78,10 @@ struct bar_item {
   // Graph Data
   bool has_graph;
   struct graph_data graph_data;
+
+  // Alias Data
+  bool has_alias;
+  struct alias alias;
 
   // Update Events
   uint32_t update_mask;

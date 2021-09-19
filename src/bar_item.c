@@ -75,6 +75,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->background_corner_radius = 0;
   bar_item->background_border_width = 0;
   bar_item->bounding_rects = NULL;
+  bar_item->has_alias = false;
 
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 

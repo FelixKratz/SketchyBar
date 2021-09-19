@@ -154,6 +154,12 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
   draw_rect(bar->context, draw_region, &bar_item->background_color, bar_item->background_corner_radius, bar_item->background_border_width, &bar_item->background_border_color, false);
 }
 
+void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
+  if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
+  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.size.y) / 2},{bar_item->alias.size.x, bar_item->alias.size.y}};
+  CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
+}
+
 void bar_redraw(struct bar* bar) {
   uint32_t did = bar->adid;
   uint32_t sid = bar->sid;
@@ -172,6 +178,7 @@ void bar_redraw(struct bar* bar) {
     if (!bar_item->drawing) continue;
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
+    if (bar_item->has_alias) alias_update_image(&bar_item->alias);
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
@@ -190,6 +197,9 @@ void bar_redraw(struct bar* bar) {
         if (!bar_item->nospace) 
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
+      if (bar_item->has_alias) {
+        bar_left_final_item_x += bar_item->alias.size.x;
+      }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
@@ -202,6 +212,10 @@ void bar_redraw(struct bar* bar) {
         graph_rtl = true;
         if (!bar_item->nospace) 
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
+      } 
+      if (bar_item->has_alias) {
+        icon_position.x -= bar_item->alias.size.x;
+        bar_right_first_item_x -= bar_item->alias.size.x;
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
@@ -215,6 +229,9 @@ void bar_redraw(struct bar* bar) {
         if (!bar_item->nospace) 
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
+      if (bar_item->has_alias) {
+        bar_center_first_item_x += bar_item->alias.size.x;
+      }
     }
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
@@ -223,6 +240,7 @@ void bar_redraw(struct bar* bar) {
     
     bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y);
+    bar_draw_alias(bar, bar_item, icon_position.x);
     bar_draw_line(bar, label, label_position.x, label_position.y);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
@@ -243,8 +261,8 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
   if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
     origin.y = CGRectGetMaxY(bounds) - g_bar_manager.height - 2*g_bar_manager.y_offset;
   } else if (display_menu_bar_visible()) {
-    CGRect menu = display_menu_bar_rect(bar->did);
-    origin.y   += menu.size.height;
+    //CGRect menu = display_menu_bar_rect(bar->did);
+    //origin.y   += menu.size.height;
   }
 
   bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};

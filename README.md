@@ -380,6 +380,27 @@ which you can freely configure to your liking by supplying a different script to
 For performance reasons the space script is only run on change.
 I plan on increasing the available environment variables in scripting step by step but if you have a suggestion let me know in the issues.
 
+## Experimental Features
+These are highly experimental features that need some work, but are included on HEAD anyways, because they do not interfere with
+the rest of the bar.
+### Default Menu Bar Item Alias
+It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though and needs some serious work
+till it will be usable without headache.
+
+Important: Autohiding of the default menu bar *must* be disabled, such that the bar is shown on screen before starting sketchybar. <br>
+Sketchybar needs to be configured with *topmost* set to on, such that it draws on top of the default menu bar. <br>
+I recommend turning off transparency of the bar and setting *margin* and *y_offset* to 0 and the *height* of the bar to at least 24, so that
+sketchybar completely occludes the default bar. <br>
+I also highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
+
+It is now possible to create an alias of a default menu bar item with the following syntax:
+```bash
+sketchybar -m add alias <application_name> <position>
+```
+this operation requires screen capture permissions, which should be granted in the system preferences.
+This will put the default item into sketchybar. 
+Aliases currently are not clickable.
+
 ## Credits
 yabai,
 spacebar,
