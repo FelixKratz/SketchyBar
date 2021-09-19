@@ -6,9 +6,10 @@ void alias_get_permission(struct alias* alias) {
   if (@available(macOS 10.15, *)) alias->permission = CGRequestScreenCaptureAccess();
 }
 
-void alias_init(struct alias* alias, char* name) {
+void alias_init(struct alias* alias, char* owner, char* name) {
   alias->using_light_colors = true;
   alias->name = name;
+  alias->owner = owner;
   alias->wid = 0;
   alias->image_ref = NULL;
   alias_get_permission(alias);
@@ -28,10 +29,12 @@ void alias_find_window(struct alias* alias) {
     if (!name_ref) continue;
     if (!owner_ref) continue;
     char* owner = cfstring_copy(owner_ref);
+    char* name = cfstring_copy(name_ref);
     if (!owner) continue;
 
-    if (strcmp(alias->name, owner) != 0) { free(owner); continue; }
+    if (!(alias->owner && strcmp(alias->owner, owner) == 0 && ((alias->name && strcmp(alias->name, name) == 0) || !alias->name))) { free(owner); free(name); continue; }
     free(owner);
+    free(name);
 
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
     if (!layer_ref) continue;

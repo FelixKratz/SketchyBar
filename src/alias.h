@@ -7,12 +7,13 @@ struct alias {
   bool using_light_colors;
   bool permission;
   char* name;
+  char* owner;
   uint32_t wid;
   CGImageRef image_ref;
   CGPoint size;
 };
 
-void alias_init(struct alias* alias, char* name);
+void alias_init(struct alias* alias, char* owner, char* name);
 bool alias_update_image(struct alias* alias);
 void alias_find_window(struct alias* alias);
 

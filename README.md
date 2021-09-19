@@ -401,6 +401,17 @@ this operation requires screen capture permissions, which should be granted in t
 This will put the default item into sketchybar. 
 Aliases currently are not clickable.
 
+The command can be overloaded by providing a *window_owner* and a *window_name*
+```bash
+sketchybar -m add alias <window_owner>,<window_name> <position>
+```
+this way the default system items can also be slurped into sketchybar, e.g.:
+
+Owner: Control Center, Name: Bluetooth <br>
+Owner: Control Center, Name: WiFi <br>
+Owner: Control Center, Name: UserSwitcher <br>
+Owner: TextInputSwitcher, Name: Keyboard Input <br>
+Owner: SystemUIServer, Name: AppleTimeMachineExtra <br>
 ## Credits
 yabai,
 spacebar,

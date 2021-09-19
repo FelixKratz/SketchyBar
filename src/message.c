@@ -1,6 +1,8 @@
 #include "message.h"
+#include "alias.h"
 #include "bar_item.h"
 #include "bar_manager.h"
+#include "misc/helpers.h"
 #include <_types/_uint32_t.h>
 #include <string.h>
 
@@ -160,15 +162,15 @@ static struct token get_token(char **message) {
   return token;
 }
 
-static void get_key_value_pair(char *token, char **key, char **value) {
+static void get_key_value_pair(char *token, char **key, char **value, char split) {
     *key = token;
 
     while (*token) {
-        if (token[0] == '=') break;
+        if (token[0] == split) break;
         ++token;
     }
 
-    if (*token != '=') {
+    if (*token != split) {
         *key = NULL;
         *value = NULL;
     } else if (token[1]) {
@@ -315,7 +317,13 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
-      alias_init(&bar_item->alias, token_to_string(name));
+      char* owner = NULL;
+      char* nme = NULL;
+      get_key_value_pair(name.text, &owner, &nme, ',');
+      if (!nme || !owner)
+        alias_init(&bar_item->alias, token_to_string(name), NULL);
+      else
+        alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
       bar_item->has_alias = true;
     }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
@@ -518,7 +526,7 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
 static char* reformat_batch_key_value_pair(struct token token) {
   char* key = NULL;
   char* value = NULL;
-  get_key_value_pair(token.text, &key, &value);
+  get_key_value_pair(token.text, &key, &value, '=');
   if (!key) return NULL;
   char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
   pack_key_value_pair(rbr_msg, key, value);
