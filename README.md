@@ -21,6 +21,7 @@ Table of Contents
 =================
 
 * [SketchyBar](#sketchybar)
+* [Table of Contents](#table-of-contents)
    * [Description](#description)
    * [Installation](#installation)
       * [Stable Version](#stable-version)
@@ -43,9 +44,10 @@ Table of Contents
       * [Completely remove an item](#completely-remove-an-item)
       * [Freeze and unfreeze the bar](#freeze-and-unfreeze-the-bar)
    * [Scripting](#scripting)
-   * [Credits](#credits)
+   * [Experimental Features](#experimental-features)
+      * [Default Menu Bar Item Alias](#default-menu-bar-item-alias)
+   * [Credits](#credits)## Description
 
-## Description
 This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
 shell scripts and want to make their statusbar show exactly the information they need for their workflow.
 
