@@ -22,13 +22,18 @@ void alias_find_window(struct alias* alias) {
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
+
     CFStringRef owner_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerName);
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
-    
+    char* owner = cfstring_copy(owner_ref);
+    if (!owner) continue;
+
+    if (strcmp(alias->name, owner) != 0) { free(owner); continue; }
+    free(owner);
+
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
-    printf("Moind \n");
     if (!layer_ref) continue;
 
     uint64_t layer = 0;
@@ -37,14 +42,8 @@ void alias_find_window(struct alias* alias) {
 
     CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary, kCGWindowNumber);
     if (!window_id_ref) continue;
-    CGWindowID window_id = 0;
-    CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &window_id);
-    char* owner = cfstring_copy(owner_ref);
+    CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &alias->wid);
 
-    if (strcmp(alias->name, owner) != 0) { free(owner); continue; }
-    alias->wid = window_id;
-
-    free(owner);
     CFRelease(window_list);
     return;
   }
@@ -54,8 +53,11 @@ void alias_find_window(struct alias* alias) {
 
 bool alias_update_image(struct alias* alias) {
   if (alias->wid == 0) alias_find_window(alias); 
-  if (alias->wid == 0) { alias->image_ref = NULL; return false; }
-  if (alias->image_ref) CFRelease(alias->image_ref);
+  if (alias->wid == 0) { 
+    alias->image_ref = NULL; 
+    return false; 
+  }
+  CGImageRelease(alias->image_ref);
   alias->image_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
                                              alias->wid, kCGWindowImageBestResolution);
   if (!alias->image_ref) {
