@@ -2,11 +2,16 @@
 #include "misc/helpers.h"
 #include <string.h>
 
+void alias_get_permission(struct alias* alias) {
+  if (@available(macOS 10.15, *)) alias->permission = CGRequestScreenCaptureAccess();
+}
+
 void alias_init(struct alias* alias, char* name) {
   alias->using_light_colors = true;
   alias->name = name;
   alias->wid = 0;
   alias->image_ref = NULL;
+  alias_get_permission(alias);
   alias_update_image(alias);
 }
 
@@ -23,6 +28,7 @@ void alias_find_window(struct alias* alias) {
     if (!owner_ref) continue;
     
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
+    printf("Moind \n");
     if (!layer_ref) continue;
 
     uint64_t layer = 0;
@@ -34,13 +40,11 @@ void alias_find_window(struct alias* alias) {
     CGWindowID window_id = 0;
     CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &window_id);
     char* owner = cfstring_copy(owner_ref);
-    char* name = cfstring_copy(name_ref);
 
-    if (strcmp(alias->name, owner) != 0) { free(owner); free(name); continue; }
+    if (strcmp(alias->name, owner) != 0) { free(owner); continue; }
     alias->wid = window_id;
 
     free(owner);
-    free(name);
     CFRelease(window_list);
     return;
   }
@@ -54,7 +58,12 @@ bool alias_update_image(struct alias* alias) {
   if (alias->image_ref) CFRelease(alias->image_ref);
   alias->image_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
                                              alias->wid, kCGWindowImageBestResolution);
-  if (!alias->image_ref) return false;
+  if (!alias->image_ref) {
+    alias->size.x = 0;
+    alias->size.y = 0;
+    return false;
+  }
+
   alias->size.x = CGImageGetWidth(alias->image_ref);
   alias->size.y = CGImageGetHeight(alias->image_ref);
   return true;

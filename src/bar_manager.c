@@ -172,8 +172,8 @@ void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
     bar_manager->window_level = level;
   }
   else {
-    bar_manager_begin(bar_manager);
     bar_manager_unfreeze(bar_manager);
+    bar_manager_begin(bar_manager);
     bar_manager_refresh(bar_manager, true);
   }
 }

@@ -5,6 +5,7 @@
 
 struct alias {
   bool using_light_colors;
+  bool permission;
   char* name;
   uint32_t wid;
   CGImageRef image_ref;
