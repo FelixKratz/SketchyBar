@@ -46,7 +46,9 @@ Table of Contents
    * [Scripting](#scripting)
    * [Experimental Features](#experimental-features)
       * [Default Menu Bar Item Alias](#default-menu-bar-item-alias)
-   * [Credits](#credits)## Description
+   * [Credits](#credits)
+
+## Description
 
 This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
 shell scripts and want to make their statusbar show exactly the information they need for their workflow.
@@ -401,7 +403,7 @@ sketchybar -m add alias <application_name> <position>
 ```
 this operation requires screen capture permissions, which should be granted in the system preferences.
 This will put the default item into sketchybar. 
-Aliases currently are not clickable.
+Aliases currently are not clickable but can be modified with all the options available for simple items.
 
 The command can be overloaded by providing a *window_owner* and a *window_name*
 ```bash
@@ -411,9 +413,16 @@ this way the default system items can also be slurped into sketchybar, e.g.:
 
 Owner: Control Center, Name: Bluetooth <br>
 Owner: Control Center, Name: WiFi <br>
+Owner: Control Center Name: Sound
 Owner: Control Center, Name: UserSwitcher <br>
 Owner: TextInputSwitcher, Name: Keyboard Input <br>
 Owner: SystemUIServer, Name: AppleTimeMachineExtra <br>
+
+Or the individual widgets of [Stats](https://github.com/exelban/stats):<br>
+Owner: Stats Name: CPU_Mini<br>
+Owner: Stats Name: RAM_Mini<br>
+Owner: Stats Name: Network_Speed<br>
+etc...
 ## Credits
 yabai,
 spacebar,

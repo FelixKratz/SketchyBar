@@ -30,7 +30,7 @@ void alias_find_window(struct alias* alias) {
     if (!owner_ref) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
-    if (!owner) continue;
+    //printf("Owner: %s Name: %s \n", owner, name);
 
     if (!(alias->owner && strcmp(alias->owner, owner) == 0 && ((alias->name && strcmp(alias->name, name) == 0) || !alias->name))) { free(owner); free(name); continue; }
     free(owner);

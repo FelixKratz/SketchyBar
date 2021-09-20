@@ -319,11 +319,13 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
       char* owner = NULL;
       char* nme = NULL;
-      get_key_value_pair(name.text, &owner, &nme, ',');
+      char* tmp_name = string_copy(name.text);
+      get_key_value_pair(tmp_name, &owner, &nme, ',');
       if (!nme || !owner)
         alias_init(&bar_item->alias, token_to_string(name), NULL);
       else
         alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
+      free(tmp_name);
       bar_item->has_alias = true;
     }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
