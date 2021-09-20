@@ -13,6 +13,7 @@ struct alias {
   CGPoint size;
 };
 
+void print_all_menu_items();
 void alias_init(struct alias* alias, char* owner, char* name);
 bool alias_update_image(struct alias* alias);
 void alias_find_window(struct alias* alias);

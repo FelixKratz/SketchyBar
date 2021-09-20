@@ -59,8 +59,8 @@ struct bar_item {
   char* icon;
   char* icon_font_name;
   CTFontRef icon_font;
-  uint32_t icon_spacing_left;
-  uint32_t icon_spacing_right;
+  int icon_spacing_left;
+  int icon_spacing_right;
   struct rgba_color icon_color;
   struct rgba_color icon_highlight_color;
 
@@ -70,8 +70,8 @@ struct bar_item {
   char* label;
   char* label_font_name;
   CTFontRef label_font;
-  uint32_t label_spacing_left;
-  uint32_t label_spacing_right;
+  int label_spacing_left;
+  int label_spacing_right;
   struct rgba_color label_color;
   struct rgba_color label_highlight_color;
 

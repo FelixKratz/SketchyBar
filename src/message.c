@@ -96,6 +96,8 @@ extern bool g_verbose;
 #define COMMAND_CONFIG_TOPMOST                              "topmost"
 #define COMMAND_CONFIG_HIDDEN                               "hidden"
 
+#define DOMAIN_QUERY_MENU_ITEMS                             "query_menu_items"
+
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_TRUE                            "true"
 #define ARGUMENT_COMMON_VAL_YES                             "yes"
@@ -135,6 +137,14 @@ static uint32_t token_to_uint32t(struct token token) {
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
   return strtoul(buffer, NULL, 0);
+}
+
+
+static int token_to_int(struct token token) {
+  char buffer[token.length + 1];
+  memcpy(buffer, token.text, token.length);
+  buffer[token.length] = '\0';
+  return (int) strtol(buffer, NULL, 0);
 }
 
 static float token_to_float(struct token token) {
@@ -416,13 +426,13 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
       bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
-    bar_item->icon_spacing_left = token_to_uint32t(get_token(&message));
+    bar_item->icon_spacing_left = token_to_int(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
-    bar_item->icon_spacing_right = token_to_uint32t(get_token(&message));
+    bar_item->icon_spacing_right = token_to_int(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
-    bar_item->label_spacing_left = token_to_uint32t(get_token(&message));
+    bar_item->label_spacing_left = token_to_int(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
-    bar_item->label_spacing_right = token_to_uint32t(get_token(&message));
+    bar_item->label_spacing_right = token_to_int(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
     bar_item->cache_scripts = evaluate_boolean_state(get_token(&message), bar_item->cache_scripts);
   } else if (token_equals(property, COMMAND_SET_LAZY)) {
@@ -635,6 +645,8 @@ void handle_message(FILE *rsp, char *message) {
     handle_domain_trigger(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_FREEZE)) {
     handle_domain_freeze(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_QUERY_MENU_ITEMS)) {
+    print_all_menu_items();
   } else {
     daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
   }
