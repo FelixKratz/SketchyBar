@@ -42,7 +42,8 @@ extern bool g_verbose;
 #define COMMAND_SET_ENABLED                                 "enabled" // TODO: Add deprecation notice
 #define COMMAND_SET_HIDDEN                                  "hidden" // TOD0: Add deprecation notice
 #define COMMAND_SET_DRAWING                                 "drawing"
-#define COMMAND_SET_SCRIPTING                               "scripting"
+#define COMMAND_SET_SCRIPTING                               "scripting" // TODO: Add deprecation notice
+#define COMMAND_SET_UPDATES                                 "updates"
 #define COMMAND_SET_POSITION                                "position"
 #define COMMAND_SET_ASSOCIATED_DISPLAY                      "associated_display"
 #define COMMAND_SET_ASSOCIATED_SPACE                        "associated_space"
@@ -371,8 +372,8 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     bar_item_set_label_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
     bar_item_set_icon_color(bar_item, token_to_uint32t(get_token(&message)));
-  } else if (token_equals(property, COMMAND_SET_SCRIPTING)) {
-    bar_item->scripting = evaluate_boolean_state(get_token(&message), bar_item->scripting);
+  } else if (token_equals(property, COMMAND_SET_SCRIPTING) || token_equals(property, COMMAND_SET_UPDATES)) {
+    bar_item->updates = evaluate_boolean_state(get_token(&message), bar_item->updates);
   } else if (token_equals(property, COMMAND_SET_DRAWING)) {
     bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {
@@ -445,7 +446,7 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   else if (token_equals(property, COMMAND_SET_ENABLED)) {
     printf("Command: enabled soon to be deprecated: Use drawing and scripting commands \n");
     bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
-    bar_item->scripting = evaluate_boolean_state(get_token(&message), bar_item->scripting);
+    bar_item->updates = evaluate_boolean_state(get_token(&message), bar_item->updates);
   } else if (token_equals(property, COMMAND_SET_HIDDEN)) {
     printf("Command: hidden soon to be deprecated: Use drawing command \n");
     bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
@@ -634,8 +635,8 @@ void handle_message(FILE *rsp, char *message) {
   } else if (token_equals(domain, DOMAIN_REMOVE)){
     handle_domain_remove(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_UPDATE)) {
-    bar_manager_update_components(&g_bar_manager, true);
-    bar_manager_script_update(&g_bar_manager, true);
+    bar_manager_update_space_components(&g_bar_manager, true);
+    bar_manager_update(&g_bar_manager, true);
     bar_manager_refresh(&g_bar_manager, true);
   } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
     handle_domain_subscribe(rsp, domain, message);

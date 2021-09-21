@@ -189,39 +189,39 @@ void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   bar_manager->topmost = topmost;
 }
 
-void bar_manager_update_components(struct bar_manager* bar_manager, bool forced) {
+void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-    if (!bar_item->is_shown && !forced) continue;
+    if ((!bar_item->is_shown && !forced) || bar_item->type != BAR_COMPONENT_SPACE) continue;
 
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
       uint32_t did = bar->adid;
 
-      if (((1 << did) & bar_item->associated_display) && bar_item->type == BAR_COMPONENT_SPACE) {
+      if (((1 << did) & bar_item->associated_display)) {
         uint32_t sid = bar->sid;
         if (sid == 0) continue;
         if ((!bar_item->selected || forced) && bar_item->associated_space & (1 << sid)) {
           bar_item->selected = true;
-          bar_item->scripting = true;
+          bar_item->updates = true;
           strncpy(&bar_item->signal_args.value[1][0], "true", 255);
         }
         else if ((bar_item->selected || forced) && !(bar_item->associated_space & (1 << sid))) {
           bar_item->selected = false;
-          bar_item->scripting = true;
+          bar_item->updates = true;
           strncpy(&bar_item->signal_args.value[1][0], "false", 255);
         }
         else {
-          bar_item->scripting = false;
+          bar_item->updates = false;
         }
       } 
     }
   }
 }
 
-void bar_manager_script_update(struct bar_manager* bar_manager, bool forced) {
+void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_item_script_update(bar_manager->bar_items[i], forced);
+    bar_item_update(bar_manager->bar_items[i], forced);
   }
 }
 
@@ -250,7 +250,7 @@ void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_mana
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->update_mask & pattern)
-      bar_item_script_update(bar_item, true);
+      bar_item_update(bar_item, true);
   }
 }
 
@@ -276,7 +276,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; i++) bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
-  bar_manager_update_components(bar_manager, false);
+  bar_manager_update_space_components(bar_manager, false);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
   bar_manager_refresh(bar_manager, true);
 }
@@ -286,7 +286,7 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
-  bar_manager_update_components(bar_manager, false);
+  bar_manager_update_space_components(bar_manager, false);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SYSTEM_WOKE);
   bar_manager_refresh(bar_manager, true);
 }

@@ -11,7 +11,7 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
-  bar_item->scripting = ancestor->scripting;
+  bar_item->updates = ancestor->updates;
   bar_item->drawing = ancestor->drawing;
   bar_item->icon_color = ancestor->icon_color;
   bar_item->icon_font_name = ancestor->icon_font_name;
@@ -38,7 +38,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->needs_update = true;
   bar_item->lazy = false;
   bar_item->drawing = true;
-  bar_item->scripting = true;
+  bar_item->updates = true;
   bar_item->is_shown = false;
   bar_item->nospace = false;
   bar_item->selected = false;
@@ -109,8 +109,9 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
   }
 }
 
-void bar_item_script_update(struct bar_item* bar_item, bool forced) {
-  if (!bar_item->scripting || (bar_item->update_frequency == 0 && !forced)) return;
+void bar_item_update(struct bar_item* bar_item, bool forced) {
+  if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return;
+
   if (strlen(bar_item->script) > 0) {
     bar_item->counter++;
     if (bar_item->update_frequency <= bar_item->counter || forced) {
@@ -139,7 +140,7 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
   if (type == BAR_COMPONENT_SPACE) {
-    bar_item->scripting = false;
+    bar_item->updates = false;
     strncpy(&bar_item->signal_args.name[2][0], "SID", 255);
     strncpy(&bar_item->signal_args.value[2][0], "0", 255);
     strncpy(&bar_item->signal_args.name[3][0], "DID", 255);

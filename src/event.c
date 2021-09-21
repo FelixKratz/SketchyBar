@@ -81,7 +81,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
 
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     debug("%s\n", __FUNCTION__);
-    bar_manager_script_update(&g_bar_manager, false);
+    bar_manager_update(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
