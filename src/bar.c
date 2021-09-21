@@ -315,6 +315,7 @@ struct bar *bar_create(uint32_t did) {
   SLSSetMouseEventEnableFlags(g_connection, bar->id, false);
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
+  CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
  
   return bar;
 }

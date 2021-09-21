@@ -6,7 +6,7 @@
 //extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
 
 void print_all_menu_items() {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID); 
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
@@ -14,20 +14,24 @@ void print_all_menu_items() {
     if (!dictionary) continue;
 
     CFStringRef owner_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerName);
+    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerPID);
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
+    if (!owner_pid_ref) continue;
 
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
     if (!layer_ref) continue;
 
     uint64_t layer = 0;
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
+    uint64_t owner_pid = 0;
+    CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &owner_pid);
     if (layer != MENUBAR_LAYER) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    printf("Menu Item -> Owner: %s, Name: %s \n", owner, name);
+    printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
 
     free(owner);
     free(name);
@@ -50,7 +54,7 @@ void alias_init(struct alias* alias, char* owner, char* name) {
 }
 
 void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID); 
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
@@ -58,6 +62,7 @@ void alias_find_window(struct alias* alias) {
     if (!dictionary) continue;
 
     CFStringRef owner_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerName);
+    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerPID);
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
@@ -74,6 +79,8 @@ void alias_find_window(struct alias* alias) {
     uint64_t layer = 0;
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     if (layer != MENUBAR_LAYER) continue;
+
+    CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &alias->pid);
 
     CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary, kCGWindowNumber);
     if (!window_id_ref) continue;
@@ -105,7 +112,7 @@ bool alias_update_image(struct alias* alias) {
   }*/
 
   alias->image_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
-                                                     alias->wid, kCGWindowImageBestResolution);
+                                                     alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
   if (!alias->image_ref) {
     alias->size.x = 0;
     alias->size.y = 0;

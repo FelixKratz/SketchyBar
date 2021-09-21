@@ -8,6 +8,7 @@ struct alias {
   bool permission;
   char* name;
   char* owner;
+  uint64_t pid;
   uint32_t wid;
   CGImageRef image_ref;
   CGPoint size;
