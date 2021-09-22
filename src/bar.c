@@ -150,7 +150,7 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
   if (!bar_item->draws_background) return;
   bool custom_height = bar_item->background_height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)}, 
+  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)},
                         {bar_item->bounding_rects[sid - 1]->size.width, custom_height ? bar_item->background_height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
   draw_region = CGRectInset(draw_region, bar_item->background_border_width / 2, bar_item->background_border_width / 2);
   draw_rect(bar->context, draw_region, &bar_item->background_color, bar_item->background_corner_radius, bar_item->background_border_width, &bar_item->background_border_color, false);
@@ -194,11 +194,11 @@ void bar_redraw(struct bar* bar) {
       icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       
-      if (!bar_item->nospace) 
+      if (!bar_item->nospace)
         bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
       if (bar_item->has_graph) {
         graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x;
-        if (!bar_item->nospace) 
+        if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
       if (bar_item->has_alias) {
@@ -209,14 +209,14 @@ void bar_redraw(struct bar* bar) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
       icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left;
 
-      if (!bar_item->nospace) 
+      if (!bar_item->nospace)
         bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
       if (bar_item->has_graph) {
         graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left : bar_right_first_item_x;
         graph_rtl = true;
-        if (!bar_item->nospace) 
+        if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
-      } 
+      }
       if (bar_item->has_alias) {
         icon_position.x -= bar_item->alias.size.x;
         bar_right_first_item_x -= bar_item->alias.size.x;
@@ -226,11 +226,11 @@ void bar_redraw(struct bar* bar) {
       icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
 
-      if (!bar_item->nospace) 
+      if (!bar_item->nospace)
         bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
       if (bar_item->has_graph) {
         graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_center_first_item_x;
-        if (!bar_item->nospace) 
+        if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
       if (bar_item->has_alias) {
@@ -241,7 +241,7 @@ void bar_redraw(struct bar* bar) {
     bar_item->icon_line.bounds.origin = icon_position;
     bar_item_append_associated_bar(bar_item, (1 << (bar->adid - 1)));
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
-    
+
     bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y);
     bar_draw_alias(bar, bar_item, icon_position.x);

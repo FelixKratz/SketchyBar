@@ -6,7 +6,7 @@
 //extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
 
 void print_all_menu_items() {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
   printf("Total Windows: %d \n", window_count);
 
@@ -32,7 +32,7 @@ void print_all_menu_items() {
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    if (strcmp(name, "") == 0) continue; 
+    if (strcmp(name, "") == 0) continue;
     printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
 
     free(owner);
@@ -56,7 +56,7 @@ void alias_init(struct alias* alias, char* owner, char* name) {
 }
 
 void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
@@ -97,10 +97,10 @@ void alias_find_window(struct alias* alias) {
 
 
 bool alias_update_image(struct alias* alias) {
-  if (alias->wid == 0) alias_find_window(alias); 
-  if (alias->wid == 0) { 
-    alias->image_ref = NULL; 
-    return false; 
+  if (alias->wid == 0) alias_find_window(alias);
+  if (alias->wid == 0) {
+    alias->image_ref = NULL;
+    return false;
   }
 
   // Capture Bar Item with SkyLight private framework
@@ -122,7 +122,7 @@ bool alias_update_image(struct alias* alias) {
   }
 
   CGImageRelease(alias->image_ref);
-  alias->image_ref = tmp_ref;   
+  alias->image_ref = tmp_ref;
   alias->size.x = CGImageGetWidth(alias->image_ref);
   alias->size.y = CGImageGetHeight(alias->image_ref);
   // Bar Item Cropping
