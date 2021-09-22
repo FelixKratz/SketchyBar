@@ -13,7 +13,8 @@ extern bool g_verbose;
 //TODO: Add signal setup for bar_item to listen on events and update dynamically
 
 #define DOMAIN_BATCH                                        "batch"
-#define COMMAND_BATCH_CONFIG                                "--config"
+#define COMMAND_BATCH_CONFIG                                "--config" // Add deprecation notice
+#define COMMAND_BATCH_BAR                                   "--bar"
 #define COMMAND_BATCH_ADD                                   "--add"
 #define COMMAND_BATCH_SET                                   "--set"
 #define COMMAND_BATCH_DEFAULT                               "--default"
@@ -80,22 +81,23 @@ extern bool g_verbose;
 #define COMMAND_SUBSCRIBE_DISPLAY_CHANGE                    "display_change"
 #define COMMAND_SUBSCRIBE_SYSTEM_WOKE                       "system_woke"
 
-#define DOMAIN_CONFIG                                       "config"
-#define COMMAND_CONFIG_DEBUG_OUTPUT                         "debug_output"
-#define COMMAND_CONFIG_BAR_BACKGROUND                       "bar_color"
-#define COMMAND_CONFIG_BAR_BORDER_COLOR                     "border_color"
-#define COMMAND_CONFIG_BAR_BORDER_WIDTH                     "border_width"
-#define COMMAND_CONFIG_BAR_POSITION                         "position"
-#define COMMAND_CONFIG_BAR_HEIGHT                           "height"
-#define COMMAND_CONFIG_BAR_YOFFSET                          "y_offset"
-#define COMMAND_CONFIG_BAR_MARGIN                           "margin"
-#define COMMAND_CONFIG_BAR_CORNER_RADIUS                    "corner_radius"
-#define COMMAND_CONFIG_BAR_BLUR_RADIUS                      "blur_radius"
-#define COMMAND_CONFIG_BAR_PADDING_LEFT                     "padding_left"
-#define COMMAND_CONFIG_BAR_PADDING_RIGHT                    "padding_right"
-#define COMMAND_CONFIG_BAR_DISPLAY                          "display"
-#define COMMAND_CONFIG_TOPMOST                              "topmost"
-#define COMMAND_CONFIG_HIDDEN                               "hidden"
+#define DOMAIN_CONFIG                                       "config" // Add deprecation notice
+#define DOMAIN_BAR                                          "bar"
+#define COMMAND_DEBUG_OUTPUT                                "debug_output"
+#define COMMAND_BAR_BACKGROUND                              "bar_color"
+#define COMMAND_BAR_BORDER_COLOR                            "border_color"
+#define COMMAND_BAR_BORDER_WIDTH                            "border_width"
+#define COMMAND_BAR_POSITION                                "position"
+#define COMMAND_BAR_HEIGHT                                  "height"
+#define COMMAND_BAR_YOFFSET                                 "y_offset"
+#define COMMAND_BAR_MARGIN                                  "margin"
+#define COMMAND_BAR_CORNER_RADIUS                           "corner_radius"
+#define COMMAND_BAR_BLUR_RADIUS                             "blur_radius"
+#define COMMAND_BAR_PADDING_LEFT                            "padding_left"
+#define COMMAND_BAR_PADDING_RIGHT                           "padding_right"
+#define COMMAND_BAR_DISPLAY                                 "display"
+#define COMMAND_BAR_TOPMOST                                 "topmost"
+#define COMMAND_BAR_HIDDEN                                  "hidden"
 
 #define DOMAIN_QUERY_MENU_ITEMS                             "query_menu_items"
 
@@ -471,48 +473,48 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
 
-static void handle_domain_config(FILE *rsp, struct token domain, char *message) {
+static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   struct token command  = get_token(&message);
 
-  if (token_equals(command, COMMAND_CONFIG_BAR_BACKGROUND)) {
+  if (token_equals(command, COMMAND_BAR_BACKGROUND)) {
     struct token value = get_token(&message);
     uint32_t color = token_to_uint32t(value);
     bar_manager_set_background_color(&g_bar_manager, color);
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_HEIGHT)) {
+  } else if (token_equals(command, COMMAND_BAR_HEIGHT)) {
     struct token token = get_token(&message);
     bar_manager_set_height(&g_bar_manager, atoi(token.text));
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_BORDER_WIDTH)) {
+  } else if (token_equals(command, COMMAND_BAR_BORDER_WIDTH)) {
     struct token token = get_token(&message);
     bar_manager_set_border_width(&g_bar_manager, atoi(token.text));
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_BORDER_COLOR)) {
+  } else if (token_equals(command, COMMAND_BAR_BORDER_COLOR)) {
     struct token token = get_token(&message);
     uint32_t color = token_to_uint32t(token);
     bar_manager_set_border_color(&g_bar_manager, color);
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_MARGIN)) {
+  } else if (token_equals(command, COMMAND_BAR_MARGIN)) {
     struct token token = get_token(&message);
     g_bar_manager.margin = token_to_uint32t(token);
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_YOFFSET)) {
+  } else if (token_equals(command, COMMAND_BAR_YOFFSET)) {
     struct token token = get_token(&message);
     g_bar_manager.y_offset = token_to_uint32t(token);
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_CORNER_RADIUS)) {
+  } else if (token_equals(command, COMMAND_BAR_CORNER_RADIUS)) {
     struct token token = get_token(&message);
     g_bar_manager.corner_radius = token_to_uint32t(token);
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_BLUR_RADIUS)) {
+  } else if (token_equals(command, COMMAND_BAR_BLUR_RADIUS)) {
     struct token token = get_token(&message);
     bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_LEFT)) {
+  } else if (token_equals(command, COMMAND_BAR_PADDING_LEFT)) {
     struct token token = get_token(&message);
     bar_manager_set_padding_left(&g_bar_manager, atoi(token.text));
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_PADDING_RIGHT)) {
+  } else if (token_equals(command, COMMAND_BAR_PADDING_RIGHT)) {
     struct token token = get_token(&message);
     bar_manager_set_padding_right(&g_bar_manager, atoi(token.text));
-  } else if (token_equals(command, COMMAND_CONFIG_HIDDEN)) {
+  } else if (token_equals(command, COMMAND_BAR_HIDDEN)) {
     struct token token = get_token(&message);
     bar_manager_set_hidden(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.hidden));
-  } else if (token_equals(command, COMMAND_CONFIG_TOPMOST)) {
+  } else if (token_equals(command, COMMAND_BAR_TOPMOST)) {
     struct token token = get_token(&message);
     bar_manager_set_topmost(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.topmost));
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_DISPLAY)) {
+  } else if (token_equals(command, COMMAND_BAR_DISPLAY)) {
     int length = strlen(message);
     if (length <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.display);
@@ -521,7 +523,7 @@ static void handle_domain_config(FILE *rsp, struct token domain, char *message) 
     } else {
       daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
     }
-  } else if (token_equals(command, COMMAND_CONFIG_BAR_POSITION)) {
+  } else if (token_equals(command, COMMAND_BAR_POSITION)) {
     if (strlen(message) <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.position);
     } else if (strcmp(message, BAR_POSITION_TOP) != 0 && strcmp(message, BAR_POSITION_BOTTOM) != 0) {
@@ -593,12 +595,12 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
         if (message && message[0] == '-') break;
         token = get_token(&message);
       }
-    } else if (token_equals(command, COMMAND_BATCH_CONFIG)) {
+    } else if (token_equals(command, COMMAND_BATCH_BAR) || token_equals(command, COMMAND_BATCH_CONFIG)) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);
         if (!rbr_msg) break;
-        handle_domain_config(rsp, domain, rbr_msg);
+        handle_domain_bar(rsp, domain, rbr_msg);
         free(rbr_msg);
         if (message && message[0] == '-') break;
         token = get_token(&message);
@@ -627,8 +629,8 @@ void handle_message(FILE *rsp, char *message) {
     handle_domain_batch(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_PUSH)) {
     handle_domain_push(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_CONFIG)) {
-    handle_domain_config(rsp, domain, message);
+  } else if (token_equals(domain, DOMAIN_BAR) || token_equals(domain, DOMAIN_CONFIG)) {
+    handle_domain_bar(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_ADD)){
     handle_domain_add(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_REMOVE)){

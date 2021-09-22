@@ -153,25 +153,25 @@ keep the configuration file a bit cleaner and also to reduce startup times.
 There always is a *standalone* version of a command and a *batch* version of the same command, with the
 difference being, that all *batch* commands can be joined into a single call, for example:
 ```bash
-sketchybar -m config position top
+sketchybar -m bar position top
 sketchybar -m add item demo left
 sketchybar -m set demo label Hello
 sketchybar -m subscribe demo system_woke
 ```
 turns into:
 ```bash
-sketchybar -m batch --config position=top        \
+sketchybar -m batch --bar position=top        \
                     --add item demo left         \
                     --set demo label=Hello       \
                     --subscribe demo system_woke
 ```
 ### Global configuration of the bar
 ```bash
-sketchybar -m config <setting> <value>
+sketchybar -m bar <setting> <value>
 ```
 or when you want to batch configurations:
 ```bash
-sketchybar -m batch --config <setting>=<value> ... <setting>=<value>
+sketchybar -m batch --bar <setting>=<value> ... <setting>=<value>
 ```
 
 where the settings currently are:

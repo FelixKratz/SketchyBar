@@ -1,5 +1,5 @@
 ############## BAR ############## 
-sketchybar -m batch --config height=25          \
+sketchybar -m batch --bar    height=25          \
                              blur_radius=50     \
                              position=top       \
                              padding_left=10    \
