@@ -3,10 +3,11 @@
 #include <stdint.h>
 #include <string.h>
 
-//extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
+extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
+extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef image);
 
 void print_all_menu_items() {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
   printf("Total Windows: %d \n", window_count);
 
@@ -56,7 +57,7 @@ void alias_init(struct alias* alias, char* owner, char* name) {
 }
 
 void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
@@ -104,16 +105,18 @@ bool alias_update_image(struct alias* alias) {
   }
 
   // Capture Bar Item with SkyLight private framework
+  CGImageRef tmp_ref;
   /*CFArrayRef image_refs = SLSHWCaptureWindowList(g_connection, &alias->wid, 1, 1 << 8 | 1 << 11);
   if (image_refs && CFArrayGetCount(image_refs) > 0) {
-    alias->image_ref = (CGImageRef) CFArrayGetValueAtIndex(image_refs, 0); 
+    tmp_ref = (CGImageRef) CFArrayGetValueAtIndex(image_refs, 0); 
   }
   else {
-    alias->image_ref = NULL;
+    tmp_ref = NULL;
   }*/
+  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8 | 1 << 11, &tmp_ref);
 
-  CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
-                                               alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
+  //CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
+   //                                            alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
 
   if (!tmp_ref) {
     alias->size.x = 0;

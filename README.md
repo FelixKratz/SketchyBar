@@ -6,6 +6,7 @@ Features:
 * The order of the widgets in the sketchybarrc file will be the order in which they show in the bar
 * Associate widgets to certain displays or spaces, to show specific information on the relevant screens/displays
 * The widgets are highly customizable with settings for different fonts, colors, icon paddings, label paddings, etc. for each individual element
+* Display default menu items and configure them just as normal items
 * Draw arbitrary graphs in the bar with external data provider scripts that push the data into the graph
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
@@ -389,16 +390,10 @@ I plan on increasing the available environment variables in scripting step by st
 These are highly experimental features that need some work, but are included on HEAD anyways, because they do not interfere with
 the rest of the bar.
 ### Default Menu Bar Item Alias
-It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though and needs some serious work
-till it will be usable without headache.
+It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though so please post the issues you encounter.
 
 Important: <br>
-This currently only works properly with single display setups, very laggy startup on multi-desktop... <br>
-Autohiding of the default menu bar *must* be disabled, such that the bar is shown on screen before starting sketchybar. <br>
-Sketchybar needs to be configured with *topmost* set to on, such that it draws on top of the default menu bar. <br>
-I recommend turning off transparency of the bar and setting *margin* and *y_offset* to 0 and the *height* of the bar to at least 24, so that
-sketchybar completely occludes the default bar. <br>
-I also highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
+I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
 
 It is now possible to create an alias of a default menu bar item with the following syntax:
 ```bash
