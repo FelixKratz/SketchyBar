@@ -163,6 +163,7 @@ void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
 }
 
 void bar_redraw(struct bar* bar) {
+  if (bar->hidden) return;
   uint32_t did = bar->adid;
   uint32_t sid = bar->sid;
   if (sid == 0) return;
@@ -238,7 +239,7 @@ void bar_redraw(struct bar* bar) {
     }
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
-    bar_item_append_associated_bar(bar_item, (1 << bar->index));
+    bar_item_append_associated_bar(bar_item, (1 << (bar->adid - 1)));
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
     
     bar_draw_item_background(bar, bar_item, sid);
@@ -274,6 +275,7 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 }
 
 void bar_resize(struct bar *bar) {
+  if (bar->hidden) return;
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
 
@@ -286,14 +288,14 @@ void bar_resize(struct bar *bar) {
   CFRelease(frame_region);
 }
 
-struct bar *bar_create(uint32_t did) {
-  struct bar *bar = malloc(sizeof(struct bar));
-  memset(bar, 0, sizeof(struct bar));
-  bar->did = did;
-  bar->sid = mission_control_index(display_space_id(did));
-  bar->adid = display_arrangement(did);
-  bar->index = 0;
+void bar_set_hidden(struct bar* bar, bool hidden) {
+  if (bar->hidden == hidden) return;
+  if (hidden) bar_close_window(bar);
+  else bar_create_window(bar);
+  bar->hidden = hidden;
+}
 
+void bar_create_window(struct bar* bar) {
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
       kCGSModalWindowTagBit |
@@ -320,12 +322,24 @@ struct bar *bar_create(uint32_t did) {
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
- 
+}
+
+void bar_close_window(struct bar* bar) {
+  CGContextRelease(bar->context);
+  SLSReleaseWindow(g_connection, bar->id);
+}
+
+struct bar *bar_create(uint32_t did) {
+  struct bar *bar = malloc(sizeof(struct bar));
+  memset(bar, 0, sizeof(struct bar));
+  bar->hidden = false;
+  bar->did = did;
+  bar->sid = mission_control_index(display_space_id(did));
+  bar_create_window(bar);
   return bar;
 }
 
 void bar_destroy(struct bar *bar) {
-  CGContextRelease(bar->context);
-  SLSReleaseWindow(g_connection, bar->id);
+  bar_close_window(bar);
   free(bar);
 }

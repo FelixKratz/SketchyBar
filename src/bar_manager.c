@@ -108,7 +108,7 @@ void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
 
 void bar_manager_clear_association_for_bar(struct bar_manager* bar_manager, struct bar* bar) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) 
-    bar_item_remove_associated_bar(bar_manager->bar_items[i], (1 << bar->index));
+    bar_item_remove_associated_bar(bar_manager->bar_items[i], (1 << (bar->adid - 1)));
 }
 
 void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
@@ -151,6 +151,7 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
 }
 
 void bar_manager_init(struct bar_manager* bar_manager) {
+  bar_manager->any_bar_hidden = false;
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
@@ -165,7 +166,6 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->padding_right = 20;
   bar_manager->frozen = false;
   bar_manager->window_level = NSFloatingWindowLevel;
-  bar_manager->hidden = false;
   bar_manager->topmost = false;
   bar_manager->border_width = 0;
   bar_manager->border_color = rgba_color_from_hex(0xffff0000);
@@ -180,16 +180,19 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
 }
 
-void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
-  bar_manager_freeze(bar_manager);
-  bar_manager->hidden = hidden;
-  for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
-  bar_manager->bar_count = 0;
-  if (!hidden) {
-    bar_manager_unfreeze(bar_manager);
-    bar_manager_begin(bar_manager);
-    bar_manager_refresh(bar_manager, true);
+void bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool hidden) {
+  bar_manager->any_bar_hidden = false;
+  if (adid > 0) {
+    bar_set_hidden(bar_manager->bars[adid - 1], hidden);
+    bar_manager->any_bar_hidden |= hidden;
   }
+  else {
+    for (int i = 0; i < bar_manager->bar_count; i++) {
+      bar_set_hidden(bar_manager->bars[i], hidden);
+      bar_manager->any_bar_hidden |= hidden;
+    }
+  }
+  bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
@@ -241,6 +244,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
+  if (bar_manager->frozen) return;
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     needs_refresh |= bar_item_update(bar_manager->bar_items[i], forced);
@@ -255,7 +259,7 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
     bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
     memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
-    bar_manager->bars[0]->index = 0;
+    bar_manager->bars[0]->adid = 1;
   } 
   else if (strcmp(bar_manager->display, BAR_DISPLAY_ALL) == 0) {
     bar_manager->bar_count = display_active_display_count();
@@ -264,8 +268,7 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
-      bar_manager->bars[index - 1]->index = index - 1;
-      if (!bar_manager->hidden) bar_redraw(bar_manager->bars[index - 1]);
+      bar_manager->bars[index - 1]->adid = index;
     }
   }
 }
@@ -311,7 +314,7 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager_update_space_components(bar_manager, false);
-  bar_manager_update_alias_components(bar_manager, false);
+  //bar_manager_update_alias_components(bar_manager, false);
   bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SYSTEM_WOKE);
   bar_manager_refresh(bar_manager, true);
 }

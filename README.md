@@ -187,7 +187,7 @@ where the settings currently are:
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself
 * *display*: on which display to show bar (*main* or *all*)
-* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*)
+* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
@@ -392,7 +392,9 @@ the rest of the bar.
 It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though and needs some serious work
 till it will be usable without headache.
 
-Important: Autohiding of the default menu bar *must* be disabled, such that the bar is shown on screen before starting sketchybar. <br>
+Important: <br>
+This currently only works properly with single display setups, very laggy startup on multi-desktop... <br>
+Autohiding of the default menu bar *must* be disabled, such that the bar is shown on screen before starting sketchybar. <br>
 Sketchybar needs to be configured with *topmost* set to on, such that it draws on top of the default menu bar. <br>
 I recommend turning off transparency of the bar and setting *margin* and *y_offset* to 0 and the *height* of the bar to at least 24, so that
 sketchybar completely occludes the default bar. <br>

@@ -9,8 +9,8 @@ typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 
 
 struct bar_manager {
+  bool any_bar_hidden;
   bool frozen;
-  bool hidden;
   bool topmost;
   uint32_t window_level;
   CFRunLoopTimerRef refresh_timer;
@@ -55,7 +55,7 @@ void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
 void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
-void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden);
+void bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t sid, bool hidden);
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
 void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width);
 void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color);

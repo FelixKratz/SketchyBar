@@ -6,8 +6,9 @@
 //extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
 
 void print_all_menu_items() {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID); 
   int window_count = CFArrayGetCount(window_list);
+  printf("Total Windows: %d \n", window_count);
 
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
@@ -27,11 +28,12 @@ void print_all_menu_items() {
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     uint64_t owner_pid = 0;
     CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &owner_pid);
-    if (layer < MENUBAR_LAYER - 1) continue;
+    if (layer != MENUBAR_LAYER ) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    printf("Layer: %lli Item -> Owner: %s; with PID:%llu, Name: %s \n", layer, owner, owner_pid, name);
+    if (strcmp(name, "") == 0) continue; 
+    printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
 
     free(owner);
     free(name);
@@ -54,7 +56,7 @@ void alias_init(struct alias* alias, char* owner, char* name) {
 }
 
 void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID); 
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID); 
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
@@ -69,7 +71,7 @@ void alias_find_window(struct alias* alias) {
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    if (!(alias->owner && strcmp(alias->owner, owner) == 0 && ((alias->name && strcmp(alias->name, name) == 0) || !alias->name))) { free(owner); free(name); continue; }
+    if (!(alias->owner && strcmp(alias->owner, owner) == 0 && ((alias->name && strcmp(alias->name, name) == 0) || (!alias->name && strcmp(name, "") != 0)))) { free(owner); free(name); continue; }
     free(owner);
     free(name);
 
@@ -100,7 +102,6 @@ bool alias_update_image(struct alias* alias) {
     alias->image_ref = NULL; 
     return false; 
   }
-  CGImageRelease(alias->image_ref);
 
   // Capture Bar Item with SkyLight private framework
   /*CFArrayRef image_refs = SLSHWCaptureWindowList(g_connection, &alias->wid, 1, 1 << 8 | 1 << 11);
@@ -111,14 +112,17 @@ bool alias_update_image(struct alias* alias) {
     alias->image_ref = NULL;
   }*/
 
-  alias->image_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
-                                                     alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
-  if (!alias->image_ref) {
+  CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
+                                               alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
+
+  if (!tmp_ref) {
     alias->size.x = 0;
     alias->size.y = 0;
     return false;
   }
 
+  CGImageRelease(alias->image_ref);
+  alias->image_ref = tmp_ref;   
   alias->size.x = CGImageGetWidth(alias->image_ref);
   alias->size.y = CGImageGetHeight(alias->image_ref);
   // Bar Item Cropping

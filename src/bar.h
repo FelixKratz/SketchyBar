@@ -31,28 +31,31 @@ extern CGError CGSNewRegionWithRect(CGRect *rect, CFTypeRef *outRegion);
 #define ALIGN_CENTER 5
 
 struct bar_line {
-    CTLineRef line;
-    CGFloat ascent;
-    CGFloat descent;
-    CGRect bounds;
-    struct rgba_color color;
+  CTLineRef line;
+  CGFloat ascent;
+  CGFloat descent;
+  CGRect bounds;
+  struct rgba_color color;
 };
 
 struct bar {
-    uint32_t id;
-    uint32_t did;
-    uint32_t sid;
-    uint32_t adid;
-    uint32_t index;
-    CGContextRef context;
-    CFRunLoopTimerRef shell_refresh_timer;
-    CGRect frame;
-    CGPoint origin;
+  bool hidden;
+  uint32_t id;
+  uint32_t did;
+  uint32_t sid;
+  uint32_t adid;
+  CGContextRef context;
+  CFRunLoopTimerRef shell_refresh_timer;
+  CGRect frame;
+  CGPoint origin;
 };
 
-void bar_redraw(struct bar *bar);
-void bar_resize(struct bar *bar);
+void bar_redraw(struct bar* bar);
+void bar_resize(struct bar* bar);
 struct bar *bar_create(uint32_t did);
-void bar_destroy(struct bar *bar);
+void bar_create_window(struct bar* bar);
+void bar_close_window(struct bar* bar);
+void bar_destroy(struct bar* bar);
+void bar_set_hidden(struct bar* bar, bool hidden);
 
 #endif

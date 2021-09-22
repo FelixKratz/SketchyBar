@@ -7,6 +7,7 @@
 
 #include <string.h>
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
+extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;
 
 struct signal_args {
@@ -212,6 +213,10 @@ static inline int mission_control_index(uint64_t sid) {
 out:
   CFRelease(display_spaces_ref);
   return desktop_cnt;
+}
+
+static inline uint32_t current_space(void) {
+  return mission_control_index(SLSGetActiveSpace(g_connection));
 }
 
 #pragma clang diagnostic push
