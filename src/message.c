@@ -277,7 +277,7 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   graph_data_push_back(&bar_item->graph_data, token_to_float(y));
   bar_item_needs_update(bar_item);
-  if (bar_item->is_shown) bar_manager_refresh(&g_bar_manager, false);
+  if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
 
 // Syntax: sketchybar -m remove <item>
@@ -337,7 +337,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       else
         alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
       free(tmp_name);
-      bar_item->has_alias = true;
     }
   } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
     struct token identifier = get_token(&message);
@@ -469,7 +468,7 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   bar_item_parse_set_message(bar_item, message);
-  if (bar_item->is_shown) bar_manager_refresh(&g_bar_manager, false);
+  if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
 
 static void handle_domain_config(FILE *rsp, struct token domain, char *message) {

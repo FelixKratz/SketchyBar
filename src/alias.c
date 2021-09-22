@@ -23,15 +23,15 @@ void print_all_menu_items() {
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
     if (!layer_ref) continue;
 
-    uint64_t layer = 0;
+    long long int layer = 0;
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     uint64_t owner_pid = 0;
     CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &owner_pid);
-    if (layer != MENUBAR_LAYER) continue;
+    if (layer < MENUBAR_LAYER - 1) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
+    printf("Layer: %lli Item -> Owner: %s; with PID:%llu, Name: %s \n", layer, owner, owner_pid, name);
 
     free(owner);
     free(name);

@@ -292,6 +292,7 @@ this currently works for the properties:
 * *cache_scripts*
 * *scripting*
 * *drawing*
+* *lazy*
 
 It is also possible to reset the defaults via the command
 ```bash

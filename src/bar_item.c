@@ -1,4 +1,5 @@
 #include "bar_item.h"
+#include "alias.h"
 #include "graph_data.h"
 #include "misc/helpers.h"
 #include <stdint.h>
@@ -11,6 +12,7 @@ struct bar_item* bar_item_create() {
 }
 
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
+  bar_item->lazy = ancestor->lazy;
   bar_item->updates = ancestor->updates;
   bar_item->drawing = ancestor->drawing;
   bar_item->icon_color = ancestor->icon_color;
@@ -39,7 +41,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->lazy = false;
   bar_item->drawing = true;
   bar_item->updates = true;
-  bar_item->is_shown = false;
   bar_item->nospace = false;
   bar_item->selected = false;
   bar_item->counter = 0;
@@ -52,6 +53,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
+  bar_item->associated_bar = 0;
   bar_item->icon_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->icon_highlight = false;
@@ -109,16 +111,42 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
   }
 }
 
-void bar_item_update(struct bar_item* bar_item, bool forced) {
-  if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return;
+bool bar_item_is_shown(struct bar_item* bar_item) {
+  if (bar_item->associated_bar & UINT32_MAX) return true;
+  else return false;
+}
 
-  if (strlen(bar_item->script) > 0) {
-    bar_item->counter++;
-    if (bar_item->update_frequency <= bar_item->counter || forced) {
-      bar_item->counter = 0;
+void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t bit) {
+  bar_item->associated_bar |= bit;
+}
+
+void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t bit) {
+  bar_item->associated_bar &= ~bit; 
+}
+
+void bar_item_reset_associated_bar(struct bar_item* bar_item) {
+  bar_item->associated_bar = 0;
+}
+
+bool bar_item_update(struct bar_item* bar_item, bool forced) {
+  if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return false;
+  bar_item->counter++;
+  if (bar_item->update_frequency <= bar_item->counter || forced) {
+    bar_item->counter = 0;
+
+    // Script Update
+    if (strlen(bar_item->script) > 0) {
       fork_exec(bar_item->script, &bar_item->signal_args);
     }
+
+    // Alias Update
+    if (bar_item->has_alias && bar_item_is_shown(bar_item)) {
+      alias_update_image(&bar_item->alias);
+      bar_item_needs_update(bar_item);
+      return true;
+    }
   }
+  return false;
 }
 
 void bar_item_needs_update(struct bar_item* bar_item) {
@@ -145,6 +173,10 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
     strncpy(&bar_item->signal_args.value[2][0], "0", 255);
     strncpy(&bar_item->signal_args.name[3][0], "DID", 255);
     strncpy(&bar_item->signal_args.value[3][0], "0", 255);
+  }
+  else if (type == BAR_COMPONENT_ALIAS) {
+    bar_item->update_frequency = 1;
+    bar_item->has_alias = true;
   }
 }
 
@@ -238,7 +270,6 @@ void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool 
 void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
   if (bar_item->drawing == state) return;
   bar_item->drawing = state;
-  bar_item->is_shown = true;
   bar_item_needs_update(bar_item);
 }
 

@@ -22,13 +22,13 @@ struct bar_item {
   bool lazy;
   bool drawing;
   bool updates;
-  bool is_shown;
   bool nospace;
   bool selected;
   int counter;
   char type;
   
-  // These are 32bit masks where the ith bit represents the ith screen/display association
+  // These are 32bit masks where the ith bit represents the ith screen/display/bar association
+  uint32_t associated_bar;
   uint32_t associated_display;
   uint32_t associated_space;
   uint32_t update_frequency;
@@ -92,11 +92,17 @@ struct bar_item {
 };
 
 struct bar_item* bar_item_create();
-void bar_item_destroy(struct bar_item* bar_item);
-void bar_item_update(struct bar_item* bar_item, bool forced);
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
+void bar_item_destroy(struct bar_item* bar_item);
+
+bool bar_item_update(struct bar_item* bar_item, bool forced);
+bool bar_item_is_shown(struct bar_item* bar_item);
+
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);
 void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit);
+void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t bit);
+void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t bit);
+void bar_item_reset_associated_bar(struct bar_item* bar_item);
 void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_type(struct bar_item* bar_item, char type);
 void bar_item_set_script(struct bar_item* bar_item, char* script);

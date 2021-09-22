@@ -1,8 +1,10 @@
 #include "bar.h"
+#include "alias.h"
 #include "bar_item.h"
 #include "display.h"
 #include "misc/helpers.h"
 #include <_types/_uint32_t.h>
+#include <stdint.h>
 
 extern struct bar_manager g_bar_manager;
 
@@ -175,10 +177,11 @@ void bar_redraw(struct bar* bar) {
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
     if (!bar_item->drawing) continue;
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
-    if (bar_item->has_alias) alias_update_image(&bar_item->alias);
+
     struct bar_line* label = &bar_item->label_line;
     struct bar_line* icon = &bar_item->icon_line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
@@ -235,7 +238,7 @@ void bar_redraw(struct bar* bar) {
     }
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
-    bar_item->is_shown = true;
+    bar_item_append_associated_bar(bar_item, (1 << bar->index));
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
     
     bar_draw_item_background(bar, bar_item, sid);
@@ -289,6 +292,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->adid = display_arrangement(did);
+  bar->index = 0;
 
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
