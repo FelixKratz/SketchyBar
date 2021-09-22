@@ -13,7 +13,7 @@
 #define CONFIG_OPT_SHRT         "-c"
 
 #define MAJOR 1
-#define MINOR 1
+#define MINOR 3
 #define PATCH 0
 
 extern int SLSMainConnectionID(void);
