@@ -184,13 +184,8 @@ void bar_manager_set_hidden(struct bar_manager *bar_manager, bool hidden) {
   bar_manager_freeze(bar_manager);
   bar_manager->hidden = hidden;
   for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
-  if (hidden) {
-    uint32_t level = bar_manager->window_level;
-    bar_manager->window_level = NSNormalWindowLevel;
-    bar_manager_begin(bar_manager);
-    bar_manager->window_level = level;
-  }
-  else {
+  bar_manager->bar_count = 0;
+  if (!hidden) {
     bar_manager_unfreeze(bar_manager);
     bar_manager_begin(bar_manager);
     bar_manager_refresh(bar_manager, true);
