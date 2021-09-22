@@ -322,6 +322,7 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
+  CGContextSetAllowsFontSmoothing(bar->context, false);
 }
 
 void bar_close_window(struct bar* bar) {
