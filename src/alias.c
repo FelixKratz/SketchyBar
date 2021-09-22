@@ -4,7 +4,7 @@
 #include <string.h>
 
 extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
-extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef image);
+extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 
 void print_all_menu_items() {
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
@@ -105,7 +105,7 @@ bool alias_update_image(struct alias* alias) {
   }
 
   // Capture Bar Item with SkyLight private framework
-  CGImageRef tmp_ref;
+  CGImageRef tmp_ref = NULL;
   /*CFArrayRef image_refs = SLSHWCaptureWindowList(g_connection, &alias->wid, 1, 1 << 8 | 1 << 11);
   if (image_refs && CFArrayGetCount(image_refs) > 0) {
     tmp_ref = (CGImageRef) CFArrayGetValueAtIndex(image_refs, 0); 
