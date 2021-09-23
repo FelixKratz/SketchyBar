@@ -161,7 +161,7 @@ sketchybar -m subscribe demo system_woke
 ```
 turns into:
 ```bash
-sketchybar -m batch --bar position=top        \
+sketchybar -m batch --bar position=top           \
                     --add item demo left         \
                     --set demo label=Hello       \
                     --subscribe demo system_woke
@@ -215,6 +215,7 @@ Currently there are the component *types*:
 * ~~*title*: Showing the current window title,~~ (DEPRECATED, see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932))
 * *graph*: showing a graph,
 * *space*: representing a mission control space
+* *alias*: a default menu bar item (for details see the experimental section)
 
 ### Changing the properties of an item
 ```bash
@@ -232,7 +233,6 @@ An item always has the following structure in the bar:  <br>
 A list of properties is listed below:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
- 
 * *label*: the label of the item
 * *label_font*: the font for the label
 * *label_color*: the color of the label
@@ -240,7 +240,6 @@ A list of properties is listed below:
 * *label_padding_left*: left padding of label (default: 0)
 * *label_padding_right*: right padding of label (default: 0)
 * *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
- 
 * *icon*: the icon of the item
 * *icon_font*: the font for the icon
 * *icon_color*: the color of the icon
@@ -250,12 +249,11 @@ A list of properties is listed below:
 * *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *draws_background*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
 * *background_color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
+* *background_height*: the height of the background, the background will always be centered vertically around the center of the item
 * *background_border_color*: the color of the backgrounds border
 * *background_corner_radius*: the corner radius of the items background (default: 0)
 * *background_border_width*: the border width of the items background (default: 0)
- 
 * *graph_color*: color of the associated graph
- 
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
@@ -278,13 +276,13 @@ this currently works for the properties:
 * *label_highlight_color*
 * *label_padding_left*
 * *label_padding_right*
-
 * *icon_font*
 * *icon_color*
 * *icon_highlight_color*
 * *icon_padding_left*
 * *icon_padding_right*
 * *draws_background*
+* *background_height*
 * *background_color*
 * *background_border_color*
 * *background_corner_radius*
@@ -397,7 +395,7 @@ I highly recommend setting a wallpaper on all spaces that makes the default menu
 
 It is now possible to create an alias of a default menu bar item with the following syntax:
 ```bash
-sketchybar -m add alias <application_name> <position>
+sketchybar -m add component alias <application_name> <position>
 ```
 this operation requires screen capture permissions, which should be granted in the system preferences.
 This will put the default item into sketchybar. 
@@ -405,7 +403,7 @@ Aliases currently are not clickable but can be modified with all the options ava
 
 The command can be overloaded by providing a *window_owner* and a *window_name*
 ```bash
-sketchybar -m add alias <window_owner>,<window_name> <position>
+sketchybar -m add component alias <window_owner>,<window_name> <position>
 ```
 this way the default system items can also be slurped into sketchybar, e.g.:
 
