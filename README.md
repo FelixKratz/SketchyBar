@@ -254,6 +254,7 @@ A list of properties is listed below:
 * *background_border_color*: the color of the backgrounds border
 * *background_corner_radius*: the corner radius of the items background (default: 0)
 * *background_border_width*: the border width of the items background (default: 0)
+* *y_offset*: the vertical offset of this item (default: 0)
 * *graph_color*: color of the associated graph
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
@@ -288,6 +289,7 @@ this currently works for the properties:
 * *background_border_color*
 * *background_corner_radius*
 * *background_border_width*
+* *y_offset*
 * *update_freq*
 * *cache_scripts*
 * *scripting*
