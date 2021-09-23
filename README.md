@@ -1,5 +1,5 @@
 # SketchyBar
-This is a rewrite of the spacebar project, which itself is a rewrite of the statusbar code from yabai.
+This is a rewrite of the spacebar project, which is a rewrite of the statusbar code from yabai.
 
 Features:
 * As many widgets as you like at any of the three positions: left, center, right
@@ -11,7 +11,7 @@ Features:
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
 * Let items subscribe to system events (e.g. space changed, etc.) for their refresh action
-* Create custom events and trigger them externaly
+* Create custom events and trigger them externally
 * "click" events for the widgets, where a script can be specified to run on a mouse click
 * Cache the scripts in RAM to reduce I/O operations
 * Offset the bar from its original location, rounded corners and background blur
@@ -54,8 +54,8 @@ Table of Contents
 This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
 shell scripts and want to make their statusbar show exactly the information they need for their workflow.
 
-The configuration of the bar takes place in a confiuration file where almost everything can be configured.
-Bascially, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
+The configuration of the bar takes place in a configuration file where almost everything can be configured.
+Basically, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
 An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
 *scripts* that can be attached to the *item*. It is also possible to *subscribe* and *item* to certain *events* for their *script* execution action,
 which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
@@ -91,13 +91,13 @@ mkdir ~/.config/sketchybar/plugins
 cp -r /usr/local/opt/sketchybar/share/sketchybar/examples/plugins/ ~/.config/sketchybar/plugins
 chmod +x ~/.config/sketchybar/plugins/*
 ```
-and run the bar via
+and run the bar via:
 ```bash
 brew services start sketchybar
 ```
 
 ### Development Version
-Clone the repo and in it run 
+Clone the repo and in it run:
 ```bash
 make install
 ```
@@ -110,19 +110,19 @@ sketchybar
 ```
 ### Switching branches and uninstalling
 You can always switch branches by removing the current installation and reinstalling the selected branch
-To uninstall the development version perform
+To uninstall the development version run:
 ```bash
 make uninstall
 ```
 in the cloned repo.
 
-To uninstall the brew version simply run
+To uninstall the brew version simply run:
 ```bash
 brew uninstall sketchybar
 ```
 
 ### Plugins and Fonts
-If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
+If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via:
 ```bash
 chmod +x name/of/plugin.sh
 ```
@@ -136,14 +136,12 @@ brew install --cask font-hack-nerd-font
 ```
 
 ## Updating
-Since this is a work-in-progress project, there might be big and radical changes along the way. You can update by pulling from master and in the
-up to date repo folder run:
+Since this is a work-in-progress project, there might be big and radical changes along the way. You can update by pulling from master and in the up to date repo folder run:
 ```bash
 make update
 ```
 or simply update via brew.
-This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to
-update those files too.
+This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to update those files too.
 
 ## Configuration
 Below is a list of all possible commands you can currently use in the configuration file located in *~/.config/sketchybar/sketchybarrc*:
@@ -184,13 +182,13 @@ where the settings currently are:
 * *border_width*: the width of the bars border
 * *border_color*: the color of the bars border
 * *blur_radius*: the blur radius to be applied to the background of the bar itself
-* *padding_left*: padding on the left before first item 
+* *padding_left*: padding on the left before first item
 * *padding_right*: just as padding_right
 * *bar_color*: the color of the bar itself
 * *display*: on which display to show bar (*main* or *all*)
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
-* *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
+* *font_smoothing*: whether fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash
@@ -200,7 +198,7 @@ with batching possible via:
 ```bash
 sketchybar -m batch --add item <name> <position>
 ```
-where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
+where the *name* should not contain whitespace, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*.
 
 ### Adding a component
@@ -211,9 +209,9 @@ or for batching of commands:
 ```bash
 sketchybar -m batch --add component <type> <name> <position>
 ```
-Components are essentially items, but with special properties. 
-Currently there are the component *types*: 
-* ~~*title*: Showing the current window title,~~ (DEPRECATED, see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932))
+Components are essentially items, but with special properties.
+Currently there are the component *types*:
+* ~~*title*: Showing the current window title,~~ ([DEPRECATED](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932))
 * *graph*: showing a graph,
 * *space*: representing a mission control space
 * *alias*: a default menu bar item (for details see the experimental section)
@@ -294,7 +292,7 @@ this currently works for the properties:
 * *drawing*
 * *lazy*
 
-It is also possible to reset the defaults via the command
+It is also possible to reset the defaults via the command:
 ```bash
 sketchybar -m default reset
 ```
@@ -303,7 +301,7 @@ sketchybar -m default reset
 ```bash
 sketchybar -m subscribe <name> <event> ... <event>
 ```
-the batching command is very similar:
+the batch command is very similar:
 ```bash
 sketchybar -m batch --subscribe <name> <event> ... <event>
 ```
@@ -343,6 +341,7 @@ This pushes the data point into the graph with name *name*.
 ```bash
 sketchybar -m update
 ```
+
 ### Completely remove an item
 ```bash
 sketchybar -m remove item <name>
@@ -361,7 +360,7 @@ setup is done.
 The bar supports scripts where ever possible to make it as customizable and versatile as possible.
 When an item invokes a script, the script has access to some environment variables, such as:
 ```bash
-$NAME 
+$NAME
 ```
 Which is the name of the item that has invoked the script.
 The space component has additional variables:
@@ -370,15 +369,15 @@ $SELECTED
 $SID
 $DID
 ```
-where $SELETCTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
+where $SELECTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
 $SID holds the space id and $DID the display id.
 
 By default the space component invokes the script:
 ```bash
-if [ "$SELECTED" = "true" ]; then 
-  sketchybar -m set $NAME icon_highlight on 
-else 
-  sketchybar -m set $NAME icon_highlight off 
+if [ "$SELECTED" = "true" ]; then
+  sketchybar -m set $NAME icon_highlight on
+else
+  sketchybar -m set $NAME icon_highlight off
 fi
 ```
 which you can freely configure to your liking by supplying a different script to the space component.
@@ -391,15 +390,15 @@ the rest of the bar.
 ### Default Menu Bar Item Alias
 It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though so please post the issues you encounter.
 
-Important: <br>
-I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
+Important:
+I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consistently.
 
 It is now possible to create an alias of a default menu bar item with the following syntax:
 ```bash
 sketchybar -m add component alias <application_name> <position>
 ```
 this operation requires screen capture permissions, which should be granted in the system preferences.
-This will put the default item into sketchybar. 
+This will put the default item into sketchybar.
 Aliases currently are not clickable but can be modified with all the options available for simple items.
 
 The command can be overloaded by providing a *window_owner* and a *window_name*
@@ -421,7 +420,4 @@ Owner: Stats Name: RAM_Mini<br>
 Owner: Stats Name: Network_Speed<br>
 etc...
 ## Credits
-yabai,
-spacebar,
-reddit,
-many more for the great code base and inspiration
+yabai, spacebar, reddit, and many more for the great code base and inspiration
