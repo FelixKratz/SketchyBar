@@ -295,6 +295,10 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
   bar->hidden = hidden;
 }
 
+void bar_set_font_smoothing(struct bar* bar, bool smoothing) {
+  CGContextSetAllowsFontSmoothing(bar->context, smoothing);
+}
+
 void bar_create_window(struct bar* bar) {
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
@@ -322,7 +326,7 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
-  CGContextSetAllowsFontSmoothing(bar->context, false);
+  bar_set_font_smoothing(bar, g_bar_manager.font_smoothing);
 }
 
 void bar_close_window(struct bar* bar) {

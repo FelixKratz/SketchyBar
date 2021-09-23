@@ -12,6 +12,7 @@ struct bar_manager {
   bool any_bar_hidden;
   bool frozen;
   bool topmost;
+  bool font_smoothing;
   uint32_t window_level;
   CFRunLoopTimerRef refresh_timer;
   CFRunLoopTimerRef shell_refresh_timer;
@@ -59,6 +60,7 @@ void bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t sid, bool 
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
 void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width);
 void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color);
+void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
 void bar_manager_freeze(struct bar_manager *bar_manager);
 void bar_manager_unfreeze(struct bar_manager *bar_manager);
 

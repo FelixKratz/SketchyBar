@@ -88,6 +88,11 @@ void bar_manager_set_display(struct bar_manager* bar_manager, char *display) {
   bar_manager_begin(bar_manager);
 }
 
+void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing) {
+  for (int i = 0; i < bar_manager->bar_count; i++)
+    bar_set_font_smoothing(bar_manager->bars[i], smoothing);
+}
+
 bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* bar) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
@@ -151,6 +156,7 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
 }
 
 void bar_manager_init(struct bar_manager* bar_manager) {
+  bar_manager->font_smoothing = false;
   bar_manager->any_bar_hidden = false;
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;

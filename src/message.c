@@ -99,6 +99,7 @@ extern bool g_verbose;
 #define COMMAND_BAR_DISPLAY                                 "display"
 #define COMMAND_BAR_TOPMOST                                 "topmost"
 #define COMMAND_BAR_HIDDEN                                  "hidden"
+#define COMMAND_BAR_FONT_SMOOTHING                          "font_smoothing"
 
 #define DOMAIN_QUERY_MENU_ITEMS                             "query_menu_items"
 
@@ -509,6 +510,9 @@ static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   } else if (token_equals(command, COMMAND_BAR_PADDING_RIGHT)) {
     struct token token = get_token(&message);
     bar_manager_set_padding_right(&g_bar_manager, atoi(token.text));
+  } else if (token_equals(command, COMMAND_BAR_FONT_SMOOTHING)) {
+    struct token state = get_token(&message);
+    bar_manager_set_font_smoothing(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.font_smoothing));
   } else if (token_equals(command, COMMAND_BAR_HIDDEN)) {
     struct token state = get_token(&message);
     struct token select = get_token(&message);
