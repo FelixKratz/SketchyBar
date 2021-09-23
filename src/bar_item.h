@@ -44,6 +44,7 @@ struct bar_item {
 
   // The position in the bar: l,r,c
   char position;
+  int y_offset;
 
   // Background
   bool draws_background;
@@ -124,6 +125,7 @@ void bar_item_set_draws_background(struct bar_item* bar_item, bool enabled);
 void bar_item_set_background_height(struct bar_item* bar_item, uint32_t height);
 void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius);
 void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t border_width);
+void bar_item_set_yoffset(struct bar_item* bar_item, int offset);
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
 

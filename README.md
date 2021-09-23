@@ -188,7 +188,7 @@ where the settings currently are:
 * *display*: on which display to show bar (*main* or *all*)
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
-* *font_smoothing*: whether fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
+* *font_smoothing*: whether fonts should be smoothened (*on*, *off*, *toggle*, default: *off*) (Only on HEAD)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash
@@ -252,6 +252,7 @@ A list of properties is listed below:
 * *background_border_color*: the color of the backgrounds border
 * *background_corner_radius*: the corner radius of the items background (default: 0)
 * *background_border_width*: the border width of the items background (default: 0)
+* *y_offset*: the vertical offset of this item (default: 0) (Only on HEAD)
 * *graph_color*: color of the associated graph
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
@@ -286,6 +287,7 @@ this currently works for the properties:
 * *background_border_color*
 * *background_corner_radius*
 * *background_border_width*
+* *y_offset* (Only on HEAD)
 * *update_freq*
 * *cache_scripts*
 * *scripting*

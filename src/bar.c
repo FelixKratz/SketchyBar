@@ -243,9 +243,9 @@ void bar_redraw(struct bar* bar) {
     bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
 
     bar_draw_item_background(bar, bar_item, sid);
-    bar_draw_line(bar, icon, icon_position.x, icon_position.y);
+    bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
     bar_draw_alias(bar, bar_item, icon_position.x);
-    bar_draw_line(bar, label, label_position.x, label_position.y);
+    bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
 

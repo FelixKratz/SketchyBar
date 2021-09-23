@@ -67,6 +67,7 @@ extern bool g_verbose;
 #define COMMAND_SET_BACKGROUND_HEIGHT                       "background_height"
 #define COMMAND_SET_BACKGROUND_CORNER_RADIUS                "background_corner_radius"
 #define COMMAND_SET_BACKGROUND_BORDER_WIDTH                 "background_border_width"
+#define COMMAND_SET_YOFFSET                                 "y_offset"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
@@ -214,17 +215,6 @@ static bool evaluate_boolean_state(struct token state, bool previous_state) {
   if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE)) return true;
   else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
   else return false;
-}
-
-static void daemon_fail(FILE *rsp, char *fmt, ...) {
-  if (!rsp) printf(FAILURE_MESSAGE);
-  else fprintf(rsp, FAILURE_MESSAGE);
-
-  va_list ap;
-  va_start(ap, fmt);
-  if (!rsp) printf(fmt, ap);
-  else vfprintf(rsp, fmt, ap);
-  va_end(ap);
 }
 
 static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
@@ -437,6 +427,8 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     bar_item->label_spacing_left = token_to_int(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     bar_item->label_spacing_right = token_to_int(get_token(&message));
+  } else if (token_equals(property, COMMAND_SET_YOFFSET)) {
+    bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
     bar_item->cache_scripts = evaluate_boolean_state(get_token(&message), bar_item->cache_scripts);
   } else if (token_equals(property, COMMAND_SET_LAZY)) {
@@ -453,7 +445,9 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   } else if (token_equals(property, COMMAND_SET_HIDDEN)) {
     printf("Command: hidden soon to be deprecated: Use drawing command \n");
     bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
-  } 
+  } else {
+    printf("unknown command '%s' for domain 'set'\n", property.text);
+  }
 }
 
 // Syntax: sketchybar -m default <property> <value>
@@ -534,19 +528,19 @@ static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     } else if ((strcmp(message,BAR_DISPLAY_MAIN_ONLY) == 0) || (strcmp(message,BAR_DISPLAY_ALL) == 0)) {
       bar_manager_set_display(&g_bar_manager, string_copy(message));
     } else {
-      daemon_fail(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
+      printf("value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
     }
   } else if (token_equals(command, COMMAND_BAR_POSITION)) {
     if (strlen(message) <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.position);
     } else if (strcmp(message, BAR_POSITION_TOP) != 0 && strcmp(message, BAR_POSITION_BOTTOM) != 0) {
-      daemon_fail(rsp, "value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
+      printf("value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
     } else {
       bar_manager_set_position(&g_bar_manager, string_copy(message));
     }
   }
   else {
-    daemon_fail(rsp, "unknown command '%.*s' for domain '%.*s'\n", command.length, command.text, domain.length, domain.text);
+    printf("unknown command '%s' for domain 'bar'\n", command.text);
   }
 }
 
@@ -663,7 +657,7 @@ void handle_message(FILE *rsp, char *message) {
   } else if (token_equals(domain, DOMAIN_QUERY_MENU_ITEMS)) {
     print_all_menu_items();
   } else {
-    daemon_fail(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
+    printf("unknown domain '%.*s'\n", domain.length, domain.text);
   }
 }
 

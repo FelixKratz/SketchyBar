@@ -33,7 +33,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->background_corner_radius = ancestor->background_corner_radius;
   bar_item->background_border_color = ancestor->background_border_color;
   bar_item->background_border_width = ancestor->background_border_width;
-
+  bar_item->y_offset = ancestor->y_offset;
 }
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
@@ -76,6 +76,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->background_height = 0;
   bar_item->background_corner_radius = 0;
   bar_item->background_border_width = 0;
+  bar_item->y_offset = 0;
   bar_item->bounding_rects = NULL;
   bar_item->has_alias = false;
 
@@ -321,6 +322,12 @@ void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t bo
 void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius) {
   if (bar_item->background_corner_radius == corner_radius) return;
   bar_item->background_corner_radius = corner_radius;
+  bar_item_needs_update(bar_item);
+}
+
+void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
+  if (bar_item->y_offset == offset) return;
+  bar_item->y_offset = offset;
   bar_item_needs_update(bar_item);
 }
 
