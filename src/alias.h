@@ -12,6 +12,7 @@ struct alias {
   uint32_t wid;
   CGImageRef image_ref;
   CGPoint size;
+  CGRect bounds;
 };
 
 void print_all_menu_items();

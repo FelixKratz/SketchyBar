@@ -158,7 +158,7 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
 
 void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
   if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
-  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.size.y) / 2},{bar_item->alias.size.x, bar_item->alias.size.y}};
+  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
   CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
 }
 
