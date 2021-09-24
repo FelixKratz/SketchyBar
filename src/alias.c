@@ -113,7 +113,7 @@ bool alias_update_image(struct alias* alias) {
   else {
     tmp_ref = NULL;
   }*/
-  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8 | 1 << 11, &tmp_ref);
+  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 9 | 1 << 11, &tmp_ref);
 
   //CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
    //                                            alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
