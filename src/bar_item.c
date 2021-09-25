@@ -76,6 +76,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->background_height = 0;
   bar_item->background_corner_radius = 0;
   bar_item->background_border_width = 0;
+  bar_item->background_padding_left = 0;
+  bar_item->background_padding_right = 0;
   bar_item->y_offset = 0;
   bar_item->bounding_rects = NULL;
   bar_item->has_alias = false;

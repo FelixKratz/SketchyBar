@@ -228,8 +228,9 @@ sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
 
-An item always has the following structure in the bar:  <br>
-|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-| <br>
+An item always has the following structure in the bar (background padding currently on on HEAD):  <br>
+![](images/bar_item.png) <br>
+background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
 A list of properties is listed below:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
@@ -254,6 +255,8 @@ A list of properties is listed below:
 * *background_border_color*: the color of the backgrounds border
 * *background_corner_radius*: the corner radius of the items background (default: 0)
 * *background_border_width*: the border width of the items background (default: 0)
+* *background_padding_left*: the left padding applied around the background of the item (default: 0) (Only on HEAD)
+* *background_padding_right*: the right padding applied around the background of the item (default: 0) (Only on HEAD)
 * *y_offset*: the vertical offset of this item (default: 0)
 * *graph_color*: color of the associated graph
 * *graph_fill_color*: optional property to override the automatically calculated fill color of the graph (Only on HEAD)

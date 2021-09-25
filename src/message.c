@@ -61,12 +61,14 @@ extern bool g_verbose;
 #define COMMAND_SET_ICON_COLOR                              "icon_color"
 #define COMMAND_SET_ICON_HIGHLIGHT_COLOR                    "icon_highlight_color"
 #define COMMAND_SET_ICON_HIGHLIGHT                          "icon_highlight"
+#define COMMAND_SET_DRAWS_BACKGROUND                        "draws_background"
 #define COMMAND_SET_BACKGROUND_COLOR                        "background_color"
 #define COMMAND_SET_BACKGROUND_BORDER_COLOR                 "background_border_color"
-#define COMMAND_SET_DRAWS_BACKGROUND                        "draws_background"
 #define COMMAND_SET_BACKGROUND_HEIGHT                       "background_height"
 #define COMMAND_SET_BACKGROUND_CORNER_RADIUS                "background_corner_radius"
 #define COMMAND_SET_BACKGROUND_BORDER_WIDTH                 "background_border_width"
+#define COMMAND_SET_BACKGROUND_PADDING_LEFT                 "background_padding_left"
+#define COMMAND_SET_BACKGROUND_PADDING_RIGHT                "background_padding_right"
 #define COMMAND_SET_YOFFSET                                 "y_offset"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_GRAPH_FILL_COLOR                        "graph_fill_color"
@@ -397,11 +399,14 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
     bar_item->graph_data.line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_GRAPH_FILL_COLOR)) {
     bar_item->graph_data.fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     bar_item->graph_data.overrides_fill_color = true;
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_GRAPH_LINE_WIDTH)) {
     bar_item->graph_data.line_width = token_to_float(get_token(&message));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
     bar_item_set_background_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_COLOR)) {
@@ -428,12 +433,22 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
     }
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
     bar_item->icon_spacing_left = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
     bar_item->icon_spacing_right = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
     bar_item->label_spacing_left = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
     bar_item->label_spacing_right = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_PADDING_LEFT)) {
+    bar_item->background_padding_left = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
+  } else if (token_equals(property, COMMAND_SET_BACKGROUND_PADDING_RIGHT)) {
+    bar_item->background_padding_right = token_to_int(get_token(&message));
+    bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_YOFFSET)) {
     bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {

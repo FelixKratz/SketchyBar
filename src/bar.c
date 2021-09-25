@@ -190,13 +190,13 @@ void bar_redraw(struct bar* bar) {
     bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
+      icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       
       if (!bar_item->nospace)
-        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_left_final_item_x;
         if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
@@ -205,13 +205,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
-      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
+      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right - bar_item->background_padding_right;
       icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left + 1;
 
       if (!bar_item->nospace)
-        bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
+        bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left : bar_right_first_item_x;
+        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
@@ -222,13 +222,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
+      icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
 
       if (!bar_item->nospace)
-        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_center_first_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
