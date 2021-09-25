@@ -207,7 +207,7 @@ void bar_redraw(struct bar* bar) {
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
-      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left;
+      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left + 1;
 
       if (!bar_item->nospace)
         bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
@@ -244,8 +244,8 @@ void bar_redraw(struct bar* bar) {
 
     bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
-    bar_draw_alias(bar, bar_item, icon_position.x);
     bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
+    bar_draw_alias(bar, bar_item, icon_position.x);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
 
