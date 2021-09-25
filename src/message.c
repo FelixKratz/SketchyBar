@@ -69,6 +69,8 @@ extern bool g_verbose;
 #define COMMAND_SET_BACKGROUND_BORDER_WIDTH                 "background_border_width"
 #define COMMAND_SET_YOFFSET                                 "y_offset"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
+#define COMMAND_SET_GRAPH_FILL_COLOR                        "graph_fill_color"
+#define COMMAND_SET_GRAPH_LINE_WIDTH                        "graph_line_width"
 #define COMMAND_SET_LABEL                                   "label"
 #define COMMAND_SET_LABEL_COLOR                             "label_color"
 #define COMMAND_SET_LABEL_FONT                              "label_font"
@@ -394,7 +396,12 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   } else if (token_equals(property, COMMAND_SET_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
-    bar_item->graph_data.color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->graph_data.line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_GRAPH_FILL_COLOR)) {
+    bar_item->graph_data.fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->graph_data.overrides_fill_color = true;
+  } else if (token_equals(property, COMMAND_SET_GRAPH_LINE_WIDTH)) {
+    bar_item->graph_data.line_width = token_to_float(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
     bar_item_set_background_color(bar_item, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_COLOR)) {

@@ -87,25 +87,24 @@ void bar_prepare_line(struct bar_line* bar_line, CTFontRef font, char* cstring, 
 
 void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_t x, uint32_t y, bool right_to_left) {
   const float height = bar->frame.size.height * 0.9f;
-  struct rgba_color color = graph_data->color;
   uint32_t sample_width = 1;
-  uint32_t ndata = graph_data->graph_width;
   bool fill = graph_data->fill;
   CGContextSaveGState(bar->context);
-  CGContextSetRGBStrokeColor(bar->context, color.r, color.g, color.b, 1.0);
-  CGContextSetRGBFillColor(bar->context, color.r, color.g, color.b, 0.2);
-  CGContextSetLineWidth(bar->context, fill ? 0.5 : 0.75);
+  CGContextSetRGBStrokeColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, graph_data->line_color.a);
+  if (graph_data->overrides_fill_color) CGContextSetRGBFillColor(bar->context, graph_data->fill_color.r, graph_data->fill_color.g, graph_data->fill_color.b, graph_data->fill_color.a);
+  else CGContextSetRGBFillColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, 0.2 * graph_data->line_color.a);
+  CGContextSetLineWidth(bar->context, graph_data->line_width);
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, ndata - 1) * height);
-    for (int i = ndata - 1; i > 0; --i, x -= sample_width) {
+    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, graph_data->graph_width - 1) * height);
+    for (int i = graph_data->graph_width - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
     }
   }
   else {
     CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, 0) * height);
-    for (int i = ndata - 1; i > 0; --i, x += sample_width) {
+    for (int i = graph_data->graph_width - 1; i > 0; --i, x += sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
     }
   }
