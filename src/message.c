@@ -106,7 +106,9 @@ extern bool g_verbose;
 #define COMMAND_BAR_HIDDEN                                  "hidden"
 #define COMMAND_BAR_FONT_SMOOTHING                          "font_smoothing"
 
-#define DOMAIN_QUERY_MENU_ITEMS                             "query_menu_items"
+#define DOMAIN_QUERY                                        "query"
+#define COMMAND_QUERY_DEFAULT_ITEMS                         "default_menu_items"
+#define COMMAND_QUERY_ITEM                                  "item"
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_TRUE                            "true"
@@ -649,6 +651,14 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, false);
 }
 
+static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
+  struct token token = get_token(&message);
+
+  if (token_equals(token, COMMAND_QUERY_DEFAULT_ITEMS)) {
+    print_all_menu_items();
+  }
+}
+
 void handle_message(FILE *rsp, char *message) {
   struct token domain = get_token(&message);
 
@@ -676,8 +686,8 @@ void handle_message(FILE *rsp, char *message) {
     handle_domain_trigger(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_FREEZE)) {
     handle_domain_freeze(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_QUERY_MENU_ITEMS)) {
-    print_all_menu_items();
+  } else if (token_equals(domain, DOMAIN_QUERY)) {
+    handle_domain_query(rsp, domain, message);
   } else {
     printf("unknown domain '%.*s'\n", domain.length, domain.text);
   }
