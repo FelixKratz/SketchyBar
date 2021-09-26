@@ -19,10 +19,10 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->icon_font_name = ancestor->icon_font_name;
   bar_item->label_color = ancestor->label_color;
   bar_item->label_font_name = ancestor->label_font_name;
-  bar_item->icon_spacing_left = ancestor->icon_spacing_left;
-  bar_item->icon_spacing_right = ancestor->icon_spacing_right;
-  bar_item->label_spacing_left = ancestor->label_spacing_left;
-  bar_item->label_spacing_right = ancestor->label_spacing_right;
+  bar_item->icon_padding_left = ancestor->icon_padding_left;
+  bar_item->icon_padding_right = ancestor->icon_padding_right;
+  bar_item->label_padding_left = ancestor->label_padding_left;
+  bar_item->label_padding_right = ancestor->label_padding_right;
   bar_item->update_frequency = ancestor->update_frequency;
   bar_item->cache_scripts = ancestor->cache_scripts;
   bar_item->icon_highlight_color = ancestor->icon_highlight_color;
@@ -58,14 +58,14 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
   bar_item->icon_highlight = false;
   bar_item->icon = "";
-  bar_item->icon_spacing_left = 0;
-  bar_item->icon_spacing_right = 0;
+  bar_item->icon_padding_left = 0;
+  bar_item->icon_padding_right = 0;
   bar_item->icon_color = rgba_color_from_hex(0xffffffff);
   bar_item->icon_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->label_highlight = false;
   bar_item->label = "";
-  bar_item->label_spacing_left = 0;
-  bar_item->label_spacing_right = 0;
+  bar_item->label_padding_left = 0;
+  bar_item->label_padding_right = 0;
   bar_item->label_color = rgba_color_from_hex(0xffffffff);
   bar_item->label_highlight_color = rgba_color_from_hex(0xffffffff);
   bar_item->has_graph = false;
@@ -336,11 +336,11 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon_line.bounds.origin;
-  bounding_rect.origin.x -= bar_item->icon_spacing_left;
+  bounding_rect.origin.x -= bar_item->icon_padding_left;
   bounding_rect.origin.y = bar_item->icon_line.bounds.origin.y < bar_item->label_line.bounds.origin.y ? bar_item->icon_line.bounds.origin.y : bar_item->label_line.bounds.origin.y;
   bounding_rect.size.width = bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width
-                             + bar_item->icon_spacing_left + bar_item->icon_spacing_right
-                             + bar_item->label_spacing_right + bar_item->label_spacing_left;
+                             + bar_item->icon_padding_left + bar_item->icon_padding_right
+                             + bar_item->label_padding_right + bar_item->label_padding_left;
   bounding_rect.size.height = bar_item->label_line.bounds.size.height > bar_item->icon_line.bounds.size.height ? bar_item->label_line.bounds.size.height : bar_item->icon_line.bounds.size.height;
   return bounding_rect;
 }
@@ -380,4 +380,79 @@ void bar_item_destroy(struct bar_item* bar_item) {
     graph_data_destroy(&bar_item->graph_data);
   }
   free(bar_item);
+}
+
+void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
+  fprintf(rsp, "{\n"
+               "\t\"name\": \"%s\",\n"
+               "\t\"type\": \"%c\",\n"
+               "\t\"text\": {\n"
+               "\t\t\"icon\": \"%s\",\n"
+               "\t\t\"label\": \"%s\",\n"
+               "\t\t\"icon_font\": \"%s\",\n"
+               "\t\t\"label_font\": \"%s\"\n"
+               "\t},\n"
+               "\t\"geometry\": {\n"
+               "\t\t\"position\": \"%c\",\n"
+               "\t\t\"background_padding_left\": %d,\n"
+               "\t\t\"background_padding_right\": %d,\n"
+               "\t\t\"icon_padding_left\": %d,\n"
+               "\t\t\"icon_padding_right\": %d,\n"
+               "\t\t\"label_padding_left\": %d,\n"
+               "\t\t\"label_padding_right\": %d\n"
+               "\t},\n"
+               "\t\"style\": {\n"
+               "\t\t\"icon_color:\": \"0x%x\",\n"
+               "\t\t\"icon_highlight_color:\": \"0x%x\",\n"
+               "\t\t\"label_color:\": \"0x%x\",\n"
+               "\t\t\"label_highlight_color:\": \"0x%x\",\n"
+               "\t\t\"draws_background\": %d,\n"
+               "\t\t\"background_height\": %u,\n"
+               "\t\t\"background_corner_radius\": %u,\n"
+               "\t\t\"background_border_width\": %u,\n"
+               "\t\t\"background_color:\": \"0x%x\",\n"
+               "\t\t\"background_border_color:\": \"0x%x\"\n"
+               "\t},\n"
+               "\t\"state\": {\n"
+               "\t\t\"drawing\": %d,\n"
+               "\t\t\"updates\": %d,\n"
+               "\t\t\"lazy\": %d,\n"
+               "\t\t\"chache_scripts\": %d,\n"
+               "\t\t\"associated_bar_mask\": %u,\n"
+               "\t\t\"associated_display_mask\": %u,\n"
+               "\t\t\"associated_space_mask\": %u,\n"
+               "\t\t\"update_mask\": %u\n"
+               "\t}\n"
+               "}\n",
+               bar_item->name,
+               bar_item->type,
+               bar_item->icon,
+               bar_item->label,
+               bar_item->icon_font_name,
+               bar_item->label_font_name,
+               bar_item->position,
+               bar_item->background_padding_left,
+               bar_item->background_padding_right,
+               bar_item->icon_padding_left,
+               bar_item->icon_padding_right,
+               bar_item->label_padding_left,
+               bar_item->label_padding_right,
+               hex_from_rgba_color(bar_item->icon_color),
+               hex_from_rgba_color(bar_item->icon_highlight_color),
+               hex_from_rgba_color(bar_item->label_color),
+               hex_from_rgba_color(bar_item->label_highlight_color),
+               bar_item->draws_background,
+               bar_item->background_height,
+               bar_item->background_corner_radius,
+               bar_item->background_border_width,
+               hex_from_rgba_color(bar_item->background_color),
+               hex_from_rgba_color(bar_item->background_border_color),
+               bar_item->drawing,
+               bar_item->updates,
+               bar_item->lazy,
+               bar_item->cache_scripts,
+               bar_item->associated_bar,
+               bar_item->associated_display,
+               bar_item->associated_space,
+               bar_item->update_mask);
 }

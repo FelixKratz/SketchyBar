@@ -132,9 +132,9 @@ static int bar_get_center_length(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->position == BAR_POSITION_CENTER) {
-      total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
+      total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
       if (i > 0) {
-        total_length += bar_manager->bar_items[i-1]->label_spacing_right + bar_item->icon_spacing_left;
+        total_length += bar_manager->bar_items[i-1]->label_padding_right + bar_item->icon_padding_left;
       }
     }
   }
@@ -190,13 +190,13 @@ void bar_redraw(struct bar* bar) {
     bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
-      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      icon_position.x = bar_left_final_item_x + bar_item->icon_padding_left + bar_item->background_padding_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left;
       
       if (!bar_item->nospace)
-        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
+        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_left_final_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right : bar_left_final_item_x;
         if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
@@ -205,13 +205,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
-      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right - bar_item->background_padding_right;
-      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left + 1;
+      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_padding_right - bar_item->background_padding_right;
+      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_padding_right - bar_item->label_padding_left + 1;
 
       if (!bar_item->nospace)
-        bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left;
+        bar_right_first_item_x = icon_position.x - bar_item->icon_padding_left - bar_item->background_padding_left;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left : bar_right_first_item_x;
+        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_padding_left - bar_item->background_padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
@@ -222,13 +222,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
-      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
+      icon_position.x = bar_center_first_item_x + bar_item->icon_padding_left + bar_item->background_padding_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left;
 
       if (!bar_item->nospace)
-        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
+        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_center_first_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }

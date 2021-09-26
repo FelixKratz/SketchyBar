@@ -18,6 +18,7 @@
 #define UPDATE_SYSTEM_WOKE        1 << 3
 
 struct bar_item {
+  char* name;
   bool needs_update;
   bool lazy;
   bool drawing;
@@ -33,15 +34,11 @@ struct bar_item {
   uint32_t associated_space;
   uint32_t update_frequency;
 
-  // Execute with exec_fork, callback from command via messages
   bool cache_scripts;
   char* script;
   char* click_script;
   struct signal_args signal_args;
   
-  // Name by which to refer to the bar_item in the configuration
-  char* name;
-
   // The position in the bar: l,r,c
   char position;
   int y_offset;
@@ -62,8 +59,8 @@ struct bar_item {
   char* icon;
   char* icon_font_name;
   CTFontRef icon_font;
-  int icon_spacing_left;
-  int icon_spacing_right;
+  int icon_padding_left;
+  int icon_padding_right;
   struct rgba_color icon_color;
   struct rgba_color icon_highlight_color;
 
@@ -73,8 +70,8 @@ struct bar_item {
   char* label;
   char* label_font_name;
   CTFontRef label_font;
-  int label_spacing_left;
-  int label_spacing_right;
+  int label_padding_left;
+  int label_padding_right;
   struct rgba_color label_color;
   struct rgba_color label_highlight_color;
 
@@ -97,6 +94,8 @@ struct bar_item {
 struct bar_item* bar_item_create();
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
 void bar_item_destroy(struct bar_item* bar_item);
+
+void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
 
 bool bar_item_update(struct bar_item* bar_item, bool forced);
 bool bar_item_is_shown(struct bar_item* bar_item);

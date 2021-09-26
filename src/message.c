@@ -436,16 +436,16 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
       bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
-    bar_item->icon_spacing_left = token_to_int(get_token(&message));
+    bar_item->icon_padding_left = token_to_int(get_token(&message));
     bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
-    bar_item->icon_spacing_right = token_to_int(get_token(&message));
+    bar_item->icon_padding_right = token_to_int(get_token(&message));
     bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
-    bar_item->label_spacing_left = token_to_int(get_token(&message));
+    bar_item->label_padding_left = token_to_int(get_token(&message));
     bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
-    bar_item->label_spacing_right = token_to_int(get_token(&message));
+    bar_item->label_padding_right = token_to_int(get_token(&message));
     bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_PADDING_LEFT)) {
     bar_item->background_padding_left = token_to_int(get_token(&message));
@@ -668,6 +668,16 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
 
   if (token_equals(token, COMMAND_QUERY_DEFAULT_ITEMS)) {
     print_all_menu_items(rsp);
+  }
+  if (token_equals(token, COMMAND_QUERY_ITEM)) {
+    struct token name  = get_token(&message);
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    if (item_index_for_name < 0) {
+      fprintf(rsp, "Name: %s not found in bar items \n", name.text);
+      printf("Name: %s not found in bar items \n", name.text);
+      return;
+    }
+    bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
   }
 }
 

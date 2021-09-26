@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <_types/_uint32_t.h>
 #include <stdint.h>
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
@@ -25,6 +26,15 @@ struct rgba_color {
     float b;
     float a;
 };
+
+static uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
+  uint32_t result = 0;
+  result += ((uint32_t)(rgba_color.a * 255.0)) << 24;
+  result += ((uint32_t)(rgba_color.r * 255.0)) << 16;
+  result += ((uint32_t)(rgba_color.g * 255.0)) << 8;
+  result += ((uint32_t)(rgba_color.b * 255.0)) << 0;
+  return result;
+}
 
 static struct rgba_color rgba_color_from_hex(uint32_t color) {
     struct rgba_color result;
