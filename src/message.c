@@ -345,6 +345,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item_set_type(bar_item, identifier.text[0]);
   } else {
     printf("Command: %s not found \n", command.text);
+    fprintf(rsp, "Command: %s not found \n", command.text);
   }
   struct token modifier = get_token(&message);
   if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) bar_item->nospace = true;
@@ -354,13 +355,14 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
     bar_manager_destroy_item(&g_bar_manager, bar_item);
     printf("Name: %s already exists... skipping \n", name.text);
+    fprintf(rsp, "Name: %s already exists... skipping \n", name.text);
     return;
   }
   bar_item_set_name(bar_item, token_to_string(name));
   bar_manager_refresh(&g_bar_manager, true);
 }
 
-static void bar_item_parse_set_message(struct bar_item* bar_item, char* message) {
+static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* bar_item, char* message) {
   struct token property = get_token(&message);
 
   if (token_equals(property, COMMAND_SET_ICON)) {
@@ -464,19 +466,22 @@ static void bar_item_parse_set_message(struct bar_item* bar_item, char* message)
   // DEPRECATED
   else if (token_equals(property, COMMAND_SET_ENABLED)) {
     printf("Command: enabled soon to be deprecated: Use drawing and scripting commands \n");
+    fprintf(rsp, "Command: enabled soon to be deprecated: Use drawing and scripting commands \n");
     bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
     bar_item->updates = evaluate_boolean_state(get_token(&message), bar_item->updates);
   } else if (token_equals(property, COMMAND_SET_HIDDEN)) {
     printf("Command: hidden soon to be deprecated: Use drawing command \n");
+    fprintf(rsp, "Command: hidden soon to be deprecated: Use drawing command \n");
     bar_item->drawing = evaluate_boolean_state(get_token(&message), bar_item->drawing);
   } else {
+    fprintf(rsp, "unknown command '%s' for domain 'set'\n", property.text);
     printf("unknown command '%s' for domain 'set'\n", property.text);
   }
 }
 
 // Syntax: sketchybar -m default <property> <value>
 static void handle_domain_default(FILE* rsp, struct token domain, char* message) {
-  bar_item_parse_set_message(&g_bar_manager.default_item, message);
+  message_parse_set_message_for_bar_item(rsp, &g_bar_manager.default_item, message);
 }
 
 // Syntax: sketchybar -m set <name> <property> <value>
@@ -485,11 +490,12 @@ static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
 
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
   if (item_index_for_name < 0) {
+    fprintf(rsp, "Name: %s not found in bar items \n", name.text);
     printf("Name: %s not found in bar items \n", name.text);
     return;
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-  bar_item_parse_set_message(bar_item, message);
+  message_parse_set_message_for_bar_item(rsp, bar_item, message);
   if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
 
@@ -549,21 +555,26 @@ static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     int length = strlen(message);
     if (length <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.display);
+      printf("%s\n", g_bar_manager.display);
     } else if ((strcmp(message,BAR_DISPLAY_MAIN_ONLY) == 0) || (strcmp(message,BAR_DISPLAY_ALL) == 0)) {
       bar_manager_set_display(&g_bar_manager, string_copy(message));
     } else {
       printf("value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
+      fprintf(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
     }
   } else if (token_equals(command, COMMAND_BAR_POSITION)) {
     if (strlen(message) <= 0) {
       fprintf(rsp, "%s\n", g_bar_manager.position);
+      printf("%s\n", g_bar_manager.position);
     } else if (strcmp(message, BAR_POSITION_TOP) != 0 && strcmp(message, BAR_POSITION_BOTTOM) != 0) {
       printf("value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
+      fprintf(rsp, "value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
     } else {
       bar_manager_set_position(&g_bar_manager, string_copy(message));
     }
   }
   else {
+    fprintf(rsp, "unknown command '%s' for domain 'bar'\n", command.text);
     printf("unknown command '%s' for domain 'bar'\n", command.text);
   }
 }
@@ -603,6 +614,7 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       struct token name  = get_token(&message);
       int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
       if (item_index_for_name < 0) {
+        fprintf(rsp, "Name: %s not found in bar items \n", name.text);
         printf("Name: %s not found in bar items \n", name.text);
         break;
       }
@@ -611,7 +623,7 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);
         if (!rbr_msg) break;
-        bar_item_parse_set_message(bar_item, rbr_msg);
+        message_parse_set_message_for_bar_item(rsp, bar_item, rbr_msg);
         free(rbr_msg);
         if (message && message[0] == '-') break;
         token = get_token(&message);
@@ -689,6 +701,7 @@ void handle_message(FILE *rsp, char *message) {
   } else if (token_equals(domain, DOMAIN_QUERY)) {
     handle_domain_query(rsp, domain, message);
   } else {
+    fprintf(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
     printf("unknown domain '%.*s'\n", domain.length, domain.text);
   }
 }

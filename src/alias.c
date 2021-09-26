@@ -9,7 +9,8 @@ extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* w
 void print_all_menu_items(FILE* rsp) {
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
-  fprintf("Total Windows: %d \n", window_count);
+  fprintf(rsp, "Total Windows: %d \n", window_count);
+  printf("Total Windows: %d \n", window_count);
 
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
@@ -35,6 +36,7 @@ void print_all_menu_items(FILE* rsp) {
 
     if (strcmp(name, "") == 0) continue;
     fprintf(rsp, "Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
+    printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
 
     free(owner);
     free(name);
