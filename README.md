@@ -194,22 +194,24 @@ where the settings currently are:
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash
-sketchybar -m add item <name> <position>
+sketchybar -m add item <name> <position> [optional: <modifier>]
 ```
 with batching possible via:
 ```bash
-sketchybar -m batch --add item <name> <position>
+sketchybar -m batch --add item <name> <position> [optional: <modifier>]
 ```
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*.
+The list of modifiers for item creation is short currently:
+* *nospace*: This item is reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets)
 
 ### Adding a component
 ```bash
-sketchybar -m add component <type> <name> <position>
+sketchybar -m add component <type> <name> <position> [optional: <modifier>]
 ```
 or for batching of commands:
 ```bash
-sketchybar -m batch --add component <type> <name> <position>
+sketchybar -m batch --add component <type> <name> <position> [optional: <modifier>]
 ```
 Components are essentially items, but with special properties. 
 Currently there are the component *types*: 
@@ -229,7 +231,7 @@ sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 where the *name* is used to target the item with this name.
 
 An item always has the following structure in the bar (background padding currently on on HEAD):  <br>
-![](images/bar_item.png) <br>
+<img src="images/bar_item.png" width="250">
 background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
 A list of properties is listed below:
@@ -364,6 +366,20 @@ This stops the redrawing of the bar entirely and "freezes" it. Can be used durin
 create a cleaner startup by freezing the bar at the beginning of the configuration and unfreezing it after the
 setup is done.
 
+## Querying
+*SketchyBar* can be queried for information about a number of things.
+### Bar Information
+Information about the bar can be queried via:
+```bash
+sketchybar -m query bar
+```
+The output is a json structure containing relevant information about the configuration settings of the bar.
+### Item Information
+Information about an item can be queried via:
+```bash
+sketchybar -m query item <name>
+```
+The output is a json structure containing relevant information about the configuration of the item.
 ## Scripting
 The bar supports scripts where ever possible to make it as customizable and versatile as possible.
 When an item invokes a script, the script has access to some environment variables, such as:
@@ -426,7 +442,12 @@ Or the individual widgets of [Stats](https://github.com/exelban/stats):<br>
 Owner: Stats Name: CPU_Mini<br>
 Owner: Stats Name: RAM_Mini<br>
 Owner: Stats Name: Network_Speed<br>
-etc...
+etc...<br>
+
+All further Items can be found via the command:
+```bash
+sketchybar -m query default_menu_items
+```
 ## Credits
 yabai,
 spacebar,
