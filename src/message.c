@@ -655,7 +655,7 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
   if (token_equals(token, COMMAND_QUERY_DEFAULT_ITEMS)) {
-    print_all_menu_items();
+    print_all_menu_items(rsp);
   }
 }
 
@@ -694,6 +694,8 @@ void handle_message(FILE *rsp, char *message) {
 }
 
 static SOCKET_DAEMON_HANDLER(message_handler) {
-  struct event *event = event_create(&g_event_loop, DAEMON_MESSAGE, message);
+  int* _sockfd = malloc(sizeof(int));
+  memcpy(_sockfd, &sockfd, sizeof(int));
+  struct event *event = event_create(&g_event_loop, DAEMON_MESSAGE, _sockfd);
   event_loop_post(&g_event_loop, event);
 }

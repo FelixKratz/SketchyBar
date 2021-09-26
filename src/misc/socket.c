@@ -62,13 +62,9 @@ static void *socket_connection_handler(void *context) {
     struct daemon *daemon = context;
     while (daemon->is_running) {
         int sockfd = accept(daemon->sockfd, NULL, 0);
-        if (sockfd == -1) continue;
-
-        int length;
-        char *message = socket_read(sockfd, &length);
-        socket_close(sockfd);
-        if (message) daemon->handler(message);
+        if (sockfd != -1) daemon->handler(sockfd);
     }
+
     return NULL;
 }
 

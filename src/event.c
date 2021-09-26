@@ -87,16 +87,16 @@ static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
 
 static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
     debug("%s\n", __FUNCTION__);
-    if (g_verbose) {
-        fprintf(stdout, "%s:", __FUNCTION__);
-        for (char *message = context; *message;) {
-            message += fprintf(stdout, " %s", message);
-        }
-        putc('\n', stdout);
-        fflush(stdout);
-    }
+    int sockfd = *((int*)context);
+    int length;
+    char* message = socket_read(sockfd, &length);
+    FILE* rsp = fdopen(sockfd, "w");
 
-    handle_message(NULL, context);
+    if (message && rsp) handle_message(rsp, message);
+
+    if (rsp) fclose(rsp), fflush(rsp);
+    if (message) free(message);
+    socket_close(sockfd);
     free(context);
     return EVENT_SUCCESS;
 }
