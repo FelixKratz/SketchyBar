@@ -417,7 +417,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"drawing\": %d,\n"
                "\t\t\"updates\": %d,\n"
                "\t\t\"lazy\": %d,\n"
-               "\t\t\"chache_scripts\": %d,\n"
+               "\t\t\"cache_scripts\": %d,\n"
                "\t\t\"associated_bar_mask\": %u,\n"
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"associated_space_mask\": %u,\n"
