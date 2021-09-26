@@ -87,25 +87,24 @@ void bar_prepare_line(struct bar_line* bar_line, CTFontRef font, char* cstring, 
 
 void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_t x, uint32_t y, bool right_to_left) {
   const float height = bar->frame.size.height * 0.9f;
-  struct rgba_color color = graph_data->color;
   uint32_t sample_width = 1;
-  uint32_t ndata = graph_data->graph_width;
   bool fill = graph_data->fill;
   CGContextSaveGState(bar->context);
-  CGContextSetRGBStrokeColor(bar->context, color.r, color.g, color.b, 1.0);
-  CGContextSetRGBFillColor(bar->context, color.r, color.g, color.b, 0.2);
-  CGContextSetLineWidth(bar->context, fill ? 0.5 : 0.75);
+  CGContextSetRGBStrokeColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, graph_data->line_color.a);
+  if (graph_data->overrides_fill_color) CGContextSetRGBFillColor(bar->context, graph_data->fill_color.r, graph_data->fill_color.g, graph_data->fill_color.b, graph_data->fill_color.a);
+  else CGContextSetRGBFillColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, 0.2 * graph_data->line_color.a);
+  CGContextSetLineWidth(bar->context, graph_data->line_width);
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, ndata - 1) * height);
-    for (int i = ndata - 1; i > 0; --i, x -= sample_width) {
+    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, graph_data->graph_width - 1) * height);
+    for (int i = graph_data->graph_width - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
     }
   }
   else {
     CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, 0) * height);
-    for (int i = ndata - 1; i > 0; --i, x += sample_width) {
+    for (int i = graph_data->graph_width - 1; i > 0; --i, x += sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
     }
   }
@@ -158,7 +157,7 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
 
 void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
   if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
-  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.size.y) / 2},{bar_item->alias.size.x, bar_item->alias.size.y}};
+  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
   CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
 }
 
@@ -191,13 +190,13 @@ void bar_redraw(struct bar* bar) {
     bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left;
+      icon_position.x = bar_left_final_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
       
       if (!bar_item->nospace)
-        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_left_final_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_left_final_item_x;
         if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
@@ -206,13 +205,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
-      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right;
-      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left;
+      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_spacing_right - bar_item->background_padding_right;
+      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_spacing_right - bar_item->label_spacing_left + 1;
 
       if (!bar_item->nospace)
-        bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left;
+        bar_right_first_item_x = icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left : bar_right_first_item_x;
+        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_spacing_left - bar_item->background_padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
@@ -223,13 +222,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left;
+      icon_position.x = bar_center_first_item_x + bar_item->icon_spacing_left + bar_item->background_padding_left;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_spacing_right + bar_item->label_spacing_left;
 
       if (!bar_item->nospace)
-        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right;
+        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right : bar_center_first_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_spacing_right + bar_item->background_padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
@@ -244,8 +243,8 @@ void bar_redraw(struct bar* bar) {
 
     bar_draw_item_background(bar, bar_item, sid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
-    bar_draw_alias(bar, bar_item, icon_position.x);
     bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
+    bar_draw_alias(bar, bar_item, icon_position.x);
     bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
   }
 

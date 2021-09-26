@@ -76,6 +76,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->background_height = 0;
   bar_item->background_corner_radius = 0;
   bar_item->background_border_width = 0;
+  bar_item->background_padding_left = 0;
+  bar_item->background_padding_right = 0;
   bar_item->y_offset = 0;
   bar_item->bounding_rects = NULL;
   bar_item->has_alias = false;
@@ -336,10 +338,10 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   bounding_rect.origin = bar_item->icon_line.bounds.origin;
   bounding_rect.origin.x -= bar_item->icon_spacing_left;
   bounding_rect.origin.y = bar_item->icon_line.bounds.origin.y < bar_item->label_line.bounds.origin.y ? bar_item->icon_line.bounds.origin.y : bar_item->label_line.bounds.origin.y;
-  bounding_rect.size.width = CGRectGetMaxX(bar_item->label_line.bounds) - CGRectGetMinX(bar_item->icon_line.bounds) + bar_item->icon_spacing_left + bar_item->label_spacing_right + 1;
-  uint32_t max_y = CGRectGetMaxY(bar_item->label_line.bounds) > CGRectGetMaxY(bar_item->icon_line.bounds) ? CGRectGetMaxY(bar_item->label_line.bounds) : CGRectGetMaxY(bar_item->icon_line.bounds);
-  uint32_t min_y = CGRectGetMinY(bar_item->label_line.bounds) < CGRectGetMinY(bar_item->icon_line.bounds) ? CGRectGetMinY(bar_item->label_line.bounds) : CGRectGetMinY(bar_item->icon_line.bounds);
-  bounding_rect.size.height = max_y - min_y;
+  bounding_rect.size.width = bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width
+                             + bar_item->icon_spacing_left + bar_item->icon_spacing_right
+                             + bar_item->label_spacing_right + bar_item->label_spacing_left;
+  bounding_rect.size.height = bar_item->label_line.bounds.size.height > bar_item->icon_line.bounds.size.height ? bar_item->label_line.bounds.size.height : bar_item->icon_line.bounds.size.height;
   return bounding_rect;
 }
 

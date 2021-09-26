@@ -87,6 +87,9 @@ void alias_find_window(struct alias* alias) {
 
     CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary, kCGWindowNumber);
     if (!window_id_ref) continue;
+    CFDictionaryRef bounds = CFDictionaryGetValue(dictionary, kCGWindowBounds);
+    if (!bounds) continue;
+    CGRectMakeWithDictionaryRepresentation(bounds, &alias->bounds);
     CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &alias->wid);
 
     CFRelease(window_list);
@@ -113,7 +116,7 @@ bool alias_update_image(struct alias* alias) {
   else {
     tmp_ref = NULL;
   }*/
-  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8 | 1 << 11, &tmp_ref);
+  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
 
   //CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
    //                                            alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);

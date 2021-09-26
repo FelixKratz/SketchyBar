@@ -51,6 +51,8 @@ struct bar_item {
   uint32_t background_height;
   uint32_t background_corner_radius;
   uint32_t background_border_width;
+  int background_padding_left;
+  int background_padding_right;
   struct rgba_color background_color;
   struct rgba_color background_border_color;
 
@@ -108,8 +110,6 @@ void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_type(struct bar_item* bar_item, char type);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);
-void bar_item_set_padding_left(struct bar_item* bar_item, uint32_t pad);
-void bar_item_set_padding_right(struct bar_item* bar_item, uint32_t pad);
 void bar_item_set_icon(struct bar_item* bar_item, char* icon, bool forced);
 void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color);
 void bar_item_update_icon_color(struct bar_item* bar_item);

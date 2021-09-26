@@ -4,8 +4,12 @@ void graph_data_init(struct graph_data* graph_data, uint32_t graph_width) {
   graph_data->y = malloc(sizeof(float) * graph_width);
   memset(graph_data->y, 0, sizeof(float) * graph_width);
   graph_data->cursor = 0;
-  graph_data->color = rgba_color_from_hex(0xcccccc);
+
+  graph_data->line_color = rgba_color_from_hex(0xcccccc);
+  graph_data->fill_color = rgba_color_from_hex(0xcccccc);
+  graph_data->line_width = 0.5; 
   graph_data->fill = true;
+  graph_data->overrides_fill_color = false;
   graph_data->ready = true;
 }
 
