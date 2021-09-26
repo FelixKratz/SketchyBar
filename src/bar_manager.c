@@ -339,3 +339,43 @@ void bar_manager_freeze(struct bar_manager *bar_manager) {
 void bar_manager_unfreeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = false;
 }
+
+void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
+  fprintf(rsp, "{\n"
+               "\t\"geometry\": {\n"
+               "\t\t\"position\": \"%s\",\n"
+               "\t\t\"height\": %u,\n"
+               "\t\t\"margin\": %u,\n"
+               "\t\t\"y_offset\": %u,\n"
+               "\t\t\"corner_radius\": %u,\n"
+               "\t\t\"border_width\": %u,\n"
+               "\t\t\"padding_left\": %u,\n"
+               "\t\t\"padding_right\": %u\n"
+               "\t},\n"
+               "\t\"style\": {\n"
+               "\t\t\"background_color\": \"0x%x\",\n"
+               "\t\t\"border_color\": \"0x%x\",\n"
+               "\t\t\"blur_radius\": %u\n"
+               "\t},\n"
+               "\t\"state\": {\n"
+               "\t\t\"frozen\": %d,\n"
+               "\t\t\"topmost\": %d,\n"
+               "\t\t\"font_smoothing\": %d\n"
+               "\t}\n"
+               "}\n",
+               bar_manager->position,
+               bar_manager->height,
+               bar_manager->margin,
+               bar_manager->y_offset,
+               bar_manager->corner_radius,
+               bar_manager->border_width,
+               bar_manager->padding_left,
+               bar_manager->padding_right,
+               hex_from_rgba_color(bar_manager->background_color),
+               hex_from_rgba_color(bar_manager->border_color),
+               bar_manager->blur_radius,
+               bar_manager->frozen,
+               bar_manager->topmost,
+               bar_manager->font_smoothing);
+}
+

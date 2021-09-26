@@ -201,7 +201,7 @@ void bar_redraw(struct bar* bar) {
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
       if (bar_item->has_alias) {
-        bar_left_final_item_x += bar_item->alias.size.x;
+        bar_left_final_item_x += bar_item->alias.bounds.size.width;
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
@@ -217,8 +217,8 @@ void bar_redraw(struct bar* bar) {
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
       }
       if (bar_item->has_alias) {
-        icon_position.x -= bar_item->alias.size.x;
-        bar_right_first_item_x -= bar_item->alias.size.x;
+        icon_position.x -= bar_item->alias.bounds.size.width;
+        bar_right_first_item_x -= bar_item->alias.bounds.size.width;
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
@@ -233,7 +233,7 @@ void bar_redraw(struct bar* bar) {
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
       if (bar_item->has_alias) {
-        bar_center_first_item_x += bar_item->alias.size.x;
+        bar_center_first_item_x += bar_item->alias.bounds.size.width;
       }
     }
     bar_item->label_line.bounds.origin = label_position;
