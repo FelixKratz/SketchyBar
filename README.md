@@ -203,7 +203,7 @@ sketchybar -m batch --add item <name> <position> [optional: <modifier>]
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*.
 The list of modifiers for item creation is short currently:
-* *nospace*: This item is reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets)
+* *nospace*: This item reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets)
 
 ### Adding a component
 ```bash
@@ -231,7 +231,7 @@ sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 where the *name* is used to target the item with this name.
 
 An item always has the following structure in the bar (background padding currently on on HEAD):  <br>
-<img src="images/bar_item.png" width="250">
+<img src="images/bar_item.png" width="300"> <br>
 background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
 A list of properties is listed below:
