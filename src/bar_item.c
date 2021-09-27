@@ -422,8 +422,8 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"associated_space_mask\": %u,\n"
                "\t\t\"update_mask\": %u\n"
-               "\t}\n"
-               "}\n",
+               "\t},\n"
+               "\t\"bounding_rects\": {\n",
                bar_item->name,
                bar_item->type,
                bar_item->icon,
@@ -455,4 +455,19 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->associated_display,
                bar_item->associated_space,
                bar_item->update_mask);
+
+  for (int i = 0; i < bar_item->num_rects; i++) {
+    if (!bar_item->bounding_rects[i]) continue;
+    fprintf(rsp, "\t\t\"display-%d\": {\n"
+            "\t\t\t\"origin\": [ %f, %f ],\n"
+            "\t\t\t\"size\": [ %f, %f ]\n\t\t}",
+            i,
+            bar_item->bounding_rects[i]->origin.x,
+            bar_item->bounding_rects[i]->origin.y,
+            bar_item->bounding_rects[i]->size.width,
+            bar_item->bounding_rects[i]->size.height);
+    if (i < bar_item->num_rects - 1) fprintf(rsp, ",\n");
+    else fprintf(rsp, "\n\t}\n}\n");
+    
+  } 
 }
