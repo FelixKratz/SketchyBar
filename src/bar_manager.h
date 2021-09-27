@@ -23,17 +23,11 @@ struct bar_manager {
   int bar_item_count;
   char *position;
   char *display;
-  uint32_t height;
   uint32_t margin;
-  uint32_t corner_radius;
   uint32_t blur_radius;
   uint32_t y_offset;
-  uint32_t padding_left;
-  uint32_t padding_right;
 
-  uint32_t border_width;
-  struct rgba_color background_color;
-  struct rgba_color border_color;
+  struct background background;
   struct custom_events custom_events;
 };
 

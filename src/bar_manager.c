@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "background.h"
 #include "bar.h"
 #include "bar_item.h"
 #include "misc/helpers.h"
@@ -38,17 +39,17 @@ void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
 }
 
 void bar_manager_set_background_color(struct bar_manager* bar_manager, uint32_t color) {
-  bar_manager->background_color = rgba_color_from_hex(color);
+  bar_manager->background.color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color) {
-  bar_manager->border_color = rgba_color_from_hex(color);
+  bar_manager->background.border_color = rgba_color_from_hex(color);
   bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width) {
-  bar_manager->border_width = width;
+  bar_manager->background.border_width = width;
   bar_manager_refresh(bar_manager, true);
 }
 
@@ -58,17 +59,17 @@ void bar_manager_set_position(struct bar_manager* bar_manager, char *pos) {
 }
 
 void bar_manager_set_height(struct bar_manager* bar_manager, uint32_t height) {
-  bar_manager->height = height;
+  bar_manager->background.height = height;
   bar_manager_resize(bar_manager);
 }
 
 void bar_manager_set_padding_left(struct bar_manager* bar_manager, uint32_t padding) {
-  bar_manager->padding_left = padding;
+  bar_manager->background.padding_left = padding;
   bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_set_padding_right(struct bar_manager* bar_manager, uint32_t padding) {
-  bar_manager->padding_right = padding;
+  bar_manager->background.padding_right = padding;
   bar_manager_refresh(bar_manager, true);
 }
 
@@ -163,19 +164,19 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->bar_item_count = 0;
   bar_manager->display = BAR_DISPLAY_ALL;
   bar_manager->position = BAR_POSITION_TOP;
-  bar_manager->height = 25;
   bar_manager->y_offset = 0;
-  bar_manager->corner_radius = 0;
   bar_manager->blur_radius = 0;
   bar_manager->margin = 0;
-  bar_manager->padding_left = 20;
-  bar_manager->padding_right = 20;
   bar_manager->frozen = false;
   bar_manager->window_level = NSFloatingWindowLevel;
   bar_manager->topmost = false;
-  bar_manager->border_width = 0;
-  bar_manager->border_color = rgba_color_from_hex(0xffff0000);
-  bar_manager->background_color = rgba_color_from_hex(0x44000000);
+
+  background_init(&bar_manager->background);
+  bar_manager->background.height = 25;
+  bar_manager->background.padding_left = 20;
+  bar_manager->background.padding_right = 20;
+  bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
+  bar_manager->background.color = rgba_color_from_hex(0x44000000);
 
   bar_item_init(&bar_manager->default_item, NULL);
   custom_events_init(&bar_manager->custom_events);
@@ -364,15 +365,15 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t},\n"
                "\t\"items\": [\n",
                bar_manager->position,
-               bar_manager->height,
+               bar_manager->background.height,
                bar_manager->margin,
                bar_manager->y_offset,
-               bar_manager->corner_radius,
-               bar_manager->border_width,
-               bar_manager->padding_left,
-               bar_manager->padding_right,
-               hex_from_rgba_color(bar_manager->background_color),
-               hex_from_rgba_color(bar_manager->border_color),
+               bar_manager->background.corner_radius,
+               bar_manager->background.border_width,
+               bar_manager->background.padding_left,
+               bar_manager->background.padding_right,
+               hex_from_rgba_color(bar_manager->background.color),
+               hex_from_rgba_color(bar_manager->background.border_color),
                bar_manager->blur_radius,
                bar_manager->frozen,
                bar_manager->topmost,

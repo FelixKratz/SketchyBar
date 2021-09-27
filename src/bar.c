@@ -143,14 +143,14 @@ static int bar_get_center_length(struct bar_manager* bar_manager) {
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
-  bar_draw_graph_line(bar, &bar_item->graph_data, x, g_bar_manager.border_width + 1, right_to_left);
+  bar_draw_graph_line(bar, &bar_item->graph_data, x, g_bar_manager.background.border_width + 1, right_to_left);
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
   if (!bar_item->background.enabled) return;
   bool custom_height = bar_item->background.height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.border_width + 1)},
-                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
+  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
+                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
   draw_region = CGRectInset(draw_region, bar_item->background.border_width / 2, bar_item->background.border_width / 2);
   draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
@@ -167,13 +167,13 @@ void bar_redraw(struct bar* bar) {
   uint32_t sid = bar->sid;
   if (sid == 0) return;
 
-  int bar_left_final_item_x = g_bar_manager.padding_left;
-  int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.padding_right;
+  int bar_left_final_item_x = g_bar_manager.background.padding_left;
+  int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
 
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
-  draw_rect(bar->context, bar->frame, &g_bar_manager.background_color, g_bar_manager.corner_radius, g_bar_manager.border_width, &g_bar_manager.border_color, true);
+  draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
@@ -262,13 +262,13 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 
 
   if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
-    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.height - 2*g_bar_manager.y_offset;
+    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.background.height - 2*g_bar_manager.y_offset;
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
     origin.y += menu.size.height;
   }
 
-  bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};
+  bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.background.height}};
   bar->origin = origin;
   CGSNewRegionWithRect(&bar->frame, frame_region);
 }

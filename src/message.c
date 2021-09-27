@@ -531,7 +531,7 @@ static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     g_bar_manager.y_offset = token_to_uint32t(token);
   } else if (token_equals(command, COMMAND_BAR_CORNER_RADIUS)) {
     struct token token = get_token(&message);
-    g_bar_manager.corner_radius = token_to_uint32t(token);
+    g_bar_manager.background.corner_radius = token_to_uint32t(token);
   } else if (token_equals(command, COMMAND_BAR_BLUR_RADIUS)) {
     struct token token = get_token(&message);
     bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
