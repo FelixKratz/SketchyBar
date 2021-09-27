@@ -368,7 +368,6 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   struct token property = get_token(&message);
 
   if (token_equals(property, COMMAND_SET_ICON)) {
-    printf("Message: %s \n", message);
     needs_update = text_set_string(&bar_item->icon, token_to_string(get_token(&message)), false);
   } else if (token_equals(property, COMMAND_SET_LABEL)) {
     needs_update = text_set_string(&bar_item->label, token_to_string(get_token(&message)), false);
