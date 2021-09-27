@@ -89,7 +89,6 @@ struct event {
     void *context;
     volatile uint32_t *info;
     enum event_type type;
-    int param;
 };
 
 struct event *event_create(struct event_loop *event_loop, enum event_type type, void *context);

@@ -15,24 +15,23 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->lazy = ancestor->lazy;
   bar_item->updates = ancestor->updates;
   bar_item->drawing = ancestor->drawing;
-  bar_item->icon_color = ancestor->icon_color;
-  bar_item->icon_font_name = ancestor->icon_font_name;
-  bar_item->label_color = ancestor->label_color;
-  bar_item->label_font_name = ancestor->label_font_name;
-  bar_item->icon_padding_left = ancestor->icon_padding_left;
-  bar_item->icon_padding_right = ancestor->icon_padding_right;
-  bar_item->label_padding_left = ancestor->label_padding_left;
-  bar_item->label_padding_right = ancestor->label_padding_right;
+  
+  text_destroy(&bar_item->icon);
+  text_destroy(&bar_item->label);
+  
+  bar_item->icon = ancestor->icon;
+  bar_item->label = ancestor->label;
+  text_clear_pointers(&bar_item->icon);
+  text_clear_pointers(&bar_item->label);
+  text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
+  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name), true);
+  text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
+  text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
+
   bar_item->update_frequency = ancestor->update_frequency;
   bar_item->cache_scripts = ancestor->cache_scripts;
-  bar_item->icon_highlight_color = ancestor->icon_highlight_color;
-  bar_item->label_highlight_color = ancestor->label_highlight_color;
-  bar_item->background_color = ancestor->background_color;
-  bar_item->draws_background = ancestor->draws_background;
-  bar_item->background_height = ancestor->background_height;
-  bar_item->background_corner_radius = ancestor->background_corner_radius;
-  bar_item->background_border_color = ancestor->background_border_color;
-  bar_item->background_border_width = ancestor->background_border_width;
+
+  bar_item->background = ancestor->background;
   bar_item->y_offset = ancestor->y_offset;
 }
 
@@ -54,40 +53,19 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
-  bar_item->icon_font_name = "Hack Nerd Font:Bold:14.0";
-  bar_item->label_font_name = "Hack Nerd Font:Bold:14.0";
-  bar_item->icon_highlight = false;
-  bar_item->icon = "";
-  bar_item->icon_padding_left = 0;
-  bar_item->icon_padding_right = 0;
-  bar_item->icon_color = rgba_color_from_hex(0xffffffff);
-  bar_item->icon_highlight_color = rgba_color_from_hex(0xffffffff);
-  bar_item->label_highlight = false;
-  bar_item->label = "";
-  bar_item->label_padding_left = 0;
-  bar_item->label_padding_right = 0;
-  bar_item->label_color = rgba_color_from_hex(0xffffffff);
-  bar_item->label_highlight_color = rgba_color_from_hex(0xffffffff);
-  bar_item->has_graph = false;
-  bar_item->num_rects = 0;
-  bar_item->draws_background = false;
-  bar_item->background_color = rgba_color_from_hex(0x44ff0000);
-  bar_item->background_border_color = rgba_color_from_hex(0x44ff0000);
-  bar_item->background_height = 0;
-  bar_item->background_corner_radius = 0;
-  bar_item->background_border_width = 0;
-  bar_item->background_padding_left = 0;
-  bar_item->background_padding_right = 0;
+
   bar_item->y_offset = 0;
+  bar_item->num_rects = 0;
   bar_item->bounding_rects = NULL;
+
   bar_item->has_alias = false;
+  bar_item->has_graph = false;
 
+  text_init(&bar_item->icon);
+  text_init(&bar_item->label);
+  background_init(&bar_item->background);
+  
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
-
-  bar_item_set_icon(bar_item, string_copy(""), false);
-  bar_item_set_icon_font(bar_item, string_copy(bar_item->icon_font_name), true);
-  bar_item_set_label_font(bar_item, string_copy(bar_item->label_font_name), true);
-  bar_item_set_label(bar_item, string_copy(""), false);
 
   strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
@@ -199,77 +177,6 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   else bar_item->click_script = script;
 }
 
-void bar_item_set_icon(struct bar_item* bar_item, char* icon, bool forced) {
-  if (!icon) return;
-  if (!forced && bar_item->icon && strcmp(bar_item->icon, icon) == 0) { free(icon); return; }
-  if (bar_item->icon_line.line) bar_destroy_line(&bar_item->icon_line);
-  if (icon != bar_item->icon && !bar_item->icon) free(bar_item->icon);
-  bar_item->icon = icon;
-  bar_prepare_line(&bar_item->icon_line, bar_item->icon_font, bar_item->icon, bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color);
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_update_icon_color(struct bar_item *bar_item) {
-  struct rgba_color target_color = bar_item->icon_highlight ? bar_item->icon_highlight_color : bar_item->icon_color;
-  if (bar_item->icon_line.color.r == target_color.r 
-      && bar_item->icon_line.color.g == target_color.g 
-      && bar_item->icon_line.color.b == target_color.b 
-      && bar_item->icon_line.color.a == target_color.a) return;
-  bar_item->icon_line.color = target_color;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color) {
-  bar_item->icon_color = rgba_color_from_hex(color);
-  bar_item_update_icon_color(bar_item);
-}
-
-void bar_item_set_label(struct bar_item* bar_item, char* label, bool forced) {
-  if (!label) return;
-  if (!forced && bar_item->label && strcmp(bar_item->label, label) == 0) { free(label); return; }
-  if (bar_item->label_line.line) bar_destroy_line(&bar_item->label_line);
-  if (label != bar_item->label && !bar_item->label) free(bar_item->label);
-  bar_item->label = label;
-  bar_prepare_line(&bar_item->label_line, bar_item->label_font, bar_item->label, bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color);
-  bar_item_needs_update(bar_item);
-} 
-
-
-void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color) {
-  bar_item->label_color = rgba_color_from_hex(color);
-  bar_item_update_label_color(bar_item);
-}
-
-void bar_item_update_label_color(struct bar_item *bar_item) {
-  struct rgba_color target_color = bar_item->label_highlight ? bar_item->label_highlight_color : bar_item->label_color;
-  if (bar_item->label_line.color.r == target_color.r 
-      && bar_item->label_line.color.g == target_color.g 
-      && bar_item->label_line.color.b == target_color.b 
-      && bar_item->label_line.color.a == target_color.a) return;
-  bar_item->label_line.color = target_color;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string, bool forced) {
-  if (!font_string) return;
-  if (!forced && bar_item->icon_font_name && strcmp(bar_item->icon_font_name, font_string) == 0) { free(font_string); return; }
-  if (bar_item->icon_font) CFRelease(bar_item->icon_font);
-
-  bar_item->icon_font = bar_create_font(font_string);
-  bar_item->icon_font_name = font_string;
-  bar_item_set_icon(bar_item, bar_item->icon, true);
-}
-
-void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool forced) {
-  if (!font_string) return;
-  if (!forced && bar_item->label_font_name && strcmp(bar_item->label_font_name, font_string) == 0) { free(font_string); return; }
-  if (bar_item->label_font) CFRelease(bar_item->label_font);
-
-  bar_item->label_font = bar_create_font(font_string);
-  bar_item->label_font_name = font_string;
-  bar_item_set_label(bar_item, bar_item->label, true);
-}
-
 void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
   if (bar_item->drawing == state) return;
   bar_item->drawing = state;
@@ -282,51 +189,6 @@ void bar_item_on_click(struct bar_item* bar_item) {
     fork_exec(bar_item->click_script, &bar_item->signal_args);
 }
 
-void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color) {
-  struct rgba_color target_color = rgba_color_from_hex(color);
-  if (bar_item->background_color.r == target_color.r 
-      && bar_item->background_color.g == target_color.g 
-      && bar_item->background_color.b == target_color.b 
-      && bar_item->background_color.a == target_color.a) return;
-  bar_item->background_color = target_color;
-  bar_item_set_draws_background(bar_item, true);
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_background_border_color(struct bar_item* bar_item, uint32_t color) {
-  struct rgba_color target_color = rgba_color_from_hex(color);
-  if (bar_item->background_border_color.r == target_color.r 
-      && bar_item->background_border_color.g == target_color.g 
-      && bar_item->background_border_color.b == target_color.b 
-      && bar_item->background_border_color.a == target_color.a) return;
-  bar_item->background_border_color = target_color;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_draws_background(struct bar_item* bar_item, bool enabled) {
-  if (bar_item->draws_background == enabled) return;
-  bar_item->draws_background = enabled;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_background_height(struct bar_item* bar_item, uint32_t height) {
-  if (bar_item->background_height == height) return;
-  bar_item->background_height = height;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t border_width) {
-  if (bar_item->background_border_width == border_width) return;
-  bar_item->background_border_width = border_width;
-  bar_item_needs_update(bar_item);
-}
-
-void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius) {
-  if (bar_item->background_corner_radius == corner_radius) return;
-  bar_item->background_corner_radius = corner_radius;
-  bar_item_needs_update(bar_item);
-}
-
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   if (bar_item->y_offset == offset) return;
   bar_item->y_offset = offset;
@@ -335,13 +197,13 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
-  bounding_rect.origin = bar_item->icon_line.bounds.origin;
-  bounding_rect.origin.x -= bar_item->icon_padding_left;
-  bounding_rect.origin.y = bar_item->icon_line.bounds.origin.y < bar_item->label_line.bounds.origin.y ? bar_item->icon_line.bounds.origin.y : bar_item->label_line.bounds.origin.y;
-  bounding_rect.size.width = bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width
-                             + bar_item->icon_padding_left + bar_item->icon_padding_right
-                             + bar_item->label_padding_right + bar_item->label_padding_left;
-  bounding_rect.size.height = bar_item->label_line.bounds.size.height > bar_item->icon_line.bounds.size.height ? bar_item->label_line.bounds.size.height : bar_item->icon_line.bounds.size.height;
+  bounding_rect.origin = bar_item->icon.line.bounds.origin;
+  bounding_rect.origin.x -= bar_item->icon.padding_left;
+  bounding_rect.origin.y = bar_item->icon.line.bounds.origin.y < bar_item->label.line.bounds.origin.y ? bar_item->icon.line.bounds.origin.y : bar_item->label.line.bounds.origin.y;
+  bounding_rect.size.width = bar_item->label.line.bounds.size.width + bar_item->icon.line.bounds.size.width
+                             + bar_item->icon.padding_left + bar_item->icon.padding_right
+                             + bar_item->label.padding_right + bar_item->label.padding_left;
+  bounding_rect.size.height = bar_item->label.line.bounds.size.height > bar_item->icon.line.bounds.size.height ? bar_item->label.line.bounds.size.height : bar_item->icon.line.bounds.size.height;
   return bounding_rect;
 }
 
@@ -365,10 +227,9 @@ void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script && !bar_item->cache_scripts) free(bar_item->script);
   if (bar_item->click_script && !bar_item->cache_scripts) free(bar_item->click_script);
-  if (bar_item->icon) free(bar_item->icon);
-  if (bar_item->icon_font_name) free(bar_item->icon_font_name);
-  if (bar_item->label) free(bar_item->label);
-  if (bar_item->label_font_name) free(bar_item->label_font_name);
+
+  text_destroy(&bar_item->icon);
+  text_destroy(&bar_item->label);
 
   if (bar_item->bounding_rects) {  
     for (int j = 0; j < bar_item->num_rects; j++) {
@@ -427,28 +288,28 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\"bounding_rects\": {\n",
                bar_item->name,
                bar_item->type,
-               bar_item->icon,
-               bar_item->label,
-               bar_item->icon_font_name,
-               bar_item->label_font_name,
+               bar_item->icon.string,
+               bar_item->label.string,
+               bar_item->icon.font_name,
+               bar_item->label.font_name,
                bar_item->position,
                bar_item->nospace,
-               bar_item->background_padding_left,
-               bar_item->background_padding_right,
-               bar_item->icon_padding_left,
-               bar_item->icon_padding_right,
-               bar_item->label_padding_left,
-               bar_item->label_padding_right,
-               hex_from_rgba_color(bar_item->icon_color),
-               hex_from_rgba_color(bar_item->icon_highlight_color),
-               hex_from_rgba_color(bar_item->label_color),
-               hex_from_rgba_color(bar_item->label_highlight_color),
-               bar_item->draws_background,
-               bar_item->background_height,
-               bar_item->background_corner_radius,
-               bar_item->background_border_width,
-               hex_from_rgba_color(bar_item->background_color),
-               hex_from_rgba_color(bar_item->background_border_color),
+               bar_item->background.padding_left,
+               bar_item->background.padding_right,
+               bar_item->icon.padding_left,
+               bar_item->icon.padding_right,
+               bar_item->label.padding_left,
+               bar_item->label.padding_right,
+               hex_from_rgba_color(bar_item->icon.color),
+               hex_from_rgba_color(bar_item->icon.highlight_color),
+               hex_from_rgba_color(bar_item->label.color),
+               hex_from_rgba_color(bar_item->label.highlight_color),
+               bar_item->background.enabled,
+               bar_item->background.height,
+               bar_item->background.corner_radius,
+               bar_item->background.border_width,
+               hex_from_rgba_color(bar_item->background.color),
+               hex_from_rgba_color(bar_item->background.border_color),
                bar_item->drawing,
                bar_item->updates,
                bar_item->lazy,

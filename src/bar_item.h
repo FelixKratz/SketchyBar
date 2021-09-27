@@ -44,36 +44,13 @@ struct bar_item {
   int y_offset;
 
   // Background
-  bool draws_background;
-  uint32_t background_height;
-  uint32_t background_corner_radius;
-  uint32_t background_border_width;
-  int background_padding_left;
-  int background_padding_right;
-  struct rgba_color background_color;
-  struct rgba_color background_border_color;
+  struct background background;
 
   // Icon properties
-  bool icon_highlight;
-  struct bar_line icon_line;
-  char* icon;
-  char* icon_font_name;
-  CTFontRef icon_font;
-  int icon_padding_left;
-  int icon_padding_right;
-  struct rgba_color icon_color;
-  struct rgba_color icon_highlight_color;
+  struct text icon;
 
   // Label properties
-  bool label_highlight;
-  struct bar_line label_line;
-  char* label;
-  char* label_font_name;
-  CTFontRef label_font;
-  int label_padding_left;
-  int label_padding_right;
-  struct rgba_color label_color;
-  struct rgba_color label_highlight_color;
+  struct text label;
 
   // Graph Data
   bool has_graph;
@@ -109,21 +86,7 @@ void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_type(struct bar_item* bar_item, char type);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);
-void bar_item_set_icon(struct bar_item* bar_item, char* icon, bool forced);
-void bar_item_set_icon_color(struct bar_item* bar_item, uint32_t color);
-void bar_item_update_icon_color(struct bar_item* bar_item);
-void bar_item_set_label(struct bar_item* bar_item, char* label, bool forced);
-void bar_item_set_label_color(struct bar_item* bar_item, uint32_t color);
-void bar_item_update_label_color(struct bar_item* bar_item);
-void bar_item_set_label_font(struct bar_item* bar_item, char *font_string, bool forced);
-void bar_item_set_icon_font(struct bar_item* bar_item, char *font_string, bool forced);
 void bar_item_set_drawing(struct bar_item* bar_item, bool state);
-void bar_item_set_background_color(struct bar_item* bar_item, uint32_t color);
-void bar_item_set_background_border_color(struct bar_item* bar_item, uint32_t color);
-void bar_item_set_draws_background(struct bar_item* bar_item, bool enabled);
-void bar_item_set_background_height(struct bar_item* bar_item, uint32_t height);
-void bar_item_set_background_corner_radius(struct bar_item* bar_item, uint32_t corner_radius);
-void bar_item_set_background_border_width(struct bar_item* bar_item, uint32_t border_width);
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset);
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);

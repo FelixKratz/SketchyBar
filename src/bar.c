@@ -132,9 +132,9 @@ static int bar_get_center_length(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->position == BAR_POSITION_CENTER) {
-      total_length += bar_item->label_line.bounds.size.width + bar_item->icon_line.bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
+      total_length += bar_item->label.line.bounds.size.width + bar_item->icon.line.bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
       if (i > 0) {
-        total_length += bar_manager->bar_items[i-1]->label_padding_right + bar_item->icon_padding_left;
+        total_length += bar_manager->bar_items[i-1]->label.padding_right + bar_item->icon.padding_left;
       }
     }
   }
@@ -147,12 +147,12 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
-  if (!bar_item->draws_background) return;
-  bool custom_height = bar_item->background_height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)},
-                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background_height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
-  draw_region = CGRectInset(draw_region, bar_item->background_border_width / 2, bar_item->background_border_width / 2);
-  draw_rect(bar->context, draw_region, &bar_item->background_color, bar_item->background_corner_radius, bar_item->background_border_width, &bar_item->background_border_color, false);
+  if (!bar_item->background.enabled) return;
+  bool custom_height = bar_item->background.height != 0;
+  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.border_width + 1)},
+                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
+  draw_region = CGRectInset(draw_region, bar_item->background.border_width / 2, bar_item->background.border_width / 2);
+  draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
 
 void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
@@ -182,21 +182,21 @@ void bar_redraw(struct bar* bar) {
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << adid))) continue;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
 
-    struct bar_line* label = &bar_item->label_line;
-    struct bar_line* icon = &bar_item->icon_line;
+    struct bar_line* label = &bar_item->label.line;
+    struct bar_line* icon = &bar_item->icon.line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
     CGPoint label_position = bar_align_line(bar, label, ALIGN_CENTER, ALIGN_CENTER);
     uint32_t graph_x = 0;
     bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->icon_padding_left + bar_item->background_padding_left;
-      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left;
+      icon_position.x = bar_left_final_item_x + bar_item->icon.padding_left + bar_item->background.padding_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
       
       if (!bar_item->nospace)
-        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right;
+        bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right : bar_left_final_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_left_final_item_x;
         if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph_data.graph_width;
       }
@@ -205,13 +205,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
-      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label_padding_right - bar_item->background_padding_right;
-      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon_padding_right - bar_item->label_padding_left + 1;
+      label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label.padding_right - bar_item->background.padding_right;
+      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon.padding_right - bar_item->label.padding_left + 1;
 
       if (!bar_item->nospace)
-        bar_right_first_item_x = icon_position.x - bar_item->icon_padding_left - bar_item->background_padding_left;
+        bar_right_first_item_x = icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon_padding_left - bar_item->background_padding_left : bar_right_first_item_x;
+        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph_data.graph_width;
@@ -222,13 +222,13 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->icon_padding_left + bar_item->background_padding_left;
-      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon_padding_right + bar_item->label_padding_left;
+      icon_position.x = bar_center_first_item_x + bar_item->icon.padding_left + bar_item->background.padding_left;
+      label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
 
       if (!bar_item->nospace)
-        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right;
+        bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label_padding_right + bar_item->background_padding_right : bar_center_first_item_x;
+        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph_data.graph_width;
       }
@@ -236,8 +236,8 @@ void bar_redraw(struct bar* bar) {
         bar_center_first_item_x += bar_item->alias.bounds.size.width;
       }
     }
-    bar_item->label_line.bounds.origin = label_position;
-    bar_item->icon_line.bounds.origin = icon_position;
+    bar_item->label.line.bounds.origin = label_position;
+    bar_item->icon.line.bounds.origin = icon_position;
     bar_item_append_associated_bar(bar_item, (1 << (adid - 1)));
     bar_item_set_bounding_rect_for_display(bar_item, adid, bar->origin);
 

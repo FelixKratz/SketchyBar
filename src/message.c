@@ -364,38 +364,40 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 }
 
 static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* bar_item, char* message) {
+  bool needs_update = false;
   struct token property = get_token(&message);
 
   if (token_equals(property, COMMAND_SET_ICON)) {
-    bar_item_set_icon(bar_item, string_copy(message), false);
+    printf("Message: %s \n", message);
+    needs_update = text_set_string(&bar_item->icon, token_to_string(get_token(&message)), false);
   } else if (token_equals(property, COMMAND_SET_LABEL)) {
-    bar_item_set_label(bar_item, string_copy(message), false);
+    needs_update = text_set_string(&bar_item->label, token_to_string(get_token(&message)), false);
   } else if (token_equals(property, COMMAND_SET_LABEL_COLOR)) {
-    bar_item_set_label_color(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = text_set_color(&bar_item->label, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
-    bar_item_set_icon_color(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = text_set_color(&bar_item->icon, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_SCRIPTING) || token_equals(property, COMMAND_SET_UPDATES)) {
     bar_item->updates = evaluate_boolean_state(get_token(&message), bar_item->updates);
   } else if (token_equals(property, COMMAND_SET_DRAWING)) {
     bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {
-    bar_item->label_highlight = evaluate_boolean_state(get_token(&message), bar_item->label_highlight);
-    bar_item_update_label_color(bar_item);
+    bar_item->label.highlight = evaluate_boolean_state(get_token(&message), bar_item->label.highlight);
+    needs_update = text_update_color(&bar_item->label);
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT)) {
-    bar_item->icon_highlight = evaluate_boolean_state(get_token(&message), bar_item->icon_highlight);
-    bar_item_update_icon_color(bar_item);
+    bar_item->icon.highlight = evaluate_boolean_state(get_token(&message), bar_item->icon.highlight);
+    needs_update = text_update_color(&bar_item->icon);
   } else if (token_equals(property, COMMAND_SET_DRAWS_BACKGROUND)) {
-    bar_item_set_draws_background(bar_item, evaluate_boolean_state(get_token(&message), bar_item->draws_background));
+    needs_update = background_set_enabled(&bar_item->background, evaluate_boolean_state(get_token(&message), bar_item->background.enabled));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_HEIGHT)) {
-    bar_item_set_background_height(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = background_set_height(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_CORNER_RADIUS)) {
-    bar_item_set_background_corner_radius(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = background_set_corner_radius(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_WIDTH)) {
-    bar_item_set_background_border_width(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = background_set_border_width(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
-    bar_item_set_icon_font(bar_item, string_copy(message), false);
+    needs_update = text_set_font(&bar_item->icon, string_copy(message), false);
   } else if (token_equals(property, COMMAND_SET_LABEL_FONT)) {
-    bar_item_set_label_font(bar_item, string_copy(message), false);
+    needs_update = text_set_font(&bar_item->label, string_copy(message), false);
   } else if (token_equals(property, COMMAND_SET_SCRIPT)) {
     bar_item_set_script(bar_item, string_copy(message));
   } else if (token_equals(property, COMMAND_SET_CLICK_SCRIPT)) {
@@ -408,18 +410,20 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, COMMAND_SET_GRAPH_FILL_COLOR)) {
     bar_item->graph_data.fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     bar_item->graph_data.overrides_fill_color = true;
-    bar_item_needs_update(bar_item);
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_GRAPH_LINE_WIDTH)) {
     bar_item->graph_data.line_width = token_to_float(get_token(&message));
-    bar_item_needs_update(bar_item);
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
-    bar_item_set_background_color(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = background_set_color(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_COLOR)) {
-    bar_item_set_background_border_color(bar_item, token_to_uint32t(get_token(&message)));
+    needs_update = background_set_border_color(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_ICON_HIGHLIGHT_COLOR)) {
-    bar_item->icon_highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->icon.highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    needs_update = text_update_color(&bar_item->icon);
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT_COLOR)) {
-    bar_item->label_highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->label.highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    needs_update = text_update_color(&bar_item->label);
   } else if (token_equals(property, COMMAND_SET_POSITION)) {
     bar_item->position = get_token(&message).text[0];
   } else if (token_equals(property, COMMAND_SET_ASSOCIATED_SPACE)) {
@@ -437,23 +441,23 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
       bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_LEFT)) {
-    bar_item->icon_padding_left = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->icon.padding_left = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_ICON_PADDING_RIGHT)) {
-    bar_item->icon_padding_right = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->icon.padding_right = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_LEFT)) {
-    bar_item->label_padding_left = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->label.padding_left = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_LABEL_PADDING_RIGHT)) {
-    bar_item->label_padding_right = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->label.padding_right = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_PADDING_LEFT)) {
-    bar_item->background_padding_left = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->background.padding_left = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_PADDING_RIGHT)) {
-    bar_item->background_padding_right = token_to_int(get_token(&message));
-    bar_item_needs_update(bar_item);
+    bar_item->background.padding_right = token_to_int(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_YOFFSET)) {
     bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_CACHE_SCRIPTS)) {
@@ -478,6 +482,8 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     fprintf(rsp, "unknown command '%s' for domain 'set'\n", property.text);
     printf("unknown command '%s' for domain 'set'\n", property.text);
   }
+
+  if (needs_update) bar_item_needs_update(bar_item);
 }
 
 // Syntax: sketchybar -m default <property> <value>
