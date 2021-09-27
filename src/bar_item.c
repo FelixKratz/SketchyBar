@@ -394,6 +394,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t},\n"
                "\t\"geometry\": {\n"
                "\t\t\"position\": \"%c\",\n"
+               "\t\t\"nospace\": \"%d\",\n"
                "\t\t\"background_padding_left\": %d,\n"
                "\t\t\"background_padding_right\": %d,\n"
                "\t\t\"icon_padding_left\": %d,\n"
@@ -431,6 +432,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->icon_font_name,
                bar_item->label_font_name,
                bar_item->position,
+               bar_item->nospace,
                bar_item->background_padding_left,
                bar_item->background_padding_right,
                bar_item->icon_padding_left,
