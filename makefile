@@ -3,13 +3,19 @@ FRAMEWORK      = -framework Carbon -framework Cocoa -framework SkyLight
 BUILD_FLAGS    = -std=c99 -Wall -DNDEBUG -Ofast -fvisibility=hidden
 BUILD_PATH     = ./bin
 SKETCHYBAR_SRC = ./src/manifest.m
-BINS           = $(BUILD_PATH)/sketchybar
+UNIVERSAL_BINS = $(BUILD_PATH)/sketchybar
+ARM_BINS       = $(BUILD_PATH)/sketchybar_arm
+x86_BINS       = $(BUILD_PATH)/sketchybar_x86
 
 .PHONY: all clean install
 
-all: clean $(BINS)
+all: clean $(UNIVERSAL_BINS)
 
-install: clean $(BINS)
+arm: clean $(ARM_BINS)
+
+x86: clean $(x86_BINS)
+
+install: clean $(UNIVERSAL_BINS)
 	ln ./bin/sketchybar /usr/local/bin/sketchybar
 	echo "Install complete... Do not forget to setup the configuration file."
 
@@ -17,15 +23,12 @@ uninstall: clean
 	rm /usr/local/bin/sketchybar
 
 debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -fsanitize=address -fsanitize=undefined -g -O0 -fvisibility=hidden
-debug: clean $(BINS)
+debug: clean $(x86_BINS)
 
-update: clean $(BINS)
+update: clean $(UNIVERSAL_BINS)
 	rm /usr/local/bin/sketchybar
 	ln ./bin/sketchybar /usr/local/bin/sketchybar
 	echo "Update complete... ~/.config/ folder not touched and might need update too...."
-	
-stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden
-stats: clean $(BINS)
 	
 clean:
 	rm -rf $(BUILD_PATH)
