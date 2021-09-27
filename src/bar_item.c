@@ -330,7 +330,6 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
             bar_item->bounding_rects[i]->size.width,
             bar_item->bounding_rects[i]->size.height);
     if (i < bar_item->num_rects - 1) fprintf(rsp, ",\n");
-    else fprintf(rsp, "\n\t}\n}\n");
-    
   } 
+  fprintf(rsp, "\n\t}\n}\n");
 }

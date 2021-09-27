@@ -109,6 +109,7 @@ extern bool g_verbose;
 #define DOMAIN_QUERY                                        "query"
 #define COMMAND_QUERY_DEFAULT_ITEMS                         "default_menu_items"
 #define COMMAND_QUERY_ITEM                                  "item"
+#define COMMAND_QUERY_DEFAULTS                              "defaults"
 #define COMMAND_QUERY_BAR                                   "bar"
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
@@ -685,6 +686,8 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
   } else if (token_equals(token, COMMAND_QUERY_BAR)) {
     bar_manager_serialize(&g_bar_manager, rsp);
+  } else if (token_equals(token, COMMAND_QUERY_DEFAULTS)) {
+    bar_item_serialize(&g_bar_manager.default_item, rsp);
   }
 
 }

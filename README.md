@@ -380,6 +380,11 @@ Information about an item can be queried via:
 sketchybar -m query item <name>
 ```
 The output is a json structure containing relevant information about the configuration of the item.
+## Defaults Information
+Information about the current defaults.
+```bash
+sketchybar -m query defaults
+```
 ## Scripting
 The bar supports scripts where ever possible to make it as customizable and versatile as possible.
 When an item invokes a script, the script has access to some environment variables, such as:
