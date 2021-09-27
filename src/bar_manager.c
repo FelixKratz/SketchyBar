@@ -361,8 +361,8 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t\t\"frozen\": %d,\n"
                "\t\t\"topmost\": %d,\n"
                "\t\t\"font_smoothing\": %d\n"
-               "\t}\n"
-               "}\n",
+               "\t},\n"
+               "\t\"items\": [\n",
                bar_manager->position,
                bar_manager->height,
                bar_manager->margin,
@@ -377,5 +377,11 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                bar_manager->frozen,
                bar_manager->topmost,
                bar_manager->font_smoothing);
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    fprintf(rsp, "\t\t \"%s\"", bar_manager->bar_items[i]->name);
+    if (i < bar_manager->bar_item_count - 1) fprintf(rsp, ",\n");
+    else fprintf(rsp, "\n\t]\n}\n");
+  }
+    
 }
 
