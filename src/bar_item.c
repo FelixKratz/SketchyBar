@@ -461,7 +461,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
     fprintf(rsp, "\t\t\"display-%d\": {\n"
             "\t\t\t\"origin\": [ %f, %f ],\n"
             "\t\t\t\"size\": [ %f, %f ]\n\t\t}",
-            i,
+            i + 1,
             bar_item->bounding_rects[i]->origin.x,
             bar_item->bounding_rects[i]->origin.y,
             bar_item->bounding_rects[i]->size.width,
