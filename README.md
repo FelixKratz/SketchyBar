@@ -368,19 +368,19 @@ setup is done.
 
 ## Querying
 *SketchyBar* can be queried for information about a number of things.
-### Bar Information
+### Bar Properties
 Information about the bar can be queried via:
 ```bash
 sketchybar -m query bar
 ```
 The output is a json structure containing relevant information about the configuration settings of the bar.
-### Item Information
+### Item Properties
 Information about an item can be queried via:
 ```bash
 sketchybar -m query item <name>
 ```
 The output is a json structure containing relevant information about the configuration of the item.
-## Defaults Information
+### Default Properties
 Information about the current defaults.
 ```bash
 sketchybar -m query defaults
