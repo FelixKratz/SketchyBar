@@ -345,20 +345,20 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   return bounding_rect;
 }
 
-void bar_item_set_bounding_rect_for_space(struct bar_item* bar_item, uint32_t sid, CGPoint bar_origin) {
-  if (bar_item->num_rects < sid) {
-    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * sid);
-    memset(bar_item->bounding_rects, 0, sizeof(CGRect*) * sid);
-    bar_item->num_rects = sid;
+void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin) {
+  if (bar_item->num_rects < adid) {
+    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * adid);
+    memset(bar_item->bounding_rects, 0, sizeof(CGRect*) * adid);
+    bar_item->num_rects = adid;
   }
-  if (!bar_item->bounding_rects[sid - 1]) {
-    bar_item->bounding_rects[sid - 1] = malloc(sizeof(CGRect));
-    memset(bar_item->bounding_rects[sid - 1], 0, sizeof(CGRect));
+  if (!bar_item->bounding_rects[adid - 1]) {
+    bar_item->bounding_rects[adid - 1] = malloc(sizeof(CGRect));
+    memset(bar_item->bounding_rects[adid - 1], 0, sizeof(CGRect));
   }
   CGRect rect = bar_item_construct_bounding_rect(bar_item);
-  bar_item->bounding_rects[sid - 1]->origin.x = rect.origin.x + bar_origin.x;
-  bar_item->bounding_rects[sid - 1]->origin.y = rect.origin.y + bar_origin.y;
-  bar_item->bounding_rects[sid - 1]->size = rect.size;
+  bar_item->bounding_rects[adid - 1]->origin.x = rect.origin.x + bar_origin.x;
+  bar_item->bounding_rects[adid - 1]->origin.y = rect.origin.y + bar_origin.y;
+  bar_item->bounding_rects[adid - 1]->size = rect.size;
 }
 
 void bar_item_destroy(struct bar_item* bar_item) {
@@ -417,7 +417,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"drawing\": %d,\n"
                "\t\t\"updates\": %d,\n"
                "\t\t\"lazy\": %d,\n"
-               "\t\t\"chache_scripts\": %d,\n"
+               "\t\t\"cache_scripts\": %d,\n"
                "\t\t\"associated_bar_mask\": %u,\n"
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"associated_space_mask\": %u,\n"

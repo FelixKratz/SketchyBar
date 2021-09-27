@@ -287,11 +287,11 @@ void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_mana
   }
 }
 
-struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t sid) {
+struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (!bar_item->drawing || bar_item->num_rects < sid || bar_item->bounding_rects[sid - 1] == NULL) continue;
-    if (cgrect_contains_point(bar_item->bounding_rects[sid - 1], &point)) {
+    if (!bar_item->drawing || bar_item->num_rects < adid || bar_item->bounding_rects[adid - 1] == NULL) continue;
+    if (cgrect_contains_point(bar_item->bounding_rects[adid - 1], &point)) {
       return bar_item;
     }
   }

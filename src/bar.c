@@ -146,11 +146,11 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
   bar_draw_graph_line(bar, &bar_item->graph_data, x, g_bar_manager.border_width + 1, right_to_left);
 }
 
-void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t sid) {
+void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
   if (!bar_item->draws_background) return;
   bool custom_height = bar_item->background_height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[sid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)},
-                        {bar_item->bounding_rects[sid - 1]->size.width, custom_height ? bar_item->background_height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
+  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background_height)) / 2 : (g_bar_manager.border_width + 1)},
+                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background_height : (bar->frame.size.height - 2*(g_bar_manager.border_width + 1))}};
   draw_region = CGRectInset(draw_region, bar_item->background_border_width / 2, bar_item->background_border_width / 2);
   draw_rect(bar->context, draw_region, &bar_item->background_color, bar_item->background_corner_radius, bar_item->background_border_width, &bar_item->background_border_color, false);
 }
@@ -163,7 +163,7 @@ void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
 
 void bar_redraw(struct bar* bar) {
   if (bar->hidden) return;
-  uint32_t did = bar->adid;
+  uint32_t adid = bar->adid;
   uint32_t sid = bar->sid;
   if (sid == 0) return;
 
@@ -179,7 +179,7 @@ void bar_redraw(struct bar* bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
     if (!bar_item->drawing) continue;
-    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << did))) continue;
+    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << adid))) continue;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
 
     struct bar_line* label = &bar_item->label_line;
@@ -238,10 +238,10 @@ void bar_redraw(struct bar* bar) {
     }
     bar_item->label_line.bounds.origin = label_position;
     bar_item->icon_line.bounds.origin = icon_position;
-    bar_item_append_associated_bar(bar_item, (1 << (bar->adid - 1)));
-    bar_item_set_bounding_rect_for_space(bar_item, sid, bar->origin);
+    bar_item_append_associated_bar(bar_item, (1 << (adid - 1)));
+    bar_item_set_bounding_rect_for_display(bar_item, adid, bar->origin);
 
-    bar_draw_item_background(bar, bar_item, sid);
+    bar_draw_item_background(bar, bar_item, adid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
     bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
     bar_draw_alias(bar, bar_item, icon_position.x);
@@ -263,9 +263,9 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 
   if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
     origin.y = CGRectGetMaxY(bounds) - g_bar_manager.height - 2*g_bar_manager.y_offset;
-  } else if (display_menu_bar_visible()) {
-    //CGRect menu = display_menu_bar_rect(bar->did);
-    //origin.y   += menu.size.height;
+  } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
+    CGRect menu = display_menu_bar_rect(bar->did);
+    origin.y += menu.size.height;
   }
 
   bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.height}};

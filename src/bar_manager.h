@@ -63,6 +63,9 @@ void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
 void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width);
 void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color);
 void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
+
+struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);
+
 void bar_manager_freeze(struct bar_manager *bar_manager);
 void bar_manager_unfreeze(struct bar_manager *bar_manager);
 
