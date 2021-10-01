@@ -33,7 +33,6 @@ struct bar_item {
   bool drawing;
   bool nospace;
 
-  
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
   uint32_t associated_bar;
   uint32_t associated_display;

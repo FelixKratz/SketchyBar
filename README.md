@@ -190,7 +190,7 @@ where the settings currently are:
 * *display*: on which display to show bar (*main* or *all*)
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
-* *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*) (Only on HEAD)
+* *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 
 ### Adding a simple menubar item (items will appear in the bar in the order they are added)
 ```bash
@@ -230,7 +230,7 @@ sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
 
-An item always has the following structure in the bar (background padding currently on on HEAD):  <br>
+An item always has the following structure in the bar:  <br>
 <img src="images/bar_item.png" width="300"> <br>
 background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
@@ -257,17 +257,17 @@ A list of properties is listed below:
 * *background_border_color*: the color of the backgrounds border
 * *background_corner_radius*: the corner radius of the items background (default: 0)
 * *background_border_width*: the border width of the items background (default: 0)
-* *background_padding_left*: the left padding applied around the background of the item (default: 0) (Only on HEAD)
-* *background_padding_right*: the right padding applied around the background of the item (default: 0) (Only on HEAD)
+* *background_padding_left*: the left padding applied around the background of the item (default: 0)
+* *background_padding_right*: the right padding applied around the background of the item (default: 0)
 * *y_offset*: the vertical offset of this item (default: 0)
 * *graph_color*: color of the associated graph
-* *graph_fill_color*: optional property to override the automatically calculated fill color of the graph (Only on HEAD)
-* *graph_line_width*: sets the line width of the associated graph (Only on HEAD)
+* *graph_fill_color*: optional property to override the automatically calculated fill color of the graph
+* *graph_line_width*: sets the line width of the associated graph
 * *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
-* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
+* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown* (Only on HEAD),  default: *on*)
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
