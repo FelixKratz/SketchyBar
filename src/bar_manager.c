@@ -34,7 +34,7 @@ int bar_manager_get_item_index_by_address(struct bar_manager* bar_manager, struc
 void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
   bar_manager->blur_radius = radius;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    SLSSetWindowBackgroundBlurRadius(g_connection, bar_manager->bars[i]->id, radius);
+    bar_set_blur_radius(bar_manager->bars[i]);
   }
 }
 

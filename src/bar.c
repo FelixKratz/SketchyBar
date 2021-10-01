@@ -298,6 +298,10 @@ void bar_set_font_smoothing(struct bar* bar, bool smoothing) {
   CGContextSetAllowsFontSmoothing(bar->context, smoothing);
 }
 
+void bar_set_blur_radius(struct bar* bar) {
+  SLSSetWindowBackgroundBlurRadius(g_connection, bar->id, g_bar_manager.blur_radius);
+}
+
 void bar_create_window(struct bar* bar) {
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
@@ -316,11 +320,11 @@ void bar_create_window(struct bar* bar) {
   SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
   CFRelease(frame_region);
 
-  SLSSetWindowResolution(g_connection, bar->id, 2.0f);
+  //SLSSetWindowResolution(g_connection, bar->id, 2.0f);
   SLSSetWindowTags(g_connection, bar->id, set_tags, 64);
   SLSClearWindowTags(g_connection, bar->id, clear_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
-  SLSSetWindowBackgroundBlurRadius(g_connection, bar->id, g_bar_manager.blur_radius);
+  bar_set_blur_radius(bar);
   SLSSetMouseEventEnableFlags(g_connection, bar->id, false);
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);

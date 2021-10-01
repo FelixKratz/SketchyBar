@@ -121,6 +121,8 @@ extern bool g_verbose;
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
 #define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
 
+#define ARGUMENT_UPDATES_WHEN_SHOWN                         "when_shown" 
+
 #define BAR_DISPLAY_MAIN_ONLY                               "main"
 #define BAR_DISPLAY_ALL                                     "all"
 
@@ -377,7 +379,15 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, COMMAND_SET_ICON_COLOR)) {
     needs_update = text_set_color(&bar_item->icon, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_SCRIPTING) || token_equals(property, COMMAND_SET_UPDATES)) {
-    bar_item->updates = evaluate_boolean_state(get_token(&message), bar_item->updates);
+    struct token token = get_token(&message);
+    if (token_equals(token, ARGUMENT_UPDATES_WHEN_SHOWN)) {
+      bar_item->updates = true;
+      bar_item->updates_only_when_shown = true;
+    }
+    else {
+      bar_item->updates = evaluate_boolean_state(token, bar_item->updates);
+      bar_item->updates_only_when_shown = false;
+    }
   } else if (token_equals(property, COMMAND_SET_DRAWING)) {
     bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
   } else if (token_equals(property, COMMAND_SET_LABEL_HIGHLIGHT)) {

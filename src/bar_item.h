@@ -19,14 +19,20 @@
 
 struct bar_item {
   char* name;
-  bool needs_update;
-  bool lazy;
-  bool drawing;
-  bool updates;
-  bool nospace;
-  bool selected;
-  int counter;
   char type;
+
+  // Update Modifiers
+  uint32_t counter;
+  bool needs_update;
+  bool updates;
+  bool updates_only_when_shown;
+  bool lazy;
+  bool selected;
+
+  // Drawing Modifiers
+  bool drawing;
+  bool nospace;
+
   
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
   uint32_t associated_bar;

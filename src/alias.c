@@ -102,38 +102,39 @@ void alias_find_window(struct alias* alias) {
   CFRelease(window_list);
 }
 
+/*
+void alias_click(struct alias* alias) {
+  printf("Click \n");
+  CGEventSourceRef event_source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState); 
+  CGEventRef click_event = CGEventCreateMouseEvent(event_source, kCGEventLeftMouseDown, CGPointMake(alias->bounds.origin.x + 5,alias->bounds.origin.y + 5), kCGMouseButtonLeft);
+  CGEventPostToPid(alias->pid, click_event);
+  //CGEventPost(kCGHIDEventTap, click_event);
+
+  CGEventSetType(click_event, kCGEventLeftMouseUp);
+  CGEventPostToPid(alias->pid, click_event);
+  //CGEventPost(kCGHIDEventTap, click_event);
+
+  CFRelease(click_event);
+  CFRelease(event_source);
+}*/
+
 bool alias_update_image(struct alias* alias) {
   if (alias->wid == 0) alias_find_window(alias);
   if (alias->wid == 0) {
     alias->image_ref = NULL;
     return false;
   }
-  // Capture Bar Item with SkyLight private framework
-  CGImageRef tmp_ref = NULL;
-
-  /*CFArrayRef image_refs = SLSHWCaptureWindowList(g_connection, &alias->wid, 1, 1 << 8 | 1 << 11);
-  if (image_refs && CFArrayGetCount(image_refs) > 0) {
-    tmp_ref = (CGImageRef) CFArrayGetValueAtIndex(image_refs, 0); 
-  }
-  else {
-    tmp_ref = NULL;
-  }*/
 
   SLSGetScreenRectForWindow(g_connection, alias->wid, &alias->bounds);
+
+  CGImageRef tmp_ref = NULL;
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
+  // alias_click(alias);
 
-  //CGImageRef tmp_ref = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, 
-  //                                             alias->wid, kCGWindowImageBestResolution | kCGWindowImageBoundsIgnoreFraming);
-
-  if (!tmp_ref) { alias->wid = 0; return false;}
+  if (!tmp_ref) { alias->wid = 0; return false; }
 
   CGImageRelease(alias->image_ref);
   alias->image_ref = tmp_ref;
-  // Bar Item Cropping
-  /* alias->size.x = CGImageGetWidth(raw_image_ref) - 2*MENU_ITEM_CROP;
-  alias->size.y = CGImageGetHeight(raw_image_ref);
-  CGRect crop = {{ MENU_ITEM_CROP, 0 }, { alias->size.x, alias->size.y }};
-  alias->image_ref = CGImageCreateWithImageInRect(raw_image_ref, crop);
-  CGImageRelease(raw_image_ref); */
+
   return true;
 }

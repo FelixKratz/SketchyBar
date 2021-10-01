@@ -58,5 +58,6 @@ void bar_close_window(struct bar* bar);
 void bar_destroy(struct bar* bar);
 void bar_set_hidden(struct bar* bar, bool hidden);
 void bar_set_font_smoothing(struct bar* bar, bool smoothing);
+void bar_set_blur_radius(struct bar* bar);
 
 #endif

@@ -14,6 +14,7 @@ struct bar_item* bar_item_create() {
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
   bar_item->lazy = ancestor->lazy;
   bar_item->updates = ancestor->updates;
+  bar_item->updates_only_when_shown = ancestor->updates_only_when_shown;
   bar_item->drawing = ancestor->drawing;
   
   text_destroy(&bar_item->icon);
@@ -40,6 +41,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->lazy = false;
   bar_item->drawing = true;
   bar_item->updates = true;
+  bar_item->updates_only_when_shown = false;
   bar_item->nospace = false;
   bar_item->selected = false;
   bar_item->counter = 0;
@@ -112,7 +114,11 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
 bool bar_item_update(struct bar_item* bar_item, bool forced) {
   if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return false;
   bar_item->counter++;
-  if (bar_item->update_frequency <= bar_item->counter || forced) {
+
+  bool scheduled_update_needed = bar_item->update_frequency <= bar_item->counter;
+  bool should_update = bar_item->updates_only_when_shown ? bar_item_is_shown(bar_item) : true;
+
+  if ((scheduled_update_needed && should_update) || forced) {
     bar_item->counter = 0;
 
     // Script Update
@@ -121,7 +127,7 @@ bool bar_item_update(struct bar_item* bar_item, bool forced) {
     }
 
     // Alias Update
-    if (bar_item->has_alias && bar_item_is_shown(bar_item)) {
+    if (bar_item->has_alias) {
       alias_update_image(&bar_item->alias);
       bar_item_needs_update(bar_item);
       return true;
@@ -158,6 +164,7 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
   else if (type == BAR_COMPONENT_ALIAS) {
     bar_item->update_frequency = 1;
     bar_item->has_alias = true;
+    bar_item->updates_only_when_shown = true;
   }
 }
 

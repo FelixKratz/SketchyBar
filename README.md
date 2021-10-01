@@ -267,7 +267,7 @@ A list of properties is listed below:
 * *update_freq*: time in seconds between script executions
 * *click_script*: script to run when left clicking on item
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
-* *updates*: If the item updates e.g. via scripts (turning this off disables the script execution) (values: *on*, *off*, *toggle*,  default: *on*)
+* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
@@ -299,7 +299,7 @@ this currently works for the properties:
 * *y_offset*
 * *update_freq*
 * *cache_scripts*
-* *scripting*
+* *updates*
 * *drawing*
 * *lazy*
 
