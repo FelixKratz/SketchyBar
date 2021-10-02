@@ -8,30 +8,7 @@
 
 extern struct bar_manager g_bar_manager;
 
-static CTFontRef bar_create_font(char *cstring) {
-  float size = 10.0f;
-  char font_properties[2][255] = { {}, {} };
-  sscanf(cstring, "%254[^:]:%254[^:]:%f", font_properties[0], font_properties[1], &size);
-  CFStringRef font_family_name = CFStringCreateWithCString(NULL, font_properties[0], kCFStringEncodingUTF8);
-  CFStringRef font_style_name = CFStringCreateWithCString(NULL, font_properties[1], kCFStringEncodingUTF8);
-  CFNumberRef font_size = CFNumberCreate(NULL, kCFNumberFloat32Type, &size);
-
-  const void *keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute, kCTFontSizeAttribute };
-  const void *values[] = { font_family_name, font_style_name, font_size };
-  CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes(attributes);
-  CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
-
-  CFRelease(descriptor);
-  CFRelease(attributes);
-  CFRelease(font_size);
-  CFRelease(font_style_name);
-  CFRelease(font_family_name);
-
-  return font;
-}
-
-static CGPoint bar_align_line(struct bar *bar, struct bar_line* line, int align_x, int align_y) {
+static CGPoint bar_align_line(struct bar *bar, struct text_line* line, int align_x, int align_y) {
   float x = 0, y = 0;
 
   if (align_x == ALIGN_NONE) {
@@ -57,32 +34,10 @@ static CGPoint bar_align_line(struct bar *bar, struct bar_line* line, int align_
   return (CGPoint) { x, y };
 }
 
-static void bar_draw_line(struct bar *bar, struct bar_line* line, float x, float y) {
+static void bar_draw_line(struct bar *bar, struct text_line* line, float x, float y) {
   CGContextSetRGBFillColor(bar->context, line->color.r, line->color.g, line->color.b, line->color.a);
   CGContextSetTextPosition(bar->context, x, y);
   CTLineDraw(line->line, bar->context);
-}
-
-static void bar_destroy_line(struct bar_line* line) {
-  CFRelease(line->line);
-}
-
-void bar_prepare_line(struct bar_line* bar_line, CTFontRef font, char* cstring, struct rgba_color color) {
-  const void *keys[] = { kCTFontAttributeName, kCTForegroundColorFromContextAttributeName };
-  const void *values[] = { font, kCFBooleanTrue };
-  CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFStringRef string = CFStringCreateWithCString(NULL, cstring, kCFStringEncodingUTF8);
-  if (!string) string = CFStringCreateWithCString(NULL, "Warning: Malformed UTF-8 string", kCFStringEncodingUTF8);
-  CFAttributedStringRef attr_string = CFAttributedStringCreate(NULL, string, attributes);
-  bar_line->line = CTLineCreateWithAttributedString(attr_string);
-
-  CTLineGetTypographicBounds(bar_line->line, &bar_line->ascent, &bar_line->descent, NULL);
-  bar_line->bounds = CTLineGetBoundsWithOptions(bar_line->line, kCTLineBoundsUseGlyphPathBounds);
-  bar_line->color = color;
-
-  CFRelease(string);
-  CFRelease(attributes);
-  CFRelease(attr_string);
 }
 
 void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_t x, uint32_t y, bool right_to_left) {
@@ -182,8 +137,8 @@ void bar_redraw(struct bar* bar) {
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << adid))) continue;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
 
-    struct bar_line* label = &bar_item->label.line;
-    struct bar_line* icon = &bar_item->icon.line;
+    struct text_line* label = &bar_item->label.line;
+    struct text_line* icon = &bar_item->icon.line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
     CGPoint label_position = bar_align_line(bar, label, ALIGN_CENTER, ALIGN_CENTER);
     uint32_t graph_x = 0;
