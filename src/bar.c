@@ -52,7 +52,7 @@ void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint3
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
     for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
     }
@@ -68,12 +68,11 @@ void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint3
   if (fill) {
     if (right_to_left) {
       CGPathAddLineToPoint(p, NULL, x + sample_width, y);
-      CGPathAddLineToPoint(p, NULL, start_x, y);
     }
     else {
       CGPathAddLineToPoint(p, NULL, x - sample_width, y);
-      CGPathAddLineToPoint(p, NULL, start_x, y);
     }
+    CGPathAddLineToPoint(p, NULL, start_x, y);
     CGPathCloseSubpath(p);
     CGContextAddPath(bar->context, p);
     CGContextFillPath(bar->context);
@@ -98,7 +97,7 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
 
 void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
   if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
-  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
+  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2 + bar_item->y_offset},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
   CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
 }
 
@@ -127,7 +126,7 @@ void bar_redraw(struct bar* bar) {
     struct text_line* icon = &bar_item->icon.line;
     CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
     CGPoint label_position = bar_align_line(bar, label, ALIGN_CENTER, ALIGN_CENTER);
-    uint32_t graph_x = 0;
+    uint32_t sandwich_position = 0;
     bool graph_rtl = false;
 
     if (bar_item->position == BAR_POSITION_LEFT) {
@@ -136,13 +135,16 @@ void bar_redraw(struct bar* bar) {
       
       if (!bar_item->nospace)
         bar_left_final_item_x = label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right;
-      if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_left_final_item_x;
+      
+      if (bar_item->has_graph) { 
         if (!bar_item->nospace)
           bar_left_final_item_x += bar_item->graph.width;
-      }
-      if (bar_item->has_alias) {
+        sandwich_position = label_position.x - bar_item->label.padding_left;
+        label_position.x += bar_item->graph.width;
+      } else if (bar_item->has_alias) {
         bar_left_final_item_x += bar_item->alias.bounds.size.width;
+        sandwich_position = label_position.x - bar_item->label.padding_left;
+        label_position.x += bar_item->alias.bounds.size.width;
       }
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
@@ -152,13 +154,14 @@ void bar_redraw(struct bar* bar) {
       if (!bar_item->nospace)
         bar_right_first_item_x = icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
           bar_right_first_item_x -= bar_item->graph.width;
-      }
-      if (bar_item->has_alias) {
+        sandwich_position = icon_position.x + bar_item->icon.padding_right + icon->bounds.size.width;
+        icon_position.x -= bar_item->graph.width;
+      } else if (bar_item->has_alias) {
         icon_position.x -= bar_item->alias.bounds.size.width;
+        sandwich_position = icon_position.x + bar_item->icon.padding_right + icon->bounds.size.width;
         bar_right_first_item_x -= bar_item->alias.bounds.size.width;
       }
     }
@@ -169,12 +172,14 @@ void bar_redraw(struct bar* bar) {
       if (!bar_item->nospace)
         bar_center_first_item_x = label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right;
       if (bar_item->has_graph) {
-        graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
           bar_center_first_item_x += bar_item->graph.width;
-      }
-      if (bar_item->has_alias) {
+        sandwich_position = label_position.x - bar_item->label.padding_left;
+        label_position.x += bar_item->graph.width;
+      } else if (bar_item->has_alias) {
         bar_center_first_item_x += bar_item->alias.bounds.size.width;
+        sandwich_position = label_position.x - bar_item->label.padding_left;
+        label_position.x += bar_item->alias.bounds.size.width;
       }
     }
     bar_item->label.line.bounds.origin = label_position;
@@ -185,8 +190,8 @@ void bar_redraw(struct bar* bar) {
     bar_draw_item_background(bar, bar_item, adid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
     bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
-    bar_draw_alias(bar, bar_item, icon_position.x);
-    bar_draw_graph(bar, bar_item, graph_x, graph_rtl);
+    bar_draw_alias(bar, bar_item, sandwich_position);
+    bar_draw_graph(bar, bar_item, sandwich_position, graph_rtl);
   }
 
   CGContextFlush(bar->context);

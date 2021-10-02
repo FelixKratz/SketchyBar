@@ -235,6 +235,7 @@ An item always has the following structure in the bar:  <br>
 background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
 A list of properties is listed below:
+* *position*: Overrides the position set in the *add* command (*left*, *right*, *center*)
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
 * *label*: the label of the item
