@@ -59,6 +59,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->y_offset = 0;
   bar_item->num_rects = 0;
   bar_item->bounding_rects = NULL;
+  bar_item->group = NULL;
 
   bar_item->has_alias = false;
   bar_item->has_graph = false;

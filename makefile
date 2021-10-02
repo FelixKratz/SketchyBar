@@ -22,6 +22,9 @@ install: clean $(UNIVERSAL_BINS)
 uninstall: clean
 	rm /usr/local/bin/sketchybar
 
+profile: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -Ofast -fvisibility=hidden 
+profile: clean $(x86_BINS)
+
 debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -fsanitize=address -fsanitize=undefined -g -O0 -fvisibility=hidden
 debug: clean $(x86_BINS)
 

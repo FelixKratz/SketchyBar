@@ -65,6 +65,9 @@ struct bar_item {
   bool has_alias;
   struct alias alias;
 
+  // Group Properties
+  struct group* group;
+
   // Update Events
   uint32_t update_mask;
 
