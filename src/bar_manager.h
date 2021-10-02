@@ -44,18 +44,12 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp);
 void bar_manager_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced);
 void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius);
-void bar_manager_set_background_color(struct bar_manager *bar_manager, uint32_t color);
 void bar_manager_set_position(struct bar_manager *bar_manager, char *pos);
 void bar_manager_set_spaces(struct bar_manager *bar_manager, bool value);
 void bar_manager_set_spaces_for_all_displays(struct bar_manager *bar_manager, bool value);
-void bar_manager_set_height(struct bar_manager *bar_manager, uint32_t height);
-void bar_manager_set_padding_left(struct bar_manager *bar_manager, uint32_t padding);
-void bar_manager_set_padding_right(struct bar_manager *bar_manager, uint32_t padding);
 void bar_manager_set_display(struct bar_manager *bar_manager, char *display);
 void bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t sid, bool hidden);
 void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost);
-void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width);
-void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color);
 void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);

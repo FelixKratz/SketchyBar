@@ -59,16 +59,14 @@ bool background_set_corner_radius(struct background* background, uint32_t corner
   return true;
 }
 
+bool background_set_padding_left(struct background* background, uint32_t pad) {
+  if (background->padding_left == pad) return false;
+  background->padding_left = pad;
+  return true;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+bool background_set_padding_right(struct background* background, uint32_t pad) {
+  if (background->padding_right == pad) return false;
+  background->padding_right = pad;
+  return true;
+}

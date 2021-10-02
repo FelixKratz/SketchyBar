@@ -38,39 +38,9 @@ void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
   }
 }
 
-void bar_manager_set_background_color(struct bar_manager* bar_manager, uint32_t color) {
-  bar_manager->background.color = rgba_color_from_hex(color);
-  bar_manager_refresh(bar_manager, true);
-}
-
-void bar_manager_set_border_color(struct bar_manager* bar_manager, uint32_t color) {
-  bar_manager->background.border_color = rgba_color_from_hex(color);
-  bar_manager_refresh(bar_manager, true);
-}
-
-void bar_manager_set_border_width(struct bar_manager* bar_manager, uint32_t width) {
-  bar_manager->background.border_width = width;
-  bar_manager_refresh(bar_manager, true);
-}
-
 void bar_manager_set_position(struct bar_manager* bar_manager, char *pos) {
   bar_manager->position = pos;
   bar_manager_resize(bar_manager);
-}
-
-void bar_manager_set_height(struct bar_manager* bar_manager, uint32_t height) {
-  bar_manager->background.height = height;
-  bar_manager_resize(bar_manager);
-}
-
-void bar_manager_set_padding_left(struct bar_manager* bar_manager, uint32_t padding) {
-  bar_manager->background.padding_left = padding;
-  bar_manager_refresh(bar_manager, true);
-}
-
-void bar_manager_set_padding_right(struct bar_manager* bar_manager, uint32_t padding) {
-  bar_manager->background.padding_right = padding;
-  bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
@@ -384,6 +354,5 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
     if (i < bar_manager->bar_item_count - 1) fprintf(rsp, ",\n");
     else fprintf(rsp, "\n\t]\n}\n");
   }
-    
 }
 
