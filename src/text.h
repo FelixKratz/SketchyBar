@@ -28,6 +28,8 @@ void text_destroy(struct text* text);
 bool text_set_string(struct text* text, char* string, bool forced);
 bool text_set_color(struct text* text, uint32_t color);
 bool text_set_font(struct text* text, char* font_string, bool forced);
+uint32_t text_get_length(struct text* text);
+uint32_t text_get_height(struct text* text);
 bool text_update_color(struct text* text);
 
 #endif // !TEXT_H_

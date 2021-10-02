@@ -64,12 +64,25 @@ void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smooth
     bar_set_font_smoothing(bar_manager->bars[i], smoothing);
 }
 
+uint32_t bar_manager_get_center_length_for_bar(struct bar_manager* bar_manager, struct bar* bar) {
+  uint32_t total_length = 0;
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
+    bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
+
+    if (bar_item->position == BAR_POSITION_CENTER && bar_item->drawing && (is_associated_space_shown || is_associated_display_shown))
+      total_length += bar_item_get_length(bar_item);
+  }
+  return total_length;
+}
+
 bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* bar) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
     bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
-    if (bar_item->needs_update && (is_associated_space_shown || is_associated_display_shown) && !bar_item->lazy) {
+    if (bar_item->drawing && bar_item->needs_update && (is_associated_space_shown || is_associated_display_shown) && !bar_item->lazy) {
       return true;
     }
   }
@@ -355,4 +368,3 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
     else fprintf(rsp, "\n\t]\n}\n");
   }
 }
-

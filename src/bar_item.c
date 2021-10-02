@@ -1,6 +1,6 @@
 #include "bar_item.h"
 #include "alias.h"
-#include "graph_data.h"
+#include "graph.h"
 #include "misc/helpers.h"
 #include <stdint.h>
 #include <string.h>
@@ -202,15 +202,26 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   bar_item_needs_update(bar_item);
 }
 
+uint32_t bar_item_get_length(struct bar_item* bar_item) {
+  return text_get_length(&bar_item->icon) 
+         + text_get_length(&bar_item->label)
+         + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
+         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+}
+
+uint32_t bar_item_get_height(struct bar_item* bar_item) {
+  uint32_t label_height = text_get_height(&bar_item->label);
+  uint32_t icon_height = text_get_height(&bar_item->icon);
+  return label_height > icon_height ? label_height : icon_height;
+}
+
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.line.bounds.origin;
   bounding_rect.origin.x -= bar_item->icon.padding_left;
   bounding_rect.origin.y = bar_item->icon.line.bounds.origin.y < bar_item->label.line.bounds.origin.y ? bar_item->icon.line.bounds.origin.y : bar_item->label.line.bounds.origin.y;
-  bounding_rect.size.width = bar_item->label.line.bounds.size.width + bar_item->icon.line.bounds.size.width
-                             + bar_item->icon.padding_left + bar_item->icon.padding_right
-                             + bar_item->label.padding_right + bar_item->label.padding_left;
-  bounding_rect.size.height = bar_item->label.line.bounds.size.height > bar_item->icon.line.bounds.size.height ? bar_item->label.line.bounds.size.height : bar_item->icon.line.bounds.size.height;
+  bounding_rect.size.width = bar_item_get_length(bar_item);
+  bounding_rect.size.height = bar_item_get_height(bar_item);
   return bounding_rect;
 }
 
@@ -245,7 +256,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
     free(bar_item->bounding_rects);
   }
   if (bar_item->has_graph) {
-    graph_data_destroy(&bar_item->graph_data);
+    graph_destroy(&bar_item->graph);
   }
   free(bar_item);
 }

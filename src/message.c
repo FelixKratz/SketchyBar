@@ -280,7 +280,7 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
   if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-  graph_data_push_back(&bar_item->graph_data, token_to_float(y));
+  graph_push_back(&bar_item->graph, token_to_float(y));
   bar_item_needs_update(bar_item);
   if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
@@ -325,7 +325,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     bar_item_set_type(bar_item, identifier.text[0]);
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
-      graph_data_init(&bar_item->graph_data, token_to_uint32t(width));
+      graph_init(&bar_item->graph, token_to_uint32t(width));
       bar_item->has_graph = true;
     }
     else if (bar_item->type == BAR_COMPONENT_SPACE) {
@@ -416,14 +416,14 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, COMMAND_SET_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, COMMAND_SET_GRAPH_COLOR)) {
-    bar_item->graph_data.line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->graph.line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     bar_item_needs_update(bar_item);
   } else if (token_equals(property, COMMAND_SET_GRAPH_FILL_COLOR)) {
-    bar_item->graph_data.fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
-    bar_item->graph_data.overrides_fill_color = true;
+    bar_item->graph.fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    bar_item->graph.overrides_fill_color = true;
     needs_update = true;
   } else if (token_equals(property, COMMAND_SET_GRAPH_LINE_WIDTH)) {
-    bar_item->graph_data.line_width = token_to_float(get_token(&message));
+    bar_item->graph.line_width = token_to_float(get_token(&message));
     needs_update = true;
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_COLOR)) {
     needs_update = background_set_color(&bar_item->background, token_to_uint32t(get_token(&message)));

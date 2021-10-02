@@ -59,7 +59,7 @@ struct bar_item {
 
   // Graph Data
   bool has_graph;
-  struct graph_data graph_data;
+  struct graph graph;
 
   // Alias Data
   bool has_alias;
@@ -93,6 +93,10 @@ void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);
 void bar_item_set_drawing(struct bar_item* bar_item, bool state);
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset);
+
+uint32_t bar_item_get_length(struct bar_item* bar_item);
+uint32_t bar_item_get_height(struct bar_item* bar_item);
+
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
 

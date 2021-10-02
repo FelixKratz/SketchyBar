@@ -1,5 +1,6 @@
 #include "text.h"
 #include "misc/helpers.h"
+#include <stdint.h>
 
 static CTFontRef text_create_font(char *cstring) {
   float size = 10.0f;
@@ -99,6 +100,14 @@ void text_clear_pointers(struct text* text) {
   text->font_name = NULL;
   text->font = NULL;
   text->line.line = NULL;
+}
+
+uint32_t text_get_length(struct text* text) {
+  return text->line.bounds.size.width + text->padding_left + text->padding_right;
+}
+
+uint32_t text_get_height(struct text* text) {
+  return text->line.bounds.size.height;
 }
 
 void text_destroy_line(struct text* text) {

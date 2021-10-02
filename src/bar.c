@@ -40,27 +40,27 @@ static void bar_draw_line(struct bar *bar, struct text_line* line, float x, floa
   CTLineDraw(line->line, bar->context);
 }
 
-void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_t x, uint32_t y, bool right_to_left) {
+void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint32_t y, bool right_to_left) {
   const float height = bar->frame.size.height * 0.9f;
   uint32_t sample_width = 1;
-  bool fill = graph_data->fill;
+  bool fill = graph->fill;
   CGContextSaveGState(bar->context);
-  CGContextSetRGBStrokeColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, graph_data->line_color.a);
-  if (graph_data->overrides_fill_color) CGContextSetRGBFillColor(bar->context, graph_data->fill_color.r, graph_data->fill_color.g, graph_data->fill_color.b, graph_data->fill_color.a);
-  else CGContextSetRGBFillColor(bar->context, graph_data->line_color.r, graph_data->line_color.g, graph_data->line_color.b, 0.2 * graph_data->line_color.a);
-  CGContextSetLineWidth(bar->context, graph_data->line_width);
+  CGContextSetRGBStrokeColor(bar->context, graph->line_color.r, graph->line_color.g, graph->line_color.b, graph->line_color.a);
+  if (graph->overrides_fill_color) CGContextSetRGBFillColor(bar->context, graph->fill_color.r, graph->fill_color.g, graph->fill_color.b, graph->fill_color.a);
+  else CGContextSetRGBFillColor(bar->context, graph->line_color.r, graph->line_color.g, graph->line_color.b, 0.2 * graph->line_color.a);
+  CGContextSetLineWidth(bar->context, graph->line_width);
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, graph_data->graph_width - 1) * height);
-    for (int i = graph_data->graph_width - 1; i > 0; --i, x -= sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
+    for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
+      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
     }
   }
   else {
-    CGPathMoveToPoint(p, NULL, x, y + graph_data_get_y(graph_data, 0) * height);
-    for (int i = graph_data->graph_width - 1; i > 0; --i, x += sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_data_get_y(graph_data, i) * height);
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
+    for (int i = graph->width - 1; i > 0; --i, x += sample_width) {
+      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
     }
   }
   CGContextAddPath(bar->context, p);
@@ -82,23 +82,9 @@ void bar_draw_graph_line(struct bar *bar, struct graph_data* graph_data, uint32_
   CGContextRestoreGState(bar->context);
 }
 
-static int bar_get_center_length(struct bar_manager* bar_manager) {
-  int total_length = 0;
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (bar_item->position == BAR_POSITION_CENTER) {
-      total_length += bar_item->label.line.bounds.size.width + bar_item->icon.line.bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left + (bar_item->has_graph ? bar_item->graph_data.graph_width : 0);
-      if (i > 0) {
-        total_length += bar_manager->bar_items[i-1]->label.padding_right + bar_item->icon.padding_left;
-      }
-    }
-  }
-  return total_length;
-}
-
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
-  bar_draw_graph_line(bar, &bar_item->graph_data, x, g_bar_manager.background.border_width + 1, right_to_left);
+  bar_draw_graph_line(bar, &bar_item->graph, x, g_bar_manager.background.border_width + 1, right_to_left);
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
@@ -124,7 +110,7 @@ void bar_redraw(struct bar* bar) {
 
   int bar_left_final_item_x = g_bar_manager.background.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
-  int bar_center_first_item_x = (bar->frame.size.width - bar_get_center_length(&g_bar_manager)) / 2;
+  int bar_center_first_item_x = (bar->frame.size.width - bar_manager_get_center_length_for_bar(&g_bar_manager, bar)) / 2;
 
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
@@ -153,7 +139,7 @@ void bar_redraw(struct bar* bar) {
       if (bar_item->has_graph) {
         graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_left_final_item_x;
         if (!bar_item->nospace)
-          bar_left_final_item_x += bar_item->graph_data.graph_width;
+          bar_left_final_item_x += bar_item->graph.width;
       }
       if (bar_item->has_alias) {
         bar_left_final_item_x += bar_item->alias.bounds.size.width;
@@ -169,7 +155,7 @@ void bar_redraw(struct bar* bar) {
         graph_x = bar_item->nospace ? icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left : bar_right_first_item_x;
         graph_rtl = true;
         if (!bar_item->nospace)
-          bar_right_first_item_x -= bar_item->graph_data.graph_width;
+          bar_right_first_item_x -= bar_item->graph.width;
       }
       if (bar_item->has_alias) {
         icon_position.x -= bar_item->alias.bounds.size.width;
@@ -185,7 +171,7 @@ void bar_redraw(struct bar* bar) {
       if (bar_item->has_graph) {
         graph_x = bar_item->nospace ? label_position.x + label->bounds.size.width + bar_item->label.padding_right + bar_item->background.padding_right : bar_center_first_item_x;
         if (!bar_item->nospace)
-          bar_center_first_item_x += bar_item->graph_data.graph_width;
+          bar_center_first_item_x += bar_item->graph.width;
       }
       if (bar_item->has_alias) {
         bar_center_first_item_x += bar_item->alias.bounds.size.width;
