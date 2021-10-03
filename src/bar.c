@@ -52,7 +52,7 @@ void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint3
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
     for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
     }
