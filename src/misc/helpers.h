@@ -190,7 +190,7 @@ static bool sync_exec(char *command, struct signal_args *args) {
 }
 
 static bool fork_exec(char *command, struct signal_args *args) {
-    int pid = fork();
+    int pid = vfork();
     if (pid == -1) return false;
     if (pid !=  0) return true;
 
