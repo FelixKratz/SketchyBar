@@ -6,6 +6,7 @@
 #define BAR_COMPONENT_GRAPH 'g'
 #define BAR_COMPONENT_SPACE 's'
 #define BAR_COMPONENT_ALIAS 'a'
+#define BAR_COMPONENT_GROUP 'b'
 #define BAR_PLUGIN          'p'
 
 #define BAR_POSITION_LEFT   'l'

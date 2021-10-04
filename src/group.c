@@ -10,16 +10,24 @@ struct group* group_create() {
 }
 
 void group_init(struct group* group) {
-  group->name = string_copy("");
-  background_init(&group->background);
+  group->members = NULL;
 }
 
-void group_set_name(struct group* group, char* _name) {
-  if (group->name && group->name != _name) free(group->name);
-  group->name = _name;
+bool group_is_item_member(struct group* group, struct bar_item* item) {
+  for (uint32_t i = 0; i < group->num_members; i++) {
+    if (group->members[i] == item) return true;
+  }
+  return false;
+}
+
+void group_add_item(struct group* group, struct bar_item* item) {
+  if (group_is_item_member(group, item)) return;
+  group->num_members++;
+  group->members = realloc(group->members, sizeof(struct bar_item*)*group->num_members);
+  group->members[group->num_members - 1] = item;
 }
 
 void group_destroy(struct group* group) {
-  if (group->name) free(group->name);
+  if (group->members) free(group->members);
   free(group);
 }

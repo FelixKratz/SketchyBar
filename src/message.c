@@ -28,6 +28,8 @@ extern bool g_verbose;
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 #define COMMAND_ADD_EVENT                                   "event"
 
+#define DOMAIN_GROUP                                        "bracket"
+
 #define DOMAIN_REMOVE                                       "remove"
 
 #define DOMAIN_UPDATE                                       "update"
@@ -303,11 +305,11 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   if (token_equals(command, COMMAND_ADD_EVENT)) {
     struct token event = get_token(&message);
-    if (message != NULL) custom_events_append(&g_bar_manager.custom_events, token_to_string(event), token_to_string(get_token(&message)));
+    if (strlen(message) > 0) custom_events_append(&g_bar_manager.custom_events, token_to_string(event), token_to_string(get_token(&message)));
     else custom_events_append(&g_bar_manager.custom_events, token_to_string(event), NULL);
 
     return;
-  }
+  } 
 
   struct token name;
   struct token position;
@@ -316,23 +318,26 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   if (token_equals(command, COMMAND_ADD_ITEM)) {
     name = get_token(&message);
     position = get_token(&message);
+    bar_item->position = position.text[0];
     bar_item_set_type(bar_item, BAR_ITEM);
   } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
     struct token identifier = get_token(&message);
     name = get_token(&message);
-    position = get_token(&message);
 
     bar_item_set_type(bar_item, identifier.text[0]);
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
+      position = get_token(&message);
+      bar_item->position = position.text[0];
       struct token width = get_token(&message);
       graph_init(&bar_item->graph, token_to_uint32t(width));
-      bar_item->has_graph = true;
     }
     else if (bar_item->type == BAR_COMPONENT_SPACE) {
-      bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then sketchybar -m set $NAME icon_highlight on; else sketchybar -m set $NAME icon_highlight off; fi"));
-      bar_item->update_mask |= UPDATE_SPACE_CHANGE;
+      position = get_token(&message);
+      bar_item->position = position.text[0];
     }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
+      position = get_token(&message);
+      bar_item->position = position.text[0];
       char* owner = NULL;
       char* nme = NULL;
       char* tmp_name = string_copy(name.text);
@@ -343,26 +348,21 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
         alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
       free(tmp_name);
     }
-  } else if (token_equals(command, COMMAND_ADD_PLUGIN)) {
-    struct token identifier = get_token(&message);
-    name = get_token(&message);
-    position = get_token(&message);
-    bar_item_set_type(bar_item, identifier.text[0]);
   } else {
     printf("Command: %s not found \n", command.text);
     fprintf(rsp, "Command: %s not found \n", command.text);
+    return;
   }
   struct token modifier = get_token(&message);
   if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) bar_item->nospace = true;
-  bar_item->position = position.text[0];
 
-  bar_item_set_name(bar_item, string_copy(""));
+  /*bar_item_set_name(bar_item, string_copy(""));
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
     bar_manager_destroy_item(&g_bar_manager, bar_item);
     printf("Name: %s already exists... skipping \n", name.text);
     fprintf(rsp, "Name: %s already exists... skipping \n", name.text);
     return;
-  }
+  }*/
   bar_item_set_name(bar_item, token_to_string(name));
   bar_manager_refresh(&g_bar_manager, true);
 }
@@ -676,6 +676,10 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, false);
 }
 
+static void handle_domain_group(FILE* rsp, struct token domain, char* message) {
+
+}
+
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
@@ -698,7 +702,9 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
 
 }
 
-void handle_message(FILE *rsp, char *message) {
+void handle_message(int sockfd, char* message) {
+  FILE* rsp = fdopen(sockfd, "w");
+
   struct token domain = get_token(&message);
 
   if (token_equals(domain, DOMAIN_SET)){
@@ -711,6 +717,8 @@ void handle_message(FILE *rsp, char *message) {
     handle_domain_bar(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_ADD)){
     handle_domain_add(rsp, domain, message); 
+  } else if (token_equals(domain, DOMAIN_GROUP)){
+    handle_domain_group(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_REMOVE)){
     handle_domain_remove(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_UPDATE)) {
@@ -731,6 +739,8 @@ void handle_message(FILE *rsp, char *message) {
     fprintf(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
     printf("unknown domain '%.*s'\n", domain.length, domain.text);
   }
+
+  if (rsp) fclose(rsp);
 }
 
 static SOCKET_DAEMON_HANDLER(message_handler) {

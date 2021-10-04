@@ -1,6 +1,7 @@
 #include "bar_item.h"
 #include "alias.h"
 #include "graph.h"
+#include "group.h"
 #include "misc/helpers.h"
 #include <stdint.h>
 #include <string.h>
@@ -156,6 +157,13 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
   if (type == BAR_COMPONENT_SPACE) {
+    bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then"
+                                                "sketchybar -m set $NAME icon_highlight on;"
+                                              "else"
+                                                "sketchybar -m set $NAME icon_highlight off;"
+                                              "fi"));
+
+    bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
     strncpy(&bar_item->signal_args.name[2][0], "SID", 255);
     strncpy(&bar_item->signal_args.value[2][0], "0", 255);
@@ -166,6 +174,13 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
     bar_item->update_frequency = 1;
     bar_item->has_alias = true;
     bar_item->updates_only_when_shown = true;
+  }
+  else if (type == BAR_COMPONENT_GRAPH) {
+    bar_item->has_graph = true;
+  }
+  else if (type == BAR_COMPONENT_GROUP) {
+    bar_item->group = group_create();
+    group_init(bar_item->group);
   }
 }
 
@@ -259,6 +274,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
   }
+  if (bar_item->group) group_destroy(bar_item->group);
   free(bar_item);
 }
 

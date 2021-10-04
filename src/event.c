@@ -90,12 +90,8 @@ static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
     int sockfd = *((int*)context);
     int length;
     char* message = socket_read(sockfd, &length);
-    FILE* rsp = fdopen(sockfd, "w");
 
-    if (message && rsp) handle_message(rsp, message);
-
-    if (rsp) fclose(rsp), fflush(rsp);
-    if (message) free(message);
+    if (message) handle_message(sockfd, message), free(message);
     socket_close(sockfd);
     free(context);
     return EVENT_SUCCESS;
