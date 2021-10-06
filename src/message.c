@@ -673,7 +673,7 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
     command = get_token(&message);
   }
   bar_manager_unfreeze(&g_bar_manager);
-  bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_refresh(&g_bar_manager, true);
 }
 
 static void handle_domain_group(FILE* rsp, struct token domain, char* message) {

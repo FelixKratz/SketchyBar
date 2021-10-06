@@ -45,8 +45,10 @@ void print_all_menu_items(FILE* rsp) {
   CFRelease(window_list);
 }
 
-void alias_get_permission(struct alias* alias) {
-  if (@available(macOS 10.15, *)) alias->permission = CGRequestScreenCaptureAccess();
+void alias_get_permission(struct alias* alias) { 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 
+  if (__builtin_available(macOS 11.0, *)) alias->permission = CGRequestScreenCaptureAccess();
+#endif
 }
 
 void alias_init(struct alias* alias, char* owner, char* name) {
