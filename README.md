@@ -70,7 +70,7 @@ is a *graph* component, which can be used to display graphs in the bar.
 
 For more details on how the configuration works, see the Configuration section below.
 
-This is my setup:
+This is an example setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
 ![](images/mySetup.png)
 where I have my screens and a vim mode indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
 In the center I have a spotify indicator (only when music is playing) and on the right I have (not shown) a high cpu process indicator, as well as a cpu graph, a github contribution counter, a new mail counter and the current date.
