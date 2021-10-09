@@ -157,11 +157,11 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
   if (type == BAR_COMPONENT_SPACE) {
-    bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then"
+    bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
                                                 "sketchybar -m set $NAME icon_highlight on;"
-                                              "else"
+                                              "else "
                                                 "sketchybar -m set $NAME icon_highlight off;"
-                                              "fi"));
+                                              " fi"));
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
