@@ -44,9 +44,14 @@ Table of Contents
       * [Forcing all shell scripts to run and the bar to refresh](#forcing-all-shell-scripts-to-run-and-the-bar-to-refresh)
       * [Completely remove an item](#completely-remove-an-item)
       * [Freeze and unfreeze the bar](#freeze-and-unfreeze-the-bar)
+   * [Querying](#querying)
+      * [Bar Properties](#bar-properties)
+      * [Item Properties](#item-properties)
+      * [Default Properties](#default-properties)
    * [Scripting](#scripting)
    * [Experimental Features](#experimental-features)
       * [Default Menu Bar Item Alias](#default-menu-bar-item-alias)
+      * [Group Items in a Bracket for e.g. colored sections](#group-items-in-a-bracket-for-eg-colored-sections)
    * [Credits](#credits)
 
 ## Description
