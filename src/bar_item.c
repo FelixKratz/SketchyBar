@@ -224,7 +224,7 @@ uint32_t bar_item_get_length(struct bar_item* bar_item) {
   return text_get_length(&bar_item->icon) 
          + text_get_length(&bar_item->label)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
-         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0) + 1;
 }
 
 uint32_t bar_item_get_height(struct bar_item* bar_item) {

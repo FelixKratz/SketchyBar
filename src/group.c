@@ -41,7 +41,8 @@ uint32_t group_get_length(struct group* group) {
   uint32_t length = 0;
   for (int i = 1; i < group->num_members; i++) {
     if (!group->members[i]->nospace || (group->members[i]->nospace && i == group->num_members - 1))
-      length += bar_item_get_length(group->members[i]);
+      if (group->members[i]->drawing)
+        length += bar_item_get_length(group->members[i]);
   }
   return length;
 }
