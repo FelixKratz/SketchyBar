@@ -179,8 +179,10 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
     bar_item->has_graph = true;
   }
   else if (type == BAR_COMPONENT_GROUP) {
+    bar_item->drawing = false;
     bar_item->group = group_create();
     group_init(bar_item->group);
+    group_add_member(bar_item->group, bar_item);
   }
 }
 
@@ -274,7 +276,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
   }
-  if (bar_item->group) group_destroy(bar_item->group);
+  if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP) group_destroy(bar_item->group);
   free(bar_item);
 }
 

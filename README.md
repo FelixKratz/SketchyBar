@@ -454,6 +454,29 @@ All further Items can be found via the command:
 ```bash
 sketchybar -m query default_menu_items
 ```
+### Group Items in a Bracket for e.g. colored sections
+This feature is only on HEAD currently.
+
+It is possible to bracket together items via the command:
+```bash 
+sketchybar -m add component bracket <name> <first item name> ... <n-th item name>
+```
+or with batching 
+```bash 
+sketchybar -m batch --add component bracket <name> <first item name> ... <n-th item name>
+```
+The first item must always be the one listed earliest in the config. It is now possible to 
+set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
+E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
+```bash 
+sketchybar -m batch --add       component bracket  primary_spaces code writing reading entertainment                   \
+                                                                                                                       \
+                    --set       primary_spaces     background_color=0xffffffff                                         \
+                                                   background_corner_radius=4                                          \
+                                                   background_height=20
+```
+this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
+
 ## Credits
 yabai,
 spacebar,

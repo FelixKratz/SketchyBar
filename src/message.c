@@ -4,6 +4,7 @@
 #include "bar_item.h"
 #include "bar_manager.h"
 #include "display.h"
+#include "group.h"
 #include "misc/helpers.h"
 #include <_types/_uint32_t.h>
 #include <string.h>
@@ -27,8 +28,6 @@ extern bool g_verbose;
 #define COMMAND_ADD_COMPONENT                               "component"
 #define COMMAND_ADD_PLUGIN                                  "plugin"
 #define COMMAND_ADD_EVENT                                   "event"
-
-#define DOMAIN_GROUP                                        "bracket"
 
 #define DOMAIN_REMOVE                                       "remove"
 
@@ -347,6 +346,19 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       else
         alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
       free(tmp_name);
+    }
+    else if (bar_item->type == BAR_COMPONENT_GROUP) {
+      struct token member = get_token(&message);
+      while (member.text && member.length > 0) {
+        int index = bar_manager_get_item_index_for_name(&g_bar_manager, member.text);
+        if (index >= 0)
+          group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
+        else {
+          printf("Item %s not found! \n", member.text);
+          fprintf(rsp, "Item %s not found! \n", member.text);
+        }
+        member = get_token(&message);
+      }
     }
   } else {
     printf("Command: %s not found \n", command.text);
@@ -676,10 +688,6 @@ static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, true);
 }
 
-static void handle_domain_group(FILE* rsp, struct token domain, char* message) {
-
-}
-
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
@@ -717,8 +725,6 @@ void handle_message(int sockfd, char* message) {
     handle_domain_bar(rsp, domain, message);
   } else if (token_equals(domain, DOMAIN_ADD)){
     handle_domain_add(rsp, domain, message); 
-  } else if (token_equals(domain, DOMAIN_GROUP)){
-    handle_domain_group(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_REMOVE)){
     handle_domain_remove(rsp, domain, message); 
   } else if (token_equals(domain, DOMAIN_UPDATE)) {

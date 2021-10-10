@@ -95,6 +95,20 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
   draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
 
+void bar_draw_group(struct bar* bar, struct bar_item* item, uint32_t adid) {
+  if (item->group && group_is_first_member(item->group, item)) {
+    struct bar_item* bar_item = item->group->members[0];
+
+    if (!bar_item->background.enabled) return;
+    bool custom_height = bar_item->background.height != 0;
+    uint32_t group_length = group_get_length(bar_item->group);
+    CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == BAR_POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
+                          {group_length, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
+    draw_region = CGRectInset(draw_region, bar_item->background.border_width / 2, bar_item->background.border_width / 2);
+    draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
+  }
+}
+
 void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
   if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
   CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2 + bar_item->y_offset},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
@@ -187,6 +201,7 @@ void bar_redraw(struct bar* bar) {
     bar_item_append_associated_bar(bar_item, (1 << (adid - 1)));
     bar_item_set_bounding_rect_for_display(bar_item, adid, bar->origin);
 
+    bar_draw_group(bar, bar_item, adid);
     bar_draw_item_background(bar, bar_item, adid);
     bar_draw_line(bar, icon, icon_position.x, icon_position.y + bar_item->y_offset);
     bar_draw_line(bar, label, label_position.x, label_position.y + bar_item->y_offset);
