@@ -462,7 +462,7 @@ sketchybar -m query default_menu_items
 ### Group Items in a Bracket for e.g. colored sections
 This feature is only on HEAD currently.
 
-It is possible to bracket together items via the command:
+It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
 ```bash 
 sketchybar -m add component bracket <name> <first item name> ... <n-th item name>
 ```
