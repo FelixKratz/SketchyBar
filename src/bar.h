@@ -16,6 +16,11 @@ extern CGError SLSOrderWindow(int cid, uint32_t wid, int mode, uint32_t relative
 extern CGError SLSSetWindowLevel(int cid, uint32_t wid, int level);
 extern CGContextRef SLWindowContextCreate(int cid, uint32_t wid, CFDictionaryRef options);
 extern CGError CGSNewRegionWithRect(CGRect *rect, CFTypeRef *outRegion);
+extern CGError SLSAddActivationRegion(uint32_t cid, uint32_t wid, CFTypeRef region);
+extern CGError SLSAddTrackingRect(uint32_t cid, uint32_t wid, CGRect rect);
+extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
+extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
+
 
 #define kCGSDisableShadowTagBit         (1 <<  3)
 #define kCGSHighQualityResamplingTagBit (1 <<  4)

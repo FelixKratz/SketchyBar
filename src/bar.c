@@ -127,6 +127,7 @@ void bar_redraw(struct bar* bar) {
 
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
+  SLSRemoveAllTrackingAreas(g_connection, bar->id);
   draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -199,6 +200,7 @@ void bar_redraw(struct bar* bar) {
     bar_item->label.line.bounds.origin = label_position;
     bar_item->icon.line.bounds.origin = icon_position;
     bar_item_append_associated_bar(bar_item, (1 << (adid - 1)));
+    SLSAddTrackingRect(g_connection, bar->id, bar_item_construct_bounding_rect(bar_item));
     bar_item_set_bounding_rect_for_display(bar_item, adid, bar->origin);
 
     bar_draw_group(bar, bar_item, adid);
@@ -242,6 +244,12 @@ void bar_resize(struct bar *bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   SLSSetWindowShape(g_connection, bar->id, bar->origin.x, bar->origin.y, frame_region);
+
+  SLSClearActivationRegion(g_connection, bar->id);
+  SLSAddActivationRegion(g_connection, bar->id, frame_region);
+  SLSRemoveAllTrackingAreas(g_connection, bar->id);
+  //SLSAddTrackingRect(g_connection, bar->id, bar->frame);
+
   bar_redraw(bar);
   SLSOrderWindow(g_connection, bar->id, 1, 0);
   SLSReenableUpdate(g_connection);
@@ -279,6 +287,8 @@ void bar_create_window(struct bar* bar) {
   bar_create_frame(bar, &frame_region);
 
   SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
+  SLSAddActivationRegion(g_connection, bar->id, frame_region);
+  //SLSAddTrackingRect(g_connection, bar->id, bar->frame);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, bar->id, 2.0f);
@@ -287,6 +297,7 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   bar_set_blur_radius(bar);
   SLSSetMouseEventEnableFlags(g_connection, bar->id, false);
+
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
