@@ -88,8 +88,8 @@ bool bar_item_is_shown(struct bar_item* bar_item);
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);
 void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit);
-void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t bit);
-void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t bit);
+void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t adid);
+void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid);
 void bar_item_reset_associated_bar(struct bar_item* bar_item);
 void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_type(struct bar_item* bar_item, char type);
@@ -106,6 +106,7 @@ void bar_item_clear_needs_update(struct bar_item* bar_item);
 
 void bar_item_on_click(struct bar_item* bar_item);
 
+void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid);
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
 void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin);
 

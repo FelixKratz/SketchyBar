@@ -101,16 +101,19 @@ bool bar_item_is_shown(struct bar_item* bar_item) {
   else return false;
 }
 
-void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t bit) {
-  bar_item->associated_bar |= bit;
+void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t adid) {
+  bar_item->associated_bar |= (1 << (adid - 1));
 }
 
-void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t bit) {
-  bar_item->associated_bar &= ~bit; 
+void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid) {
+  bar_item->associated_bar &= ~(1 << (adid - 1)); 
+  bar_item_remove_bounding_rect_for_display(bar_item, adid);
 }
 
 void bar_item_reset_associated_bar(struct bar_item* bar_item) {
   bar_item->associated_bar = 0;
+  for (uint32_t adid = 1; adid <= bar_item->num_rects; adid++)
+    bar_item_remove_bounding_rect_for_display(bar_item, adid);
 }
 
 bool bar_item_update(struct bar_item* bar_item, bool forced) {
@@ -231,6 +234,13 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t label_height = text_get_height(&bar_item->label);
   uint32_t icon_height = text_get_height(&bar_item->icon);
   return label_height > icon_height ? label_height : icon_height;
+}
+
+void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid) {
+  if (bar_item->num_rects >= adid && bar_item->bounding_rects[adid - 1]) {
+    free(bar_item->bounding_rects[adid - 1]);
+    bar_item->bounding_rects[adid - 1] = NULL;
+  }
 }
 
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {

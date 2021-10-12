@@ -110,14 +110,26 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_MOVED) {
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     debug("%s\n", __FUNCTION__);
     CGPoint point = CGEventGetLocation(context);
     uint32_t adid = display_arrangement(display_active_display_id());
-    printf("EVENT_HANDLER_MOUSE_MOVED: D#%d (x: %.0f, y: %.0f) -> ", adid, point.x, point.y);
+    printf("EVENT_HANDLER_MOUSE_ENTERED: D#%d (x: %.0f, y: %.0f) -> ", adid, point.x, point.y);
     struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
-    bar_item_on_click(bar_item);
+    printf("item: %s\n", bar_item ? bar_item->name : "NULL");
+    //bar_item_on_click(bar_item);
+    CFRelease(context);
+    return EVENT_SUCCESS;
+}
+
+static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
+    debug("%s\n", __FUNCTION__);
+    CGPoint point = CGEventGetLocation(context);
+    uint32_t adid = display_arrangement(display_active_display_id());
+    printf("EVENT_HANDLER_MOUSE_EXITED: D#%d (x: %.0f, y: %.0f) -> ", adid, point.x, point.y);
+    struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    printf("item: %s\n", bar_item ? bar_item->name : "NULL");
+    //bar_item_on_click(bar_item);
     CFRelease(context);
     return EVENT_SUCCESS;
 }

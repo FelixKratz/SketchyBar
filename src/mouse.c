@@ -8,11 +8,13 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
       break;
     }
     case kEventMouseEntered: {
-      printf("entered event: %d \n", GetEventKind(e));
+      struct event *event = event_create(&g_event_loop, MOUSE_ENTERED, (void *) CFRetain(CopyEventCGEvent(e)));
+      event_loop_post(&g_event_loop, event); 
       break;
     }
     case kEventMouseExited: {
-      printf("xited event: %d \n", GetEventKind(e));
+      struct event *event = event_create(&g_event_loop, MOUSE_EXITED, (void *) CFRetain(CopyEventCGEvent(e)));
+      event_loop_post(&g_event_loop, event); 
       break;
     }
     default:
