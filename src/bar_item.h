@@ -13,11 +13,6 @@
 #define BAR_POSITION_RIGHT  'r'
 #define BAR_POSITION_CENTER 'c'
 
-#define UPDATE_FRONT_APP_SWITCHED 1
-#define UPDATE_SPACE_CHANGE       1 << 1
-#define UPDATE_DISPLAY_CHANGE     1 << 2
-#define UPDATE_SYSTEM_WOKE        1 << 3
-
 struct bar_item {
   char* name;
   char type;
@@ -29,6 +24,7 @@ struct bar_item {
   bool updates_only_when_shown;
   bool lazy;
   bool selected;
+  bool mouse_over;
 
   // Drawing Modifiers
   bool drawing;
@@ -83,7 +79,7 @@ void bar_item_destroy(struct bar_item* bar_item);
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
 
-bool bar_item_update(struct bar_item* bar_item, bool forced);
+bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced);
 bool bar_item_is_shown(struct bar_item* bar_item);
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);
@@ -105,6 +101,8 @@ void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
 
 void bar_item_on_click(struct bar_item* bar_item);
+void bar_item_mouse_entered(struct bar_item* bar_item);
+void bar_item_mouse_exited(struct bar_item* bar_item);
 
 void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid);
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);

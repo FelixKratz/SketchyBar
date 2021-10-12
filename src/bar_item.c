@@ -1,5 +1,6 @@
 #include "bar_item.h"
 #include "alias.h"
+#include "custom_events.h"
 #include "graph.h"
 #include "group.h"
 #include "misc/helpers.h"
@@ -30,6 +31,9 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
   text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
 
+  bar_item_set_script(bar_item, string_copy(ancestor->script));
+  bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+
   bar_item->update_frequency = ancestor->update_frequency;
   bar_item->cache_scripts = ancestor->cache_scripts;
 
@@ -45,6 +49,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->updates_only_when_shown = false;
   bar_item->nospace = false;
   bar_item->selected = false;
+  bar_item->mouse_over = false;
   bar_item->counter = 0;
   bar_item->name = "";
   bar_item->type = BAR_ITEM;
@@ -73,6 +78,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 
   strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
+  strncpy(&bar_item->signal_args.name[4][0], "SENDER", 255);
   strncpy(&bar_item->signal_args.value[1][0], "false", 255);
 }
 
@@ -116,7 +122,7 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
     bar_item_remove_bounding_rect_for_display(bar_item, adid);
 }
 
-bool bar_item_update(struct bar_item* bar_item, bool forced) {
+bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
   if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return false;
   bar_item->counter++;
 
@@ -128,6 +134,8 @@ bool bar_item_update(struct bar_item* bar_item, bool forced) {
 
     // Script Update
     if (strlen(bar_item->script) > 0) {
+      if (sender) strncpy(&bar_item->signal_args.value[4][0], sender, 255);
+      else strncpy(&bar_item->signal_args.value[4][0], "routine", 255);
       fork_exec(bar_item->script, &bar_item->signal_args);
     }
 
@@ -159,6 +167,7 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
 
 void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
+
   if (type == BAR_COMPONENT_SPACE) {
     bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
                                                 "sketchybar -m set $NAME icon_highlight on;"
@@ -213,9 +222,25 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
 
 void bar_item_on_click(struct bar_item* bar_item) {
   if (!bar_item) return;
-  if (bar_item && strlen(bar_item->click_script) > 0)
+  if (strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);
+  if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true);
 }
+
+void bar_item_mouse_entered(struct bar_item* bar_item) {
+  if (!bar_item) return;
+  bar_item->mouse_over = true;
+  if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true);
+}
+
+void bar_item_mouse_exited(struct bar_item* bar_item) {
+  if (!bar_item) return;
+  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED)) bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true); 
+  bar_item->mouse_over = false;
+}
+
 
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   if (bar_item->y_offset == offset) return;

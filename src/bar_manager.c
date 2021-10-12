@@ -200,7 +200,7 @@ void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
 void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if ((!bar_item_is_shown(bar_manager->bar_items[i]) && !forced) || bar_manager->bar_items[i]->type != BAR_COMPONENT_ALIAS) continue;
-    bar_item_update(bar_manager->bar_items[i], forced);
+    bar_item_update(bar_manager->bar_items[i], NULL, forced);
   }
 }
 
@@ -238,7 +238,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   if (bar_manager->frozen) return;
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    needs_refresh |= bar_item_update(bar_manager->bar_items[i], forced);
+    needs_refresh |= bar_item_update(bar_manager->bar_items[i], NULL, forced);
   }
   if (needs_refresh) bar_manager_refresh(bar_manager, false);
 }
@@ -264,14 +264,6 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
   }
 }
 
-void bar_manager_check_bar_items_for_update_pattern(struct bar_manager* bar_manager, uint32_t pattern) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (bar_item->update_mask & pattern)
-      bar_item_update(bar_item, true);
-  }
-}
-
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
@@ -285,28 +277,46 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
 
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name) {
   uint32_t flag = custom_events_get_flag_for_name(&bar_manager->custom_events, name);
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, flag);
+
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (bar_item->update_mask & flag)
+      bar_item_update(bar_item, name, true);
+  }
+}
+
+void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  if (bar_item->mouse_over) return;
+  for (int i = 0; i < bar_manager->bar_item_count; i++)
+    bar_item_mouse_exited(bar_item);
+
+  bar_item_mouse_entered(bar_item);
+}
+
+void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++)
+    bar_item_mouse_exited(bar_manager->bar_items[i]);
 }
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_FRONT_APP_SWITCHED);
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED);
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; i++) bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
   bar_manager_update_space_components(bar_manager, false);
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SPACE_CHANGE);
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SPACE_CHANGE);
   bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_DISPLAY_CHANGE);
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_DISPLAY_CHANGE);
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager_update_space_components(bar_manager, false);
   //bar_manager_update_alias_components(bar_manager, false);
-  bar_manager_check_bar_items_for_update_pattern(bar_manager, UPDATE_SYSTEM_WOKE);
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SYSTEM_WOKE);
   bar_manager_refresh(bar_manager, true);
 }
 

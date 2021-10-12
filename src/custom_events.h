@@ -1,6 +1,14 @@
 #ifndef CUSTOM_EVENT_H
 #define CUSTOM_EVENT_H
 
+#define UPDATE_FRONT_APP_SWITCHED 1
+#define UPDATE_SPACE_CHANGE       1 << 1
+#define UPDATE_DISPLAY_CHANGE     1 << 2
+#define UPDATE_SYSTEM_WOKE        1 << 3
+#define UPDATE_MOUSE_ENTERED      1 << 4
+#define UPDATE_MOUSE_EXITED       1 << 5
+#define UPDATE_MOUSE_CLICKED      1 << 6
+
 extern void* g_workspace_context;
 
 struct custom_event {
@@ -9,8 +17,6 @@ struct custom_event {
 };
 
 struct custom_events {
-  // How many events are reserved for system events
-  uint32_t flag_offset;
   uint32_t count;
   
   struct custom_event** events;

@@ -8,8 +8,16 @@ void custom_event_init(struct custom_event* custom_event, char* name, char* noti
 }
 
 void custom_events_init(struct custom_events* custom_events) {
-  custom_events->flag_offset = 4;
   custom_events->count = 0;
+
+  // System Events
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SPACE_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SYSTEM_WOKE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_ENTERED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_EXITED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_CLICKED), NULL);
 }
 
 
@@ -26,7 +34,7 @@ void custom_events_append(struct custom_events* custom_events, char* name, char*
 uint32_t custom_events_get_flag_for_name(struct custom_events* custom_events, char* name) {
   for (int i = 0; i < custom_events->count; i++) {
     if (strcmp(name, custom_events->events[i]->name) == 0) {
-      return 1 << (i + custom_events->flag_offset);
+      return 1 << i;
     }
   }
   return 0;

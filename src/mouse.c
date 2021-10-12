@@ -18,7 +18,6 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
       break;
     }
     default:
-      printf("event: %d \n", GetEventKind(e));
       break;
   }
 

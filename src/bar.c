@@ -200,7 +200,8 @@ void bar_redraw(struct bar* bar) {
     bar_item->label.line.bounds.origin = label_position;
     bar_item->icon.line.bounds.origin = icon_position;
     bar_item_append_associated_bar(bar_item, (1 << (adid - 1)));
-    if (strlen(bar_item->click_script) > 0) SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
+      SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
     bar_item_set_bounding_rect_for_display(bar_item, adid, bar->origin);
 
     bar_draw_group(bar, bar_item, adid);

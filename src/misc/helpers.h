@@ -12,8 +12,8 @@ extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;
 
 struct signal_args {
-    char name[4][255];
-    char value[4][255];
+    char name[5][255];
+    char value[5][255];
     void *entity;
     void *param1;
 };
@@ -183,6 +183,7 @@ static bool sync_exec(char *command, struct signal_args *args) {
         if (*args->name[1]) setenv(args->name[1], args->value[1], 1);
         if (*args->name[2]) setenv(args->name[2], args->value[2], 1);
         if (*args->name[3]) setenv(args->name[3], args->value[3], 1);
+        if (*args->name[4]) setenv(args->name[4], args->value[4], 1);
     }
 
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};

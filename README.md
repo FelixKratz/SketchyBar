@@ -269,11 +269,11 @@ A list of properties is listed below:
 * *graph_color*: color of the associated graph
 * *graph_fill_color*: optional property to override the automatically calculated fill color of the graph
 * *graph_line_width*: sets the line width of the associated graph
-* *script*: a script to run every *update_freq* seconds
 * *update_freq*: time in seconds between script executions
-* *click_script*: script to run when left clicking on item
+* *script*: a script to run every *update_freq* seconds
+* *click_script*: script to run when left clicking on item (Note: This is also possible via the *mouse_clicked* event, see #subscribing-items-to-system-events-for-their-script-execution)
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
-* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown* (Only on HEAD),  default: *on*)
+* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
@@ -304,6 +304,8 @@ this currently works for the properties:
 * *background_border_width*
 * *y_offset*
 * *update_freq*
+* *script* (HEAD only)
+* *click_script* (HEAD only)
 * *cache_scripts*
 * *updates*
 * *drawing*
@@ -327,7 +329,13 @@ where the events are:
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
 * *system_woke*: when the system has awaken from sleep
+* *mouse_entered*: when the mouse enters over an item (HEAD only)
+* *mouse_exited*: when the mouse leaves an item (HEAD only)
+* *mouse_clicked*: when an item is clicked (HEAD only)
 
+HEAD only: <br>
+When an item is subscribed to these events the *script* is run and it gets passed the *$SENDER* variable, which holds exactly the above names, to distinguish between the different events.
+It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*. I will soon create an example an link it here.
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash
