@@ -286,7 +286,7 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 }
 
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
-  if (bar_item->mouse_over) return;
+  if (!bar_item || bar_item->mouse_over) return;
   for (int i = 0; i < bar_manager->bar_item_count; i++)
     bar_item_mouse_exited(bar_item);
 

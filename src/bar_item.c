@@ -229,14 +229,12 @@ void bar_item_on_click(struct bar_item* bar_item) {
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {
-  if (!bar_item) return;
   bar_item->mouse_over = true;
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true);
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (!bar_item) return;
   if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED)) bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true); 
   bar_item->mouse_over = false;
 }
