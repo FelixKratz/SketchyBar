@@ -1,12 +1,37 @@
 # SketchyBar
-This is a rewrite of the spacebar project, which itself is a rewrite of the statusbar code from yabai.
 
-Features:
+This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
+shell scripts and want to make their statusbar show exactly the information they need for their workflow.
+
+The configuration of the bar takes place in a confiuration file where almost everything can be configured.
+Bascially, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
+An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
+*scripts* that can be attached to the *item*. It is also possible to *subscribe* and *item* to certain *events* for their *script* execution action,
+which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
+Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
+of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
+These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
+the plugins folder.
+
+Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
+extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
+is a *graph* component, which can be used to display graphs in the bar.
+
+For more details on how the configuration works, see the Configuration section below.
+
+This is an example setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
+![](images/myNewSetup.jpg)
+where I have my screens and a Github indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
+In the center I have a spotify indicator (only when music is playing) and on the right I have (not shown) a high cpu process indicator, as well as a cpu graph, a new mail counter and the current date.
+
+## Features
+
+* Performance friendly
+* No accessibility permissions needed
 * As many widgets as you like at any of the three positions: left, center, right
-* The order of the widgets in the sketchybarrc file will be the order in which they show in the bar
 * Associate widgets to certain displays or spaces, to show specific information on the relevant screens/displays
 * The widgets are highly customizable with settings for different fonts, colors, icon paddings, label paddings, etc. for each individual element
-* Display default menu items and configure them just as normal items
+* Display items from the default menu bar and configure them in sketchybar
 * Draw arbitrary graphs in the bar with external data provider scripts that push the data into the graph
 * Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
 * Individual refresh frequencies for each widget
@@ -16,14 +41,13 @@ Features:
 * Cache the scripts in RAM to reduce I/O operations
 * Offset the bar from its original location, rounded corners and background blur
 * Batch configuration messages for easy configuration
-* Performance friendly
 
 Table of Contents
 =================
 
 * [SketchyBar](#sketchybar)
 * [Table of Contents](#table-of-contents)
-   * [Description](#description)
+   * [Features](#features)
    * [Installation](#installation)
       * [Stable Version](#stable-version)
       * [Development Version](#development-version)
@@ -54,34 +78,6 @@ Table of Contents
       * [Group Items in a Bracket for e.g. colored sections](#group-items-in-a-bracket-for-eg-colored-sections)
    * [Credits](#credits)
 
-## Description
-
-This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
-shell scripts and want to make their statusbar show exactly the information they need for their workflow.
-
-The configuration of the bar takes place in a confiuration file where almost everything can be configured.
-Bascially, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
-An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
-*scripts* that can be attached to the *item*. It is also possible to *subscribe* and *item* to certain *events* for their *script* execution action,
-which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
-Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
-of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
-These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
-the plugins folder.
-
-Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
-extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
-is a *graph* component, which can be used to display graphs in the bar.
-
-For more details on how the configuration works, see the Configuration section below.
-
-This is an example setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
-![](images/myNewSetup.jpg)
-where I have my screens and a vim mode indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
-In the center I have a spotify indicator (only when music is playing) and on the right I have (not shown) a high cpu process indicator, as well as a cpu graph, a github contribution counter, a new mail counter and the current date.
-
-The cpu and memory indicators are only shown on the "code" screen and are not visible on the other screens.
-
 ## Installation
 ### Stable Version
 ```bash
@@ -101,38 +97,13 @@ and run the bar via
 brew services start sketchybar
 ```
 
-### Development Version
-Clone the repo and in it run 
-```bash
-make install
-```
-This installs the app with my configuration preinstalled.
-
-You can customize the configuration inside of $HOME/.config/sketchybar/sketchybarrc
-and run the bar via
-```bash
-sketchybar
-```
-### Switching branches and uninstalling
-You can always switch branches by removing the current installation and reinstalling the selected branch
-To uninstall the development version perform
-```bash
-make uninstall
-```
-in the cloned repo.
-
-To uninstall the brew version simply run
-```bash
-brew uninstall sketchybar
-```
-
 ### Plugins and Fonts
 If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
 ```bash
 chmod +x name/of/plugin.sh
 ```
 Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) about plugins and share your own if you want to.
-You should of course vet the code from all plugins before granting them the executable bit to make sure they are not harming your computer.
+You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
 
 If you have problems with missing fonts you might need to install the Hack Nerd Font:
 ```bash
@@ -140,18 +111,9 @@ brew tap homebrew/cask-fonts
 brew install --cask font-hack-nerd-font
 ```
 
-## Updating
-Since this is a work-in-progress project, there might be big and radical changes along the way. You can update by pulling from master and in the
-up to date repo folder run:
-```bash
-make update
-```
-or simply update via brew.
-This will not touch your configuration and the plugins, so if there is a radical change to the source code you might need to
-update those files too.
-
 ## Configuration
-Below is a list of all possible commands you can currently use in the configuration file located in *~/.config/sketchybar/sketchybarrc*:
+Below is a list of all possible commands you can currently use to configure the bar in the configuration file located in *~/.config/sketchybar/sketchybarrc*
+or directly from a command line
 
 ### Note on batching configuration commands
 It is possible to batch commands together into a single call to sketchybar, this can be helpful to
@@ -181,17 +143,17 @@ sketchybar -m batch --bar <setting>=<value> ... <setting>=<value>
 ```
 
 where the settings currently are:
-* *position*: *top* or *bottom*
-* *height*: the height of the bar in pixels
-* *margin*: the screen padding around the bar itself
-* *y_offset*: the y-offset in pixels from the default position
-* *corner_radius*: the corner radius of the bar itself
+* *position*: the position of the bar on the screen, either *top* or *bottom*
+* *height*: the height of the bar in points
+* *margin*: the screen margin around the bar
+* *y_offset*: the y-offset in points from the default position
+* *corner_radius*: the corner radius of the bar
 * *border_width*: the width of the bars border
 * *border_color*: the color of the bars border
-* *blur_radius*: the blur radius to be applied to the background of the bar itself
+* *blur_radius*: the blur radius to be applied to the background of the bar
 * *padding_left*: padding on the left before first item 
 * *padding_right*: just as padding_right
-* *bar_color*: the color of the bar itself
+* *bar_color*: the color of the bar
 * *display*: on which display to show bar (*main* or *all*)
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
@@ -201,7 +163,7 @@ where the settings currently are:
 ```bash
 sketchybar -m add item <name> <position> [optional: <modifier>]
 ```
-with batching possible via:
+or with command batching:
 ```bash
 sketchybar -m batch --add item <name> <position> [optional: <modifier>]
 ```
@@ -224,6 +186,7 @@ Currently there are the component *types*:
 * *graph*: showing a graph,
 * *space*: representing a mission control space
 * *alias*: a default menu bar item (for details see the experimental section)
+* *bracket*: brackets together other items (for details see the experimental section)
 
 ### Changing the properties of an item
 ```bash
@@ -239,23 +202,23 @@ An item always has the following structure in the bar:  <br>
 <img src="images/bar_item.png" width="300"> <br>
 background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
 
-A list of properties is listed below:
+A list of properties available to the *set* command is listed below:
 * *position*: Overrides the position set in the *add* command (*left*, *right*, *center*)
-* *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all screens)
+* *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
-* *label*: the label of the item
-* *label_font*: the font for the label
-* *label_color*: the color of the label
-* *label_highlight_color*: the highlight color of the label (e.g. for active space icon)
-* *label_padding_left*: left padding of label (default: 0)
-* *label_padding_right*: right padding of label (default: 0)
-* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *icon*: the icon of the item
 * *icon_font*: the font for the icon
 * *icon_color*: the color of the icon
 * *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
 * *icon_padding_left*: left padding of icon (default: 0)
 * *icon_padding_right*: right padding of icon (default: 0)
+* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *label*: the label of the item
+* *label_font*: the font for the label
+* *label_color*: the color of the label
+* *label_highlight_color*: the highlight color of the label (e.g. for active space icon)
+* *label_padding_left*: left padding of label (default: 0)
+* *label_padding_right*: right padding of label (default: 0)
 * *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *draws_background*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
 * *background_color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
@@ -278,6 +241,8 @@ A list of properties is listed below:
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
 ### Changing the default values for all further items
+It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
+inherit these properties from the default item.
 ```bash
 sketchybar -m default <property> <value>
 ```
@@ -317,6 +282,8 @@ sketchybar -m default reset
 ```
 
 ### Subscribing items to system events for their script execution
+Any item can *subscribe* to arbitrary *events*, when the *event* happens, all items subscribed to the *event* will execute their *script*.
+This can be used to create more reactive and performant items which react to events rather than polling for a change.
 ```bash
 sketchybar -m subscribe <name> <event> ... <event>
 ```
@@ -345,9 +312,10 @@ and the batch version of this:
 ```bash
 sketchybar -m batch --add event <name> [optional: <NSDistributedNotificationName>]
 ```
-Optional: You can hook the notifications sent to the NSDistributedNotificationCenter e.g.
-the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged"
-to create more responsive items
+Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
+the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged" [example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842), or the
+notification sent by the system when a bluetooth device connected, or disconnected: *com.apple.bluetooth.state* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1465761))
+to create more responsive items.
 
 ### Triggering custom events
 This triggers a custom event that has been added before
@@ -376,9 +344,7 @@ This also works for components, just reference it by name.
 ```bash
 sketchybar -m freeze <on/off>
 ```
-This stops the redrawing of the bar entirely and "freezes" it. Can be used during initialization to
-create a cleaner startup by freezing the bar at the beginning of the configuration and unfreezing it after the
-setup is done.
+This stops the redrawing of the bar entirely and "freezes" it.
 
 ## Querying
 *SketchyBar* can be queried for information about a number of things.
@@ -403,16 +369,17 @@ sketchybar -m query defaults
 The bar supports scripts where ever possible to make it as customizable and versatile as possible.
 When an item invokes a script, the script has access to some environment variables, such as:
 ```bash
-$NAME 
+$NAME
+$SENDER (HEAD only)
 ```
-Which is the name of the item that has invoked the script.
+Where *$NAME* is the name of the item that has invoked the script and *$SENDER* is the reason why the script is executed ($SENDER only on HEAD).
 The space component has additional variables:
 ```bash
 $SELECTED
 $SID
 $DID
 ```
-where $SELETCTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
+where $SELECTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
 $SID holds the space id and $DID the display id.
 
 By default the space component invokes the script:
@@ -431,7 +398,7 @@ I plan on increasing the available environment variables in scripting step by st
 These are highly experimental features that need some work, but are included on HEAD anyways, because they do not interfere with
 the rest of the bar.
 ### Default Menu Bar Item Alias
-It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though so please post the issues you encounter.
+It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though so please post the issues you encounter. The default menu bar can be set to autohide and this should still work.
 
 Important: <br>
 I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
@@ -463,7 +430,7 @@ Owner: Stats Name: RAM_Mini<br>
 Owner: Stats Name: Network_Speed<br>
 etc...<br>
 
-All further Items can be found via the command:
+All further default menu items currently available on your system can be found via the command:
 ```bash
 sketchybar -m query default_menu_items
 ```
