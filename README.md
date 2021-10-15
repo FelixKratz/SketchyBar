@@ -228,6 +228,7 @@ A list of properties available to the *set* command is listed below:
 * *background_border_width*: the border width of the items background (default: 0)
 * *background_padding_left*: the left padding applied around the background of the item (default: 0)
 * *background_padding_right*: the right padding applied around the background of the item (default: 0)
+* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (HEAD only)
 * *y_offset*: the vertical offset of this item (default: 0)
 * *graph_color*: color of the associated graph
 * *graph_fill_color*: optional property to override the automatically calculated fill color of the graph

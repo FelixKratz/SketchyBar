@@ -238,15 +238,9 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   }
   struct token modifier = get_token(&message);
-  if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) bar_item->nospace = true;
+  if (token_equals(modifier, ARGUMENT_COMMON_NO_SPACE)) 
+    bar_item->has_const_width = true;
 
-  /*bar_item_set_name(bar_item, string_copy(""));
-  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
-    bar_manager_destroy_item(&g_bar_manager, bar_item);
-    printf("Name: %s already exists... skipping \n", name.text);
-    fprintf(rsp, "Name: %s already exists... skipping \n", name.text);
-    return;
-  }*/
   bar_item_set_name(bar_item, token_to_string(name));
   bar_manager_refresh(&g_bar_manager, true);
 }
@@ -289,6 +283,10 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     needs_update = background_set_corner_radius(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_WIDTH)) {
     needs_update = background_set_border_width(&bar_item->background, token_to_uint32t(get_token(&message)));
+  } else if (token_equals(property, COMMAND_SET_WIDTH)) {
+    bar_item->has_const_width = true;
+    bar_item->custom_width = token_to_uint32t(get_token(&message));
+    needs_update = true;
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     needs_update = text_set_font(&bar_item->icon, string_copy(message), false);
   } else if (token_equals(property, COMMAND_SET_LABEL_FONT)) {

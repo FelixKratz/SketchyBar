@@ -1,6 +1,8 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+// TODO: Next major version: Make use of dot operators for commands and remove deprecated commands
+
 #define DOMAIN_BATCH                                        "batch"
 #define COMMAND_BATCH_CONFIG                                "--config" // Add deprecation notice
 #define COMMAND_BATCH_BAR                                   "--bar"
@@ -58,6 +60,7 @@
 #define COMMAND_SET_BACKGROUND_PADDING_LEFT                 "background_padding_left"
 #define COMMAND_SET_BACKGROUND_PADDING_RIGHT                "background_padding_right"
 #define COMMAND_SET_YOFFSET                                 "y_offset"
+#define COMMAND_SET_WIDTH                                   "width"
 #define COMMAND_SET_GRAPH_COLOR                             "graph_color"
 #define COMMAND_SET_GRAPH_FILL_COLOR                        "graph_fill_color"
 #define COMMAND_SET_GRAPH_LINE_WIDTH                        "graph_line_width"
@@ -110,7 +113,7 @@
 #define ARGUMENT_COMMON_VAL_FALSE                           "false"
 #define ARGUMENT_COMMON_VAL_NO                              "no"
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
-#define ARGUMENT_COMMON_NO_SPACE                            "nospace" 
+#define ARGUMENT_COMMON_NO_SPACE                            "nospace" // TODO: Deprecate this
 
 #define ARGUMENT_UPDATES_WHEN_SHOWN                         "when_shown" 
 

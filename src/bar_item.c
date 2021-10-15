@@ -47,7 +47,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->drawing = true;
   bar_item->updates = true;
   bar_item->updates_only_when_shown = false;
-  bar_item->nospace = false;
   bar_item->selected = false;
   bar_item->mouse_over = false;
   bar_item->counter = 0;
@@ -61,6 +60,9 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
+
+  bar_item->has_const_width = false;
+  bar_item->custom_width = 0;
 
   bar_item->y_offset = 0;
   bar_item->num_rects = 0;
@@ -247,6 +249,8 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 }
 
 uint32_t bar_item_get_length(struct bar_item* bar_item) {
+  if (bar_item->has_const_width) return bar_item->custom_width + 1;
+
   return text_get_length(&bar_item->icon) 
          + text_get_length(&bar_item->label)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
@@ -363,7 +367,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->icon.font_name,
                bar_item->label.font_name,
                bar_item->position,
-               bar_item->nospace,
+               bar_item->has_const_width && bar_item->custom_width == 0,
                bar_item->background.padding_left,
                bar_item->background.padding_right,
                bar_item->icon.padding_left,

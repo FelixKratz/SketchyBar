@@ -28,7 +28,8 @@ struct bar_item {
 
   // Drawing Modifiers
   bool drawing;
-  bool nospace;
+  bool has_const_width;
+  uint32_t custom_width;
 
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
   uint32_t associated_bar;
