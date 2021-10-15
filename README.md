@@ -21,7 +21,7 @@ For more details on how the configuration works, see the Configuration section b
 
 This is an example setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
 ![](images/myNewSetup.jpg)
-where I have my screens and a Github indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
+where I have my spaces and a Github indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
 In the center I have a spotify indicator (only when music is playing) and on the right I have (not shown) a high cpu process indicator, as well as a cpu graph, a new mail counter and the current date.
 
 ## Features
@@ -458,7 +458,5 @@ sketchybar -m batch --add       component bracket  primary_spaces code writing r
 this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
 
 ## Credits
-yabai,
-spacebar,
-reddit,
-many more for the great code base and inspiration
+This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>
+The original idea is based on the status bar that was included in *[yabai](https://github.com/koekeishiya/yabai)* before getting removed.
