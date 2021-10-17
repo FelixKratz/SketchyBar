@@ -284,8 +284,13 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, COMMAND_SET_BACKGROUND_BORDER_WIDTH)) {
     needs_update = background_set_border_width(&bar_item->background, token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, COMMAND_SET_WIDTH)) {
-    bar_item->has_const_width = true;
-    bar_item->custom_width = token_to_uint32t(get_token(&message));
+    struct token token = get_token(&message);
+    if (token_equals(token, "dynamic"))
+      bar_item->has_const_width = false;
+    else {
+      bar_item->has_const_width = true;
+      bar_item->custom_width = token_to_uint32t(token);
+    }
     needs_update = true;
   } else if (token_equals(property, COMMAND_SET_ICON_FONT)) {
     needs_update = text_set_font(&bar_item->icon, string_copy(message), false);
