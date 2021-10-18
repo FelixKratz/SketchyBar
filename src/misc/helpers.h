@@ -55,6 +55,102 @@ static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
 
+struct token {
+    char *text;
+    unsigned int length;
+};
+
+static bool token_equals(struct token token, char *match) {
+  char *at = match;
+  for (int i = 0; i < token.length; ++i, ++at) {
+    if ((*at == 0) || (token.text[i] != *at)) {
+      return false;
+    }
+  }
+  return *at == 0;
+}
+
+static char *token_to_string(struct token token) {
+  char *result = malloc(token.length + 1);
+  if (!result) return NULL;
+
+  memcpy(result, token.text, token.length);
+  result[token.length] = '\0';
+  return result;
+}
+
+static uint32_t token_to_uint32t(struct token token) {
+  char buffer[token.length + 1];
+  memcpy(buffer, token.text, token.length);
+  buffer[token.length] = '\0';
+  return strtoul(buffer, NULL, 0);
+}
+
+
+static int token_to_int(struct token token) {
+  char buffer[token.length + 1];
+  memcpy(buffer, token.text, token.length);
+  buffer[token.length] = '\0';
+  return (int) strtol(buffer, NULL, 0);
+}
+
+static float token_to_float(struct token token) {
+  char buffer[token.length + 1];
+  memcpy(buffer, token.text, token.length);
+  buffer[token.length] = '\0';
+  return strtof(buffer, NULL);
+}
+
+static struct token get_token(char **message) {
+  struct token token;
+
+  token.text = *message;
+  while (**message) {
+    ++(*message);
+  }
+  token.length = *message - token.text;
+
+  if ((*message)[0] == '\0' && (*message)[1] != '\0') {
+    ++(*message);
+  } else {
+    // NOTE(koekeishiya): don't go past the null-terminator
+  }
+
+  return token;
+}
+
+static void get_key_value_pair(char *token, char **key, char **value, char split) {
+    *key = token;
+
+    while (*token) {
+        if (token[0] == split) break;
+        ++token;
+    }
+
+    if (*token != split) {
+        *key = NULL;
+        *value = NULL;
+    } else if (token[1]) {
+        *token = '\0';
+        *value = token + 1;
+    } else {
+        *token = '\0';
+        *value = NULL;
+    }
+}
+
+static void pack_key_value_pair(char* cursor, char* key, char* value) {
+  uint32_t key_len = strlen(key);
+  uint32_t val_len = value ? strlen(value) : 0;
+  memcpy(cursor, key, key_len);
+  cursor += key_len;
+  *cursor++ = '\0';
+  memcpy(cursor, value, val_len);
+  cursor += val_len;
+  *cursor++ = '\0';
+  *cursor++ = '\0';
+}
+
 static inline uint32_t get_set_bit_position(uint32_t mask) {
   if (mask == 0) return UINT32_MAX;
   uint32_t pos = 0;

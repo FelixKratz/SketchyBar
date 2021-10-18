@@ -22,4 +22,6 @@ bool background_set_corner_radius(struct background* background, uint32_t corner
 bool background_set_padding_left(struct background* background, uint32_t pad);
 bool background_set_padding_right(struct background* background, uint32_t pad);
 
+static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);
+
 #endif // !BACKGROUND_H

@@ -32,4 +32,6 @@ uint32_t text_get_length(struct text* text);
 uint32_t text_get_height(struct text* text);
 bool text_update_color(struct text* text);
 
+static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);
+
 #endif // !TEXT_H_

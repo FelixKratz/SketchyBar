@@ -70,3 +70,27 @@ bool background_set_padding_right(struct background* background, uint32_t pad) {
   background->padding_right = pad;
   return true;
 }
+
+static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
+  if (token_equals(property, PROPERTY_DRAWING))
+    return background_set_enabled(background, evaluate_boolean_state(get_token(&message), background->enabled));
+  else if (token_equals(property, PROPERTY_HEIGHT))
+    return background_set_height(background, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_CORNER_RADIUS))
+    return background_set_corner_radius(background, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_BORDER_WIDTH))
+    return background_set_border_width(background, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_COLOR))
+    return background_set_color(background, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_BORDER_COLOR))
+    return background_set_border_color(background, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_PADDING_LEFT))
+    return background_set_padding_left(background, token_to_int(get_token(&message)));
+  else if (token_equals(property, PROPERTY_PADDING_RIGHT))
+    return background_set_padding_right(background, token_to_int(get_token(&message)));
+  else {
+    fprintf(rsp, "Unknown property: %s \n", property.text);
+    printf("Unknown property: %s \n", property.text);
+  }
+  return false;
+}

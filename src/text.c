@@ -122,3 +122,30 @@ void text_destroy(struct text* text) {
   text_destroy_line(text);
   text_clear_pointers(text);
 }
+
+static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
+  if (token_equals(property, PROPERTY_COLOR))
+    return text_set_color(text, token_to_uint32t(get_token(&message)));
+  else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
+    text->highlight = evaluate_boolean_state(get_token(&message), text->highlight);
+    return text_update_color(text);
+  } 
+  else if (token_equals(property, PROPERTY_FONT))
+    return text_set_font(text, string_copy(message), false);
+  else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
+    text->highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    return text_update_color(text);
+  } 
+  else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+    text->padding_left = token_to_int(get_token(&message));
+    return true;
+  } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
+    text->padding_right = token_to_int(get_token(&message));
+    return true;
+  } 
+  else {
+    fprintf(rsp, "Unknown property: %s \n", property.text);
+    printf("Unknown property: %s \n", property.text);
+  }
+  return false;
+}

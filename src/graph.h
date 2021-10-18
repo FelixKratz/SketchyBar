@@ -24,6 +24,7 @@ void graph_destruct(struct graph* graph);
 float graph_get_y(struct graph* graph, uint32_t i);
 uint32_t graph_get_length(struct graph* graph);
 
+static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message);
 
 #endif
 

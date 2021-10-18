@@ -170,7 +170,7 @@ sketchybar -m batch --add item <name> <position> [optional: <modifier>]
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*.
 The list of modifiers for item creation is short currently:
-* *nospace*: This item reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets)
+* *nospace*: This item reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets) (DEPRECATED on HEAD, use *width* property)
 
 ### Adding a component
 ```bash
@@ -207,32 +207,32 @@ A list of properties available to the *set* command is listed below:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
 * *icon*: the icon of the item
-* *icon_font*: the font for the icon
-* *icon_color*: the color of the icon
-* *icon_highlight_color*: the highlight color of the icon (e.g. for active space icon)
-* *icon_padding_left*: left padding of icon (default: 0)
-* *icon_padding_right*: right padding of icon (default: 0)
-* *icon_highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *icon.font*: the font for the icon
+* *icon.color*: the color of the icon
+* *icon.highlight_color*: the highlight color of the icon (e.g. for active space icon)
+* *icon.padding_left*: left padding of icon (default: 0)
+* *icon.padding_right*: right padding of icon (default: 0)
+* *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *label*: the label of the item
-* *label_font*: the font for the label
-* *label_color*: the color of the label
-* *label_highlight_color*: the highlight color of the label (e.g. for active space icon)
-* *label_padding_left*: left padding of label (default: 0)
-* *label_padding_right*: right padding of label (default: 0)
-* *label_highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
-* *draws_background*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
-* *background_color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
-* *background_height*: the height of the background, the background will always be centered vertically around the center of the item
-* *background_border_color*: the color of the backgrounds border
-* *background_corner_radius*: the corner radius of the items background (default: 0)
-* *background_border_width*: the border width of the items background (default: 0)
-* *background_padding_left*: the left padding applied around the background of the item (default: 0)
-* *background_padding_right*: the right padding applied around the background of the item (default: 0)
-* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (HEAD only)
+* *label.font*: the font for the label
+* *label.color*: the color of the label
+* *label.highlight_color*: the highlight color of the label (e.g. for active space icon)
+* *label.padding_left*: left padding of label (default: 0)
+* *label.padding_right*: right padding of label (default: 0)
+* *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
+* *background.color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
+* *background.height*: the height of the background, the background will always be centered vertically around the center of the item
+* *background.border_color*: the color of the backgrounds border
+* *background.corner_radius*: the corner radius of the items background (default: 0)
+* *background.border_width*: the border width of the items background (default: 0)
+* *background.padding_left*: the left padding applied around the background of the item (default: 0)
+* *background.padding_right*: the right padding applied around the background of the item (default: 0)
+* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*) (HEAD only)
 * *y_offset*: the vertical offset of this item (default: 0)
-* *graph_color*: color of the associated graph
-* *graph_fill_color*: optional property to override the automatically calculated fill color of the graph
-* *graph_line_width*: sets the line width of the associated graph
+* *graph.color*: color of the associated graph
+* *graph.fill_color*: optional property to override the automatically calculated fill color of the graph
+* *graph.line_width*: sets the line width of the associated graph
 * *update_freq*: time in seconds between script executions
 * *script*: a script to run every *update_freq* seconds
 * *click_script*: script to run when left clicking on item (Note: This is also possible via the *mouse_clicked* event, see #subscribing-items-to-system-events-for-their-script-execution)
@@ -252,22 +252,22 @@ batching is again possible via:
 sketchybar -m batch --default <property>=<value> ... <property>=<value>
 ```
 this currently works for the properties:
-* *label_font*
-* *label_color*
-* *label_highlight_color*
-* *label_padding_left*
-* *label_padding_right*
-* *icon_font*
-* *icon_color*
-* *icon_highlight_color*
-* *icon_padding_left*
-* *icon_padding_right*
-* *draws_background*
-* *background_height*
-* *background_color*
-* *background_border_color*
-* *background_corner_radius*
-* *background_border_width*
+* *label.font*
+* *label.color*
+* *label.highlight_color*
+* *label.padding_left*
+* *label.padding_right*
+* *icon.font*
+* *icon.color*
+* *icon.highlight_color*
+* *icon.padding_left*
+* *icon.padding_right*
+* *background.drawing*
+* *background.height*
+* *background.color*
+* *background.border_color*
+* *background.corner_radius*
+* *background.border_width*
 * *y_offset*
 * *update_freq*
 * *script* (HEAD only)
@@ -341,12 +341,6 @@ sketchybar -m remove item <name>
 ```
 This also works for components, just reference it by name.
 
-### Freeze and unfreeze the bar
-```bash
-sketchybar -m freeze <on/off>
-```
-This stops the redrawing of the bar entirely and "freezes" it.
-
 ## Querying
 *SketchyBar* can be queried for information about a number of things.
 ### Bar Properties
@@ -386,9 +380,9 @@ $SID holds the space id and $DID the display id.
 By default the space component invokes the script:
 ```bash
 if [ "$SELECTED" = "true" ]; then 
-  sketchybar -m set $NAME icon_highlight on 
+  sketchybar -m set $NAME icon.highlight on 
 else 
-  sketchybar -m set $NAME icon_highlight off 
+  sketchybar -m set $NAME icon.highlight off 
 fi
 ```
 which you can freely configure to your liking by supplying a different script to the space component.
@@ -452,9 +446,9 @@ E.g., if I wanted a colored background around *all* my space components (which a
 ```bash 
 sketchybar -m batch --add       component bracket  primary_spaces code writing reading entertainment                   \
                                                                                                                        \
-                    --set       primary_spaces     background_color=0xffffffff                                         \
-                                                   background_corner_radius=4                                          \
-                                                   background_height=20
+                    --set       primary_spaces     background.color=0xffffffff                                         \
+                                                   background.corner_radius=4                                          \
+                                                   background.height=20
 ```
 this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
 
