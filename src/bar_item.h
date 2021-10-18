@@ -30,6 +30,7 @@ struct bar_item {
   bool drawing;
   bool has_const_width;
   uint32_t custom_width;
+  bool queued_for_redraw;
 
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
   uint32_t associated_bar;
@@ -59,6 +60,7 @@ struct bar_item {
   bool has_graph;
   struct graph graph;
 
+  uint32_t sandwich_position;
   // Alias Data
   bool has_alias;
   struct alias alias;

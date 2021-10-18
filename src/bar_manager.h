@@ -11,6 +11,7 @@ typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 struct bar_manager {
   bool any_bar_hidden;
   bool frozen;
+  bool picky_redraw;
   bool topmost;
   bool font_smoothing;
   uint32_t window_level;

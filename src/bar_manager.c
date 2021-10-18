@@ -92,12 +92,11 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
 void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) 
     bar_item_clear_needs_update(bar_manager->bar_items[i]);
-
 }
 
 void bar_manager_clear_association_for_bar(struct bar_manager* bar_manager, struct bar* bar) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) 
-    bar_item_remove_associated_bar(bar_manager->bar_items[i], (1 << (bar->adid - 1)));
+    bar_item_remove_associated_bar(bar_manager->bar_items[i], bar->adid);
 }
 
 void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
@@ -110,7 +109,6 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   if (forced) bar_manager_reset_bar_association(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; ++i) {
     if (forced || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
-      bar_manager_clear_association_for_bar(bar_manager, bar_manager->bars[i]);
       bar_redraw(bar_manager->bars[i]);
     }
   }
@@ -153,6 +151,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->frozen = false;
   bar_manager->window_level = NSFloatingWindowLevel;
   bar_manager->topmost = false;
+  bar_manager->picky_redraw = false;
 
   background_init(&bar_manager->background);
   bar_manager->background.height = 25;

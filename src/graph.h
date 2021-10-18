@@ -5,6 +5,7 @@
 struct graph {
   // Functional
   bool enabled;
+  bool rtl;
   uint32_t cursor;
   uint32_t width;
   float* y;

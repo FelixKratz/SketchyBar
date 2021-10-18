@@ -37,6 +37,7 @@ extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
 
 struct bar {
   bool hidden;
+  bool background_exists;
   uint32_t id;
   uint32_t did;
   uint32_t sid;
