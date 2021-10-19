@@ -133,6 +133,8 @@ bool alias_update_image(struct alias* alias) {
   }
 
   SLSGetScreenRectForWindow(g_connection, alias->wid, &alias->bounds);
+  alias->bounds.size.width = (uint32_t) (alias->bounds.size.width + 0.5);
+  alias->bounds.origin.x = (uint32_t) (alias->bounds.origin.x + 0.5);
 
   CGImageRef tmp_ref = NULL;
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);

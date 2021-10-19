@@ -115,25 +115,48 @@ void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
   CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
 }
 
+bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
+    if (!bar_item->drawing) return false;
+    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << bar->adid))) return false;
+    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << bar->sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) return false;
+    return true;
+}
+
 void bar_draw_bar_items(struct bar* bar) {
+  bool atomic_redraw = true;
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
 
-  //if (!bar->background_exists) {
-  draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
-  bar->background_exists = true;
-  //}
+  if (g_bar_manager.picky_redraw) {
+    for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+      struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+      if (!bar_item->queued_for_redraw || !bar_draws_item(bar, bar_item)) continue;
+      if (atomic_redraw && bar_item->num_rects >= bar->adid && bar_item->bounding_rects[bar->adid - 1]) {
+        bar_item->bounding_rects[bar->adid - 1]->origin.x -= bar->origin.x;
+        bar_item->bounding_rects[bar->adid - 1]->origin.y -= bar->origin.y;
+        CGRect draw_region = {{bar_item->bounding_rects[bar->adid - 1]->origin.x - bar->origin.x, 0},
+                          {bar_item->bounding_rects[bar->adid - 1]->size.width, bar->frame.size.height}};
+        draw_rect(bar->context, CGRectInset(draw_region, g_bar_manager.background.border_width, 0), &g_bar_manager.background.color, 0, 0, &g_bar_manager.background.border_color, true);
+      }
+      atomic_redraw &= bar_item->redraw_in_place;
+    }
+  } else
+    atomic_redraw = false;
+    
+  if (!bar->background_exists || !atomic_redraw) {
+    draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
+    bar->background_exists = true;
+  }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!bar_item->queued_for_redraw) continue;
-    bar_item_remove_associated_bar(bar_item, bar->adid);
+    if (!bar_item->queued_for_redraw && atomic_redraw) continue;
 
-    if (!bar_item->drawing) continue;
-    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << bar->adid))) continue;
-    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << bar->sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
+    bar_item_remove_associated_bar(bar_item, bar->adid);
+    if (!bar_draws_item(bar, bar_item)) continue;
 
     struct text_line* label = &bar_item->label.line;
     struct text_line* icon = &bar_item->icon.line;
@@ -170,9 +193,7 @@ void bar_redraw(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!bar_item->drawing) continue;
-    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << adid))) continue;
-    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) continue;
+    if (!bar_draws_item(bar, bar_item)) continue;
 
     struct text_line* label = &bar_item->label.line;
     struct text_line* icon = &bar_item->icon.line;
@@ -181,10 +202,8 @@ void bar_redraw(struct bar* bar) {
     uint32_t sandwich_position = 0;
     bool graph_rtl = false;
 
-    bar_item->queued_for_redraw = true;
-
     if (bar_item->position == BAR_POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->icon.padding_left + bar_item->background.padding_left;
+      icon_position.x = bar_left_final_item_x + bar_item->icon.padding_left + bar_item->background.padding_left + 1;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
       
       if (!bar_item->has_const_width)
@@ -206,7 +225,7 @@ void bar_redraw(struct bar* bar) {
     }
     else if (bar_item->position == BAR_POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label.padding_right - bar_item->background.padding_right;
-      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon.padding_right - bar_item->label.padding_left + 1;
+      icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon.padding_right - bar_item->label.padding_left - 1;
 
       if (!bar_item->has_const_width)
         bar_right_first_item_x = icon_position.x - bar_item->icon.padding_left - bar_item->background.padding_left;
@@ -227,7 +246,7 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == BAR_POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->icon.padding_left + bar_item->background.padding_left;
+      icon_position.x = bar_center_first_item_x + bar_item->icon.padding_left + bar_item->background.padding_left + 1;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
 
       if (!bar_item->has_const_width)
@@ -245,6 +264,19 @@ void bar_redraw(struct bar* bar) {
           bar_center_first_item_x += bar_item->alias.bounds.size.width;
         sandwich_position = label_position.x - bar_item->label.padding_left;
         label_position.x += bar_item->alias.bounds.size.width;
+      }
+    }
+
+    bar_item->queued_for_redraw = true;
+    bar_item->redraw_in_place = false;
+    if (g_bar_manager.picky_redraw) {
+      if (bar_item->num_rects >= bar->adid && bar_item->bounding_rects[bar->adid - 1]) {
+        if (bar_item->bounding_rects[bar->adid - 1]->origin.x == icon_position.x - bar_item->icon.padding_left + bar->origin.x && !bar_item->needs_update)
+          bar_item->queued_for_redraw = false;
+        else if (bar_item->bounding_rects[bar->adid - 1]->origin.x == icon_position.x - bar_item->icon.padding_left + bar->origin.x 
+                 && bar_item->needs_update 
+                 && bar_item->bounding_rects[bar->adid - 1]->size.width >= bar_item_construct_bounding_rect(bar_item).size.width)
+          bar_item->redraw_in_place = true;
       }
     }
 

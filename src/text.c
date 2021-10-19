@@ -50,6 +50,8 @@ void text_prepare_line(struct text_line* text_line, CTFontRef font, char* cstrin
 
   CTLineGetTypographicBounds(text_line->line, &text_line->ascent, &text_line->descent, NULL);
   text_line->bounds = CTLineGetBoundsWithOptions(text_line->line, kCTLineBoundsUseGlyphPathBounds);
+  text_line->bounds.size.width = (uint32_t) (text_line->bounds.size.width + 0.5);
+  text_line->bounds.origin.x = (uint32_t) (text_line->bounds.origin.x + 0.5);
   text_line->color = color;
 
   CFRelease(string);
