@@ -222,7 +222,7 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
   bar_item_needs_update(bar_item);
 }
 
-void bar_item_on_click(struct bar_item* bar_item) {
+void bar_item_on_click(struct bar_item* bar_item, uint32_t modifier) {
   if (!bar_item) return;
   if (strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);

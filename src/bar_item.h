@@ -104,7 +104,7 @@ uint32_t bar_item_get_height(struct bar_item* bar_item);
 void bar_item_needs_update(struct bar_item* bar_item);
 void bar_item_clear_needs_update(struct bar_item* bar_item);
 
-void bar_item_on_click(struct bar_item* bar_item);
+void bar_item_on_click(struct bar_item* bar_item, uint32_t modifier);
 void bar_item_mouse_entered(struct bar_item* bar_item);
 void bar_item_mouse_exited(struct bar_item* bar_item);
 
