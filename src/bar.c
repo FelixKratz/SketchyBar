@@ -182,9 +182,7 @@ void bar_draw_bar_items(struct bar* bar) {
 
 void bar_redraw(struct bar* bar) {
   if (bar->hidden) return;
-  uint32_t adid = bar->adid;
-  uint32_t sid = bar->sid;
-  if (sid == 0) return;
+  if (bar->sid == 0) return;
 
   int bar_left_final_item_x = g_bar_manager.background.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
