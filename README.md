@@ -111,35 +111,10 @@ brew tap homebrew/cask-fonts
 brew install --cask font-hack-nerd-font
 ```
 
-## Configuration
-Below is a list of all possible commands you can currently use to configure the bar in the configuration file located in *~/.config/sketchybar/sketchybarrc*
-or directly from a command line
-
-### Note on batching configuration commands
-It is possible to batch commands together into a single call to sketchybar, this can be helpful to
-keep the configuration file a bit cleaner and also to reduce startup times.
-There always is a *standalone* version of a command and a *batch* version of the same command, with the
-difference being, that all *batch* commands can be joined into a single call, for example:
+## Global configuration of the bar
+For an example configuration see the supplied default *sketchybarrc*.
 ```bash
-sketchybar -m bar position top
-sketchybar -m add item demo left
-sketchybar -m set demo label Hello
-sketchybar -m subscribe demo system_woke
-```
-turns into:
-```bash
-sketchybar -m batch --bar position=top           \
-                    --add item demo left         \
-                    --set demo label=Hello       \
-                    --subscribe demo system_woke
-```
-### Global configuration of the bar
-```bash
-sketchybar -m bar <setting> <value>
-```
-or when you want to batch configurations:
-```bash
-sketchybar -m batch --bar <setting>=<value> ... <setting>=<value>
+sketchybar -m --bar <setting>=<value> ... <setting>=<value>
 ```
 
 where the settings currently are:
@@ -159,53 +134,34 @@ where the settings currently are:
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
 * *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 
-### Adding a simple menubar item (items will appear in the bar in the order they are added)
+## Items and their properties 
+Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
+<img src="images/bar_item.png" width="300"> <br>
+
+### Adding items to sketchybar
 ```bash
-sketchybar -m add item <name> <position> [optional: <modifier>]
-```
-or with command batching:
-```bash
-sketchybar -m batch --add item <name> <position> [optional: <modifier>]
+sketchybar -m --add item <name> <position>
 ```
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
-The *position* is the placement in the bar and can be either *left*, *right* or *center*.
-The list of modifiers for item creation is short currently:
-* *nospace*: This item reserves no space in the bar and the next item starts exactly where this item starts (good for stacked widgets) (DEPRECATED on HEAD, use *width* property)
+The *position* is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the ordered 
+in which they are added.
 
-### Adding a component
+### Changing item properties
 ```bash
-sketchybar -m add component <type> <name> <position> [optional: <modifier>]
-```
-or for batching of commands:
-```bash
-sketchybar -m batch --add component <type> <name> <position> [optional: <modifier>]
-```
-Components are essentially items, but with special properties. 
-Currently there are the component *types*: 
-* ~~*title*: Showing the current window title,~~ (DEPRECATED, see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1215932))
-* *graph*: showing a graph,
-* *space*: representing a mission control space
-* *alias*: a default menu bar item (for details see the experimental section)
-* *bracket*: brackets together other items (for details see the experimental section)
-
-### Changing the properties of an item
-```bash
-sketchybar -m set <name> <property> <value>
-```
-here batching is also possible with:
-```bash
-sketchybar -m batch --set <name> <property>=<value> ... <property>=<value>
+sketchybar -m --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
 
-An item always has the following structure in the bar:  <br>
-<img src="images/bar_item.png" width="300"> <br>
-background_padding_left|-icon_padding_left-|-icon-|-icon_padding_right-|-label_padding_left-|-label-|-label_padding_right-|background_padding_right <br>
+A list of properties available to the *set* command is listed below (components might have additional properties, see the respective component section for them):
 
-A list of properties available to the *set* command is listed below:
+Geometry Properties:
 * *position*: Overrides the position set in the *add* command (*left*, *right*, *center*)
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
+* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*)
+* *y_offset*: the vertical offset of this item (default: 0)
+
+Icon properties:
 * *icon*: the icon of the item
 * *icon.font*: the font for the icon
 * *icon.color*: the color of the icon
@@ -213,6 +169,8 @@ A list of properties available to the *set* command is listed below:
 * *icon.padding_left*: left padding of icon (default: 0)
 * *icon.padding_right*: right padding of icon (default: 0)
 * *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+
+Label properties:
 * *label*: the label of the item
 * *label.font*: the font for the label
 * *label.color*: the color of the label
@@ -220,6 +178,8 @@ A list of properties available to the *set* command is listed below:
 * *label.padding_left*: left padding of label (default: 0)
 * *label.padding_right*: right padding of label (default: 0)
 * *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+
+Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
 * *background.color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
 * *background.height*: the height of the background, the background will always be centered vertically around the center of the item
@@ -228,90 +188,191 @@ A list of properties available to the *set* command is listed below:
 * *background.border_width*: the border width of the items background (default: 0)
 * *background.padding_left*: the left padding applied around the background of the item (default: 0)
 * *background.padding_right*: the right padding applied around the background of the item (default: 0)
-* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*) (HEAD only)
-* *y_offset*: the vertical offset of this item (default: 0)
-* *graph.color*: color of the associated graph
-* *graph.fill_color*: optional property to override the automatically calculated fill color of the graph
-* *graph.line_width*: sets the line width of the associated graph
+
+Scripting properties:
 * *update_freq*: time in seconds between script executions
 * *script*: a script to run every *update_freq* seconds
 * *click_script*: script to run when left clicking on item (Note: This is also possible via the *mouse_clicked* event, see #subscribing-items-to-system-events-for-their-script-execution)
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
 * *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
+
+Drawing properties:
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
 ### Changing the default values for all further items
 It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
 inherit these properties from the default item.
+
 ```bash
-sketchybar -m default <property> <value>
+sketchybar -m --default <property>=<value> ... <property>=<value>
 ```
-batching is again possible via:
-```bash
-sketchybar -m batch --default <property>=<value> ... <property>=<value>
-```
-this currently works for the properties:
-* *label.font*
-* *label.color*
-* *label.highlight_color*
-* *label.padding_left*
-* *label.padding_right*
-* *icon.font*
-* *icon.color*
-* *icon.highlight_color*
-* *icon.padding_left*
-* *icon.padding_right*
-* *background.drawing*
-* *background.height*
-* *background.color*
-* *background.border_color*
-* *background.corner_radius*
-* *background.border_width*
-* *y_offset*
-* *update_freq*
-* *script* (HEAD only)
-* *click_script* (HEAD only)
-* *cache_scripts*
-* *updates*
-* *drawing*
-* *lazy*
+this works for all item properties. 
 
 It is also possible to reset the defaults via the command
 ```bash
-sketchybar -m default reset
+sketchybar -m --default reset
 ```
 
-### Subscribing items to system events for their script execution
+## Components -- Special Items with special properties
+Components are essentially items, but with special properties. 
+Currently there are the components (more details in the corresponding sections below): 
+* *graph*: showing a graph,
+* *space*: representing a mission control space
+* *bracket*: brackets together other items
+* *alias*: a default menu bar item
+
+### Data Graph -- Draws an arbitrary graph into the bar
+```bash
+sketchybar -m --add graph <name> <position>
+```
+
+Additional graph properties:
+* *graph.color*: color of the associated graph
+* *graph.fill_color*: optional property to override the automatically calculated fill color of the graph
+* *graph.line_width*: sets the line width of the associated graph
+
+Push data points into the graph via:
+```bash
+sketchybar -m --push <name> <data point>
+```
+
+### Space -- Associate mission control spaces with an item
+```bash
+sketchybar -m --add space <name> <position>
+```
+The space component overrides the definition of the following properties and they must be set to correctly associate a mission control space with this item:
+* *associated_space*: Which space this item represents
+* *associated_display*: On which display the *associated_space* is shown.
+The space component has additional variables available in *scripts*:
+```bash
+$SELECTED
+$SID
+$DID
+```
+where *$SELECTED* has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
+*$SID* holds the space id and *$DID* the display id.
+
+By default the space component invokes the following script:
+```bash
+if [ "$SELECTED" = "true" ]; then 
+  sketchybar -m --set $NAME icon.highlight=on 
+else 
+  sketchybar -m --set $NAME icon.highlight=off 
+fi
+```
+which you can freely configure to your liking by supplying a different script to the space component:
+```bash
+sketchybar -m --set <name> script=<path to script>
+```
+
+For performance reasons the space script is only run on change.
+
+### Item Bracket -- Group Items in e.g. colored sections
+It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
+```bash 
+sketchybar -m --add bracket <name> <first item name> ... <n-th item name>
+```
+The first item must always be the one listed earliest in the config. It is now possible to 
+set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
+E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
+```bash 
+sketchybar -m --add bracket primary_spaces code                        \
+                                           writing                     \
+                                           reading                     \
+                                           entertainment               \
+                                                                       \
+              --set         primary_spaces background.color=0xffffffff \
+                                           background.corner_radius=4  \
+                                           background.height=20
+```
+this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
+
+### Item Alias -- Mirror items of the original macOS status bar into sketchybar
+It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. The default menu bar can be set to autohide and this should still work.
+
+Important: <br>
+I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
+
+It is now possible to create an alias of a default menu bar item with the following syntax:
+```bash
+sketchybar -m --add alias <application_name> <position>
+```
+this operation requires *screen capture permissions*, which should be granted in the system preferences.
+This will put the default item into sketchybar. 
+Aliases currently are not clickable but can be modified with all the options available for simple items.
+
+The command can be overloaded by providing a *window_owner* and a *window_name*
+```bash
+sketchybar -m --add alias <window_owner>,<window_name> <position>
+```
+this way the default system items can also be slurped into sketchybar, e.g.:
+Owner: "Control Center", Name: Bluetooth <br>
+Owner: "Control Center", Name: WiFi <br>
+
+Or the individual widgets of [Stats](https://github.com/exelban/stats):<br>
+Owner: Stats Name: CPU_Mini<br>
+etc...<br>
+
+All further default menu items currently available on your system can be found via the command:
+```bash
+sketchybar -m --query default_menu_items
+```
+
+This pushes the data point into the graph with name *name*.
+
+## Batching of configuration commands
+It is possible to batch commands together into a single call to sketchybar, this can be helpful to
+keep the configuration file a bit cleaner and also to reduce startup times.
+Assume 5 individual configuration calls to sketchybar:
+```bash
+sketchybar -m --bar position=top
+sketchybar -m --bar margin=5
+sketchybar -m --add item demo left
+sketchybar -m --set demo label=Hello
+sketchybar -m --subscribe demo system_woke
+```
+after each configuration command the bar is redrawn (if needed), thus it is more perfomant to append these calls into a single command like so:
+```bash
+sketchybar -m --bar position=top           \
+                    margin=5               \
+              --add item demo left         \
+              --set demo label=Hello       \
+              --subscribe demo system_woke
+```
+The backslash at the end of the first 4 lines is the default bash way to join lines together and should not be followed by a whitespace.  
+
+## Events and Scripting
 Any item can *subscribe* to arbitrary *events*, when the *event* happens, all items subscribed to the *event* will execute their *script*.
 This can be used to create more reactive and performant items which react to events rather than polling for a change.
 ```bash
-sketchybar -m subscribe <name> <event> ... <event>
-```
-the batching command is very similar:
-```bash
-sketchybar -m batch --subscribe <name> <event> ... <event>
+sketchybar -m --subscribe <name> <event> ... <event>
 ```
 where the events are:
-* *front_app_switched*: when frontmost application changes (not triggered if a different app of the same window is focused)
+* *front_app_switched*: when the frontmost application changes (not triggered if a different app of the same window is focused)
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
 * *system_woke*: when the system has awaken from sleep
-* *mouse_entered*: when the mouse enters over an item (HEAD only)
-* *mouse_exited*: when the mouse leaves an item (HEAD only)
-* *mouse_clicked*: when an item is clicked (HEAD only)
+* *mouse_entered*: when the mouse enters over an item
+* *mouse_exited*: when the mouse leaves an item
+* *mouse_clicked*: when an item is clicked
 
-HEAD only: <br>
 When an item is subscribed to these events the *script* is run and it gets passed the *$SENDER* variable, which holds exactly the above names, to distinguish between the different events.
 It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*. I will soon create an example an link it here.
+
+Alternatively a fixed *update_freq* can be *--set*, such that the event is routinely run to poll for change.
+
+When an item invokes a script, the script has access to some environment variables, such as:
+```bash
+$NAME
+$SENDER
+```
+Where *$NAME* is the name of the item that has invoked the script and *$SENDER* is the reason why the script is executed.
+
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash
-sketchybar -m add event <name> [optional: <NSDistributedNotificationName>]
-```
-and the batch version of this:
-```bash
-sketchybar -m batch --add event <name> [optional: <NSDistributedNotificationName>]
+sketchybar -m --add event <name> [optional: <NSDistributedNotificationName>]
 ```
 Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
 the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged" [example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842), or the
@@ -321,136 +382,45 @@ to create more responsive items.
 ### Triggering custom events
 This triggers a custom event that has been added before
 ```bash
-sketchybar -m trigger <event>
+sketchybar -m --trigger <event>
 ```
 This could be used to link the powerful event system of yabai to sketchybar by triggering the custom action via a yabai event.
 
-### Supplying data for graphs
-```bash
-sketchybar -m push <name> <data>
-```
-This pushes the data point into the graph with name *name*.
 
 ### Forcing all shell scripts to run and the bar to refresh
 ```bash
-sketchybar -m update
+sketchybar -m --update
 ```
-### Completely remove an item
-```bash
-sketchybar -m remove item <name>
-```
-This also works for components, just reference it by name.
 
 ## Querying
 *SketchyBar* can be queried for information about a number of things.
 ### Bar Properties
 Information about the bar can be queried via:
 ```bash
-sketchybar -m query bar
+sketchybar -m --query bar
 ```
 The output is a json structure containing relevant information about the configuration settings of the bar.
 ### Item Properties
 Information about an item can be queried via:
 ```bash
-sketchybar -m query item <name>
+sketchybar -m --query item <name>
 ```
 The output is a json structure containing relevant information about the configuration of the item.
 ### Default Properties
 Information about the current defaults.
 ```bash
-sketchybar -m query defaults
+sketchybar -m --query defaults
 ```
-## Scripting
-The bar supports scripts where ever possible to make it as customizable and versatile as possible.
-When an item invokes a script, the script has access to some environment variables, such as:
-```bash
-$NAME
-$SENDER (HEAD only)
-```
-Where *$NAME* is the name of the item that has invoked the script and *$SENDER* is the reason why the script is executed ($SENDER only on HEAD).
-The space component has additional variables:
-```bash
-$SELECTED
-$SID
-$DID
-```
-where $SELECTED has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
-$SID holds the space id and $DID the display id.
 
-By default the space component invokes the script:
-```bash
-if [ "$SELECTED" = "true" ]; then 
-  sketchybar -m set $NAME icon.highlight on 
-else 
-  sketchybar -m set $NAME icon.highlight off 
-fi
-```
-which you can freely configure to your liking by supplying a different script to the space component.
-For performance reasons the space script is only run on change.
-I plan on increasing the available environment variables in scripting step by step but if you have a suggestion let me know in the issues.
+## Performance optimizations
+*SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
 
-## Experimental Features
-These are highly experimental features that need some work, but are included on HEAD anyways, because they do not interfere with
-the rest of the bar.
-### Default Menu Bar Item Alias
-It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. This is still a bit janky though so please post the issues you encounter. The default menu bar can be set to autohide and this should still work.
-
-Important: <br>
-I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
-
-It is now possible to create an alias of a default menu bar item with the following syntax:
-```bash
-sketchybar -m add component alias <application_name> <position>
-```
-this operation requires screen capture permissions, which should be granted in the system preferences.
-This will put the default item into sketchybar. 
-Aliases currently are not clickable but can be modified with all the options available for simple items.
-
-The command can be overloaded by providing a *window_owner* and a *window_name*
-```bash
-sketchybar -m add component alias <window_owner>,<window_name> <position>
-```
-this way the default system items can also be slurped into sketchybar, e.g.:
-
-Owner: Control Center, Name: Bluetooth <br>
-Owner: Control Center, Name: WiFi <br>
-Owner: Control Center Name: Sound
-Owner: Control Center, Name: UserSwitcher <br>
-Owner: TextInputSwitcher, Name: Keyboard Input <br>
-Owner: SystemUIServer, Name: AppleTimeMachineExtra <br>
-
-Or the individual widgets of [Stats](https://github.com/exelban/stats):<br>
-Owner: Stats Name: CPU_Mini<br>
-Owner: Stats Name: RAM_Mini<br>
-Owner: Stats Name: Network_Speed<br>
-etc...<br>
-
-All further default menu items currently available on your system can be found via the command:
-```bash
-sketchybar -m query default_menu_items
-```
-### Group Items in a Bracket for e.g. colored sections
-This feature is only on HEAD currently.
-
-It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
-```bash 
-sketchybar -m add component bracket <name> <first item name> ... <n-th item name>
-```
-or with batching 
-```bash 
-sketchybar -m batch --add component bracket <name> <first item name> ... <n-th item name>
-```
-The first item must always be the one listed earliest in the config. It is now possible to 
-set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
-E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
-```bash 
-sketchybar -m batch --add       component bracket  primary_spaces code writing reading entertainment                   \
-                                                                                                                       \
-                    --set       primary_spaces     background.color=0xffffffff                                         \
-                                                   background.corner_radius=4                                          \
-                                                   background.height=20
-```
-this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
+* Batch together configuration commands where ever possible.
+* Set items to be *lazy*, e.g. I have an alias component in my bar that updates every *2* seconds, thus I set all *non-reactive* items to *lazy=on*, 
+and only the ones that should react to change instantaneously to *lazy=off*.
+* Set *updates=when_shown* for items that do not need to run their script if they are not rendered.
+* Reduce the *update_freq* of *scripts* and *aliases* and use event-driven scripting when ever possible.
+* Do not add *aliases* to apps that are not always running, otherwise sketchybar searches for them continously.
 
 ## Credits
 This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>

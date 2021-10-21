@@ -1,30 +1,21 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#define DOMAIN_BATCH                                        "batch"
-#define COMMAND_BATCH_BAR                                   "--bar"
-#define COMMAND_BATCH_ADD                                   "--add"
-#define COMMAND_BATCH_SET                                   "--set"
-#define COMMAND_BATCH_DEFAULT                               "--default"
-#define COMMAND_BATCH_SUBSCRIBE                             "--subscribe"
-
-#define DOMAIN_ADD                                          "add"
+#define DOMAIN_ADD                                          "--add"
 #define COMMAND_ADD_ITEM                                    "item"                                  
 #define COMMAND_ADD_COMPONENT                               "component"
 #define COMMAND_ADD_EVENT                                   "event"
 
-#define DOMAIN_REMOVE                                       "remove"
+#define DOMAIN_UPDATE                                       "--update"
 
-#define DOMAIN_UPDATE                                       "update"
+#define DOMAIN_PUSH                                         "--push"
 
-#define DOMAIN_PUSH                                         "push"
+#define DOMAIN_TRIGGER                                      "--trigger"
 
-#define DOMAIN_TRIGGER                                      "trigger"
-
-#define DOMAIN_DEFAULT                                      "default"
+#define DOMAIN_DEFAULT                                      "--default"
 #define COMMAND_DEFAULT_RESET                               "reset"
 
-#define DOMAIN_SET                                          "set"
+#define DOMAIN_SET                                          "--set"
 
 #define SUB_DOMAIN_ICON                                     "icon"
 #define SUB_DOMAIN_LABEL                                    "label"
@@ -60,7 +51,7 @@
 #define PROPERTY_CACHE_SCRIPTS                              "cache_scripts"
 #define PROPERTY_LAZY                                       "lazy"
 
-#define DOMAIN_BAR                                          "bar"
+#define DOMAIN_BAR                                          "--bar"
 #define PROPERTY_POSITION                                   "position"
 #define PROPERTY_MARGIN                                     "margin"
 #define PROPERTY_DISPLAY                                    "display"
@@ -68,7 +59,7 @@
 #define PROPERTY_HIDDEN                                     "hidden"
 #define PROPERTY_FONT_SMOOTHING                             "font_smoothing"
 
-#define DOMAIN_SUBSCRIBE                                    "subscribe"
+#define DOMAIN_SUBSCRIBE                                    "--subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
 #define COMMAND_SUBSCRIBE_SPACE_CHANGE                      "space_change"
 #define COMMAND_SUBSCRIBE_DISPLAY_CHANGE                    "display_change"
@@ -77,7 +68,7 @@
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED                      "mouse.exited"
 #define COMMAND_SUBSCRIBE_MOUSE_CLICKED                     "mouse.clicked"
 
-#define DOMAIN_QUERY                                        "query"
+#define DOMAIN_QUERY                                        "--query"
 #define COMMAND_QUERY_DEFAULT_ITEMS                         "default_menu_items"
 #define COMMAND_QUERY_ITEM                                  "item"
 #define COMMAND_QUERY_DEFAULTS                              "defaults"

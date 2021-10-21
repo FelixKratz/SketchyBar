@@ -231,7 +231,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
-  if (bar_manager->frozen) return;
+  if (bar_manager->frozen && !forced) return;
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     needs_refresh |= bar_item_update(bar_manager->bar_items[i], NULL, forced);

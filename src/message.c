@@ -55,22 +55,9 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   graph_push_back(&bar_item->graph, token_to_float(y));
   bar_item_needs_update(bar_item);
-  if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
 }
 
-// Syntax: sketchybar -m remove <item>
-static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
-  struct token command  = get_token(&message);
-  if (token_equals(command, COMMAND_ADD_ITEM) || token_equals(command, COMMAND_ADD_COMPONENT)) {
-    struct token name = get_token(&message);
-    int index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-    if (index < 0) return;
-    bar_manager_destroy_item(&g_bar_manager, g_bar_manager.bar_items[index]);
-  }
-  bar_manager_refresh(&g_bar_manager, true);
-}
-
-// Syntax: sketchybar -m add <item|component|plugin> (<identifier>) <name> <position>
+// Syntax: sketchybar -m add <item|component identifer> <name> <position>
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
 
@@ -91,11 +78,10 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     position = get_token(&message);
     bar_item->position = position.text[0];
     bar_item_set_type(bar_item, BAR_ITEM);
-  } else if (token_equals(command, COMMAND_ADD_COMPONENT)) {
-    struct token identifier = get_token(&message);
+  } else if (command.length > 0) {
     name = get_token(&message);
 
-    bar_item_set_type(bar_item, identifier.text[0]);
+    bar_item_set_type(bar_item, command.text[0]);
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       position = get_token(&message);
       bar_item->position = position.text[0];
@@ -139,7 +125,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   }
 
   bar_item_set_name(bar_item, token_to_string(name));
-  bar_manager_refresh(&g_bar_manager, true);
+  bar_item_needs_update(bar_item);
 }
 
 static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* bar_item, char* message) {
@@ -233,25 +219,9 @@ static void handle_domain_default(FILE* rsp, struct token domain, char* message)
   message_parse_set_message_for_bar_item(rsp, &g_bar_manager.default_item, message);
 }
 
-// Syntax: sketchybar -m set <name> <property> <value>
-static void handle_domain_set(FILE* rsp, struct token domain, char* message) {
-  struct token name  = get_token(&message);
-
-  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-  if (item_index_for_name < 0) {
-    fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-    printf("Name: %s not found in bar items \n", name.text);
-    return;
-  }
-  struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-  message_parse_set_message_for_bar_item(rsp, bar_item, message);
-  if (bar_item_is_shown(bar_item)) bar_manager_refresh(&g_bar_manager, false);
-}
-
-static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
+static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   struct token command  = get_token(&message);
   bool needs_refresh = false;
-
 
   if (token_equals(command, PROPERTY_MARGIN)) {
     struct token token = get_token(&message);
@@ -306,10 +276,9 @@ static void handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   else
     needs_refresh = background_parse_sub_domain(&g_bar_manager.background, rsp, command, message);
 
-  if (needs_refresh) {
-    bar_manager_resize(&g_bar_manager);
-    bar_manager_refresh(&g_bar_manager, true);
-  }
+  return needs_refresh;
+
+  
 }
 
 static char* reformat_batch_key_value_pair(struct token token) {
@@ -337,64 +306,6 @@ static char* get_batch_line(char** message) {
   else *message = cursor + 1;
   return rbr_msg;
 }
-// Syntax: sketchybar -m batch --<mode> <key>=<value> ... <key>=<value> \
-//                             --<mode> <key>=<value> ... <key>=<value>
-static void handle_domain_batch(FILE* rsp, struct token domain, char* message) {
-  bar_manager_freeze(&g_bar_manager);
-  struct token command = get_token(&message);
-  while (command.text && command.length > 0) {
-    if (token_equals(command, COMMAND_BATCH_SET)) {
-      struct token name  = get_token(&message);
-      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-      if (item_index_for_name < 0) {
-        fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-        printf("Name: %s not found in bar items \n", name.text);
-        break;
-      }
-      struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-      struct token token = get_token(&message);
-      while (token.text && token.length > 0) {
-        char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
-        message_parse_set_message_for_bar_item(rsp, bar_item, rbr_msg);
-        free(rbr_msg);
-        if (message && message[0] == '-') break;
-        token = get_token(&message);
-      }
-    } else if (token_equals(command, COMMAND_BATCH_DEFAULT)) {
-      struct token token = get_token(&message);
-      while (token.text && token.length > 0) {
-        char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
-        handle_domain_default(rsp, domain, rbr_msg);
-        free(rbr_msg);
-        if (message && message[0] == '-') break;
-        token = get_token(&message);
-      }
-    } else if (token_equals(command, COMMAND_BATCH_BAR)) {
-      struct token token = get_token(&message);
-      while (token.text && token.length > 0) {
-        char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
-        handle_domain_bar(rsp, domain, rbr_msg);
-        free(rbr_msg);
-        if (message && message[0] == '-') break;
-        token = get_token(&message);
-      }
-    } else if (token_equals(command, COMMAND_BATCH_ADD)) {
-      char* rbr_msg = get_batch_line(&message);
-      handle_domain_add(rsp, domain, rbr_msg);
-      free(rbr_msg);
-    } else if (token_equals(command, COMMAND_BATCH_SUBSCRIBE)) {
-      char* rbr_msg = get_batch_line(&message);
-      handle_domain_subscribe(rsp, domain, rbr_msg);
-      free(rbr_msg);
-    }
-    command = get_token(&message);
-  }
-  bar_manager_unfreeze(&g_bar_manager);
-  bar_manager_refresh(&g_bar_manager, false);
-}
 
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
@@ -415,43 +326,89 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(token, COMMAND_QUERY_DEFAULTS)) {
     bar_item_serialize(&g_bar_manager.default_item, rsp);
   }
-
 }
 
 void handle_message(int sockfd, char* message) {
   FILE* rsp = fdopen(sockfd, "w");
 
-  struct token domain = get_token(&message);
-
-  if (token_equals(domain, DOMAIN_SET)){
-    handle_domain_set(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_BATCH)){
-    handle_domain_batch(rsp, domain, message); 
-  } else if (token_equals(domain, DOMAIN_PUSH)) {
-    handle_domain_push(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_BAR)) {
-    handle_domain_bar(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_ADD)){
-    handle_domain_add(rsp, domain, message); 
-  } else if (token_equals(domain, DOMAIN_REMOVE)){
-    handle_domain_remove(rsp, domain, message); 
-  } else if (token_equals(domain, DOMAIN_UPDATE)) {
-    bar_manager_update_space_components(&g_bar_manager, true);
-    bar_manager_update(&g_bar_manager, true);
-    bar_manager_refresh(&g_bar_manager, true);
-  } else if (token_equals(domain, DOMAIN_SUBSCRIBE)) {
-    handle_domain_subscribe(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_DEFAULT)) {
-    handle_domain_default(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_TRIGGER)) {
-    handle_domain_trigger(rsp, domain, message);
-  } else if (token_equals(domain, DOMAIN_QUERY)) {
-    handle_domain_query(rsp, domain, message);
-  } else {
-    fprintf(rsp, "unknown domain '%.*s'\n", domain.length, domain.text);
-    printf("unknown domain '%.*s'\n", domain.length, domain.text);
+  bar_manager_freeze(&g_bar_manager);
+  struct token command = get_token(&message);
+  bool bar_needs_refresh = false;
+  while (command.text && command.length > 0) {
+    if (token_equals(command, DOMAIN_SET)) {
+      struct token name  = get_token(&message);
+      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+      if (item_index_for_name < 0) {
+        fprintf(rsp, "Name: %s not found in bar items \n", name.text);
+        printf("Name: %s not found in bar items \n", name.text);
+        break;
+      }
+      struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        message_parse_set_message_for_bar_item(rsp, bar_item, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, DOMAIN_DEFAULT)) {
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        handle_domain_default(rsp, command, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, DOMAIN_BAR)) {
+      struct token token = get_token(&message);
+      while (token.text && token.length > 0) {
+        char* rbr_msg = reformat_batch_key_value_pair(token);
+        if (!rbr_msg) break;
+        bar_needs_refresh |= handle_domain_bar(rsp, command, rbr_msg);
+        free(rbr_msg);
+        if (message && message[0] == '-') break;
+        token = get_token(&message);
+      }
+    } else if (token_equals(command, DOMAIN_ADD)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_add(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_SUBSCRIBE)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_subscribe(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_PUSH)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_push(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_UPDATE)) {
+      bar_manager_update_space_components(&g_bar_manager, true);
+      bar_manager_update(&g_bar_manager, true);
+      bar_needs_refresh = true;
+    } else if (token_equals(command, DOMAIN_TRIGGER)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_trigger(rsp, command, message);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_QUERY)) {
+      handle_domain_query(rsp, command, message);
+    } else {
+      fprintf(rsp, "unknown domain '%.*s'\n", command.length, command.text);
+      printf("unknown domain '%.*s'\n", command.length, command.text);
+    }
+    command = get_token(&message);
   }
-
+  bar_manager_unfreeze(&g_bar_manager);
+  if (bar_needs_refresh) {
+    bar_manager_resize(&g_bar_manager);
+    bar_manager_refresh(&g_bar_manager, true);
+  }
+  else {
+    bar_manager_refresh(&g_bar_manager, false);
+  }
   if (rsp) fclose(rsp);
 }
 

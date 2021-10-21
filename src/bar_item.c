@@ -13,19 +13,31 @@ struct bar_item* bar_item_create() {
   return bar_item;
 }
 
+void bar_item_clear_pointers(struct bar_item* bar_item) {
+  bar_item->name = NULL;
+  bar_item->script = NULL;
+  bar_item->click_script = NULL;
+  bar_item->bounding_rects = NULL;
+  bar_item->group = NULL;
+  text_clear_pointers(&bar_item->icon);
+  text_clear_pointers(&bar_item->label);
+}
+
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
-  bar_item->lazy = ancestor->lazy;
-  bar_item->updates = ancestor->updates;
-  bar_item->updates_only_when_shown = ancestor->updates_only_when_shown;
-  bar_item->drawing = ancestor->drawing;
-  
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
   
-  bar_item->icon = ancestor->icon;
-  bar_item->label = ancestor->label;
-  text_clear_pointers(&bar_item->icon);
-  text_clear_pointers(&bar_item->label);
+  char* name = bar_item->name;
+  char* script = bar_item->name;
+  char* click_script = bar_item->name;
+
+  memcpy(bar_item, ancestor, sizeof(struct bar_item));
+
+  bar_item_clear_pointers(bar_item);
+  bar_item->name = name;
+  bar_item->script = script;
+  bar_item->click_script = click_script;
+
   text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
   text_set_font(&bar_item->label, string_copy(ancestor->label.font_name), true);
   text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
@@ -33,12 +45,6 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
 
   bar_item_set_script(bar_item, string_copy(ancestor->script));
   bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
-
-  bar_item->update_frequency = ancestor->update_frequency;
-  bar_item->cache_scripts = ancestor->cache_scripts;
-
-  bar_item->background = ancestor->background;
-  bar_item->y_offset = ancestor->y_offset;
 }
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
@@ -50,12 +56,9 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->selected = false;
   bar_item->mouse_over = false;
   bar_item->counter = 0;
-  bar_item->name = "";
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
-  bar_item->script = "";
-  bar_item->click_script = "";
   bar_item->position = BAR_POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
@@ -69,8 +72,13 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->bounding_rects = NULL;
   bar_item->group = NULL;
 
+  
   bar_item->has_alias = false;
   bar_item->has_graph = false;
+
+  bar_item->name = string_copy("");
+  bar_item->script = string_copy("");
+  bar_item->click_script = string_copy("");
 
   text_init(&bar_item->icon);
   text_init(&bar_item->label);
@@ -172,9 +180,9 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
   if (type == BAR_COMPONENT_SPACE) {
     bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
-                                                "sketchybar -m set $NAME icon.highlight on;"
+                                                "sketchybar -m --set $NAME icon.highlight=on;"
                                               "else "
-                                                "sketchybar -m set $NAME icon.highlight off;"
+                                                "sketchybar -m --set $NAME icon.highlight=off;"
                                               " fi"));
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
