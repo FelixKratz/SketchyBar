@@ -224,7 +224,7 @@ Currently there are the components (more details in the corresponding sections b
 
 ### Data Graph -- Draws an arbitrary graph into the bar
 ```bash
-sketchybar -m --add graph <name> <position>
+sketchybar -m --add graph <name> <position> <width in points>
 ```
 
 Additional graph properties:

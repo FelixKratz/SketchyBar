@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$SELECTED" = "true" ]; then
-  sketchybar -m batch --set $NAME label_highlight=on icon_highlight=on
+  sketchybar -m --set $NAME label.highlight=on icon.highlight=on
 else
-  sketchybar -m batch --set $NAME label_highlight=off icon_highlight=off
+  sketchybar -m --set $NAME label.highlight=off icon.highlight=off
 fi

@@ -9,6 +9,7 @@ and contain *<key>=<value>* pairs. If you have used the batch syntax exclusively
 * The keyword *component* has been trimmed, simply delete all occurences of *component* in the configuration.
 
 ## Renamed Properties
+*--set*:
 * *icon_font* -> *icon.font*
 * *icon_color* -> *icon.color*
 * *icon_highlight_color* -> *icon.highlight_color*
@@ -33,6 +34,16 @@ and contain *<key>=<value>* pairs. If you have used the batch syntax exclusively
 * *graph_fill_color* -> *graph.fill_color*
 * *graph_line_width* -> *graph.line_width*
 
+Easy renaming: simply find and replace the follwing strings 
+* *icon_* -> *icon.*
+* *label_* -> *label.*
+* *background_* -> *background.*
+* *graph_* -> *graph.*
+* *draws_background* -> *background.drawing*
+
+*--bar*:
+* *bar_color* -> *color*
+
 ## Removed Modifiers
 * *nospace* modifier has been removed in favour of the *width* property. Set *width=0* for equivalent behaviour
 
@@ -42,6 +53,7 @@ and contain *<key>=<value>* pairs. If you have used the batch syntax exclusively
 * *add* -> *--add*
 * *query* -> *--query*
 * *update* -> *--update*
+* *push* -> *--push*
 * *trigger* -> *--trigger*
 * *subscribe* -> *--subscribe*
 * *default* -> *--default*
