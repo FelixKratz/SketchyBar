@@ -180,13 +180,10 @@ void bar_draw_bar_items(struct bar* bar) {
   SLSReenableUpdate(g_connection);
 }
 
-uint32_t g_count = 0;
 void bar_redraw(struct bar* bar) {
   if (bar->hidden) return;
   if (bar->sid == 0) return;
 
-  g_count++;
-  printf("Draw Call %d for bar on display: %d\n", g_count, bar->adid);
   int bar_left_final_item_x = g_bar_manager.background.padding_left;
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_manager_get_center_length_for_bar(&g_bar_manager, bar)) / 2;
