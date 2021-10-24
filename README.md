@@ -123,7 +123,7 @@ where the settings currently are:
 * *blur_radius*: the blur radius to be applied to the background of the bar
 * *padding_left*: padding on the left before first item 
 * *padding_right*: just as padding_right
-* *bar_color*: the color of the bar
+* *color*: the color of the bar
 * *display*: on which display to show bar (*main* or *all*)
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
