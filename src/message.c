@@ -391,7 +391,7 @@ void handle_message(int sockfd, char* message) {
       bar_needs_refresh = true;
     } else if (token_equals(command, DOMAIN_TRIGGER)) {
       char* rbr_msg = get_batch_line(&message);
-      handle_domain_trigger(rsp, command, message);
+      handle_domain_trigger(rsp, command, rbr_msg);
       free(rbr_msg);
     } else if (token_equals(command, DOMAIN_QUERY)) {
       handle_domain_query(rsp, command, message);
