@@ -90,7 +90,8 @@ static int client_send_message(int argc, char **argv) {
         { sockfd, POLLIN, 0 }
     };
 
-    while (poll(fds, 1, -1) > 0) {
+    int timeout = 50;
+    while (poll(fds, 1, timeout) > 0) {
         if (fds[0].revents & POLLIN) {
             if ((byte_count = recv(sockfd, rsp, sizeof(rsp)-1, 0)) <= 0) {
                 break;
