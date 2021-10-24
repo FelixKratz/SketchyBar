@@ -394,7 +394,9 @@ void handle_message(int sockfd, char* message) {
       handle_domain_trigger(rsp, command, rbr_msg);
       free(rbr_msg);
     } else if (token_equals(command, DOMAIN_QUERY)) {
-      handle_domain_query(rsp, command, message);
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_query(rsp, command, rbr_msg);
+      free(rbr_msg);
     } else {
       fprintf(rsp, "unknown domain '%.*s'\n", command.length, command.text);
       printf("unknown domain '%.*s'\n", command.length, command.text);
