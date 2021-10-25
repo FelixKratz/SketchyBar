@@ -406,6 +406,16 @@ Information about the current defaults.
 ```bash
 sketchybar -m --query defaults
 ```
+## Ordering
+It is possible to reorder items by invoking
+```bash 
+sketchybar -m --reorder <name> ... <name>
+```
+where a new order can be supplied for arbitrary items. Only the specified items get reordered, by swapping them around, everything else stays the same. E.g. if you want to swap two items 
+simply call
+```bash 
+sketchybar -m --reorder <item 1> <item 2>
+```
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 

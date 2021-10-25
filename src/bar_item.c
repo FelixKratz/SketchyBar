@@ -350,16 +350,16 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"label.padding_right\": %d\n"
                "\t},\n"
                "\t\"style\": {\n"
-               "\t\t\"icon.color:\": \"0x%x\",\n"
+               "\t\t\"icon.color\": \"0x%x\",\n"
                "\t\t\"icon.highlight_color:\": \"0x%x\",\n"
-               "\t\t\"label.color:\": \"0x%x\",\n"
+               "\t\t\"label.color\": \"0x%x\",\n"
                "\t\t\"label.highlight_color:\": \"0x%x\",\n"
                "\t\t\"background.drawing\": %d,\n"
                "\t\t\"background.height\": %u,\n"
                "\t\t\"background.corner_radius\": %u,\n"
                "\t\t\"background.border_width\": %u,\n"
-               "\t\t\"background.color:\": \"0x%x\",\n"
-               "\t\t\"background.border_color:\": \"0x%x\"\n"
+               "\t\t\"background.color\": \"0x%x\",\n"
+               "\t\t\"background.border_color\": \"0x%x\"\n"
                "\t},\n"
                "\t\"state\": {\n"
                "\t\t\"drawing\": %d,\n"
@@ -405,8 +405,10 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->associated_space,
                bar_item->update_mask);
 
+  int counter = 0;
   for (int i = 0; i < bar_item->num_rects; i++) {
     if (!bar_item->bounding_rects[i]) continue;
+    if (counter++ > 0) fprintf(rsp, ",\n");
     fprintf(rsp, "\t\t\"display-%d\": {\n"
             "\t\t\t\"origin\": [ %f, %f ],\n"
             "\t\t\t\"size\": [ %f, %f ]\n\t\t}",
@@ -415,7 +417,6 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
             bar_item->bounding_rects[i]->origin.y,
             bar_item->bounding_rects[i]->size.width,
             bar_item->bounding_rects[i]->size.height);
-    if (i < bar_item->num_rects - 1) fprintf(rsp, ",\n");
   } 
   fprintf(rsp, "\n\t}\n}\n");
 }

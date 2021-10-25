@@ -52,6 +52,7 @@ void bar_manager_set_display(struct bar_manager* bar_manager, char* display);
 void bar_manager_set_hidden(struct bar_manager* bar_manager, uint32_t sid, bool hidden);
 void bar_manager_set_topmost(struct bar_manager* bar_manager, bool topmost);
 void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
+void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);
 uint32_t bar_manager_get_center_length_for_bar(struct bar_manager* bar_manager, struct bar* bar);

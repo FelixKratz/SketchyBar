@@ -15,6 +15,7 @@
 #define DOMAIN_DEFAULT                                      "--default"
 #define COMMAND_DEFAULT_RESET                               "reset"
 
+#define DOMAIN_REORDER                                      "--reorder"
 #define DOMAIN_SET                                          "--set"
 
 #define SUB_DOMAIN_ICON                                     "icon"

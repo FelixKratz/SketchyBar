@@ -327,6 +327,25 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   }
 }
 
+static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
+  struct bar_item* ordering[g_bar_manager.bar_item_count];
+  memset(ordering, 0, sizeof(struct bar_item*)*g_bar_manager.bar_item_count);
+
+  uint32_t count = 0;
+  struct token name = get_token(&message);
+  while (name.text && name.length > 0) {
+    int index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    if (index < 0) continue;
+    ordering[count] = g_bar_manager.bar_items[index];
+    count++;
+
+    name = get_token(&message);
+  }
+
+  bar_manager_sort(&g_bar_manager, ordering, count);
+  bar_manager_refresh(&g_bar_manager, false);
+}
+
 void handle_message(int sockfd, char* message) {
   FILE* rsp = fdopen(sockfd, "w");
 
@@ -396,9 +415,15 @@ void handle_message(int sockfd, char* message) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_query(rsp, command, rbr_msg);
       free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_REORDER)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_order(rsp, command, rbr_msg);
+      free(rbr_msg);
     } else {
-      fprintf(rsp, "unknown domain '%.*s'\n", command.length, command.text);
-      printf("unknown domain '%.*s'\n", command.length, command.text);
+      char* rbr_msg = get_batch_line(&message);
+      fprintf(rsp, "unknown domain %s\n", command.text);
+      printf("unknown domain %s\n", command.text);
+      free(rbr_msg);
     }
     command = get_token(&message);
   }

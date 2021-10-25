@@ -13,6 +13,24 @@ static SHELL_TIMER_CALLBACK(shell_timer_handler) {
   event_loop_post(&g_event_loop, event);
 }
 
+void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count) {
+  int index = 0;
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    for (int j = 0; j < count; j++) {
+      if (bar_manager->bar_items[i] == ordering[j] && bar_manager->bar_items[i] != ordering[index]) {
+        bar_manager->bar_items[i] = ordering[index];
+        index++;
+        bar_item_needs_update(bar_manager->bar_items[i]);
+        break;
+      }
+      else if (bar_manager->bar_items[i] == ordering[j] && bar_manager->bar_items[i] == ordering[index]) {
+        index++;
+        break;
+      }
+    }
+  }
+}
+
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if (strcmp(bar_manager->bar_items[i]->name, name) == 0) {
