@@ -76,9 +76,11 @@
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_TRUE                            "true"
+#define ARGUMENT_COMMON_VAL_ONE                             "1"
 #define ARGUMENT_COMMON_VAL_YES                             "yes"
 #define ARGUMENT_COMMON_VAL_OFF                             "off"
 #define ARGUMENT_COMMON_VAL_FALSE                           "false"
+#define ARGUMENT_COMMON_VAL_ZERO                            "0"
 #define ARGUMENT_COMMON_VAL_NO                              "no"
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
 

@@ -14,7 +14,7 @@ extern struct bar_manager g_bar_manager;
 extern bool g_verbose;
 
 static bool evaluate_boolean_state(struct token state, bool previous_state) {
-  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE)) return true;
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE) || token_equals(state, ARGUMENT_COMMON_VAL_ONE)) return true;
   else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
   else return false;
 }
@@ -69,32 +69,26 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   } 
 
-  struct token name;
-  struct token position;
+  struct token name = get_token(&message);
+  struct token position = get_token(&message);
+  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) > 0) {
+    printf("Item %s already exists \n", name.text);
+    fprintf(rsp, "Item %s already exists \n", name.text);
+    return;
+  } 
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
-  if (token_equals(command, COMMAND_ADD_ITEM)) {
-    name = get_token(&message);
-    position = get_token(&message);
-    bar_item->position = position.text[0];
-    bar_item_set_type(bar_item, BAR_ITEM);
-  } else if (command.length > 0) {
-    name = get_token(&message);
+  bar_item_set_type(bar_item, command.text[0]);
+  bar_item->position = position.text[0];
+  bar_item_set_name(bar_item, token_to_string(name));
 
-    bar_item_set_type(bar_item, command.text[0]);
+  if (token_equals(command, COMMAND_ADD_ITEM)) {
+  } else if (command.length > 0) {
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
-      position = get_token(&message);
-      bar_item->position = position.text[0];
       struct token width = get_token(&message);
       graph_init(&bar_item->graph, token_to_uint32t(width));
     }
-    else if (bar_item->type == BAR_COMPONENT_SPACE) {
-      position = get_token(&message);
-      bar_item->position = position.text[0];
-    }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
-      position = get_token(&message);
-      bar_item->position = position.text[0];
       char* owner = NULL;
       char* nme = NULL;
       char* tmp_name = string_copy(name.text);
@@ -106,7 +100,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       free(tmp_name);
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
-      struct token member = get_token(&message);
+      struct token member = position;
       while (member.text && member.length > 0) {
         int index = bar_manager_get_item_index_for_name(&g_bar_manager, member.text);
         if (index >= 0)
@@ -124,7 +118,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     return;
   }
 
-  bar_item_set_name(bar_item, token_to_string(name));
   bar_item_needs_update(bar_item);
 }
 
@@ -186,18 +179,24 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     bar_item->position = get_token(&message).text[0];
   } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
     struct token token = get_token(&message);
+    uint32_t prev = bar_item->associated_space;
+    bar_item->associated_space = 0;
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
       bar_item_append_associated_space(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
+    needs_update = prev != bar_item->associated_space;
   } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)) {
     struct token token = get_token(&message);
+    uint32_t prev = bar_item->associated_display;
+    bar_item->associated_display = 0;
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
       bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
     }
+    needs_update = prev != bar_item->associated_display;
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {

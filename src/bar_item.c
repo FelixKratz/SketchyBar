@@ -93,6 +93,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
 }
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
+  if (bar_item->associated_space & bit) return;
   bar_item->associated_space |= bit;
   if (bar_item->type == BAR_COMPONENT_SPACE) {
     bar_item->associated_space = bit;
@@ -103,6 +104,7 @@ void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
 }
 
 void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit) {
+  if (bar_item->associated_display & bit) return;
   bar_item->associated_display |= bit;
   if (bar_item->type == BAR_COMPONENT_SPACE) {
     bar_item->associated_display = bit;
@@ -179,11 +181,13 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
 
   if (type == BAR_COMPONENT_SPACE) {
-    bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
-                                                "sketchybar -m --set $NAME icon.highlight=on;"
-                                              "else "
-                                                "sketchybar -m --set $NAME icon.highlight=off;"
-                                              " fi"));
+    if (strlen(bar_item->script) == 0) { 
+        bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
+                                                    "sketchybar -m --set $NAME icon.highlight=on;"
+                                                  "else "
+                                                    "sketchybar -m --set $NAME icon.highlight=off;"
+                                                  " fi")); 
+    }
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
@@ -332,30 +336,30 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\"text\": {\n"
                "\t\t\"icon\": \"%s\",\n"
                "\t\t\"label\": \"%s\",\n"
-               "\t\t\"icon_font\": \"%s\",\n"
-               "\t\t\"label_font\": \"%s\"\n"
+               "\t\t\"icon.font\": \"%s\",\n"
+               "\t\t\"label.font\": \"%s\"\n"
                "\t},\n"
                "\t\"geometry\": {\n"
                "\t\t\"position\": \"%c\",\n"
-               "\t\t\"nospace\": %d,\n"
-               "\t\t\"background_padding_left\": %d,\n"
-               "\t\t\"background_padding_right\": %d,\n"
-               "\t\t\"icon_padding_left\": %d,\n"
-               "\t\t\"icon_padding_right\": %d,\n"
-               "\t\t\"label_padding_left\": %d,\n"
-               "\t\t\"label_padding_right\": %d\n"
+               "\t\t\"fixed_width\": %d,\n"
+               "\t\t\"background.padding_left\": %d,\n"
+               "\t\t\"background.padding_right\": %d,\n"
+               "\t\t\"icon.padding_left\": %d,\n"
+               "\t\t\"icon.padding_right\": %d,\n"
+               "\t\t\"label.padding_left\": %d,\n"
+               "\t\t\"label.padding_right\": %d\n"
                "\t},\n"
                "\t\"style\": {\n"
-               "\t\t\"icon_color:\": \"0x%x\",\n"
-               "\t\t\"icon_highlight_color:\": \"0x%x\",\n"
-               "\t\t\"label_color:\": \"0x%x\",\n"
-               "\t\t\"label_highlight_color:\": \"0x%x\",\n"
-               "\t\t\"draws_background\": %d,\n"
-               "\t\t\"background_height\": %u,\n"
-               "\t\t\"background_corner_radius\": %u,\n"
-               "\t\t\"background_border_width\": %u,\n"
-               "\t\t\"background_color:\": \"0x%x\",\n"
-               "\t\t\"background_border_color:\": \"0x%x\"\n"
+               "\t\t\"icon.color:\": \"0x%x\",\n"
+               "\t\t\"icon.highlight_color:\": \"0x%x\",\n"
+               "\t\t\"label.color:\": \"0x%x\",\n"
+               "\t\t\"label.highlight_color:\": \"0x%x\",\n"
+               "\t\t\"background.drawing\": %d,\n"
+               "\t\t\"background.height\": %u,\n"
+               "\t\t\"background.corner_radius\": %u,\n"
+               "\t\t\"background.border_width\": %u,\n"
+               "\t\t\"background.color:\": \"0x%x\",\n"
+               "\t\t\"background.border_color:\": \"0x%x\"\n"
                "\t},\n"
                "\t\"state\": {\n"
                "\t\t\"drawing\": %d,\n"
@@ -375,7 +379,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->icon.font_name,
                bar_item->label.font_name,
                bar_item->position,
-               bar_item->has_const_width && bar_item->custom_width == 0,
+               bar_item->has_const_width ? bar_item->custom_width : -1,
                bar_item->background.padding_left,
                bar_item->background.padding_right,
                bar_item->icon.padding_left,

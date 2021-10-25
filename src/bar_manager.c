@@ -344,7 +344,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t\t\"padding_right\": %u\n"
                "\t},\n"
                "\t\"style\": {\n"
-               "\t\t\"background_color\": \"0x%x\",\n"
+               "\t\t\"color\": \"0x%x\",\n"
                "\t\t\"border_color\": \"0x%x\",\n"
                "\t\t\"blur_radius\": %u\n"
                "\t},\n"
