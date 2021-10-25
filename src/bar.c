@@ -134,10 +134,8 @@ void bar_draw_bar_items(struct bar* bar) {
 
       if (!bar_item->queued_for_redraw || !bar_draws_item(bar, bar_item)) continue;
       if (atomic_redraw && bar_item->num_rects >= bar->adid && bar_item->bounding_rects[bar->adid - 1]) {
-        bar_item->bounding_rects[bar->adid - 1]->origin.x -= bar->origin.x;
-        bar_item->bounding_rects[bar->adid - 1]->origin.y -= bar->origin.y;
         CGRect draw_region = {{bar_item->bounding_rects[bar->adid - 1]->origin.x - bar->origin.x, 0},
-                          {bar_item->bounding_rects[bar->adid - 1]->size.width, bar->frame.size.height}};
+                              {bar_item->bounding_rects[bar->adid - 1]->size.width, bar->frame.size.height}};
         draw_rect(bar->context, CGRectInset(draw_region, g_bar_manager.background.border_width, 0), &g_bar_manager.background.color, 0, 0, &g_bar_manager.background.border_color, true);
       }
       atomic_redraw &= bar_item->redraw_in_place;
@@ -153,6 +151,9 @@ void bar_draw_bar_items(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
+      SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+
     if (!bar_item->queued_for_redraw && atomic_redraw) continue;
 
     bar_item_remove_associated_bar(bar_item, bar->adid);
@@ -160,9 +161,6 @@ void bar_draw_bar_items(struct bar* bar) {
 
     struct text_line* label = &bar_item->label.line;
     struct text_line* icon = &bar_item->icon.line;
-
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
-      SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
 
     bar_item_append_associated_bar(bar_item, bar->adid);
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin);
@@ -269,8 +267,9 @@ void bar_redraw(struct bar* bar) {
     bar_item->redraw_in_place = false;
     if (g_bar_manager.picky_redraw) {
       if (bar_item->num_rects >= bar->adid && bar_item->bounding_rects[bar->adid - 1]) {
-        if (bar_item->bounding_rects[bar->adid - 1]->origin.x == icon_position.x - bar_item->icon.padding_left + bar->origin.x && !bar_item->needs_update)
+        if ((bar_item->bounding_rects[bar->adid - 1]->origin.x == icon_position.x - bar_item->icon.padding_left + bar->origin.x) && !bar_item->needs_update) {
           bar_item->queued_for_redraw = false;
+        }
         else if (bar_item->bounding_rects[bar->adid - 1]->origin.x == icon_position.x - bar_item->icon.padding_left + bar->origin.x 
                  && bar_item->needs_update 
                  && bar_item->bounding_rects[bar->adid - 1]->size.width >= bar_item_construct_bounding_rect(bar_item).size.width)
