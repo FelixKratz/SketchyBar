@@ -70,6 +70,7 @@ Table of Contents
       * [Bar Properties](#bar-properties)
       * [Item Properties](#item-properties)
       * [Default Properties](#default-properties)
+   * [Ordering](#ordering)
    * [Performance optimizations](#performance-optimizations)
    * [Credits](#credits)
 
@@ -407,6 +408,7 @@ Information about the current defaults.
 sketchybar -m --query defaults
 ```
 ## Ordering
+Currently only on HEAD.
 It is possible to reorder items by invoking
 ```bash 
 sketchybar -m --reorder <name> ... <name>
