@@ -105,7 +105,7 @@ void text_clear_pointers(struct text* text) {
 }
 
 uint32_t text_get_length(struct text* text) {
-  return text->line.bounds.size.width + text->padding_left + text->padding_right;
+  return (text->line.bounds.size.width + text->padding_left + text->padding_right) > 0 ? (text->line.bounds.size.width + text->padding_left + text->padding_right) : 0;
 }
 
 uint32_t text_get_height(struct text* text) {

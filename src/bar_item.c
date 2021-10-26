@@ -19,6 +19,7 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->click_script = NULL;
   bar_item->bounding_rects = NULL;
   bar_item->group = NULL;
+  bar_item->num_rects = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
 }
@@ -326,6 +327,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
     graph_destroy(&bar_item->graph);
   }
   if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP) group_destroy(bar_item->group);
+  else if (bar_item->group) group_remove_member(bar_item->group, bar_item);
   free(bar_item);
 }
 

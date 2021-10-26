@@ -37,7 +37,8 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 
 
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager);
-void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* bar_item);
+void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item);
+void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* item, struct bar_item* reference, bool before);
 void bar_manager_handle_notification(struct bar_manager* bar_manager, char* context);
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp);

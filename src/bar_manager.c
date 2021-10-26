@@ -49,6 +49,41 @@ int bar_manager_get_item_index_by_address(struct bar_manager* bar_manager, struc
   return -1;
 }
 
+void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* item, struct bar_item* reference, bool before) {
+  if (bar_manager->bar_item_count <= 0) return;
+  struct bar_item* tmp[bar_manager->bar_item_count];
+  int count = 0;
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    if (bar_manager->bar_items[i] == item) continue;
+    if (bar_manager->bar_items[i] == reference && before) {
+      tmp[count++] = item;
+      tmp[count++] = bar_manager->bar_items[i];
+      continue;
+    } else if (bar_manager->bar_items[i] == reference && !before) {
+      tmp[count++] = bar_manager->bar_items[i];
+      tmp[count++] = item;
+      continue;
+    }
+    tmp[count++] = bar_manager->bar_items[i];
+  }
+  bar_manager->bar_items = realloc(bar_manager->bar_items, sizeof(struct bar_item*)*bar_manager->bar_item_count);
+  memcpy(bar_manager->bar_items, tmp, sizeof(struct bar_item*)*bar_manager->bar_item_count);
+}
+
+void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  if (bar_manager->bar_item_count <= 0 || !bar_item) return;
+  struct bar_item* tmp[bar_manager->bar_item_count - 1];
+  int count = 0;
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    if (bar_manager->bar_items[i] == bar_item) continue;
+    tmp[count++] = bar_manager->bar_items[i];
+  }
+  bar_manager->bar_item_count--;
+  bar_manager->bar_items = realloc(bar_manager->bar_items, sizeof(struct bar_item*)*bar_manager->bar_item_count);
+  memcpy(bar_manager->bar_items, tmp, sizeof(struct bar_item*)*bar_manager->bar_item_count);
+  bar_item_destroy(bar_item);
+}
+
 void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
   bar_manager->blur_radius = radius;
   for (int i = 0; i < bar_manager->bar_count; i++) {

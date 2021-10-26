@@ -74,10 +74,11 @@ struct bar_item {
 
   // Bounding Boxes for click events and background drawing (individual per display)
   uint32_t num_rects;
-  CGRect** bounding_rects; 
+  CGRect** bounding_rects;
 };
 
 struct bar_item* bar_item_create();
+void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor);
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
 void bar_item_destroy(struct bar_item* bar_item);
 

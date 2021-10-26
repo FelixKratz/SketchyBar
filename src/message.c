@@ -28,7 +28,7 @@ static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* me
   }
 }
 
-// Syntax: sketchybar -m subscribe <name> <event>
+// Syntax: sketchybar -m --subscribe <name> <event>
 static void handle_domain_subscribe(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
 
@@ -39,13 +39,13 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   bar_item_parse_subscribe_message(bar_item, message); 
 }
 
-// Syntax: sketchybar -m trigger <event> 
+// Syntax: sketchybar -m --trigger <event> 
 static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
   struct token event = get_token(&message);
   bar_manager_custom_events_trigger(&g_bar_manager, event.text);
 }
 
-// Syntax: sketchybar -m push <name> <y>
+// Syntax: sketchybar -m --push <name> <y>
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token y = get_token(&message);
@@ -57,7 +57,46 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   bar_item_needs_update(bar_item);
 }
 
-// Syntax: sketchybar -m add <item|component identifer> <name> <position>
+// Syntax sketchybar -m --rename <old name> <new name>
+static void handle_domain_rename(FILE* rsp, struct token domain, char* message) {
+  struct token old_name  = get_token(&message);
+  struct token new_name  = get_token(&message);
+  int item_index_for_old_name = bar_manager_get_item_index_for_name(&g_bar_manager, old_name.text);
+  int item_index_for_new_name = bar_manager_get_item_index_for_name(&g_bar_manager, new_name.text);
+  if (item_index_for_old_name < 0 || item_index_for_new_name > 0) {
+    fprintf(rsp, "Could not rename item: %s -> %s \n", old_name.text, new_name.text);
+    printf("Could not rename item: %s -> %s \n", old_name.text, new_name.text);
+    return;
+  }
+  bar_item_set_name(g_bar_manager.bar_items[item_index_for_old_name], token_to_string(new_name));
+}
+
+// Syntax: sketchybar -m --clone <name> <parent name>
+static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
+  struct token name = get_token(&message);
+  struct token parent = get_token(&message);
+  struct bar_item* parent_item = NULL;
+
+  int parent_index = bar_manager_get_item_index_for_name(&g_bar_manager, parent.text);
+  if (parent_index > 0) parent_item = g_bar_manager.bar_items[parent_index];
+  else {
+    printf("Parent Item: %s does not exist \n", parent.text);
+    fprintf(rsp, "Parent Item: %s does not exist \n", parent.text);
+    return;
+  }
+
+  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) > 0) {
+    printf("Item %s already exists \n", name.text);
+    fprintf(rsp, "Item %s already exists \n", name.text);
+    return;
+  }
+  struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
+  bar_item_inherit_from_item(bar_item, parent_item);
+  bar_item_set_name(bar_item, token_to_string(name));
+  bar_item_needs_update(bar_item);
+}
+
+// Syntax: sketchybar -m --add <item|component identifer> <name>[:parent] [<position>]
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
 
@@ -65,12 +104,12 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     struct token event = get_token(&message);
     if (strlen(message) > 0) custom_events_append(&g_bar_manager.custom_events, token_to_string(event), token_to_string(get_token(&message)));
     else custom_events_append(&g_bar_manager.custom_events, token_to_string(event), NULL);
-
     return;
   } 
 
   struct token name = get_token(&message);
   struct token position = get_token(&message);
+
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) > 0) {
     printf("Item %s already exists \n", name.text);
     fprintf(rsp, "Item %s already exists \n", name.text);
@@ -121,6 +160,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   bar_item_needs_update(bar_item);
 }
 
+// Syntax: sketchybar -m --set <name> <property>=<value> ... <property>=<value>
 static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* bar_item, char* message) {
   bool needs_update = false;
   struct token property = get_token(&message);
@@ -213,11 +253,12 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   if (needs_update) bar_item_needs_update(bar_item);
 }
 
-// Syntax: sketchybar -m default <property> <value>
+// Syntax: sketchybar -m --default <property>=<value> ... <property>=<value>
 static void handle_domain_default(FILE* rsp, struct token domain, char* message) {
   message_parse_set_message_for_bar_item(rsp, &g_bar_manager.default_item, message);
 }
 
+// Syntax: sketchybar -m --bar <property>=<value> ... <property>=<value>
 static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   struct token command  = get_token(&message);
   bool needs_refresh = false;
@@ -276,8 +317,6 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     needs_refresh = background_parse_sub_domain(&g_bar_manager.background, rsp, command, message);
 
   return needs_refresh;
-
-  
 }
 
 static char* reformat_batch_key_value_pair(struct token token) {
@@ -306,6 +345,9 @@ static char* get_batch_line(char** message) {
   return rbr_msg;
 }
 
+// Syntax: sketchybar -m --query bar
+// Syntax: sketchybar -m --query item <name>
+// Syntax: sketchybar -m --query defaults
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
@@ -325,6 +367,36 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   } else if (token_equals(token, COMMAND_QUERY_DEFAULTS)) {
     bar_item_serialize(&g_bar_manager.default_item, rsp);
   }
+}
+
+// Syntax: sketchybar -m --remove <name>
+static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
+  struct token name = get_token(&message);
+  int item_index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+  if (item_index < 0) {
+      fprintf(rsp, "Name: %s not found in bar items \n", name.text);
+      printf("Name: %s not found in bar items \n", name.text);
+      return;
+  }
+  bar_manager_remove_item(&g_bar_manager, g_bar_manager.bar_items[item_index]);
+}
+
+// Syntax: sketchybar -m --move <name> </> <reference>
+static void handle_domain_move(FILE* rsp, struct token domain, char* message) {
+  struct token name = get_token(&message);
+  struct token direction = get_token(&message);
+  struct token reference = get_token(&message);
+
+  int item_index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+  int reference_item_index = bar_manager_get_item_index_for_name(&g_bar_manager, reference.text);
+  if (item_index < 0 || reference_item_index < 0) {
+      fprintf(rsp, "Name: %s or %s not found in bar items \n", name.text, reference.text);
+      printf("Name: %s or %s not found in bar items \n", name.text, reference.text);
+      return;
+  }
+
+  bar_manager_move_item(&g_bar_manager, g_bar_manager.bar_items[item_index], g_bar_manager.bar_items[reference_item_index], token_equals(direction, ARGUMENT_COMMON_VAL_BEFORE));
+  bar_item_needs_update(g_bar_manager.bar_items[item_index]);
 }
 
 static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
@@ -395,6 +467,10 @@ void handle_message(int sockfd, char* message) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_add(rsp, command, rbr_msg);
       free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_CLONE)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_clone(rsp, command, rbr_msg);
+      free(rbr_msg);
     } else if (token_equals(command, DOMAIN_SUBSCRIBE)) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_subscribe(rsp, command, rbr_msg);
@@ -418,6 +494,18 @@ void handle_message(int sockfd, char* message) {
     } else if (token_equals(command, DOMAIN_REORDER)) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_order(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_MOVE)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_move(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_REMOVE)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_remove(rsp, command, rbr_msg);
+      free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_RENAME)) {
+      char* rbr_msg = get_batch_line(&message);
+      handle_domain_rename(rsp, command, rbr_msg);
       free(rbr_msg);
     } else {
       char* rbr_msg = get_batch_line(&message);

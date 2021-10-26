@@ -15,7 +15,16 @@
 #define DOMAIN_DEFAULT                                      "--default"
 #define COMMAND_DEFAULT_RESET                               "reset"
 
+#define DOMAIN_CLONE                                        "--clone"
+
+#define DOMAIN_RENAME                                       "--rename"
+
 #define DOMAIN_REORDER                                      "--reorder"
+
+#define DOMAIN_REMOVE                                       "--remove"
+
+#define DOMAIN_MOVE                                         "--move"
+
 #define DOMAIN_SET                                          "--set"
 
 #define SUB_DOMAIN_ICON                                     "icon"
@@ -84,6 +93,8 @@
 #define ARGUMENT_COMMON_VAL_ZERO                            "0"
 #define ARGUMENT_COMMON_VAL_NO                              "no"
 #define ARGUMENT_COMMON_VAL_TOGGLE                          "toggle"
+#define ARGUMENT_COMMON_VAL_BEFORE                          "before"
+#define ARGUMENT_COMMON_VAL_AFTER                           "after"
 
 #define ARGUMENT_UPDATES_WHEN_SHOWN                         "when_shown" 
 

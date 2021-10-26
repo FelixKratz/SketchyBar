@@ -286,6 +286,8 @@ static bool sync_exec(char *command, struct signal_args *args) {
     return execvp(exec[0], exec);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 static bool fork_exec(char *command, struct signal_args *args) {
     int pid = vfork();
     if (pid == -1) return false;
@@ -293,6 +295,7 @@ static bool fork_exec(char *command, struct signal_args *args) {
 
    exit(sync_exec(command, args)); 
 }
+#pragma clang diagnostic pop
 
 static inline int mission_control_index(uint64_t sid) {
   uint64_t result = 0;
