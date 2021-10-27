@@ -63,7 +63,7 @@ static void handle_domain_rename(FILE* rsp, struct token domain, char* message) 
   struct token new_name  = get_token(&message);
   int item_index_for_old_name = bar_manager_get_item_index_for_name(&g_bar_manager, old_name.text);
   int item_index_for_new_name = bar_manager_get_item_index_for_name(&g_bar_manager, new_name.text);
-  if (item_index_for_old_name < 0 || item_index_for_new_name > 0) {
+  if (item_index_for_old_name < 0 || item_index_for_new_name >= 0) {
     fprintf(rsp, "Could not rename item: %s -> %s \n", old_name.text, new_name.text);
     printf("Could not rename item: %s -> %s \n", old_name.text, new_name.text);
     return;
@@ -78,14 +78,14 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   struct bar_item* parent_item = NULL;
 
   int parent_index = bar_manager_get_item_index_for_name(&g_bar_manager, parent.text);
-  if (parent_index > 0) parent_item = g_bar_manager.bar_items[parent_index];
+  if (parent_index >= 0) parent_item = g_bar_manager.bar_items[parent_index];
   else {
     printf("Parent Item: %s does not exist \n", parent.text);
     fprintf(rsp, "Parent Item: %s does not exist \n", parent.text);
     return;
   }
 
-  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) > 0) {
+  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
     printf("Item %s already exists \n", name.text);
     fprintf(rsp, "Item %s already exists \n", name.text);
     return;
@@ -110,7 +110,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token position = get_token(&message);
 
-  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) > 0) {
+  if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
     printf("Item %s already exists \n", name.text);
     fprintf(rsp, "Item %s already exists \n", name.text);
     return;
