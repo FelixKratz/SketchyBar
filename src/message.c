@@ -86,7 +86,6 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   }
 
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
-    printf("Item %s already exists \n", name.text);
     fprintf(rsp, "Item %s already exists \n", name.text);
     return;
   }
@@ -111,7 +110,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token position = get_token(&message);
 
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
-    printf("Item %s already exists \n", name.text);
     fprintf(rsp, "Item %s already exists \n", name.text);
     return;
   } 
@@ -502,6 +500,7 @@ void handle_message(int sockfd, char* message) {
     } else if (token_equals(command, DOMAIN_REMOVE)) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_remove(rsp, command, rbr_msg);
+      bar_needs_refresh = true;
       free(rbr_msg);
     } else if (token_equals(command, DOMAIN_RENAME)) {
       char* rbr_msg = get_batch_line(&message);
