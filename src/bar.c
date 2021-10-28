@@ -344,10 +344,10 @@ void bar_set_blur_radius(struct bar* bar) {
 void bar_create_window(struct bar* bar) {
   uint32_t set_tags[2] = {
     kCGSStickyTagBit |
-      kCGSModalWindowTagBit |
+      kCGSIgnoreForExposeTagBit,
+    kCGSModalWindowTagBit |
       kCGSDisableShadowTagBit |
-      kCGSHighQualityResamplingTagBit |
-      kCGSIgnoreForExposeTagBit
+      kCGSHighQualityResamplingTagBit
   };
 
   uint32_t clear_tags[2] = { 0, 0 };
