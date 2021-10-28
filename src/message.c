@@ -92,6 +92,7 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
   bar_item_inherit_from_item(bar_item, parent_item);
   bar_item_set_name(bar_item, token_to_string(name));
+  bar_manager_move_item(&g_bar_manager, bar_item, parent_item, false);
   bar_item_needs_update(bar_item);
 }
 

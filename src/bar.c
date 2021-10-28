@@ -342,31 +342,22 @@ void bar_set_blur_radius(struct bar* bar) {
 }
 
 void bar_create_window(struct bar* bar) {
-  uint32_t set_tags[2] = {
+  uint64_t set_tags =
     kCGSStickyTagBit |
-      kCGSModalWindowTagBit |
-      kCGSDisableShadowTagBit |
-      kCGSHighQualityResamplingTagBit |
-      kCGSIgnoreForExposeTagBit
-  };
-
-  uint32_t clear_tags[2] = { 0, 0 };
-  *((int8_t *)(clear_tags) + 0x5) = 0x20;
+    kCGSDisableShadowTagBit |
+    kCGSHighQualityResamplingTagBit;
 
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
 
   SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
   SLSAddActivationRegion(g_connection, bar->id, frame_region);
-  //SLSAddTrackingRect(g_connection, bar->id, bar->frame);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, bar->id, 2.0f);
-  SLSSetWindowTags(g_connection, bar->id, set_tags, 64);
-  SLSClearWindowTags(g_connection, bar->id, clear_tags, 64);
+  SLSSetWindowTags(g_connection, bar->id, &set_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   bar_set_blur_radius(bar);
-  SLSSetMouseEventEnableFlags(g_connection, bar->id, false);
 
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
