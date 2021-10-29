@@ -412,7 +412,6 @@ Information about the current defaults.
 sketchybar -m --query defaults
 ```
 ## Item Reordering
-Currently only on HEAD.
 It is possible to reorder items by invoking
 ```bash 
 sketchybar -m --reorder <name> ... <name>
@@ -423,7 +422,6 @@ simply call
 sketchybar -m --reorder <item 1> <item 2>
 ```
 ## Moving Items to specific positions
-Currently only on HEAD.
 It is possible to move items and order them next to a reference item. <br>
 Move Item *<name>* to appear *before* item *<reference name>*:
 ```bash 
@@ -434,7 +432,6 @@ Move Item *<name>* to appear *after* item *<reference name>*:
 sketchybar -m --move <name> after <reference name>
 ```
 ## Item Cloning
-Currently only on HEAD.
 It is possible to clone another item instead of adding a completely blank item
 ```bash 
 sketchybar -m --clone <name> <parent name> [optional: before/after]
@@ -442,13 +439,11 @@ sketchybar -m --clone <name> <parent name> [optional: before/after]
 the new item will inherit *all* properties of the parent item. The optional *before* and *after* modifiers can be used
 to move the item *before*, or *after* the parent, equivalently to a --move command.
 ## Renaming Items
-Currently only on HEAD.
 It is possible to rename any item. The new name should obviously not be in use by another item:
 ```bash 
 sketchybar -m --rename <old name> <new name>
 ```
 ## Removing Items
-Currently only on HEAD.
 It is possible to remove any item by invoking, the item will be completely destroyed and removed from brackets
 ```bash 
 sketchybar -m --remove <name>
