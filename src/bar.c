@@ -342,10 +342,8 @@ void bar_set_blur_radius(struct bar* bar) {
 }
 
 void bar_create_window(struct bar* bar) {
-  uint64_t set_tags =
-    kCGSStickyTagBit |
-    kCGSDisableShadowTagBit |
-    kCGSHighQualityResamplingTagBit;
+  uint64_t set_tags = kCGSStickyTagBit | kCGSDisableShadowTagBit | kCGSHighQualityResamplingTagBit;
+  if (__builtin_available(macOS 12.0, *)) set_tags = kCGSStickyTagBit;
 
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
