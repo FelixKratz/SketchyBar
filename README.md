@@ -353,9 +353,9 @@ where the events are:
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
 * *system_woke*: when the system has awaken from sleep
-* *mouse_entered*: when the mouse enters over an item
-* *mouse_exited*: when the mouse leaves an item
-* *mouse_clicked*: when an item is clicked
+* *mouse.entered*: when the mouse enters over an item
+* *mouse.exited*: when the mouse leaves an item
+* *mouse.clicked*: when an item is clicked
 
 When an item is subscribed to these events the *script* is run and it gets passed the *$SENDER* variable, which holds exactly the above names, to distinguish between the different events.
 It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*. I will soon create an example an link it here.
