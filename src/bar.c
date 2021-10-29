@@ -91,7 +91,6 @@ void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32
   bool custom_height = bar_item->background.height != 0;
   CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
                         {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
-  draw_region = CGRectInset(draw_region, bar_item->background.border_width / 2, bar_item->background.border_width / 2);
   draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
 
@@ -104,7 +103,6 @@ void bar_draw_group(struct bar* bar, struct bar_item* item, uint32_t adid) {
     uint32_t group_length = group_get_length(bar_item->group);
     CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == BAR_POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
                           {group_length, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
-    draw_region = CGRectInset(draw_region, bar_item->background.border_width / 2, bar_item->background.border_width / 2);
     draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
   }
 }

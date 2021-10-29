@@ -168,7 +168,10 @@ static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_co
   
   if (clear) CGContextClearRect(context, region);
   CGMutablePathRef path = CGPathCreateMutable();
-  CGPathAddRoundedRect(path, NULL, CGRectInset(region, line_width / 2, line_width / 2), corner_radius, corner_radius);
+  CGRect inset_region = CGRectInset(region, (float)(line_width) / 2.f, (float)(line_width) / 2.f);
+  if (corner_radius > inset_region.size.height / 2.f || corner_radius > inset_region.size.width / 2.f)
+    corner_radius = inset_region.size.height > inset_region.size.width ? inset_region.size.width / 2.f : inset_region.size.height / 2.f; 
+  CGPathAddRoundedRect(path, NULL, inset_region, corner_radius, corner_radius);
   CGContextAddPath(context, path);
   CGContextDrawPath(context, kCGPathFillStroke);
   CFRelease(path);
