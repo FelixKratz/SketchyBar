@@ -342,7 +342,7 @@ void bar_set_blur_radius(struct bar* bar) {
 
 void bar_create_window(struct bar* bar) {
   uint64_t set_tags = kCGSStickyTagBit | kCGSDisableShadowTagBit | kCGSHighQualityResamplingTagBit;
-  if (__builtin_available(macOS 12.0, *)) set_tags = kCGSStickyTagBit;
+  if (__builtin_available(macOS 12.0, *)) set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
 
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
@@ -355,6 +355,17 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowTags(g_connection, bar->id, &set_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   bar_set_blur_radius(bar);
+
+  if (__builtin_available(macOS 12.0, *)) { // workaround: disable shadow on macOS 12
+    CFIndex shadow_density = 0;
+    CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault, kCFNumberCFIndexType, &shadow_density);
+    const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
+    const void *values[1] = {  shadow_density_cf };
+    CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CGSWindowSetShadowProperties(bar->id, shadow_props_cf);
+    CFRelease(shadow_density_cf);
+    CFRelease(shadow_props_cf);
+  }
 
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
