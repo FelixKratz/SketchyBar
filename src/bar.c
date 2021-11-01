@@ -149,15 +149,14 @@ void bar_draw_bar_items(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
-
     bar_item_remove_associated_bar(bar_item, bar->adid);
     if (!bar_draws_item(bar, bar_item)) continue;
 
     bar_item_append_associated_bar(bar_item, bar->adid);
     if (!bar_item->queued_for_redraw && atomic_redraw) continue;
 
-    SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
+      SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
 
     struct text_line* label = &bar_item->label.line;
     struct text_line* icon = &bar_item->icon.line;
