@@ -276,10 +276,13 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     needs_refresh = true;
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);
-    bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
+    needs_refresh = bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
   } else if (token_equals(command, PROPERTY_FONT_SMOOTHING)) {
     struct token state = get_token(&message);
-    bar_manager_set_font_smoothing(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.font_smoothing));
+    needs_refresh = bar_manager_set_font_smoothing(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.font_smoothing));
+  } else if (token_equals(command, PROPERTY_SHADOW)) {
+    struct token state = get_token(&message);
+    needs_refresh = bar_manager_set_shadow(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.shadow));
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     struct token select = get_token(&message);
@@ -287,33 +290,28 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     if (!(select.length == 0)) {
       adid = token_equals(select, "current") ? display_arrangement(display_active_display_id()) : atoi(select.text);
       if (adid > 0 && adid <= g_bar_manager.bar_count)
-        bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.bars[adid - 1]->hidden));
+        needs_refresh = bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.bars[adid - 1]->hidden));
       else
         printf("No bar on display %u \n", adid);
-    } else bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.any_bar_hidden));
+    } else needs_refresh = bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.any_bar_hidden));
   } else if (token_equals(command, PROPERTY_TOPMOST)) {
     struct token token = get_token(&message);
-    bar_manager_set_topmost(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.topmost));
+    needs_refresh = bar_manager_set_topmost(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.topmost));
   } else if (token_equals(command, PROPERTY_DISPLAY)) {
-    int length = strlen(message);
-    if (length <= 0) {
-      fprintf(rsp, "%s\n", g_bar_manager.display);
-      printf("%s\n", g_bar_manager.display);
-    } else if ((strcmp(message,BAR_DISPLAY_MAIN_ONLY) == 0) || (strcmp(message,BAR_DISPLAY_ALL) == 0)) {
-      bar_manager_set_display(&g_bar_manager, string_copy(message));
-    } else {
-      printf("value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
-      fprintf(rsp, "value for '%.*s' must be either 'main' or 'all'.\n", command.length, command.text);
+    struct token position = get_token(&message);
+    if (position.length > 0)
+      needs_refresh = bar_manager_set_display(&g_bar_manager, position.text[0]);
+    else {
+      printf("value for %s must be either 'main' or 'all'.\n", command.text);
+      fprintf(rsp, "value for %s must be either 'main' or 'all'.\n", command.text);
     }
   } else if (token_equals(command, PROPERTY_POSITION)) {
-    if (strlen(message) <= 0) {
-      fprintf(rsp, "%s\n", g_bar_manager.position);
-      printf("%s\n", g_bar_manager.position);
-    } else if (strcmp(message, BAR_POSITION_TOP) != 0 && strcmp(message, BAR_POSITION_BOTTOM) != 0) {
-      printf("value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
-      fprintf(rsp, "value for '%.*s' must be either '%s' or '%s'.\n", command.length, command.text, BAR_POSITION_TOP, BAR_POSITION_BOTTOM);
-    } else {
-      bar_manager_set_position(&g_bar_manager, string_copy(message));
+    struct token position = get_token(&message);
+    if (position.length > 0)
+      needs_refresh = bar_manager_set_position(&g_bar_manager, position.text[0]);
+    else {
+      printf("value for %s must be either 'top' or 'bottom'.\n", command.text);
+      fprintf(rsp, "value for %s must be either 'top' or 'bottom'.\n", command.text);
     }
   }
   else
@@ -351,6 +349,7 @@ static char* get_batch_line(char** message) {
 // Syntax: sketchybar -m --query bar
 // Syntax: sketchybar -m --query item <name>
 // Syntax: sketchybar -m --query defaults
+// Syntax: sketchybar -m --query events
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
@@ -369,6 +368,8 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     bar_manager_serialize(&g_bar_manager, rsp);
   } else if (token_equals(token, COMMAND_QUERY_DEFAULTS)) {
     bar_item_serialize(&g_bar_manager.default_item, rsp);
+  } else if (token_equals(token, COMMAND_QUERY_EVENTS)) {
+    custom_events_serialize(&g_bar_manager.custom_events, rsp);
   }
 }
 

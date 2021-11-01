@@ -68,6 +68,7 @@
 #define PROPERTY_TOPMOST                                    "topmost"
 #define PROPERTY_HIDDEN                                     "hidden"
 #define PROPERTY_FONT_SMOOTHING                             "font_smoothing"
+#define PROPERTY_SHADOW                                     "shadow"
 
 #define DOMAIN_SUBSCRIBE                                    "--subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
@@ -83,6 +84,7 @@
 #define COMMAND_QUERY_ITEM                                  "item"
 #define COMMAND_QUERY_DEFAULTS                              "defaults"
 #define COMMAND_QUERY_BAR                                   "bar"
+#define COMMAND_QUERY_EVENTS                                "events"
 
 #define ARGUMENT_COMMON_VAL_ON                              "on"
 #define ARGUMENT_COMMON_VAL_TRUE                            "true"
@@ -98,11 +100,21 @@
 
 #define ARGUMENT_UPDATES_WHEN_SHOWN                         "when_shown" 
 
-#define BAR_DISPLAY_MAIN_ONLY                               "main"
-#define BAR_DISPLAY_ALL                                     "all"
+#define POSITION_TOP 't'
+#define POSITION_BOTTOM 'b'
+#define POSITION_LEFT   'l'
+#define POSITION_RIGHT  'r'
+#define POSITION_CENTER 'c'
 
-#define BAR_POSITION_BOTTOM                                 "bottom"
-#define BAR_POSITION_TOP                                    "top"
+#define DISPLAY_MAIN 'm'
+#define DISPLAY_ALL 'a'
+
+#define BAR_ITEM            'i'
+#define BAR_COMPONENT_GRAPH 'g'
+#define BAR_COMPONENT_SPACE 's'
+#define BAR_COMPONENT_ALIAS 'a'
+#define BAR_COMPONENT_GROUP 'b'
+#define BAR_PLUGIN          'p'
 
 static SOCKET_DAEMON_HANDLER(message_handler);
 void handle_message(int sockfd, char *message);

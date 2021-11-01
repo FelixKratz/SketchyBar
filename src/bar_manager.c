@@ -13,6 +13,40 @@ static SHELL_TIMER_CALLBACK(shell_timer_handler) {
   event_loop_post(&g_event_loop, event);
 }
 
+void bar_manager_init(struct bar_manager* bar_manager) {
+  bar_manager->font_smoothing = false;
+  bar_manager->any_bar_hidden = false;
+  bar_manager->bars = NULL;
+  bar_manager->bar_count = 0;
+  bar_manager->bar_item_count = 0;
+  bar_manager->display = DISPLAY_ALL;
+  bar_manager->position = POSITION_TOP;
+  bar_manager->y_offset = 0;
+  bar_manager->shadow = false;
+  bar_manager->blur_radius = 0;
+  bar_manager->margin = 0;
+  bar_manager->frozen = false;
+  bar_manager->window_level = NSFloatingWindowLevel;
+  bar_manager->topmost = false;
+  bar_manager->picky_redraw = false;
+
+  background_init(&bar_manager->background);
+  bar_manager->background.height = 25;
+  bar_manager->background.padding_left = 20;
+  bar_manager->background.padding_right = 20;
+  bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
+  bar_manager->background.color = rgba_color_from_hex(0x44000000);
+
+  bar_item_init(&bar_manager->default_item, NULL);
+  bar_manager->default_item.name = string_copy("defaults");
+  custom_events_init(&bar_manager->custom_events);
+  
+  int shell_refresh_frequency = 1;
+
+  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
+}
+
 void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count) {
   int index = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
@@ -84,37 +118,79 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
   bar_item_destroy(bar_item);
 }
 
-void bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
+bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
+  if (bar_manager->blur_radius == radius) return false;
   bar_manager->blur_radius = radius;
   for (int i = 0; i < bar_manager->bar_count; i++) {
     bar_set_blur_radius(bar_manager->bars[i]);
   }
+  return true;
 }
 
-void bar_manager_set_position(struct bar_manager* bar_manager, char *pos) {
+bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
+  if (bar_manager->position == pos) return false;
   bar_manager->position = pos;
-  bar_manager_resize(bar_manager);
+  return true;
 }
 
-void bar_manager_display_changed(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
 
-  bar_manager_begin(bar_manager);
-}
-
-void bar_manager_set_display(struct bar_manager* bar_manager, char *display) {
+bool bar_manager_set_display(struct bar_manager* bar_manager, char display) {
+  if (bar_manager->display == display) return false;
   bar_manager->display = display;
 
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_destroy(bar_manager->bars[i]);
 
   bar_manager_begin(bar_manager);
+  return true;
 }
 
-void bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing) {
+bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
+  if (bar_manager->shadow == shadow) return false;
+  bar_manager->shadow = shadow;
+  for (int i = 0; i < bar_manager->bar_count; ++i)
+    bar_destroy(bar_manager->bars[i]);
+
+  bar_manager_begin(bar_manager);
+  return true;
+}
+
+bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing) {
   for (int i = 0; i < bar_manager->bar_count; i++)
     bar_set_font_smoothing(bar_manager->bars[i], smoothing);
+  return true;
+}
+
+bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool hidden) {
+  bar_manager->any_bar_hidden = false;
+  if (adid > 0) {
+    bar_set_hidden(bar_manager->bars[adid - 1], hidden);
+    bar_manager->any_bar_hidden |= hidden;
+  }
+  else {
+    for (int i = 0; i < bar_manager->bar_count; i++) {
+      bar_set_hidden(bar_manager->bars[i], hidden);
+      bar_manager->any_bar_hidden |= hidden;
+    }
+  }
+  return true;
+}
+
+bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
+  for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
+  if (topmost) bar_manager->window_level = NSScreenSaverWindowLevel;
+  else bar_manager->window_level = NSFloatingWindowLevel;
+  bar_manager_begin(bar_manager);
+  bar_manager->topmost = topmost;
+  return true;
+}
+
+void bar_manager_freeze(struct bar_manager *bar_manager) {
+  bar_manager->frozen = true;
+}
+
+void bar_manager_unfreeze(struct bar_manager *bar_manager) {
+  bar_manager->frozen = false;
 }
 
 uint32_t bar_manager_get_center_length_for_bar(struct bar_manager* bar_manager, struct bar* bar) {
@@ -124,7 +200,7 @@ uint32_t bar_manager_get_center_length_for_bar(struct bar_manager* bar_manager, 
     bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
     bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
 
-    if (bar_item->position == BAR_POSITION_CENTER && bar_item->drawing && (is_associated_space_shown || is_associated_display_shown))
+    if (bar_item->position == POSITION_CENTER && bar_item->drawing && (is_associated_space_shown || is_associated_display_shown))
       total_length += bar_item_get_length(bar_item);
   }
   return total_length;
@@ -189,62 +265,6 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
   bar_item_destroy(bar_item);
 }
 
-void bar_manager_init(struct bar_manager* bar_manager) {
-  bar_manager->font_smoothing = false;
-  bar_manager->any_bar_hidden = false;
-  bar_manager->bars = NULL;
-  bar_manager->bar_count = 0;
-  bar_manager->bar_item_count = 0;
-  bar_manager->display = BAR_DISPLAY_ALL;
-  bar_manager->position = BAR_POSITION_TOP;
-  bar_manager->y_offset = 0;
-  bar_manager->blur_radius = 0;
-  bar_manager->margin = 0;
-  bar_manager->frozen = false;
-  bar_manager->window_level = NSFloatingWindowLevel;
-  bar_manager->topmost = false;
-  bar_manager->picky_redraw = false;
-
-  background_init(&bar_manager->background);
-  bar_manager->background.height = 25;
-  bar_manager->background.padding_left = 20;
-  bar_manager->background.padding_right = 20;
-  bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
-  bar_manager->background.color = rgba_color_from_hex(0x44000000);
-
-  bar_item_init(&bar_manager->default_item, NULL);
-  bar_manager->default_item.name = string_copy("defaults");
-  custom_events_init(&bar_manager->custom_events);
-  
-  int shell_refresh_frequency = 1;
-
-  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
-  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
-}
-
-void bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool hidden) {
-  bar_manager->any_bar_hidden = false;
-  if (adid > 0) {
-    bar_set_hidden(bar_manager->bars[adid - 1], hidden);
-    bar_manager->any_bar_hidden |= hidden;
-  }
-  else {
-    for (int i = 0; i < bar_manager->bar_count; i++) {
-      bar_set_hidden(bar_manager->bars[i], hidden);
-      bar_manager->any_bar_hidden |= hidden;
-    }
-  }
-  bar_manager_refresh(bar_manager, true);
-}
-
-void bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
-  for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
-  if (topmost) bar_manager->window_level = NSScreenSaverWindowLevel;
-  else bar_manager->window_level = NSFloatingWindowLevel;
-  bar_manager_begin(bar_manager);
-  bar_manager_refresh(bar_manager, true);
-  bar_manager->topmost = topmost;
-}
 
 void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
@@ -293,7 +313,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager) {
-  if (strcmp(bar_manager->display, BAR_DISPLAY_MAIN_ONLY) == 0) {
+  if (bar_manager->display == DISPLAY_MAIN) {
     uint32_t did = display_main_display_id();
     bar_manager->bar_count = 1;
     bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
@@ -301,7 +321,7 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
     bar_manager->bars[0] = bar_create(did);
     bar_manager->bars[0]->adid = 1;
   } 
-  else if (strcmp(bar_manager->display, BAR_DISPLAY_ALL) == 0) {
+  else {
     bar_manager->bar_count = display_active_display_count();
     bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
     memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
@@ -334,6 +354,14 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
   }
 }
 
+void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; ++i)
+    bar_destroy(bar_manager->bars[i]);
+
+  bar_manager_begin(bar_manager);
+  bar_manager_refresh(bar_manager, true);
+}
+
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
   if (!bar_item || bar_item->mouse_over) return;
   for (int i = 0; i < bar_manager->bar_item_count; i++)
@@ -359,12 +387,12 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
+  bar_manager_display_changed(&g_bar_manager);
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_DISPLAY_CHANGE);
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager_update_space_components(bar_manager, false);
-  //bar_manager_update_alias_components(bar_manager, false);
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SYSTEM_WOKE);
   bar_manager_refresh(bar_manager, true);
 }
@@ -376,18 +404,10 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, char* cont
   bar_manager_custom_events_trigger(bar_manager, name);
 }
 
-void bar_manager_freeze(struct bar_manager *bar_manager) {
-  bar_manager->frozen = true;
-}
-
-void bar_manager_unfreeze(struct bar_manager *bar_manager) {
-  bar_manager->frozen = false;
-}
-
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
   fprintf(rsp, "{\n"
                "\t\"geometry\": {\n"
-               "\t\t\"position\": \"%s\",\n"
+               "\t\t\"position\": \"%c\",\n"
                "\t\t\"height\": %u,\n"
                "\t\t\"margin\": %u,\n"
                "\t\t\"y_offset\": %u,\n"
@@ -404,6 +424,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t\"state\": {\n"
                "\t\t\"frozen\": %d,\n"
                "\t\t\"topmost\": %d,\n"
+               "\t\t\"shadow\": %d\n"
                "\t\t\"font_smoothing\": %d\n"
                "\t},\n"
                "\t\"items\": [\n",
@@ -420,6 +441,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                bar_manager->blur_radius,
                bar_manager->frozen,
                bar_manager->topmost,
+               bar_manager->shadow,
                bar_manager->font_smoothing);
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     fprintf(rsp, "\t\t \"%s\"", bar_manager->bar_items[i]->name);

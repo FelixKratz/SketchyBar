@@ -60,7 +60,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
-  bar_item->position = BAR_POSITION_RIGHT;
+  bar_item->position = POSITION_RIGHT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;

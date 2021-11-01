@@ -70,6 +70,7 @@ Table of Contents
       * [Bar Properties](#bar-properties)
       * [Item Properties](#item-properties)
       * [Default Properties](#default-properties)
+      * [Event Properties](#event-properties)
    * [Item Reordering](#item-reordering)
    * [Moving Items to specific positions](#moving-items-to-specific-positions)
    * [Item Cloning](#item-cloning)
@@ -133,6 +134,7 @@ where the settings currently are:
 * *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
 * *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
+* *shadow*: if the bar should draw a shadow (*on*, *off*, *toggle*, default: *off*)
 
 ## Items and their properties 
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
@@ -411,6 +413,12 @@ Information about the current defaults.
 ```bash
 sketchybar -m --query defaults
 ```
+### Event Properties
+Information about the events.
+```bash
+sketchybar -m --query events
+```
+
 ## Item Reordering
 It is possible to reorder items by invoking
 ```bash 

@@ -101,7 +101,7 @@ void bar_draw_group(struct bar* bar, struct bar_item* item, uint32_t adid) {
     if (!bar_item->background.enabled) return;
     bool custom_height = bar_item->background.height != 0;
     uint32_t group_length = group_get_length(bar_item->group);
-    CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == BAR_POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
+    CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
                           {group_length, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
     draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
   }
@@ -196,7 +196,7 @@ void bar_redraw(struct bar* bar) {
     uint32_t sandwich_position = 0;
     bool graph_rtl = false;
 
-    if (bar_item->position == BAR_POSITION_LEFT) {
+    if (bar_item->position == POSITION_LEFT) {
       icon_position.x = bar_left_final_item_x + bar_item->icon.padding_left + bar_item->background.padding_left + 1;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
       
@@ -217,7 +217,7 @@ void bar_redraw(struct bar* bar) {
         label_position.x += bar_item->alias.bounds.size.width;
       }
     }
-    else if (bar_item->position == BAR_POSITION_RIGHT) {
+    else if (bar_item->position == POSITION_RIGHT) {
       label_position.x = bar_right_first_item_x - label->bounds.size.width - bar_item->label.padding_right - bar_item->background.padding_right;
       icon_position.x = label_position.x - icon->bounds.size.width - bar_item->icon.padding_right - bar_item->label.padding_left - 1;
 
@@ -239,7 +239,7 @@ void bar_redraw(struct bar* bar) {
         bar_right_first_item_x -= bar_item->alias.bounds.size.width;
       }
     }
-    else if (bar_item->position == BAR_POSITION_CENTER) {
+    else if (bar_item->position == POSITION_CENTER) {
       icon_position.x = bar_center_first_item_x + bar_item->icon.padding_left + bar_item->background.padding_left + 1;
       label_position.x = icon_position.x + icon->bounds.size.width + bar_item->icon.padding_right + bar_item->label.padding_left;
 
@@ -292,7 +292,7 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
   origin.y += g_bar_manager.y_offset;
 
 
-  if (0 == strcmp(g_bar_manager.position, BAR_POSITION_BOTTOM)) {
+  if (g_bar_manager.position == POSITION_BOTTOM) {
     origin.y = CGRectGetMaxY(bounds) - g_bar_manager.background.height - 2*g_bar_manager.y_offset;
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
@@ -316,7 +316,6 @@ void bar_resize(struct bar *bar) {
   SLSClearActivationRegion(g_connection, bar->id);
   SLSAddActivationRegion(g_connection, bar->id, frame_region);
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
-  //SLSAddTrackingRect(g_connection, bar->id, bar->frame);
 
   bar_redraw(bar);
   SLSOrderWindow(g_connection, bar->id, 1, 0);
@@ -339,9 +338,19 @@ void bar_set_blur_radius(struct bar* bar) {
   SLSSetWindowBackgroundBlurRadius(g_connection, bar->id, g_bar_manager.blur_radius);
 }
 
+void bar_disable_shadow(struct bar* bar) {
+  CFIndex shadow_density = 0;
+  CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault, kCFNumberCFIndexType, &shadow_density);
+  const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
+  const void *values[1] = { shadow_density_cf };
+  CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  SLSWindowSetShadowProperties(bar->id, shadow_props_cf);
+  CFRelease(shadow_density_cf);
+  CFRelease(shadow_props_cf);
+}
+
 void bar_create_window(struct bar* bar) {
-  uint64_t set_tags = kCGSStickyTagBit | kCGSDisableShadowTagBit | kCGSHighQualityResamplingTagBit;
-  if (__builtin_available(macOS 12.0, *)) set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
+  uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
 
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
@@ -354,17 +363,7 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowTags(g_connection, bar->id, &set_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   bar_set_blur_radius(bar);
-
-  if (__builtin_available(macOS 12.0, *)) { // workaround: disable shadow on macOS 12
-    CFIndex shadow_density = 0;
-    CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault, kCFNumberCFIndexType, &shadow_density);
-    const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
-    const void *values[1] = {  shadow_density_cf };
-    CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CGSWindowSetShadowProperties(bar->id, shadow_props_cf);
-    CFRelease(shadow_density_cf);
-    CFRelease(shadow_props_cf);
-  }
+  if (!g_bar_manager.shadow) bar_disable_shadow(bar);
 
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);

@@ -27,4 +27,5 @@ void custom_events_init(struct custom_events* custom_events);
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification);
 uint32_t custom_events_get_flag_for_name(struct custom_events* custom_events, char* name);
 char* custom_events_get_name_for_notification(struct custom_events* custom_events, char* notification);
+void custom_events_serialize(struct custom_events* custom_events, FILE* rsp);
 #endif

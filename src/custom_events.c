@@ -50,3 +50,17 @@ char* custom_events_get_name_for_notification(struct custom_events* custom_event
   return NULL;
 }
 
+void custom_events_serialize(struct custom_events* custom_events, FILE* rsp) {
+  fprintf(rsp, "{\n");
+  for (int i = 0; i < custom_events->count; i++) {
+    fprintf(rsp, "\t\"%s\": {\n"
+                 "\t\t\"bit\": %d,\n"
+                 "\t\t\"notification\": \"%s\"\n",
+                 custom_events->events[i]->name,
+                 1 << i,
+                 custom_events->events[i]->notification);
+    if (i < custom_events->count - 1) fprintf(rsp, "\t},\n");
+  }
+  fprintf(rsp, "\t}\n}\n");
+}
+
