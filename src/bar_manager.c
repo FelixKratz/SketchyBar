@@ -424,7 +424,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t\"state\": {\n"
                "\t\t\"frozen\": %d,\n"
                "\t\t\"topmost\": %d,\n"
-               "\t\t\"shadow\": %d\n"
+               "\t\t\"shadow\": %d,\n"
                "\t\t\"font_smoothing\": %d\n"
                "\t},\n"
                "\t\"items\": [\n",
