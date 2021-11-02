@@ -7,6 +7,7 @@ extern CGError SLSReenableUpdate(int cid);
 extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint32_t *wid);
 extern CGError SLSReleaseWindow(int cid, uint32_t wid);
 extern CGError SLSSetWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
+extern CGError SLSClearWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
 extern CGError SLSSetWindowShape(int cid, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
 extern CGError SLSSetWindowResolution(int cid, uint32_t wid, double res);
 extern CGError SLSSetWindowOpacity(int cid, uint32_t wid, bool isOpaque);
@@ -22,9 +23,10 @@ extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 
-#define kCGSDisableShadowTagBit         (1 <<  3)
-#define kCGSHighQualityResamplingTagBit (1 <<  4)
-#define kCGSStickyTagBit                (1 << 11)
+#define kCGSDisableShadowTagBit         (1ULL <<  3)
+#define kCGSHighQualityResamplingTagBit (1ULL <<  4)
+#define kCGSStickyTagBit                (1ULL << 11)
+#define kCGSSuperStickyTagBit           (1ULL << 45)
 
 #define ALIGN_NONE   0
 #define ALIGN_LEFT   1

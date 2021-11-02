@@ -351,6 +351,7 @@ void bar_disable_shadow(struct bar* bar) {
 
 void bar_create_window(struct bar* bar) {
   uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
+  uint64_t clear_tags = kCGSSuperStickyTagBit;
 
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
@@ -361,6 +362,7 @@ void bar_create_window(struct bar* bar) {
 
   SLSSetWindowResolution(g_connection, bar->id, 2.0f);
   SLSSetWindowTags(g_connection, bar->id, &set_tags, 64);
+  SLSClearWindowTags(g_connection, bar->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
   bar_set_blur_radius(bar);
   if (!g_bar_manager.shadow) bar_disable_shadow(bar);
