@@ -387,7 +387,6 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
-  bar_manager_display_changed(&g_bar_manager);
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_DISPLAY_CHANGE);
 }
 

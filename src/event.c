@@ -47,24 +47,28 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
