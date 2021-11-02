@@ -273,7 +273,10 @@ uint32_t bar_item_get_length(struct bar_item* bar_item) {
 uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t label_height = text_get_height(&bar_item->label);
   uint32_t icon_height = text_get_height(&bar_item->icon);
-  return label_height > icon_height ? label_height : icon_height;
+  uint32_t alias_height = alias_get_height(&bar_item->alias);
+  
+  uint32_t text_height = label_height > icon_height ? label_height : icon_height;
+  return text_height > alias_height ? text_height : alias_height;
 }
 
 void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid) {

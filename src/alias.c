@@ -66,6 +66,11 @@ uint32_t alias_get_length(struct alias* alias) {
   return 0;
 }
 
+uint32_t alias_get_height(struct alias* alias) {
+  if (alias->image_ref) return alias->bounds.size.height;
+  return 0;
+}
+
 void alias_find_window(struct alias* alias) {
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
