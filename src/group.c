@@ -40,8 +40,11 @@ bool group_is_first_member(struct group* group, struct bar_item* item) {
 uint32_t group_get_length(struct group* group) {
   uint32_t length = 0;
   for (int i = 1; i < group->num_members; i++) {
-    if (group->members[i]->drawing)
+    if (group->members[i]->drawing) {
+      if (i > 1) length += group->members[i]->background.padding_left;
       length += bar_item_get_length(group->members[i]);
+      if (i < group->num_members - 1) length += group->members[i]->background.padding_right;
+    }
   }
   return length;
 }
