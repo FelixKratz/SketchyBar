@@ -345,7 +345,7 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
 }
 
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name) {
-  uint32_t flag = custom_events_get_flag_for_name(&bar_manager->custom_events, name);
+  uint64_t flag = custom_events_get_flag_for_name(&bar_manager->custom_events, name);
 
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];

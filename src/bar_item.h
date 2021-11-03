@@ -60,7 +60,7 @@ struct bar_item {
   struct group* group;
 
   // Update Events
-  uint32_t update_mask;
+  uint64_t update_mask;
 
   // Bounding Boxes for click events and background drawing (individual per display)
   uint32_t num_rects;

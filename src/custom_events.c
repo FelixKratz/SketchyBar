@@ -31,10 +31,10 @@ void custom_events_append(struct custom_events* custom_events, char* name, char*
     workspace_create_custom_observer(&g_workspace_context, notification);
 } 
 
-uint32_t custom_events_get_flag_for_name(struct custom_events* custom_events, char* name) {
+uint64_t custom_events_get_flag_for_name(struct custom_events* custom_events, char* name) {
   for (int i = 0; i < custom_events->count; i++) {
     if (strcmp(name, custom_events->events[i]->name) == 0) {
-      return 1 << i;
+      return 1ULL << i;
     }
   }
   return 0;
@@ -54,10 +54,10 @@ void custom_events_serialize(struct custom_events* custom_events, FILE* rsp) {
   fprintf(rsp, "{\n");
   for (int i = 0; i < custom_events->count; i++) {
     fprintf(rsp, "\t\"%s\": {\n"
-                 "\t\t\"bit\": %d,\n"
+                 "\t\t\"bit\": %llu,\n"
                  "\t\t\"notification\": \"%s\"\n",
                  custom_events->events[i]->name,
-                 1 << i,
+                 1ULL << i,
                  custom_events->events[i]->notification);
     if (i < custom_events->count - 1) fprintf(rsp, "\t},\n");
   }

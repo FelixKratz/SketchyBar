@@ -374,7 +374,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"associated_bar_mask\": %u,\n"
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"associated_space_mask\": %u,\n"
-               "\t\t\"update_mask\": %u\n"
+               "\t\t\"update_mask\": %llu\n"
                "\t},\n"
                "\t\"bounding_rects\": {\n",
                bar_item->name,
