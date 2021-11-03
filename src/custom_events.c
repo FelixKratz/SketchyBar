@@ -22,6 +22,7 @@ void custom_events_init(struct custom_events* custom_events) {
 
 
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification) {
+  if (custom_events_get_flag_for_name(custom_events, name) > 0) return;
   custom_events->count++;
   custom_events->events = (struct custom_event**) realloc(custom_events->events, sizeof(struct custom_event*) * custom_events->count);
   custom_events->events[custom_events->count - 1] = custom_event_create();
