@@ -371,6 +371,14 @@ $SENDER
 ```
 Where *$NAME* is the name of the item that has invoked the script and *$SENDER* is the reason why the script is executed.
 
+If an item is *clicked* the script has access to the additional variables:
+```bash 
+$BUTTON
+$MODIFIER
+```
+where the $BUTTON can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the $MODIFIER is either *shift*, *ctrl*, *alt* or *cmd* and 
+specifies the modifier key held down while clicking the item.
+
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash

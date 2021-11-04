@@ -90,6 +90,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
   strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
   strncpy(&bar_item->signal_args.name[4][0], "SENDER", 255);
+  strncpy(&bar_item->signal_args.name[5][0], "BUTTON", 255);
+  strncpy(&bar_item->signal_args.name[6][0], "MODIFIER", 255);
   strncpy(&bar_item->signal_args.value[1][0], "false", 255);
 }
 
@@ -235,8 +237,12 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
   bar_item_needs_update(bar_item);
 }
 
-void bar_item_on_click(struct bar_item* bar_item, uint32_t modifier) {
+void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
   if (!bar_item) return;
+
+  strncpy(&bar_item->signal_args.value[5][0], get_type_description(type), 255);
+  strncpy(&bar_item->signal_args.value[6][0], get_modifier_description(modifier), 255);
+
   if (strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)

@@ -12,8 +12,8 @@ extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;
 
 struct signal_args {
-    char name[5][255];
-    char value[5][255];
+    char name[7][255];
+    char value[7][255];
     void *entity;
     void *param1;
 };
@@ -54,6 +54,31 @@ static inline bool is_root(void) {
 static inline bool string_equals(const char *a, const char *b) {
     return a && b && strcmp(a, b) == 0;
 }
+
+static inline char* get_type_description(uint32_t type) {
+  switch (type) {
+    case kCGEventLeftMouseUp:
+      return "left";
+    case kCGEventRightMouseUp:
+      return "right";
+    default:
+      return "other";
+  }
+}
+
+static inline char* get_modifier_description(uint32_t modifier) {
+  if (modifier & kCGEventFlagMaskShift)
+    return "shift";
+  else if (modifier & kCGEventFlagMaskControl)
+    return "ctrl";
+  else if (modifier & kCGEventFlagMaskAlternate)
+    return "alt";
+  else if (modifier & kCGEventFlagMaskCommand)
+    return "cmd";
+  else 
+    return "none";
+}
+
 
 struct token {
     char *text;
@@ -283,6 +308,8 @@ static bool sync_exec(char *command, struct signal_args *args) {
         if (*args->name[2]) setenv(args->name[2], args->value[2], 1);
         if (*args->name[3]) setenv(args->name[3], args->value[3], 1);
         if (*args->name[4]) setenv(args->name[4], args->value[4], 1);
+        if (*args->name[5]) setenv(args->name[5], args->value[5], 1);
+        if (*args->name[6]) setenv(args->name[6], args->value[6], 1);
     }
 
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
