@@ -136,19 +136,19 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
 }
 
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
-  if (!bar_item->updates || (bar_item->update_frequency == 0 && !forced)) return false;
+  if ((!bar_item->updates || (bar_item->update_frequency == 0 && !sender)) && !forced) return false;
   bar_item->counter++;
 
   bool scheduled_update_needed = bar_item->update_frequency <= bar_item->counter;
   bool should_update = bar_item->updates_only_when_shown ? bar_item_is_shown(bar_item) : true;
 
-  if ((scheduled_update_needed && should_update) || forced) {
+  if (((scheduled_update_needed) && should_update) || sender || forced) {
     bar_item->counter = 0;
 
     // Script Update
     if (strlen(bar_item->script) > 0) {
       if (sender) strncpy(&bar_item->signal_args.value[4][0], sender, 255);
-      else strncpy(&bar_item->signal_args.value[4][0], "routine", 255);
+      else strncpy(&bar_item->signal_args.value[4][0], forced ? "forced" : "routine", 255);
       fork_exec(bar_item->script, &bar_item->signal_args);
     }
 

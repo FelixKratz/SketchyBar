@@ -133,7 +133,6 @@ bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   return true;
 }
 
-
 bool bar_manager_set_display(struct bar_manager* bar_manager, char display) {
   if (bar_manager->display == display) return false;
   bar_manager->display = display;
@@ -350,7 +349,7 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->update_mask & flag)
-      bar_item_update(bar_item, name, true);
+      bar_item_update(bar_item, name, false);
   }
 }
 

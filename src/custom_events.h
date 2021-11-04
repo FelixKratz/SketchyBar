@@ -18,7 +18,6 @@ struct custom_event {
 
 struct custom_events {
   uint32_t count;
-  
   struct custom_event** events;
 };
 

@@ -127,7 +127,7 @@ where the settings currently are:
 * *border_width*: the width of the bars border
 * *border_color*: the color of the bars border
 * *blur_radius*: the blur radius to be applied to the background of the bar
-* *padding_left*: padding on the left before first item 
+* *padding_left*: padding on the left before first item
 * *padding_right*: just as padding_right
 * *color*: the color of the bar
 * *display*: on which display to show bar (*main* or *all*)
@@ -136,7 +136,7 @@ where the settings currently are:
 * *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 * *shadow*: if the bar should draw a shadow (*on*, *off*, *toggle*, default: *off*)
 
-## Items and their properties 
+## Items and their properties
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
 <img src="images/bar_item.png" width="300"> <br>
 
@@ -145,7 +145,7 @@ Items are the main building blocks of sketchybar and can be configured in a numb
 sketchybar -m --add item <name> <position>
 ```
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
-The *position* is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the ordered 
+The *position* is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the ordered
 in which they are added.
 
 ### Changing item properties
@@ -209,7 +209,7 @@ inherit these properties from the default item.
 ```bash
 sketchybar -m --default <property>=<value> ... <property>=<value>
 ```
-this works for all item properties. 
+this works for all item properties.
 
 It is also possible to reset the defaults via the command
 ```bash
@@ -217,8 +217,8 @@ sketchybar -m --default reset
 ```
 
 ## Components -- Special Items with special properties
-Components are essentially items, but with special properties. 
-Currently there are the components (more details in the corresponding sections below): 
+Components are essentially items, but with special properties.
+Currently there are the components (more details in the corresponding sections below):
 * *graph*: showing a graph,
 * *space*: representing a mission control space
 * *bracket*: brackets together other items
@@ -257,9 +257,9 @@ where *$SELECTED* has the value *true* if the associated space is selected and *
 
 By default the space component invokes the following script:
 ```bash
-if [ "$SELECTED" = "true" ]; then 
-  sketchybar -m --set $NAME icon.highlight=on 
-else 
+if [ "$SELECTED" = "true" ]; then
+  sketchybar -m --set $NAME icon.highlight=on
+else
   sketchybar -m --set $NAME icon.highlight=off 
 fi
 ```
@@ -272,13 +272,13 @@ For performance reasons the space script is only run on change.
 
 ### Item Bracket -- Group Items in e.g. colored sections
 It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
-```bash 
+```bash
 sketchybar -m --add bracket <name> <first item name> ... <n-th item name>
 ```
-The first item must always be the one listed earliest in the config. It is now possible to 
+The first item must always be the one listed earliest in the config. It is now possible to
 set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
 E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
-```bash 
+```bash
 sketchybar -m --add bracket primary_spaces code                        \
                                            writing                     \
                                            reading                     \
