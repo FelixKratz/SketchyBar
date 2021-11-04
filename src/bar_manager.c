@@ -264,7 +264,6 @@ void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* 
   bar_item_destroy(bar_item);
 }
 
-
 void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if ((!bar_item_is_shown(bar_manager->bar_items[i]) && !forced) || bar_manager->bar_items[i]->type != BAR_COMPONENT_ALIAS) continue;

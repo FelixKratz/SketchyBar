@@ -40,8 +40,8 @@ static void bar_draw_line(struct bar *bar, struct text_line* line, float x, floa
   CTLineDraw(line->line, bar->context);
 }
 
-void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint32_t y, bool right_to_left) {
-  const float height = bar->frame.size.height * 0.9f;
+void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint32_t y, uint32_t height, bool right_to_left) {
+  y-= height / 2;
   uint32_t sample_width = 1;
   bool fill = graph->fill;
   CGContextSaveGState(bar->context);
@@ -83,13 +83,13 @@ void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint3
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
-  bar_draw_graph_line(bar, &bar_item->graph, x, g_bar_manager.background.border_width + 1, right_to_left);
+  bar_draw_graph_line(bar, &bar_item->graph, x, bar->frame.size.height / 2 + bar_item->graph.line_width + bar_item->y_offset, bar_item->background.enabled ? (bar_item->background.height - bar_item->background.border_width - 1) : (bar->frame.size.height - g_bar_manager.background.border_width - 1), right_to_left);
 }
 
 void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
   if (!bar_item->background.enabled) return;
   bool custom_height = bar_item->background.height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
+  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height) / 2 + bar_item->y_offset) : (g_bar_manager.background.border_width + 1)},
                         {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
   draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
