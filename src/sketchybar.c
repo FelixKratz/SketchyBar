@@ -50,7 +50,11 @@ static int client_send_message(int argc, char **argv) {
     int count = 0;
     while (!socket_connect_un(&sockfd, socket_file)) {
       count++;
-      if (count > 100) error("sketchybar-msg: failed to connect to socket..\n");
+      if (count > 100) {
+        shutdown(sockfd, SHUT_WR);
+        socket_close(sockfd);
+        error("sketchybar-msg: failed to connect to socket..\n");
+      } 
     }
 
     int message_length = argc;
@@ -90,7 +94,7 @@ static int client_send_message(int argc, char **argv) {
         { sockfd, POLLIN, 0 }
     };
 
-    int timeout = 50;
+    int timeout = 100;
     while (poll(fds, 1, timeout) > 0) {
         if (fds[0].revents & POLLIN) {
             if ((byte_count = recv(sockfd, rsp, sizeof(rsp)-1, 0)) <= 0) {

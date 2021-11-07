@@ -5,6 +5,7 @@
 #include <stdint.h>
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
+#define FORK_TIMEOUT 10
 
 #include <string.h>
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
@@ -25,6 +26,11 @@ struct rgba_color {
     float g;
     float b;
     float a;
+};
+
+struct token {
+    char *text;
+    unsigned int length;
 };
 
 static uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
@@ -79,12 +85,6 @@ static inline char* get_modifier_description(uint32_t modifier) {
     return "none";
 }
 
-
-struct token {
-    char *text;
-    unsigned int length;
-};
-
 static bool token_equals(struct token token, char *match) {
   char *at = match;
   for (int i = 0; i < token.length; ++i, ++at) {
@@ -110,7 +110,6 @@ static uint32_t token_to_uint32t(struct token token) {
   buffer[token.length] = '\0';
   return strtoul(buffer, NULL, 0);
 }
-
 
 static int token_to_int(struct token token) {
   char buffer[token.length + 1];
@@ -323,7 +322,8 @@ static bool fork_exec(char *command, struct signal_args *args) {
     if (pid == -1) return false;
     if (pid !=  0) return true;
 
-   exit(sync_exec(command, args)); 
+    alarm(FORK_TIMEOUT);
+    exit(sync_exec(command, args));
 }
 #pragma clang diagnostic pop
 
