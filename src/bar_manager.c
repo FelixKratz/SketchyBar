@@ -155,6 +155,8 @@ bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
 }
 
 bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing) {
+  if (bar_manager->font_smoothing == smoothing) return false;
+  bar_manager->font_smoothing = smoothing;
   for (int i = 0; i < bar_manager->bar_count; i++)
     bar_set_font_smoothing(bar_manager->bars[i], smoothing);
   return true;
