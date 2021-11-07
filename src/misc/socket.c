@@ -56,7 +56,7 @@ bool socket_connect_un(int* sockfd, char* socket_path) {
     *sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (*sockfd == -1) return false;
 
-    if (socket_set_timeout(*sockfd)) return false;
+    if (!socket_set_timeout(*sockfd)) return false;
 
     snprintf(socket_address.sun_path, sizeof(socket_address.sun_path), "%s", socket_path);
     return connect(*sockfd, (struct sockaddr *) &socket_address, sizeof(socket_address)) != -1;
