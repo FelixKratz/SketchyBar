@@ -5,6 +5,7 @@
 typedef SOCKET_DAEMON_HANDLER(socket_daemon_handler);
 
 #define FAILURE_MESSAGE "\x07"
+#define SOCKET_TIMEOUT 1
 
 #include <sys/types.h>
 #include <sys/stat.h>

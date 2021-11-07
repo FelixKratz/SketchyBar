@@ -1,7 +1,7 @@
 #include "socket.h"
 #include <pthread.h>
 
-char *socket_read(int sockfd, int *len) {
+char* socket_read(int sockfd, int* len) {
     int cursor = 0;
     int bytes_read = 0;
     char *result = NULL;
@@ -34,7 +34,7 @@ err:
     return result;
 }
 
-bool socket_write_bytes(int sockfd, char *message, int len) {
+bool socket_write_bytes(int sockfd, char* message, int len) {
     return send(sockfd, message, len, 0) != -1;
 }
 
@@ -42,12 +42,21 @@ bool socket_write(int sockfd, char *message) {
     return send(sockfd, message, strlen(message), 0) != -1;
 }
 
-bool socket_connect_un(int *sockfd, char *socket_path) {
+bool socket_set_timeout(int sockfd) {
+    struct timeval timeout = {SOCKET_TIMEOUT, 0};
+    int rcv = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+    int snd = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
+    return rcv >= 0 && snd >= 0;
+}
+
+bool socket_connect_un(int* sockfd, char* socket_path) {
     struct sockaddr_un socket_address;
     socket_address.sun_family = AF_UNIX;
 
     *sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (*sockfd == -1) return false;
+
+    if (socket_set_timeout(*sockfd)) return false;
 
     snprintf(socket_address.sun_path, sizeof(socket_address.sun_path), "%s", socket_path);
     return connect(*sockfd, (struct sockaddr *) &socket_address, sizeof(socket_address)) != -1;
@@ -62,10 +71,10 @@ static void *socket_connection_handler(void *context) {
     struct daemon *daemon = context;
     while (daemon->is_running) {
         int sockfd = accept(daemon->sockfd, NULL, 0);
-        if (sockfd != -1) daemon->handler(sockfd);
+        if (sockfd != -1 && socket_set_timeout(sockfd)) daemon->handler(sockfd);
     }
 
-    return NULL;
+  return NULL;
 }
 
 bool socket_daemon_begin_un(struct daemon *daemon, char *socket_path, socket_daemon_handler *handler) {
