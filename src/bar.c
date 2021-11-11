@@ -1,8 +1,10 @@
 #include "bar.h"
 #include "alias.h"
+#include "background.h"
 #include "bar_item.h"
 #include "display.h"
 #include "graph.h"
+#include "group.h"
 #include "misc/helpers.h"
 #include "text.h"
 #include <_types/_uint32_t.h>
@@ -10,84 +12,9 @@
 
 extern struct bar_manager g_bar_manager;
 
-static CGPoint bar_align_line(struct bar *bar, struct text_line* line, int align_x, int align_y) {
-  float x = 0, y = 0;
-
-  if (align_x == ALIGN_NONE) {
-    x = CGContextGetTextPosition(bar->context).x;
-  } else if (align_x == ALIGN_LEFT) {
-    x = 20;
-  } else if (align_x == ALIGN_CENTER) {
-    x = (bar->frame.size.width / 2) - (line->bounds.size.width  / 2);
-  } else if (align_x == ALIGN_RIGHT) {
-    x = bar->frame.size.width - line->bounds.size.width - 20;
-  }
-
-  if (align_y == ALIGN_NONE) {
-    y = CGContextGetTextPosition(bar->context).y;
-  } else if (align_y == ALIGN_TOP) {
-    y = bar->frame.size.height;
-  } else if (align_y == ALIGN_CENTER) {
-    y = (bar->frame.size.height / 2) - ((line->ascent - line->descent) / 2);
-  } else if (align_y == ALIGN_BOTTOM) {
-    y = line->descent;
-  }
-
-  return (CGPoint) { x, y };
-}
-
-void bar_draw_graph_line(struct bar *bar, struct graph* graph, uint32_t x, uint32_t y, uint32_t height, bool right_to_left) {
-  y-= height / 2;
-  uint32_t sample_width = 1;
-  bool fill = graph->fill;
-  CGContextSaveGState(bar->context);
-  CGContextSetRGBStrokeColor(bar->context, graph->line_color.r, graph->line_color.g, graph->line_color.b, graph->line_color.a);
-  if (graph->overrides_fill_color) CGContextSetRGBFillColor(bar->context, graph->fill_color.r, graph->fill_color.g, graph->fill_color.b, graph->fill_color.a);
-  else CGContextSetRGBFillColor(bar->context, graph->line_color.r, graph->line_color.g, graph->line_color.b, 0.2 * graph->line_color.a);
-  CGContextSetLineWidth(bar->context, graph->line_width);
-  CGMutablePathRef p = CGPathCreateMutable();
-  uint32_t start_x = x;
-  if (right_to_left) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
-    for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
-    }
-  }
-  else {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
-    for (int i = graph->width - 1; i > 0; --i, x += sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
-    }
-  }
-  CGContextAddPath(bar->context, p);
-  CGContextStrokePath(bar->context);
-  if (fill) {
-    if (right_to_left) {
-      CGPathAddLineToPoint(p, NULL, x + sample_width, y);
-    }
-    else {
-      CGPathAddLineToPoint(p, NULL, x - sample_width, y);
-    }
-    CGPathAddLineToPoint(p, NULL, start_x, y);
-    CGPathCloseSubpath(p);
-    CGContextAddPath(bar->context, p);
-    CGContextFillPath(bar->context);
-  }
-  CGPathRelease(p);
-  CGContextRestoreGState(bar->context);
-}
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
-  bar_draw_graph_line(bar, &bar_item->graph, x, bar->frame.size.height / 2 + bar_item->graph.line_width + bar_item->y_offset, bar_item->background.enabled ? (bar_item->background.height - bar_item->background.border_width - 1) : (bar->frame.size.height - g_bar_manager.background.border_width - 1), right_to_left);
-}
-
-void bar_draw_item_background(struct bar* bar, struct bar_item* bar_item, uint32_t adid) {
-  if (!bar_item->background.enabled) return;
-  bool custom_height = bar_item->background.height != 0;
-  CGRect draw_region = {{bar_item->bounding_rects[adid - 1]->origin.x - bar->origin.x, custom_height ? ((bar->frame.size.height - bar_item->background.height) / 2 + bar_item->y_offset) : (g_bar_manager.background.border_width + 1)},
-                        {bar_item->bounding_rects[adid - 1]->size.width, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
-  draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
 }
 
 void bar_draw_group(struct bar* bar, struct bar_item* item, uint32_t adid) {
@@ -95,18 +22,16 @@ void bar_draw_group(struct bar* bar, struct bar_item* item, uint32_t adid) {
     struct bar_item* bar_item = item->group->members[0];
 
     if (!bar_item->background.enabled) return;
-    bool custom_height = bar_item->background.height != 0;
+    bool custom_height = bar_item->background.bounds.size.height != 0;
     uint32_t group_length = group_get_length(bar_item->group);
-    CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.height)) / 2 : (g_bar_manager.background.border_width + 1)},
-                          {group_length, custom_height ? bar_item->background.height : (bar->frame.size.height - 2*(g_bar_manager.background.border_width + 1))}};
-    draw_rect(bar->context, draw_region, &bar_item->background.color, bar_item->background.corner_radius, bar_item->background.border_width, &bar_item->background.border_color, false);
-  }
-}
+    CGRect draw_region = {{item->bounding_rects[adid - 1]->origin.x - bar->origin.x - (item->position == POSITION_RIGHT ? group_length - bar_item_get_length(item) : 0), custom_height ? ((bar->frame.size.height - bar_item->background.bounds.size.height)) / 2 : (g_bar_manager.background.border_width + 1)},
+                          {group_length, custom_height ? bar_item->background.bounds.size.height : (bar->frame.size.height - (g_bar_manager.background.border_width + 1))}};
 
-void bar_draw_alias(struct bar* bar, struct bar_item* bar_item, uint32_t x) {
-  if (!bar_item->has_alias || !bar_item->alias.image_ref) return;
-  CGRect bounds = {{x, (bar->frame.size.height - bar_item->alias.bounds.size.height) / 2 + bar_item->y_offset},{bar_item->alias.bounds.size.width, bar_item->alias.bounds.size.height}};
-  CGContextDrawImage(bar->context, bounds, bar_item->alias.image_ref);
+    bar_item->background.bounds.size.height = draw_region.size.height;
+    bar_item->background.bounds.size.width = group_get_length(bar_item->group);
+    bar_item->background.bounds.origin = draw_region.origin;
+    background_draw(&bar_item->background, bar->context);
+  }
 }
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
@@ -136,14 +61,17 @@ void bar_draw_bar_items(struct bar* bar) {
 
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin);
 
-    bar_draw_group(bar, bar_item, bar->adid);
-    bar_draw_item_background(bar, bar_item, bar->adid);
+    if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
+      group_draw(bar_item->group, bar->context);
 
-    text_draw(&bar_item->icon, bar_item->icon.line.bounds.origin, bar->context);
-    text_draw(&bar_item->label, bar_item->label.line.bounds.origin, bar->context);
+    background_draw(&bar_item->background, bar->context);
+    text_draw(&bar_item->icon, bar->context);
+    text_draw(&bar_item->label, bar->context);
 
-    bar_draw_alias(bar, bar_item, bar_item->sandwich_position);
-    bar_draw_graph(bar, bar_item, bar_item->sandwich_position, bar_item->graph.rtl);
+    if (bar_item->has_alias)
+      alias_draw(&bar_item->alias, bar->context);
+    if (bar_item->has_graph)
+      graph_draw(&bar_item->graph, bar->context);
   }
 
   CGContextFlush(bar->context);
@@ -159,91 +87,102 @@ void bar_redraw(struct bar* bar) {
   int bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
   int bar_center_first_item_x = (bar->frame.size.width - bar_manager_get_center_length_for_bar(&g_bar_manager, bar)) / 2;
 
+  uint32_t y = bar->frame.size.height / 2;
+
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
     if (!bar_draws_item(bar, bar_item)) continue;
 
-    struct text_line* label = &bar_item->label.line;
-    struct text_line* icon = &bar_item->icon.line;
-
-    CGPoint icon_position = bar_align_line(bar, icon, ALIGN_CENTER, ALIGN_CENTER);
-    icon_position.y += bar_item->y_offset;
-
-    CGPoint label_position = bar_align_line(bar, label, ALIGN_CENTER, ALIGN_CENTER);
-    label_position.y += bar_item->y_offset;
+    uint32_t icon_position = 0;
+    uint32_t label_position = 0;
 
     uint32_t sandwich_position = 0;
     bool rtl = false;
 
     if (bar_item->position == POSITION_LEFT) {
-      icon_position.x = bar_left_final_item_x + bar_item->background.padding_left + 1;
-      label_position.x = icon_position.x + text_get_length(&bar_item->icon);
+      icon_position = bar_left_final_item_x + bar_item->background.padding_left + 1;
+      label_position = icon_position + text_get_length(&bar_item->icon);
       
       if (!bar_item->has_const_width)
-        bar_left_final_item_x = label_position.x + text_get_length(&bar_item->label) + bar_item->background.padding_right;
+        bar_left_final_item_x = label_position + text_get_length(&bar_item->label) + bar_item->background.padding_right;
       else
         bar_left_final_item_x += bar_item->custom_width;
       
-      sandwich_position = label_position.x;
+      sandwich_position = label_position;
       if (bar_item->has_graph) { 
         if (!bar_item->has_const_width)
           bar_left_final_item_x += graph_get_length(&bar_item->graph);
-        label_position.x += graph_get_length(&bar_item->graph);
+        label_position += graph_get_length(&bar_item->graph);
       } else if (bar_item->has_alias) {
         if (!bar_item->has_const_width)
           bar_left_final_item_x += alias_get_length(&bar_item->alias);
-        label_position.x += alias_get_length(&bar_item->alias);
+        label_position += alias_get_length(&bar_item->alias);
       }
     }
     else if (bar_item->position == POSITION_RIGHT) {
       rtl = true;
-      label_position.x = bar_right_first_item_x - text_get_length(&bar_item->label) - bar_item->background.padding_right;
-      icon_position.x = label_position.x - text_get_length(&bar_item->icon) - 1;
+      label_position = bar_right_first_item_x - text_get_length(&bar_item->label) - bar_item->background.padding_right;
+      icon_position = label_position - text_get_length(&bar_item->icon) - 1;
 
       if (!bar_item->has_const_width)
-        bar_right_first_item_x = icon_position.x - bar_item->background.padding_left;
+        bar_right_first_item_x = icon_position - bar_item->background.padding_left;
       else 
         bar_right_first_item_x -= bar_item->custom_width;
 
       if (bar_item->has_graph) {
         if (!bar_item->has_const_width)
           bar_right_first_item_x -= graph_get_length(&bar_item->graph);
-        sandwich_position = icon_position.x + text_get_length(&bar_item->icon);
-        icon_position.x -= graph_get_length(&bar_item->graph);
+        sandwich_position = icon_position + text_get_length(&bar_item->icon);
+        icon_position -= graph_get_length(&bar_item->graph);
       } else if (bar_item->has_alias) {
         if (!bar_item->has_const_width)
-          icon_position.x -= alias_get_length(&bar_item->alias);
+          icon_position -= alias_get_length(&bar_item->alias);
         bar_right_first_item_x -= alias_get_length(&bar_item->alias); 
-        sandwich_position = icon_position.x + text_get_length(&bar_item->icon);
+        sandwich_position = icon_position + text_get_length(&bar_item->icon);
       }
     }
     else if (bar_item->position == POSITION_CENTER) {
-      icon_position.x = bar_center_first_item_x + bar_item->background.padding_left + 1;
-      label_position.x = icon_position.x + text_get_length(&bar_item->icon);
+      icon_position = bar_center_first_item_x + bar_item->background.padding_left + 1;
+      label_position = icon_position + text_get_length(&bar_item->icon);
 
       if (!bar_item->has_const_width)
-        bar_center_first_item_x = label_position.x + text_get_length(&bar_item->label) + bar_item->background.padding_right;
+        bar_center_first_item_x = label_position + text_get_length(&bar_item->label) + bar_item->background.padding_right;
       else
         bar_center_first_item_x += bar_item->custom_width;
 
-      sandwich_position = label_position.x;
+      sandwich_position = label_position;
       if (bar_item->has_graph) {
         if (!bar_item->has_const_width)
           bar_center_first_item_x += graph_get_length(&bar_item->graph);
-        label_position.x += graph_get_length(&bar_item->graph);
+        label_position += graph_get_length(&bar_item->graph);
       } else if (bar_item->has_alias) {
         if (!bar_item->has_const_width)
           bar_center_first_item_x += alias_get_length(&bar_item->alias); 
-        label_position.x += alias_get_length(&bar_item->alias); 
+        label_position += alias_get_length(&bar_item->alias); 
       }
     }
 
-    bar_item->icon.line.bounds.origin = icon_position;
-    bar_item->label.line.bounds.origin = label_position;
+    if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
+      group_calculate_bounds(bar_item->group, icon_position, y);
 
-    bar_item->graph.rtl = rtl;
-    bar_item->sandwich_position = sandwich_position;
+    text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
+    text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);
+
+    if (bar_item->has_alias)
+      alias_calculate_bounds(&bar_item->alias, sandwich_position, y + bar_item->y_offset);
+
+    if (bar_item->has_graph) {
+      bar_item->graph.bounds.size.height = bar_item->background.enabled ? (bar_item->background.bounds.size.height - bar_item->background.border_width - 1)
+                                                                      : (bar->frame.size.height - (g_bar_manager.background.border_width + 1));
+      bar_item->graph.rtl = rtl;
+      graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
+    }
+
+    bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
+                                                                                    : (bar->frame.size.height - (g_bar_manager.background.border_width + 1));
+    bar_item->background.bounds.size.width = bar_item_get_length(bar_item);
+    background_calculate_bounds(&bar_item->background, icon_position, y + bar_item->y_offset);
   }
 
   bar_draw_bar_items(bar);
@@ -258,13 +197,13 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 
 
   if (g_bar_manager.position == POSITION_BOTTOM) {
-    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.background.height - 2*g_bar_manager.y_offset;
+    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.background.bounds.size.height - 2*g_bar_manager.y_offset;
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
     origin.y += menu.size.height;
   }
 
-  bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.background.height}};
+  bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.background.bounds.size.height}};
   bar->origin = origin;
   CGSNewRegionWithRect(&bar->frame, frame_region);
 }

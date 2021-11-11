@@ -5,8 +5,7 @@
 struct background {
   bool enabled;
   bool overrides_height;
-  uint32_t height;
-  uint32_t width;
+  CGRect bounds;
   uint32_t corner_radius;
   uint32_t border_width;
   int padding_left;
@@ -25,7 +24,8 @@ bool background_set_corner_radius(struct background* background, uint32_t corner
 bool background_set_padding_left(struct background* background, uint32_t pad);
 bool background_set_padding_right(struct background* background, uint32_t pad);
 
-void background_draw(struct background* background, CGPoint origin, CGContextRef context);
+void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y);
+void background_draw(struct background* background, CGContextRef context);
 
 static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);
 

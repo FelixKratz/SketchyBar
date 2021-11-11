@@ -5,8 +5,8 @@ void background_init(struct background* background) {
   background->enabled = false;
   background->overrides_height = false;
 
-  background->height = 0;
-  background->width = 0;
+  background->bounds.size.height = 25;
+  background->bounds.size.width = 0;
   background->border_width = 0;
   background->padding_left = 0;
   background->padding_right = 0;
@@ -44,8 +44,8 @@ bool background_set_enabled(struct background* background, bool enabled) {
 }
 
 bool background_set_height(struct background* background, uint32_t height) {
-  if (background->height == height) return false;
-  background->height = height;
+  if (background->bounds.size.height == height) return false;
+  background->bounds.size.height = height;
   background->overrides_height = height != 0;
   return true;
 }
@@ -74,10 +74,14 @@ bool background_set_padding_right(struct background* background, uint32_t pad) {
   return true;
 }
 
-void background_draw(struct background* background, CGPoint origin, CGContextRef context) {
+void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y) {
+  background->bounds.origin.x = x;
+  background->bounds.origin.y = y - background->bounds.size.height / 2;
+}
+
+void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
-  CGRect draw_region = {{origin.x, origin.y}, {background->width, background->height}};
-  draw_rect(context, draw_region, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
+  draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
 
 static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {

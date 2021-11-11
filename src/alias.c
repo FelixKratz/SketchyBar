@@ -114,22 +114,6 @@ void alias_find_window(struct alias* alias) {
   CFRelease(window_list);
 }
 
-/*
-void alias_click(struct alias* alias) {
-  printf("Click \n");
-  CGEventSourceRef event_source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState); 
-  CGEventRef click_event = CGEventCreateMouseEvent(event_source, kCGEventLeftMouseDown, CGPointMake(alias->bounds.origin.x + 5,alias->bounds.origin.y + 5), kCGMouseButtonLeft);
-  CGEventPostToPid(alias->pid, click_event);
-  //CGEventPost(kCGHIDEventTap, click_event);
-
-  CGEventSetType(click_event, kCGEventLeftMouseUp);
-  CGEventPostToPid(alias->pid, click_event);
-  //CGEventPost(kCGHIDEventTap, click_event);
-
-  CFRelease(click_event);
-  CFRelease(event_source);
-}*/
-
 bool alias_update_image(struct alias* alias) {
   if (alias->wid == 0) alias_find_window(alias);
   if (alias->wid == 0) {
@@ -139,11 +123,9 @@ bool alias_update_image(struct alias* alias) {
 
   SLSGetScreenRectForWindow(g_connection, alias->wid, &alias->bounds);
   alias->bounds.size.width = (uint32_t) (alias->bounds.size.width + 0.5);
-  alias->bounds.origin.x = (uint32_t) (alias->bounds.origin.x + 0.5);
 
   CGImageRef tmp_ref = NULL;
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
-  // alias_click(alias);
 
   if (!tmp_ref) { alias->wid = 0; return false; }
 
@@ -151,4 +133,14 @@ bool alias_update_image(struct alias* alias) {
   alias->image_ref = tmp_ref;
 
   return true;
+}
+
+void alias_draw(struct alias* alias, CGContextRef context) {
+  if (!alias->image_ref) return;
+  CGContextDrawImage(context, alias->bounds, alias->image_ref);
+}
+
+void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
+  alias->bounds.origin.x = x;
+  alias->bounds.origin.y = y - alias->bounds.size.height / 2;
 }

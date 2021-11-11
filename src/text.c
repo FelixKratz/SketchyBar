@@ -43,20 +43,20 @@ void text_init(struct text* text) {
   text_set_string(text, text->string, false);
 }
 
-void text_prepare_line(struct text_line* text_line, CTFontRef font, char* cstring, struct rgba_color color) {
+void text_prepare_line(struct text* text) {
   const void *keys[] = { kCTFontAttributeName, kCTForegroundColorFromContextAttributeName };
-  const void *values[] = { font, kCFBooleanTrue };
+  const void *values[] = { text->font, kCFBooleanTrue };
   CFDictionaryRef attributes = CFDictionaryCreate(NULL, keys, values, array_count(keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFStringRef string = CFStringCreateWithCString(NULL, cstring, kCFStringEncodingUTF8);
+  CFStringRef string = CFStringCreateWithCString(NULL, text->string, kCFStringEncodingUTF8);
   if (!string) string = CFStringCreateWithCString(NULL, "Warning: Malformed UTF-8 string", kCFStringEncodingUTF8);
   CFAttributedStringRef attr_string = CFAttributedStringCreate(NULL, string, attributes);
-  text_line->line = CTLineCreateWithAttributedString(attr_string);
+  text->line.line = CTLineCreateWithAttributedString(attr_string);
 
-  CTLineGetTypographicBounds(text_line->line, &text_line->ascent, &text_line->descent, NULL);
-  text_line->bounds = CTLineGetBoundsWithOptions(text_line->line, kCTLineBoundsUseGlyphPathBounds);
-  text_line->bounds.size.width = (uint32_t) (text_line->bounds.size.width + 0.5);
-  text_line->bounds.origin.x = (uint32_t) (text_line->bounds.origin.x + 0.5);
-  text_line->color = color;
+  CTLineGetTypographicBounds(text->line.line, &text->line.ascent, &text->line.descent, NULL);
+  text->bounds = CTLineGetBoundsWithOptions(text->line.line, kCTLineBoundsUseGlyphPathBounds);
+  text->bounds.size.width = (uint32_t) (text->bounds.size.width + 0.5);
+  text->bounds.origin.x = (uint32_t) (text->bounds.origin.x + 0.5);
+  text->line.color = text->highlight ? text->highlight_color : text->color;
 
   CFRelease(string);
   CFRelease(attributes);
@@ -72,7 +72,7 @@ bool text_set_string(struct text* text, char* string, bool forced) {
   if (text->line.line) text_destroy_line(text);
   if (string != text->string && !text->string) free(text->string);
   text->string = string;
-  text_prepare_line(&text->line, text->font, text->string, text->highlight ? text->highlight_color : text->color);
+  text_prepare_line(text);
   return true;
 }
 
@@ -111,11 +111,11 @@ void text_clear_pointers(struct text* text) {
 uint32_t text_get_length(struct text* text) {
   if (!text->drawing) return 0;
   if (text->has_const_width) return text->custom_width;
-  return (text->line.bounds.size.width + text->padding_left + text->padding_right) > 0 ? (text->line.bounds.size.width + text->padding_left + text->padding_right) : 0;
+  return (text->bounds.size.width + text->padding_left + text->padding_right) > 0 ? (text->bounds.size.width + text->padding_left + text->padding_right) : 0;
 }
 
 uint32_t text_get_height(struct text* text) {
-  return text->line.bounds.size.height;
+  return text->bounds.size.height;
 }
 
 void text_destroy_line(struct text* text) {
@@ -131,10 +131,15 @@ void text_destroy(struct text* text) {
   text_clear_pointers(text);
 }
 
-void text_draw(struct text* text, CGPoint origin, CGContextRef context) {
+void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
+  text->bounds.origin.x = x;
+  text->bounds.origin.y = y - ((text->line.ascent - text->line.descent) / 2);
+}
+
+void text_draw(struct text* text, CGContextRef context) {
   if (!text->drawing) return;
   CGContextSetRGBFillColor(context, text->line.color.r, text->line.color.g, text->line.color.b, text->line.color.a);
-  CGContextSetTextPosition(context, origin.x + text->padding_left, origin.y + text->y_offset);
+  CGContextSetTextPosition(context, text->bounds.origin.x + text->padding_left, text->bounds.origin.y + text->y_offset);
   CTLineDraw(text->line.line, context);
 }
 

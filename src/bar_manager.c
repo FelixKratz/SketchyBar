@@ -31,7 +31,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->picky_redraw = false;
 
   background_init(&bar_manager->background);
-  bar_manager->background.height = 25;
+  bar_manager->background.bounds.size.height = 25;
   bar_manager->background.padding_left = 20;
   bar_manager->background.padding_right = 20;
   bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
@@ -428,7 +428,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t},\n"
                "\t\"items\": [\n",
                bar_manager->position,
-               bar_manager->background.height,
+               (uint32_t)bar_manager->background.bounds.size.height,
                bar_manager->margin,
                bar_manager->y_offset,
                bar_manager->background.corner_radius,

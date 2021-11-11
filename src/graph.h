@@ -9,6 +9,7 @@ struct graph {
   uint32_t cursor;
   uint32_t width;
   float* y;
+  CGRect bounds;
 
   // Visual
   bool fill;
@@ -24,6 +25,9 @@ void graph_push_back(struct graph* graph, float y);
 void graph_destruct(struct graph* graph);
 float graph_get_y(struct graph* graph, uint32_t i);
 uint32_t graph_get_length(struct graph* graph);
+
+void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y);
+void graph_draw(struct graph* graph, CGContextRef context);
 
 static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message);
 

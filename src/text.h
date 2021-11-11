@@ -1,15 +1,17 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include <_types/_uint32_t.h>
+#include <stdint.h>
 struct text_line {
   CTLineRef line;
   CGFloat ascent;
   CGFloat descent;
-  CGRect bounds;
   struct rgba_color color;
 };
 
 struct text {
+  CGRect bounds;
   int y_offset;
   bool highlight;
   bool drawing;
@@ -38,7 +40,8 @@ uint32_t text_get_length(struct text* text);
 uint32_t text_get_height(struct text* text);
 bool text_update_color(struct text* text);
 
-void text_draw(struct text* text, CGPoint origin, CGContextRef context);
+void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
+void text_draw(struct text* text, CGContextRef context);
 
 static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);
 

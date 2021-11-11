@@ -1,4 +1,5 @@
 #include "graph.h"
+#include <_types/_uint32_t.h>
 
 void graph_init(struct graph* graph, uint32_t width) {
   graph->width = width;
@@ -35,6 +36,55 @@ void graph_push_back(struct graph* graph, float y) {
 uint32_t graph_get_length(struct graph* graph) {
   if (graph->enabled) return graph->width;
   return 0;
+}
+
+void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y) {
+  graph->bounds.origin.x = x;
+  graph->bounds.origin.y = y - graph->bounds.size.height / 2 + graph->line_width;
+}
+
+void graph_draw(struct graph* graph, CGContextRef context) {
+  uint32_t x = graph->bounds.origin.x;
+  uint32_t y = graph->bounds.origin.y;
+  uint32_t height = graph->bounds.size.height;
+
+  uint32_t sample_width = 1;
+  bool fill = graph->fill;
+  CGContextSaveGState(context);
+  CGContextSetRGBStrokeColor(context, graph->line_color.r, graph->line_color.g, graph->line_color.b, graph->line_color.a);
+  if (graph->overrides_fill_color) CGContextSetRGBFillColor(context, graph->fill_color.r, graph->fill_color.g, graph->fill_color.b, graph->fill_color.a);
+  else CGContextSetRGBFillColor(context, graph->line_color.r, graph->line_color.g, graph->line_color.b, 0.2 * graph->line_color.a);
+  CGContextSetLineWidth(context, graph->line_width);
+  CGMutablePathRef p = CGPathCreateMutable();
+  uint32_t start_x = x;
+  if (graph->rtl) {
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
+    for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
+      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
+    }
+  }
+  else {
+    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
+    for (int i = graph->width - 1; i > 0; --i, x += sample_width) {
+      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
+    }
+  }
+  CGContextAddPath(context, p);
+  CGContextStrokePath(context);
+  if (fill) {
+    if (graph->rtl) {
+      CGPathAddLineToPoint(p, NULL, x + sample_width, y);
+    }
+    else {
+      CGPathAddLineToPoint(p, NULL, x - sample_width, y);
+    }
+    CGPathAddLineToPoint(p, NULL, start_x, y);
+    CGPathCloseSubpath(p);
+    CGContextAddPath(context, p);
+    CGContextFillPath(context);
+  }
+  CGPathRelease(p);
+  CGContextRestoreGState(context);
 }
 
 static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {

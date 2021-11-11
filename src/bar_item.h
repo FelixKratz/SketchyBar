@@ -49,7 +49,6 @@ struct bar_item {
   bool has_graph;
   struct graph graph;
 
-  uint32_t sandwich_position;
   // Alias Data
   bool has_alias;
   struct alias alias;
