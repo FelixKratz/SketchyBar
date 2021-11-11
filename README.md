@@ -171,6 +171,9 @@ Icon properties:
 * *icon.padding_left*: left padding of icon (default: 0)
 * *icon.padding_right*: right padding of icon (default: 0)
 * *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*) (Only on HEAD)
+* *icon.y_offset*: the vertical offset of the icon (default: 0) (Only on HEAD)
+* *icon.background.<property>*: all background properties are also available for the icon (Only on HEAD)
 
 Label properties:
 * *label*: the label of the item
@@ -180,6 +183,9 @@ Label properties:
 * *label.padding_left*: left padding of label (default: 0)
 * *label.padding_right*: right padding of label (default: 0)
 * *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
+* *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*) (Only on HEAD)
+* *label.y_offset*: the vertical offset of the label (default: 0) (Only on HEAD)
+* *label.background.<property>*: all background properties are also available for the label (Only on HEAD)
 
 Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
