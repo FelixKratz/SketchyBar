@@ -26,9 +26,13 @@ static CTFontRef text_create_font(char *cstring) {
 }
 
 void text_init(struct text* text) {
+  text->drawing = true;
   text->highlight = false;
+  text->has_const_width = false;
+  text->custom_width = 0;
   text->padding_left = 0;
   text->padding_right = 0;
+  text->y_offset = 0;
 
   text->color = rgba_color_from_hex(0xffffffff);
 
@@ -105,6 +109,8 @@ void text_clear_pointers(struct text* text) {
 }
 
 uint32_t text_get_length(struct text* text) {
+  if (!text->drawing) return 0;
+  if (text->has_const_width) return text->custom_width;
   return (text->line.bounds.size.width + text->padding_left + text->padding_right) > 0 ? (text->line.bounds.size.width + text->padding_left + text->padding_right) : 0;
 }
 
@@ -125,24 +131,44 @@ void text_destroy(struct text* text) {
   text_clear_pointers(text);
 }
 
+void text_draw(struct text* text, CGPoint origin, CGContextRef context) {
+  if (!text->drawing) return;
+  CGContextSetRGBFillColor(context, text->line.color.r, text->line.color.g, text->line.color.b, text->line.color.a);
+  CGContextSetTextPosition(context, origin.x + text->padding_left, origin.y + text->y_offset);
+  CTLineDraw(text->line.line, context);
+}
+
 static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_COLOR))
     return text_set_color(text, token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
     text->highlight = evaluate_boolean_state(get_token(&message), text->highlight);
     return text_update_color(text);
-  } 
-  else if (token_equals(property, PROPERTY_FONT))
+  } else if (token_equals(property, PROPERTY_FONT))
     return text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     text->highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     return text_update_color(text);
-  } 
-  else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+  } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     text->padding_left = token_to_int(get_token(&message));
     return true;
   } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
     text->padding_right = token_to_int(get_token(&message));
+    return true;
+  } else if (token_equals(property, PROPERTY_YOFFSET)) {
+    text->y_offset = token_to_int(get_token(&message));
+    return true;
+  } else if (token_equals(property, PROPERTY_WIDTH)) {
+    struct token token = get_token(&message);
+    if (token_equals(token, "dynamic"))
+      text->has_const_width = false;
+    else {
+      text->has_const_width = true;
+      text->custom_width = token_to_uint32t(token);
+    }
+    return true;
+  } else if (token_equals(property, PROPERTY_DRAWING)) {
+    text->drawing = evaluate_boolean_state(get_token(&message), text->drawing);
     return true;
   } 
   else {

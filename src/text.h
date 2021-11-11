@@ -10,15 +10,21 @@ struct text_line {
 };
 
 struct text {
+  int y_offset;
   bool highlight;
-  struct text_line line;
+  bool drawing;
+  bool has_const_width;
+  uint32_t custom_width;
   char* string;
   char* font_name;
   CTFontRef font;
   int padding_left;
   int padding_right;
+  struct text_line line;
   struct rgba_color color;
   struct rgba_color highlight_color;
+
+  struct background background;
 };
 
 void text_init(struct text* text);
@@ -31,6 +37,8 @@ bool text_set_font(struct text* text, char* font_string, bool forced);
 uint32_t text_get_length(struct text* text);
 uint32_t text_get_height(struct text* text);
 bool text_update_color(struct text* text);
+
+void text_draw(struct text* text, CGPoint origin, CGContextRef context);
 
 static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);
 

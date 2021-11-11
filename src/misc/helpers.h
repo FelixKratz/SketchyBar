@@ -5,7 +5,7 @@
 #include <stdint.h>
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
-#define FORK_TIMEOUT 10
+#define FORK_TIMEOUT 60
 
 #include <string.h>
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);

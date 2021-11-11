@@ -20,8 +20,6 @@ struct bar_item {
   bool drawing;
   bool has_const_width;
   uint32_t custom_width;
-  bool queued_for_redraw;
-  bool redraw_in_place;
 
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
   uint32_t associated_bar;

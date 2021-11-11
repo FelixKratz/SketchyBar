@@ -37,7 +37,6 @@ extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef proper
 
 struct bar {
   bool hidden;
-  bool background_exists;
   uint32_t id;
   uint32_t did;
   uint32_t sid;
