@@ -1,4 +1,5 @@
 #include "text.h"
+#include "background.h"
 #include "misc/helpers.h"
 #include <stdint.h>
 
@@ -111,7 +112,8 @@ void text_clear_pointers(struct text* text) {
 uint32_t text_get_length(struct text* text) {
   if (!text->drawing) return 0;
   if (text->has_const_width) return text->custom_width;
-  return (text->bounds.size.width + text->padding_left + text->padding_right) > 0 ? (text->bounds.size.width + text->padding_left + text->padding_right) : 0;
+  int width = text->bounds.size.width + text->padding_left + text->padding_right;
+  return width > 0 ? width : 0;
 }
 
 uint32_t text_get_height(struct text* text) {
@@ -134,10 +136,18 @@ void text_destroy(struct text* text) {
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   text->bounds.origin.x = x;
   text->bounds.origin.y = y - ((text->line.ascent - text->line.descent) / 2);
+
+  if (text->background.enabled) {
+    text->background.bounds.size.width = text_get_length(text);
+    text->background.bounds.size.height = text->background.overrides_height ? text->background.bounds.size.height : text->bounds.size.height;
+    background_calculate_bounds(&text->background, x, y);
+  }
 }
 
 void text_draw(struct text* text, CGContextRef context) {
   if (!text->drawing) return;
+  if (text->background.enabled)
+    background_draw(&text->background, context);
   CGContextSetRGBFillColor(context, text->line.color.r, text->line.color.g, text->line.color.b, text->line.color.a);
   CGContextSetTextPosition(context, text->bounds.origin.x + text->padding_left, text->bounds.origin.y + text->y_offset);
   CTLineDraw(text->line.line, context);
@@ -177,8 +187,23 @@ static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token pro
     return true;
   } 
   else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+    struct token subdom;
+    struct token entry;
+    get_key_value_pair(property.text, &subdom.text, &entry.text, '.');
+    if (subdom.text && entry.text) {
+      subdom.length = strlen(subdom.text);
+      entry.length = strlen(entry.text);
+      if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
+        return background_parse_sub_domain(&text->background, rsp, entry, message);
+      else {
+        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
+        printf("Invalid subdomain: %s \n", subdom.text);
+      }
+    }
+    else {
+      fprintf(rsp, "Unknown property: %s \n", property.text);
+      printf("Unknown property: %s \n", property.text);
+    }
   }
   return false;
 }

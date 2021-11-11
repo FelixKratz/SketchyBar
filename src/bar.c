@@ -101,7 +101,7 @@ void bar_redraw(struct bar* bar) {
     bool rtl = false;
 
     if (bar_item->position == POSITION_LEFT) {
-      icon_position = bar_left_final_item_x + bar_item->background.padding_left + 1;
+      icon_position = bar_left_final_item_x + bar_item->background.padding_left;
       label_position = icon_position + text_get_length(&bar_item->icon);
       
       if (!bar_item->has_const_width)
@@ -123,7 +123,7 @@ void bar_redraw(struct bar* bar) {
     else if (bar_item->position == POSITION_RIGHT) {
       rtl = true;
       label_position = bar_right_first_item_x - text_get_length(&bar_item->label) - bar_item->background.padding_right;
-      icon_position = label_position - text_get_length(&bar_item->icon) - 1;
+      icon_position = label_position - text_get_length(&bar_item->icon);
 
       if (!bar_item->has_const_width)
         bar_right_first_item_x = icon_position - bar_item->background.padding_left;
@@ -143,7 +143,7 @@ void bar_redraw(struct bar* bar) {
       }
     }
     else if (bar_item->position == POSITION_CENTER) {
-      icon_position = bar_center_first_item_x + bar_item->background.padding_left + 1;
+      icon_position = bar_center_first_item_x + bar_item->background.padding_left;
       label_position = icon_position + text_get_length(&bar_item->icon);
 
       if (!bar_item->has_const_width)
