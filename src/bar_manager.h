@@ -27,7 +27,7 @@ struct bar_manager {
   char display;
   uint32_t margin;
   uint32_t blur_radius;
-  uint32_t y_offset;
+  int y_offset;
   bool shadow;
 
   struct background background;

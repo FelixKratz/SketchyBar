@@ -272,7 +272,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     needs_refresh = true;
   } else if (token_equals(command, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    g_bar_manager.y_offset = token_to_uint32t(token);
+    g_bar_manager.y_offset = token_to_int(token);
     needs_refresh = true;
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);
