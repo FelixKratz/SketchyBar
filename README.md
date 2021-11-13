@@ -360,6 +360,7 @@ where the events are:
 * *front_app_switched*: when the frontmost application changes (not triggered if a different app of the same window is focused)
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
+* *system_will_sleep*: when the system is preparing to sleep (Only on HEAD)
 * *system_woke*: when the system has awaken from sleep
 * *mouse.entered*: when the mouse enters over an item
 * *mouse.exited*: when the mouse leaves an item
@@ -384,6 +385,8 @@ $MODIFIER
 ```
 where the $BUTTON can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the $MODIFIER is either *shift*, *ctrl*, *alt* or *cmd* and 
 specifies the modifier key held down while clicking the item.
+
+HEAD: All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
