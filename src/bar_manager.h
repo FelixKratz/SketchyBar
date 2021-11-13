@@ -12,6 +12,7 @@ typedef SHELL_TIMER_CALLBACK(shell_timer_callback);
 struct bar_manager {
   bool any_bar_hidden;
   bool frozen;
+  bool sleeps;
   bool picky_redraw;
   bool topmost;
   bool font_smoothing;
@@ -76,6 +77,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
+void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t sid);
 

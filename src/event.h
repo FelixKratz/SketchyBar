@@ -15,6 +15,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED);
 static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED);
 static EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED);
 static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE);
+static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP);
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH);
 static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE);
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
@@ -42,6 +43,7 @@ enum event_type {
     DISPLAY_CHANGED,
     MENU_BAR_HIDDEN_CHANGED,
     SYSTEM_WOKE,
+    SYSTEM_WILL_SLEEP,
     SHELL_REFRESH,
     DAEMON_MESSAGE,
     MOUSE_UP,
@@ -64,6 +66,7 @@ static const char *event_type_str[] = {
     [DISPLAY_CHANGED]                = "display_changed",
     [MENU_BAR_HIDDEN_CHANGED]        = "menu_bar_hidden_changed",
     [SYSTEM_WOKE]                    = "system_woke",
+    [SYSTEM_WILL_SLEEP]              = "system_will_sleep",
     [SHELL_REFRESH]                  = "shell_refresh",
     [DAEMON_MESSAGE]                 = "daemon_message",
     [MOUSE_UP]                       = "mouse_up",
@@ -89,6 +92,7 @@ static event_callback *event_handler[] = {
 
     [MENU_BAR_HIDDEN_CHANGED]        = EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED,
     [SYSTEM_WOKE]                    = EVENT_HANDLER_SYSTEM_WOKE,
+    [SYSTEM_WILL_SLEEP]              = EVENT_HANDLER_SYSTEM_WILL_SLEEP,
     [SHELL_REFRESH]                  = EVENT_HANDLER_SHELL_REFRESH,
     [DAEMON_MESSAGE]                 = EVENT_HANDLER_DAEMON_MESSAGE,
 };

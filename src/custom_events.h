@@ -8,6 +8,7 @@
 #define UPDATE_MOUSE_ENTERED      1ULL << 4
 #define UPDATE_MOUSE_EXITED       1ULL << 5
 #define UPDATE_MOUSE_CLICKED      1ULL << 6
+#define UPDATE_SYSTEM_WILL_SLEEP  1ULL << 7
 
 extern void* g_workspace_context;
 

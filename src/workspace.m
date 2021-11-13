@@ -39,6 +39,10 @@ void workspace_create_custom_observer (void **context, char* notification) {
                 name:NSWorkspaceDidActivateApplicationNotification
                 object:nil];
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(willSleep:)
+                name:NSWorkspaceWillSleepNotification
+                object:nil];
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didWake:)
                 name:NSWorkspaceDidWakeNotification
                 object:nil];
@@ -68,6 +72,11 @@ void workspace_create_custom_observer (void **context, char* notification) {
 - (void) allDistributedNotifications:(NSNotification *)note {
     char* name = (char*)[[note name] UTF8String];
     struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, string_copy(name));
+    event_loop_post(&g_event_loop, event);
+}
+
+- (void)willSleep:(NSNotification *)notification {
+    struct event *event = event_create(&g_event_loop, SYSTEM_WILL_SLEEP, NULL);
     event_loop_post(&g_event_loop, event);
 }
 

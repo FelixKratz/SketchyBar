@@ -84,6 +84,12 @@ static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
     return EVENT_SUCCESS;
 }
 
+static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP) {
+    debug("%s:\n", __FUNCTION__);
+    bar_manager_handle_system_will_sleep(&g_bar_manager);
+    return EVENT_SUCCESS;
+}
+
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     debug("%s\n", __FUNCTION__);
     bar_manager_update(&g_bar_manager, false);

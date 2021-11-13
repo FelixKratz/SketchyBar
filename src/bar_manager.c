@@ -26,6 +26,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->blur_radius = 0;
   bar_manager->margin = 0;
   bar_manager->frozen = false;
+  bar_manager->sleeps = false;
   bar_manager->window_level = NSFloatingWindowLevel;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
@@ -304,7 +305,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
-  if (bar_manager->frozen && !forced) return;
+  if ((bar_manager->frozen && !forced) || bar_manager->sleeps) return;
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     needs_refresh |= bar_item_update(bar_manager->bar_items[i], NULL, forced);
@@ -390,7 +391,13 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_DISPLAY_CHANGE);
 }
 
+void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SYSTEM_WILL_SLEEP);
+  bar_manager->sleeps = true;
+}
+
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
+  bar_manager->sleeps = false;
   bar_manager_update_space_components(bar_manager, false);
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SYSTEM_WOKE);
   bar_manager_refresh(bar_manager, true);
