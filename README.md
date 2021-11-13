@@ -263,15 +263,11 @@ where *$SELECTED* has the value *true* if the associated space is selected and *
 
 By default the space component invokes the following script:
 ```bash
-if [ "$SELECTED" = "true" ]; then
-  sketchybar -m --set $NAME icon.highlight=on
-else
-  sketchybar -m --set $NAME icon.highlight=off 
-fi
+sketchybar -m --set $NAME icon.highlight=$SELECTED
 ```
 which you can freely configure to your liking by supplying a different script to the space component:
 ```bash
-sketchybar -m --set <name> script=<path to script>
+sketchybar -m --set <name> script=<script/path>
 ```
 
 For performance reasons the space script is only run on change.

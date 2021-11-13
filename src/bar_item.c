@@ -185,11 +185,7 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
   if (type == BAR_COMPONENT_SPACE) {
     if (strlen(bar_item->script) == 0) { 
-        bar_item_set_script(bar_item, string_copy("if [ \"$SELECTED\" = \"true\" ]; then "
-                                                    "sketchybar -m --set $NAME icon.highlight=on;"
-                                                  "else "
-                                                    "sketchybar -m --set $NAME icon.highlight=off;"
-                                                  " fi")); 
+        bar_item_set_script(bar_item, string_copy("sketchybar -m --set $NAME icon.highlight=$SELECTED"));
     }
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
