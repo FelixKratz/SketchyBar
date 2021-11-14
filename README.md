@@ -171,9 +171,9 @@ Icon properties:
 * *icon.padding_left*: left padding of icon (default: 0)
 * *icon.padding_right*: right padding of icon (default: 0)
 * *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
-* *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*) (Only on HEAD)
-* *icon.y_offset*: the vertical offset of the icon (default: 0) (Only on HEAD)
-* *icon.background.<property>*: all background properties are also available for the icon (Only on HEAD)
+* *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
+* *icon.y_offset*: the vertical offset of the icon (default: 0)
+* *icon.background.<property>*: all background properties are also available for the icon
 
 Label properties:
 * *label*: the label of the item
@@ -183,9 +183,9 @@ Label properties:
 * *label.padding_left*: left padding of label (default: 0)
 * *label.padding_right*: right padding of label (default: 0)
 * *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
-* *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*) (Only on HEAD)
-* *label.y_offset*: the vertical offset of the label (default: 0) (Only on HEAD)
-* *label.background.<property>*: all background properties are also available for the label (Only on HEAD)
+* *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
+* *label.y_offset*: the vertical offset of the label (default: 0)
+* *label.background.<property>*: all background properties are also available for the label
 
 Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
@@ -356,7 +356,7 @@ where the events are:
 * *front_app_switched*: when the frontmost application changes (not triggered if a different app of the same window is focused)
 * *space_change*: when the space is changed
 * *display_change*: when the display is changed
-* *system_will_sleep*: when the system is preparing to sleep (Only on HEAD)
+* *system_will_sleep*: when the system is preparing to sleep
 * *system_woke*: when the system has awaken from sleep
 * *mouse.entered*: when the mouse enters over an item
 * *mouse.exited*: when the mouse leaves an item
@@ -382,7 +382,7 @@ $MODIFIER
 where the $BUTTON can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the $MODIFIER is either *shift*, *ctrl*, *alt* or *cmd* and 
 specifies the modifier key held down while clicking the item.
 
-HEAD: All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
+All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
