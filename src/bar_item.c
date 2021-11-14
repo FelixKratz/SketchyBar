@@ -29,8 +29,8 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_destroy(&bar_item->label);
   
   char* name = bar_item->name;
-  char* script = bar_item->name;
-  char* click_script = bar_item->name;
+  char* script = bar_item->script;
+  char* click_script = bar_item->click_script;
 
   memcpy(bar_item, ancestor, sizeof(struct bar_item));
 

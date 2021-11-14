@@ -107,15 +107,21 @@ void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* ite
 
 void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
   if (bar_manager->bar_item_count <= 0 || !bar_item) return;
-  struct bar_item* tmp[bar_manager->bar_item_count - 1];
-  int count = 0;
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    if (bar_manager->bar_items[i] == bar_item) continue;
-    tmp[count++] = bar_manager->bar_items[i];
+  if (bar_manager->bar_item_count == 1) {
+    free(bar_manager->bar_items);
+    bar_manager->bar_items = NULL;
+    bar_manager->bar_item_count = 0;
+  } else {
+    struct bar_item* tmp[bar_manager->bar_item_count - 1];
+    int count = 0;
+    for (int i = 0; i < bar_manager->bar_item_count; i++) {
+      if (bar_manager->bar_items[i] == bar_item) continue;
+      tmp[count++] = bar_manager->bar_items[i];
+    }
+    bar_manager->bar_item_count--;
+    bar_manager->bar_items = realloc(bar_manager->bar_items, sizeof(struct bar_item*)*bar_manager->bar_item_count);
+    memcpy(bar_manager->bar_items, tmp, sizeof(struct bar_item*)*bar_manager->bar_item_count);
   }
-  bar_manager->bar_item_count--;
-  bar_manager->bar_items = realloc(bar_manager->bar_items, sizeof(struct bar_item*)*bar_manager->bar_item_count);
-  memcpy(bar_manager->bar_items, tmp, sizeof(struct bar_item*)*bar_manager->bar_item_count);
   bar_item_destroy(bar_item);
 }
 
