@@ -452,6 +452,6 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     fprintf(rsp, "\t\t \"%s\"", bar_manager->bar_items[i]->name);
     if (i < bar_manager->bar_item_count - 1) fprintf(rsp, ",\n");
-    else fprintf(rsp, "\n\t]\n}\n");
   }
+  fprintf(rsp, "\n\t]\n}\n");
 }
