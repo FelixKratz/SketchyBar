@@ -27,7 +27,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
-  bar_manager->window_level = NSFloatingWindowLevel;
+  bar_manager->window_level = NSNormalWindowLevel;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
 
@@ -187,7 +187,7 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
 bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
   if (topmost) bar_manager->window_level = NSScreenSaverWindowLevel;
-  else bar_manager->window_level = NSFloatingWindowLevel;
+  else bar_manager->window_level = NSNormalWindowLevel;
   bar_manager_begin(bar_manager);
   bar_manager->topmost = topmost;
   return true;
