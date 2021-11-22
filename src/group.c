@@ -25,10 +25,16 @@ bool group_is_item_member(struct group* group, struct bar_item* item) {
 
 void group_add_member(struct group* group, struct bar_item* item) {
   if (group_is_item_member(group, item)) return;
-  group->num_members++;
-  group->members = realloc(group->members, sizeof(struct bar_item*)*group->num_members);
-  group->members[group->num_members - 1] = item;
-  item->group = group;
+  if (item->group && item->group->members && item->group->members[0] == item) {
+    for (int i = 1; i < item->group->num_members; i++) {
+      group_add_member(group, item->group->members[i]);
+    }
+  } else {
+    group->num_members++;
+    group->members = realloc(group->members, sizeof(struct bar_item*)*group->num_members);
+    group->members[group->num_members - 1] = item;
+    item->group = group;
+  }
 }
 
 bool group_is_first_member(struct group* group, struct bar_item* item) {
