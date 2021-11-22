@@ -164,7 +164,7 @@ void bar_redraw(struct bar* bar) {
     }
 
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-      group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? (icon_position - group_get_length(bar_item->group) + bar_item_get_length(bar_item)) : icon_position, y);
+      group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? (icon_position - group_get_length(bar_item->group) + bar_item_get_length(bar_item) + bar_item->icon.padding_left) : icon_position, y);
 
     text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
     text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);
