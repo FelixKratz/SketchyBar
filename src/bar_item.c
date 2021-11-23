@@ -263,13 +263,13 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   bar_item_needs_update(bar_item);
 }
 
-uint32_t bar_item_get_length(struct bar_item* bar_item) {
-  if (bar_item->has_const_width) return bar_item->custom_width + 1;
+uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
+  if (bar_item->has_const_width && !ignore_override) return bar_item->custom_width - bar_item->background.padding_left - bar_item->background.padding_right;
 
   return text_get_length(&bar_item->icon) 
          + text_get_length(&bar_item->label)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
-         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0) + 1;
+         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
 }
 
 uint32_t bar_item_get_height(struct bar_item* bar_item) {
@@ -292,7 +292,7 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
   bounding_rect.origin.y = bar_item->icon.bounds.origin.y < bar_item->label.bounds.origin.y ? bar_item->icon.bounds.origin.y : bar_item->label.bounds.origin.y + bar_item->y_offset;
-  bounding_rect.size.width = bar_item_get_length(bar_item);
+  bounding_rect.size.width = bar_item_get_length(bar_item, false);
   bounding_rect.size.height = bar_item_get_height(bar_item);
   return bounding_rect;
 }

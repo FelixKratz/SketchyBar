@@ -44,7 +44,7 @@ void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y) {
 }
 
 void graph_draw(struct graph* graph, CGContextRef context) {
-  uint32_t x = graph->bounds.origin.x;
+  uint32_t x =  graph->bounds.origin.x + (graph->rtl ? graph->width : 0);
   uint32_t y = graph->bounds.origin.y;
   uint32_t height = graph->bounds.size.height;
 

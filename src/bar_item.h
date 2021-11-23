@@ -86,7 +86,7 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script);
 void bar_item_set_drawing(struct bar_item* bar_item, bool state);
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset);
 
-uint32_t bar_item_get_length(struct bar_item* bar_item);
+uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);
 uint32_t bar_item_get_height(struct bar_item* bar_item);
 
 void bar_item_needs_update(struct bar_item* bar_item);

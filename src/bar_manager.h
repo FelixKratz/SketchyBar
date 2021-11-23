@@ -60,7 +60,7 @@ bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smooth
 void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);
-uint32_t bar_manager_get_center_length_for_bar(struct bar_manager* bar_manager, struct bar* bar);
+uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct bar* bar, char side);
 
 void bar_manager_freeze(struct bar_manager* bar_manager);
 void bar_manager_unfreeze(struct bar_manager* bar_manager);
