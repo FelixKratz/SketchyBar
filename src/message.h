@@ -69,6 +69,7 @@
 #define PROPERTY_HIDDEN                                     "hidden"
 #define PROPERTY_FONT_SMOOTHING                             "font_smoothing"
 #define PROPERTY_SHADOW                                     "shadow"
+#define PROPERTY_ALIGN                                      "align"
 
 #define DOMAIN_SUBSCRIBE                                    "--subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
@@ -100,6 +101,7 @@
 #define ARGUMENT_COMMON_VAL_AFTER                           "after"
 
 #define ARGUMENT_UPDATES_WHEN_SHOWN                         "when_shown" 
+#define ARGUMENT_DYNAMIC                                    "dynamic"
 
 #define POSITION_TOP 't'
 #define POSITION_BOTTOM 'b'
@@ -109,6 +111,7 @@
 
 #define DISPLAY_MAIN 'm'
 #define DISPLAY_ALL 'a'
+
 
 #define BAR_ITEM            'i'
 #define BAR_COMPONENT_GRAPH 'g'

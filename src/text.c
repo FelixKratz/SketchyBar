@@ -34,6 +34,7 @@ void text_init(struct text* text) {
   text->padding_left = 0;
   text->padding_right = 0;
   text->y_offset = 0;
+  text->align = POSITION_LEFT;
 
   text->color = rgba_color_from_hex(0xffffffff);
 
@@ -109,9 +110,9 @@ void text_clear_pointers(struct text* text) {
   text->line.line = NULL;
 }
 
-uint32_t text_get_length(struct text* text) {
+uint32_t text_get_length(struct text* text, bool override) {
   if (!text->drawing) return 0;
-  if (text->has_const_width) return text->custom_width;
+  if (text->has_const_width && !override) return text->custom_width;
   return text->bounds.size.width + text->padding_left + text->padding_right; 
 }
 
@@ -133,11 +134,17 @@ void text_destroy(struct text* text) {
 }
 
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
-  text->bounds.origin.x = x;
+  if (text->align == POSITION_LEFT) {
+    text->bounds.origin.x = x;
+  } else if (text->align == POSITION_CENTER && text->has_const_width) {
+    text->bounds.origin.x = x + (text->custom_width - text_get_length(text, true)) / 2;
+  } else if (text->align == POSITION_RIGHT && text->has_const_width) {
+    text->bounds.origin.x = x + text->custom_width - text_get_length(text, true);
+  }
   text->bounds.origin.y = y - ((text->line.ascent - text->line.descent) / 2);
 
   if (text->background.enabled) {
-    text->background.bounds.size.width = text_get_length(text);
+    text->background.bounds.size.width = text_get_length(text, false);
     text->background.bounds.size.height = text->background.overrides_height ? text->background.bounds.size.height : text->bounds.size.height;
     background_calculate_bounds(&text->background, x, y);
   }
@@ -174,7 +181,7 @@ static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token pro
     return true;
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    if (token_equals(token, "dynamic"))
+    if (token_equals(token, ARGUMENT_DYNAMIC))
       text->has_const_width = false;
     else {
       text->has_const_width = true;
@@ -183,6 +190,9 @@ static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token pro
     return true;
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     text->drawing = evaluate_boolean_state(get_token(&message), text->drawing);
+    return true;
+  } else if (token_equals(property, PROPERTY_ALIGN)) {
+    text->align = get_token(&message).text[0];
     return true;
   } 
   else {

@@ -173,6 +173,8 @@ Icon properties:
 * *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *icon.y_offset*: the vertical offset of the icon (default: 0)
+* *icon.width*: Used to make the icon have a fixed custom width given in points (default: *dynamic*)
+* *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*) (Only on HEAD)
 * *icon.background.<property>*: all background properties are also available for the icon
 
 Label properties:
@@ -185,6 +187,8 @@ Label properties:
 * *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
 * *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *label.y_offset*: the vertical offset of the label (default: 0)
+* *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
+* *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*) (Only on HEAD)
 * *label.background.<property>*: all background properties are also available for the label
 
 Background properties:

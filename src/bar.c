@@ -98,7 +98,7 @@ void bar_redraw(struct bar* bar) {
       *next_position -= bar_item_display_length + bar_item->background.padding_left + bar_item->background.padding_right;
 
     icon_position = *next_position + bar_item->background.padding_left;
-    label_position = icon_position + text_get_length(&bar_item->icon);
+    label_position = icon_position + text_get_length(&bar_item->icon, false);
 
     sandwich_position = label_position;
     if (bar_item->has_graph) {

@@ -205,7 +205,7 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    if (token_equals(token, "dynamic"))
+    if (token_equals(token, ARGUMENT_DYNAMIC))
       bar_item->has_const_width = false;
     else {
       bar_item->has_const_width = true;

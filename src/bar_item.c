@@ -266,8 +266,8 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   if (bar_item->has_const_width && !ignore_override) return bar_item->custom_width - bar_item->background.padding_left - bar_item->background.padding_right;
 
-  return text_get_length(&bar_item->icon) 
-         + text_get_length(&bar_item->label)
+  return text_get_length(&bar_item->icon, false) 
+         + text_get_length(&bar_item->label, false)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
          + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
 }
