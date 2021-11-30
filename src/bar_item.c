@@ -424,5 +424,12 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
             bar_item->bounding_rects[i]->size.width,
             bar_item->bounding_rects[i]->size.height);
   } 
-  fprintf(rsp, "\n\t}\n}\n");
+  fprintf(rsp, "\n\t}");
+
+  if (bar_item->type == BAR_COMPONENT_GROUP && bar_item->group) {
+    group_serialize(bar_item->group, rsp);
+  } else if (bar_item->type == BAR_COMPONENT_GRAPH) {
+    graph_serialize(&bar_item->graph, rsp);
+  }
+  fprintf(rsp, "\n}\n");
 }

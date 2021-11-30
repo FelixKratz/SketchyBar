@@ -28,6 +28,7 @@ uint32_t graph_get_length(struct graph* graph);
 
 void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y);
 void graph_draw(struct graph* graph, CGContextRef context);
+void graph_serialize(struct graph* graph, FILE* rsp);
 
 static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message);
 

@@ -87,6 +87,25 @@ void graph_draw(struct graph* graph, CGContextRef context) {
   CGContextRestoreGState(context);
 }
 
+void graph_serialize(struct graph* graph, FILE* rsp) {
+    fprintf(rsp, ",\n"
+                 "\t\"graph\": {\n"
+                 "\t\t\"graph.color\": \"0x%x\",\n"
+                 "\t\t\"graph.fill_color\": \"0x%x\",\n"
+                 "\t\t\"graph.line_width\": \"%f\",\n"
+                 "\t\t\"data\": [\n",
+                 hex_from_rgba_color(graph->line_color),
+                 hex_from_rgba_color(graph->fill_color),
+                 graph->line_width);
+    int counter = 0;
+    for (int i = 0; i < graph->width; i++) {
+      if (counter++ > 0) fprintf(rsp, ",\n");
+      fprintf(rsp, "\t\t\t\"%f\"",
+              graph->y[i]);
+    }
+    fprintf(rsp, "\n\t]\n\t}");
+}
+
 static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_COLOR)) {
     graph->line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));

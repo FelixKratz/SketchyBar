@@ -370,6 +370,15 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     bar_item_serialize(&g_bar_manager.default_item, rsp);
   } else if (token_equals(token, COMMAND_QUERY_EVENTS)) {
     custom_events_serialize(&g_bar_manager.custom_events, rsp);
+  } else {
+    struct token name = token;
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    if (item_index_for_name < 0) {
+      fprintf(rsp, "Not a valid query, or item: %s not found \n", name.text);
+      printf("Not a valid query, or item: %s not found \n", name.text);
+      return;
+    }
+    bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
   }
 }
 
