@@ -110,7 +110,7 @@ void bar_redraw(struct bar* bar) {
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
       group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? 
           (icon_position - group_get_length(bar_item->group) + bar_item_length) : 
-          icon_position, y);
+          icon_position, y, bar_item->position == POSITION_RIGHT);
 
     text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
     text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);

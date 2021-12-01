@@ -269,7 +269,7 @@ uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   return text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
-         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0) + 1;
+         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
 }
 
 uint32_t bar_item_get_height(struct bar_item* bar_item) {

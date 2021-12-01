@@ -92,8 +92,8 @@ void group_destroy(struct group* group) {
   free(group);
 }
 
-void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y) {
-  group->members[0]->background.bounds.size.width = group_get_length(group) + group_count_members_drawn(group);
+void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y, bool rtl) {
+  group->members[0]->background.bounds.size.width = group_get_length(group) + (rtl ? 0 : group_count_members_drawn(group));
   group->members[0]->background.bounds.origin.x = x;
   group->members[0]->background.bounds.origin.y = y - group->members[0]->background.bounds.size.height / 2 + group->members[0]->y_offset;
 }
