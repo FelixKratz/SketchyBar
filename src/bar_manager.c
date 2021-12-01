@@ -219,7 +219,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
     struct bar_item* bar_item = bar_manager->bar_items[i];
     bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
     bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
-    if (bar_item->drawing && bar_item->needs_update && (is_associated_space_shown || is_associated_display_shown) && !bar_item->lazy)
+    if ((bar_item->drawing || (!bar_item->drawing && bar_item->associated_bar != 0)) && bar_item->needs_update && (is_associated_space_shown || is_associated_display_shown) && !bar_item->lazy)
       return true;
   }
   return false;

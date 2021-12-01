@@ -67,7 +67,7 @@ void bar_redraw(struct bar* bar) {
   if (bar->sid == 0) return;
 
   uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left;
-  uint32_t bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right + 1;
+  uint32_t bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
   uint32_t bar_center_first_item_x = (bar->frame.size.width - bar_manager_length_for_bar_side(&g_bar_manager, bar, POSITION_CENTER)) / 2;
 
   uint32_t* next_position = NULL;
@@ -109,7 +109,7 @@ void bar_redraw(struct bar* bar) {
 
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
       group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? 
-          (icon_position - group_get_length(bar_item->group) + bar_item->group->num_members - 1 + bar_item_length) : 
+          (icon_position - group_get_length(bar_item->group) + bar_item_length) : 
           icon_position, y);
 
     text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);

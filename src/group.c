@@ -55,10 +55,20 @@ uint32_t group_get_length(struct group* group) {
         if (i > 1) length += group->members[i]->background.padding_left;
         if (i < group->num_members - 1) length += group->members[i]->background.padding_right;
       }
-      length += bar_item_get_length(group->members[i], false) + 1;
+      length += bar_item_get_length(group->members[i], false);
     }
   }
   return length;
+}
+
+uint32_t group_count_members_drawn(struct group* group) {
+  int count = 0;
+  for (int i = 1; i < group->num_members; i++) {
+    if (group->members[i]->drawing) {
+      count++;
+    }
+  }
+  return count;
 }
 
 void group_remove_member(struct group* group, struct bar_item* bar_item) {
@@ -83,7 +93,7 @@ void group_destroy(struct group* group) {
 }
 
 void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y) {
-  group->members[0]->background.bounds.size.width = group_get_length(group);
+  group->members[0]->background.bounds.size.width = group_get_length(group) + group_count_members_drawn(group);
   group->members[0]->background.bounds.origin.x = x;
   group->members[0]->background.bounds.origin.y = y - group->members[0]->background.bounds.size.height / 2 + group->members[0]->y_offset;
 }
