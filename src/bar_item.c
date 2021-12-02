@@ -144,7 +144,7 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
   bool scheduled_update_needed = bar_item->update_frequency <= bar_item->counter;
   bool should_update = bar_item->updates_only_when_shown ? bar_item_is_shown(bar_item) : true;
 
-  if (((scheduled_update_needed) && should_update) || sender || forced) {
+  if (((scheduled_update_needed || sender) && should_update) || forced) {
     bar_item->counter = 0;
 
     // Script Update

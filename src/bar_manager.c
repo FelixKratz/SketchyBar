@@ -283,7 +283,7 @@ void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool f
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if ((!bar_item_is_shown(bar_item) && !forced) || bar_item->type != BAR_COMPONENT_SPACE) continue;
+    if (bar_item->type != BAR_COMPONENT_SPACE) continue;
 
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
