@@ -70,6 +70,7 @@
 #define PROPERTY_FONT_SMOOTHING                             "font_smoothing"
 #define PROPERTY_SHADOW                                     "shadow"
 #define PROPERTY_ALIGN                                      "align"
+#define PROPERTY_NOTCH_WIDTH                                "notch_width"
 
 #define DOMAIN_SUBSCRIBE                                    "--subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"
@@ -108,6 +109,8 @@
 #define POSITION_LEFT   'l'
 #define POSITION_RIGHT  'r'
 #define POSITION_CENTER 'c'
+#define POSITION_CENTER_LEFT 'q'
+#define POSITION_CENTER_RIGHT 'e'
 
 #define DISPLAY_MAIN 'm'
 #define DISPLAY_ALL 'a'

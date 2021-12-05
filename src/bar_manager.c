@@ -30,6 +30,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->window_level = NSNormalWindowLevel;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
+  bar_manager->notch_width = 200;
 
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;
@@ -154,6 +155,16 @@ bool bar_manager_set_display(struct bar_manager* bar_manager, char display) {
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
   if (bar_manager->shadow == shadow) return false;
   bar_manager->shadow = shadow;
+  for (int i = 0; i < bar_manager->bar_count; ++i)
+    bar_destroy(bar_manager->bars[i]);
+
+  bar_manager_begin(bar_manager);
+  return true;
+}
+
+bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width) {
+  if (bar_manager->notch_width == width) return false;
+  bar_manager->notch_width = width;
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_destroy(bar_manager->bars[i]);
 

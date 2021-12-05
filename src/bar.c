@@ -57,9 +57,9 @@ void bar_redraw(struct bar* bar) {
 
   uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left;
   uint32_t bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
-  uint32_t bar_center_first_item_x = (bar->frame.size.width - bar_manager_length_for_bar_side(&g_bar_manager, bar, POSITION_CENTER)) / 2;
-  uint32_t bar_right_center_first_item_x = (bar->frame.size.width + bar->notch_width) / 2;
-  uint32_t bar_left_center_first_item_x =(bar->frame.size.width + bar->notch_width) / 2; 
+  uint32_t bar_center_first_item_x = (bar->frame.size.width - 2*g_bar_manager.margin - bar_manager_length_for_bar_side(&g_bar_manager, bar, POSITION_CENTER)) / 2 - 1;
+  uint32_t bar_center_right_first_item_x = (bar->frame.size.width + bar->notch_width) / 2 - 1;
+  uint32_t bar_center_left_first_item_x = (bar->frame.size.width - bar->notch_width) / 2 - 1; 
 
   uint32_t* next_position = NULL;
   uint32_t y = bar->frame.size.height / 2;
@@ -74,18 +74,17 @@ void bar_redraw(struct bar* bar) {
 
     if (bar_item->position == POSITION_LEFT) next_position = &bar_left_first_item_x;
     else if (bar_item->position == POSITION_CENTER) next_position = &bar_center_first_item_x;
-    else {
-      next_position = &bar_right_first_item_x;
-      rtl = true;
-    }
+    else if (bar_item->position == POSITION_RIGHT) next_position = &bar_right_first_item_x, rtl = true;
+    else if (bar_item->position == POSITION_CENTER_RIGHT) next_position = &bar_center_right_first_item_x;
+    else next_position = &bar_center_left_first_item_x, rtl = true;
 
-    if (bar_item->position == POSITION_RIGHT)
+    if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT)
       *next_position -= bar_item_display_length + bar_item->background.padding_left + bar_item->background.padding_right;
 
     bar_item->graph.rtl = rtl;
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item, bar->frame.size.height - (g_bar_manager.background.border_width + 1), *next_position, y);
 
-    if (bar_item->position == POSITION_RIGHT) {
+    if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length
                                                     + bar_item->background.padding_left
                                                     + bar_item->background.padding_right
@@ -93,7 +92,6 @@ void bar_redraw(struct bar* bar) {
     } else 
       *next_position += bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right;
   }
-
   bar_draw_bar_items(bar);
 }
 
@@ -184,7 +182,6 @@ void bar_create_window(struct bar* bar) {
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
   bar_set_font_smoothing(bar, g_bar_manager.font_smoothing);
-  bar->notch_width = 100;
 }
 
 void bar_close_window(struct bar* bar) {
@@ -198,6 +195,7 @@ struct bar *bar_create(uint32_t did) {
   bar->hidden = false;
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
+  bar->notch_width = CGDisplayIsBuiltin(did) ? g_bar_manager.notch_width : 0;
   bar_create_window(bar);
   return bar;
 }

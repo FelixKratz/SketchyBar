@@ -220,6 +220,7 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {
     bar_item->position = get_token(&message).text[0];
+    needs_update = true;
   } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_space;
@@ -283,6 +284,9 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   } else if (token_equals(command, PROPERTY_SHADOW)) {
     struct token state = get_token(&message);
     needs_refresh = bar_manager_set_shadow(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.shadow));
+  } else if (token_equals(command, PROPERTY_NOTCH_WIDTH)) {
+    struct token token = get_token(&message);
+    needs_refresh = bar_manager_set_notch_width(&g_bar_manager, token_to_uint32t(token));
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     struct token select = get_token(&message);
