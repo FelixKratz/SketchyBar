@@ -43,18 +43,7 @@ void bar_draw_bar_items(struct bar* bar) {
       SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
 
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin);
-
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-      group_draw(bar_item->group, bar->context);
-
-    background_draw(&bar_item->background, bar->context);
-    text_draw(&bar_item->icon, bar->context);
-    text_draw(&bar_item->label, bar->context);
-
-    if (bar_item->has_alias)
-      alias_draw(&bar_item->alias, bar->context);
-    if (bar_item->has_graph)
-      graph_draw(&bar_item->graph, bar->context);
+    bar_item_draw(bar_item, bar->context);
   }
 
   CGContextFlush(bar->context);
@@ -69,9 +58,10 @@ void bar_redraw(struct bar* bar) {
   uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left;
   uint32_t bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
   uint32_t bar_center_first_item_x = (bar->frame.size.width - bar_manager_length_for_bar_side(&g_bar_manager, bar, POSITION_CENTER)) / 2;
+  uint32_t bar_right_center_first_item_x = (bar->frame.size.width + bar->notch_width) / 2;
+  uint32_t bar_left_center_first_item_x =(bar->frame.size.width + bar->notch_width) / 2; 
 
   uint32_t* next_position = NULL;
-
   uint32_t y = bar->frame.size.height / 2;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -79,12 +69,7 @@ void bar_redraw(struct bar* bar) {
 
     if (!bar_draws_item(bar, bar_item)) continue;
 
-    uint32_t bar_item_length = bar_item_get_length(bar_item, false);
     uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
-
-    uint32_t icon_position = 0;
-    uint32_t label_position = 0;
-    uint32_t sandwich_position = 0;
     bool rtl = false;
 
     if (bar_item->position == POSITION_LEFT) next_position = &bar_left_first_item_x;
@@ -97,38 +82,8 @@ void bar_redraw(struct bar* bar) {
     if (bar_item->position == POSITION_RIGHT)
       *next_position -= bar_item_display_length + bar_item->background.padding_left + bar_item->background.padding_right;
 
-    icon_position = *next_position + bar_item->background.padding_left;
-    label_position = icon_position + text_get_length(&bar_item->icon, false);
-
-    sandwich_position = label_position;
-    if (bar_item->has_graph) {
-      label_position += graph_get_length(&bar_item->graph);
-    } else if (bar_item->has_alias) {
-      label_position += alias_get_length(&bar_item->alias); 
-    }
-
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-      group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? 
-          (icon_position - group_get_length(bar_item->group) + bar_item_length) : 
-          icon_position, y, bar_item->position == POSITION_RIGHT);
-
-    text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
-    text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);
-
-    if (bar_item->has_alias)
-      alias_calculate_bounds(&bar_item->alias, sandwich_position, y + bar_item->y_offset);
-
-    if (bar_item->has_graph) {
-      bar_item->graph.bounds.size.height = bar_item->background.enabled ? (bar_item->background.bounds.size.height - bar_item->background.border_width - 1)
-                                                                      : (bar->frame.size.height - (g_bar_manager.background.border_width + 1));
-      bar_item->graph.rtl = rtl;
-      graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
-    }
-
-    bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
-                                                                                    : (bar->frame.size.height - (g_bar_manager.background.border_width + 1));
-    bar_item->background.bounds.size.width = bar_item_length;
-    background_calculate_bounds(&bar_item->background, icon_position, y + bar_item->y_offset);
+    bar_item->graph.rtl = rtl;
+    uint32_t bar_item_length = bar_item_calculate_bounds(bar_item, bar->frame.size.height - (g_bar_manager.background.border_width + 1), *next_position, y);
 
     if (bar_item->position == POSITION_RIGHT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length
@@ -137,7 +92,6 @@ void bar_redraw(struct bar* bar) {
                                                     - bar_item->custom_width : 0;
     } else 
       *next_position += bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right;
-
   }
 
   bar_draw_bar_items(bar);
@@ -230,6 +184,7 @@ void bar_create_window(struct bar* bar) {
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
   bar_set_font_smoothing(bar, g_bar_manager.font_smoothing);
+  bar->notch_width = 100;
 }
 
 void bar_close_window(struct bar* bar) {

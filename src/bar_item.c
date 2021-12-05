@@ -313,6 +313,55 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
   bar_item->bounding_rects[adid - 1]->size = rect.size;
 }
 
+uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
+  uint32_t bar_item_length = bar_item_get_length(bar_item, false);
+  uint32_t icon_position = x + bar_item->background.padding_left;
+  uint32_t label_position = icon_position + text_get_length(&bar_item->icon, false);
+  uint32_t sandwich_position = label_position;
+  if (bar_item->has_graph) {
+    label_position += graph_get_length(&bar_item->graph);
+  } else if (bar_item->has_alias) {
+    label_position += alias_get_length(&bar_item->alias); 
+  }
+
+  if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
+    group_calculate_bounds(bar_item->group, bar_item->position == POSITION_RIGHT ? 
+        (icon_position - group_get_length(bar_item->group) + bar_item_length) : 
+        icon_position, y, bar_item->position == POSITION_RIGHT);
+
+  text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
+  text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);
+
+  if (bar_item->has_alias)
+    alias_calculate_bounds(&bar_item->alias, sandwich_position, y + bar_item->y_offset);
+
+  if (bar_item->has_graph) {
+    bar_item->graph.bounds.size.height = bar_item->background.enabled ? (bar_item->background.bounds.size.height - bar_item->background.border_width - 1)
+                                                                    : (bar_height - (g_bar_manager.background.border_width + 1));
+    graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
+  }
+
+  bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
+                                                                                  : (bar_height - (g_bar_manager.background.border_width + 1));
+  bar_item->background.bounds.size.width = bar_item_length;
+  background_calculate_bounds(&bar_item->background, icon_position, y + bar_item->y_offset);
+  return bar_item_length;
+}
+
+void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
+  if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
+    group_draw(bar_item->group, context);
+
+  background_draw(&bar_item->background, context);
+  text_draw(&bar_item->icon, context);
+  text_draw(&bar_item->label, context);
+
+  if (bar_item->has_alias)
+    alias_draw(&bar_item->alias, context);
+  if (bar_item->has_graph)
+    graph_draw(&bar_item->graph, context);
+}
+
 void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script && !bar_item->cache_scripts) free(bar_item->script);

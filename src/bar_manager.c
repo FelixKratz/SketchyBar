@@ -205,11 +205,8 @@ uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct
   uint32_t total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    bool is_associated_space_shown = (bar_item->associated_space & (1 << bar->sid)) || bar_item->associated_space == 0;
-    bool is_associated_display_shown = (bar_item->associated_display & (1 << bar->adid));
-
-    if (bar_item->position == side && bar_item->drawing && (is_associated_space_shown || is_associated_display_shown))
-      total_length += bar_item_get_length(bar_item, false);
+    if (bar_item->position == side && bar_draws_item(bar, bar_item))
+      total_length += bar_item_get_length(bar_item, false) + (bar_item->has_const_width ? 0 : bar_item->background.padding_left + bar_item->background.padding_right);
   }
   return total_length;
 }
