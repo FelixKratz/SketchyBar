@@ -8,6 +8,9 @@ extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* w
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
 
 void print_all_menu_items(FILE* rsp) {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
+  if (__builtin_available(macOS 11.0, *)) CGRequestScreenCaptureAccess();
+#endif
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
   fprintf(rsp, "Total Windows: %d \n", window_count);
