@@ -314,12 +314,12 @@ The command can be overloaded by providing a *window_owner* and a *window_name*
 ```bash
 sketchybar -m --add alias <window_owner>,<window_name> <position>
 ```
-this way the default system items can also be slurped into sketchybar, e.g.:
-Owner: "Control Center", Name: Bluetooth <br>
-Owner: "Control Center", Name: WiFi <br>
+this way the default system items can also be slurped into sketchybar, e.g.: <br>
+"Control Center,Bluetooth" <br>
+"Control Center,WiFi" <br>
 
 Or the individual widgets of [Stats](https://github.com/exelban/stats):<br>
-Owner: Stats Name: CPU_Mini<br>
+"Stats,CPU_Mini"<br>
 etc...<br>
 
 All further default menu items currently available on your system can be found via the command:

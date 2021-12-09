@@ -1,6 +1,7 @@
 #include "alias.h"
 #include "misc/helpers.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
@@ -13,9 +14,10 @@ void print_all_menu_items(FILE* rsp) {
 #endif
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
   int window_count = CFArrayGetCount(window_list);
-  fprintf(rsp, "Total Windows: %d \n", window_count);
-  printf("Total Windows: %d \n", window_count);
 
+  printf("[\n");
+  fprintf(rsp, "[\n");
+  int counter = 0;
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
@@ -39,12 +41,18 @@ void print_all_menu_items(FILE* rsp) {
     char* name = cfstring_copy(name_ref);
 
     if (strcmp(name, "") == 0) continue;
-    fprintf(rsp, "Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
-    printf("Menu Item -> Owner: %s; with PID:%llu, Name: %s \n", owner, owner_pid, name);
+    if (counter++ > 0) {
+      fprintf(rsp, ", \n");
+      printf(", \n");
+    }
+    fprintf(rsp, "\t\"%s,%s\"", owner, name);
+    printf("\t\"%s,%s\"", owner, name);
 
     free(owner);
     free(name);
   }
+  printf("\n]\n");
+  fprintf(rsp, "\n]\n");
   CFRelease(window_list);
 }
 
