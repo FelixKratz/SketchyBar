@@ -85,15 +85,9 @@ Table of Contents
 brew tap FelixKratz/formulae
 brew install sketchybar
 ```
-Do not forget to copy the example configuration files to your home directory:
-```bash
-mkdir ~/.config/sketchybar
-cp /usr/local/opt/sketchybar/share/sketchybar/examples/sketchybarrc ~/.config/sketchybar/sketchybarrc
-mkdir ~/.config/sketchybar/plugins
-cp -r /usr/local/opt/sketchybar/share/sketchybar/examples/plugins/ ~/.config/sketchybar/plugins
-chmod +x ~/.config/sketchybar/plugins/*
-```
-and run the bar via
+Do not forget to copy the example configuration files to your home directory (the brew installation specific commands are listed in the caveats section after the brew install is finished).
+
+Run the bar via
 ```bash
 brew services start sketchybar
 ```
