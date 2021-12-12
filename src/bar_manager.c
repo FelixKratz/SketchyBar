@@ -303,12 +303,12 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
         if ((!bar_item->selected || forced) && bar_item->associated_space & (1 << sid)) {
           bar_item->selected = true;
           bar_item->updates = true;
-          strncpy(&bar_item->signal_args.value[1][0], "true", 255);
+          env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("true"));
         }
         else if ((bar_item->selected || forced) && !(bar_item->associated_space & (1 << sid))) {
           bar_item->selected = false;
           bar_item->updates = true;
-          strncpy(&bar_item->signal_args.value[1][0], "false", 255);
+          env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
         }
         else {
           bar_item->updates = false;

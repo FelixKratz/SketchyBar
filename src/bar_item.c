@@ -3,6 +3,7 @@
 #include "custom_events.h"
 #include "graph.h"
 #include "group.h"
+#include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include <stdint.h>
 #include <string.h>
@@ -20,6 +21,8 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->bounding_rects = NULL;
   bar_item->group = NULL;
   bar_item->num_rects = 0;
+  bar_item->signal_args.env_vars.vars = NULL;
+  bar_item->signal_args.env_vars.count = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
 }
@@ -87,12 +90,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 
-  strncpy(&bar_item->signal_args.name[0][0], "NAME", 255);
-  strncpy(&bar_item->signal_args.name[1][0], "SELECTED", 255);
-  strncpy(&bar_item->signal_args.name[4][0], "SENDER", 255);
-  strncpy(&bar_item->signal_args.name[5][0], "BUTTON", 255);
-  strncpy(&bar_item->signal_args.name[6][0], "MODIFIER", 255);
-  strncpy(&bar_item->signal_args.value[1][0], "false", 255);
+  env_vars_init(&bar_item->signal_args.env_vars);
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
 }
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
@@ -102,7 +101,7 @@ void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
     bar_item->associated_space = bit;
     char sid_str[32];
     sprintf(sid_str, "%u", get_set_bit_position(bit));
-    strncpy(&bar_item->signal_args.value[2][0], sid_str, 255);
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy(sid_str));
   }
 }
 
@@ -113,7 +112,7 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
     bar_item->associated_display = bit;
     char did_str[32];
     sprintf(did_str, "%u", get_set_bit_position(bit));
-    strncpy(&bar_item->signal_args.value[3][0], did_str, 255);
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy(did_str));
   }
 }
 
@@ -149,8 +148,8 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
 
     // Script Update
     if (strlen(bar_item->script) > 0) {
-      if (sender) strncpy(&bar_item->signal_args.value[4][0], sender, 255);
-      else strncpy(&bar_item->signal_args.value[4][0], forced ? "forced" : "routine", 255);
+      if (sender) env_vars_set(&bar_item->signal_args.env_vars, string_copy("SENDER"), string_copy(sender));
+      else env_vars_set(&bar_item->signal_args.env_vars, string_copy("SENDER"), string_copy(forced ? "forced" : "routine"));
       fork_exec(bar_item->script, &bar_item->signal_args);
     }
 
@@ -177,7 +176,7 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (bar_item->name && strcmp(bar_item->name, name) == 0) { free(name); return; }
   if (name != bar_item->name && !bar_item->name) free(bar_item->name);
   bar_item->name = name;
-  strncpy(&bar_item->signal_args.value[0][0], name, 255);
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("NAME"), string_copy(name));
 }
 
 void bar_item_set_type(struct bar_item* bar_item, char type) {
@@ -190,10 +189,8 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
-    strncpy(&bar_item->signal_args.name[2][0], "SID", 255);
-    strncpy(&bar_item->signal_args.value[2][0], "0", 255);
-    strncpy(&bar_item->signal_args.name[3][0], "DID", 255);
-    strncpy(&bar_item->signal_args.value[3][0], "0", 255);
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy("0"));
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy("0"));
   }
   else if (type == BAR_COMPONENT_ALIAS) {
     bar_item->update_frequency = 1;
@@ -236,8 +233,8 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
   if (!bar_item) return;
 
-  strncpy(&bar_item->signal_args.value[5][0], get_type_description(type), 255);
-  strncpy(&bar_item->signal_args.value[6][0], get_modifier_description(modifier), 255);
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("BUTTON"), get_type_description(type));
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), get_modifier_description(modifier));
 
   if (strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);

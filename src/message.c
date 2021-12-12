@@ -437,7 +437,7 @@ void handle_message(int sockfd, char* message) {
   bool bar_needs_refresh = false;
   while (command.text && command.length > 0) {
     if (token_equals(command, DOMAIN_SET)) {
-      struct token name  = get_token(&message);
+      struct token name = get_token(&message);
       int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
       if (item_index_for_name < 0) {
         fprintf(rsp, "Name: %s not found in bar items \n", name.text);

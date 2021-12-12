@@ -13,6 +13,7 @@
 
 #include "misc/timing.h"
 #include "misc/log.h"
+#include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"
 #include "misc/socket.h"

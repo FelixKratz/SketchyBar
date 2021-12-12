@@ -12,15 +12,8 @@ extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;
 
-
-struct key_value_pair {
-  char* key;
-  char* value;
-};
-
 struct signal_args {
-    char name[7][255];
-    char value[7][255];
+    struct env_vars env_vars;
     void *entity;
     void *param1;
 };
@@ -309,15 +302,11 @@ static inline bool ensure_executable_permission(char *filename) {
     return true;
 }
 
-static bool sync_exec(char *command, struct signal_args *args) {
-    if (args) {
-        if (*args->name[0]) setenv(args->name[0], args->value[0], 1);
-        if (*args->name[1]) setenv(args->name[1], args->value[1], 1);
-        if (*args->name[2]) setenv(args->name[2], args->value[2], 1);
-        if (*args->name[3]) setenv(args->name[3], args->value[3], 1);
-        if (*args->name[4]) setenv(args->name[4], args->value[4], 1);
-        if (*args->name[5]) setenv(args->name[5], args->value[5], 1);
-        if (*args->name[6]) setenv(args->name[6], args->value[6], 1);
+static bool sync_exec(char *command, struct env_vars *env_vars) {
+    if (env_vars) {
+      for (int i = 0; i < env_vars->count; i++) {
+        setenv(env_vars->vars[i]->key, env_vars->vars[i]->value, 1);
+      }
     }
 
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
@@ -332,7 +321,7 @@ static bool fork_exec(char *command, struct signal_args *args) {
     if (pid !=  0) return true;
 
     alarm(FORK_TIMEOUT);
-    exit(sync_exec(command, args));
+    exit(sync_exec(command, &args->env_vars));
 }
 #pragma clang diagnostic pop
 
