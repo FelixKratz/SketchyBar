@@ -42,7 +42,16 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 // Syntax: sketchybar -m --trigger <event> 
 static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
   struct token event = get_token(&message);
-  bar_manager_custom_events_trigger(&g_bar_manager, event.text);
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  struct token token = get_token(&message);
+  while (token.text && token.length > 0) {
+    struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
+    env_vars_set(&env_vars, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
+    token = get_token(&message);
+  }
+  bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
+  env_vars_destroy(&env_vars);
 }
 
 // Syntax: sketchybar -m --push <name> <y>

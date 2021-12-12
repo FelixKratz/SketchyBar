@@ -315,13 +315,13 @@ static bool sync_exec(char *command, struct env_vars *env_vars) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static bool fork_exec(char *command, struct signal_args *args) {
+static bool fork_exec(char *command, struct env_vars* env_vars) {
     int pid = vfork();
     if (pid == -1) return false;
     if (pid !=  0) return true;
 
     alarm(FORK_TIMEOUT);
-    exit(sync_exec(command, &args->env_vars));
+    exit(sync_exec(command, env_vars));
 }
 #pragma clang diagnostic pop
 

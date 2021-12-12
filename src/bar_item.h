@@ -71,7 +71,7 @@ void bar_item_destroy(struct bar_item* bar_item);
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
 
-bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced);
+bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars);
 bool bar_item_is_shown(struct bar_item* bar_item);
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);

@@ -401,8 +401,13 @@ to create more responsive items.
 ### Triggering custom events
 This triggers a custom event that has been added before
 ```bash
-sketchybar -m --trigger <event>
+sketchybar -m --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]
 ```
+Optionaly you can add environment variables to the trigger command witch are passed to the script, e.g.:
+```bash
+sketchybar -m --trigger demo VAR=Test
+```
+will trigger the demo event and `$VAR` will be available as an environment variable in the scripts that this event invokes.
 This could be used to link the powerful event system of yabai to sketchybar by triggering the custom action via a yabai event.
 
 

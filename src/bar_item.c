@@ -49,6 +49,11 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
 
   bar_item_set_script(bar_item, string_copy(ancestor->script));
   bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+
+  if (bar_item->type == BAR_COMPONENT_SPACE) {
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
+  }
 }
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
@@ -87,10 +92,10 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   text_init(&bar_item->icon);
   text_init(&bar_item->label);
   background_init(&bar_item->background);
+  env_vars_init(&bar_item->signal_args.env_vars);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 
-  env_vars_init(&bar_item->signal_args.env_vars);
   env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
 }
 
@@ -136,7 +141,7 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
     bar_item_remove_bounding_rect_for_display(bar_item, adid);
 }
 
-bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
+bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars) {
   if ((!bar_item->updates || (bar_item->update_frequency == 0 && !sender)) && !forced) return false;
   bar_item->counter++;
 
@@ -148,9 +153,12 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced) {
 
     // Script Update
     if (strlen(bar_item->script) > 0) {
-      if (sender) env_vars_set(&bar_item->signal_args.env_vars, string_copy("SENDER"), string_copy(sender));
-      else env_vars_set(&bar_item->signal_args.env_vars, string_copy("SENDER"), string_copy(forced ? "forced" : "routine"));
-      fork_exec(bar_item->script, &bar_item->signal_args);
+      if (!env_vars) env_vars = &bar_item->signal_args.env_vars;
+      else env_vars_set(env_vars, string_copy("NAME"), string_copy(bar_item->name));
+
+      if (sender) env_vars_set(env_vars, string_copy("SENDER"), string_copy(sender));
+      else env_vars_set(env_vars, string_copy("SENDER"), string_copy(forced ? "forced" : "routine"));
+      fork_exec(bar_item->script, env_vars);
     }
 
     // Alias Update
@@ -237,19 +245,19 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
   env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), string_copy(get_modifier_description(modifier)));
 
   if (strlen(bar_item->click_script) > 0)
-    fork_exec(bar_item->click_script, &bar_item->signal_args);
+    fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true);
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {
   bar_item->mouse_over = true;
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true);
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED)) bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true); 
+  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED)) bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
   bar_item->mouse_over = false;
 }
 
