@@ -139,11 +139,33 @@ bool alias_update_image(struct alias* alias) {
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
 
   if (!tmp_ref) { alias->wid = 0; return false; }
+  bool needs_redraw = true;
+  if (alias->image_ref) {
+    CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
+    CFDataRef old_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(alias->image_ref));
+    uint32_t old_len = CFDataGetLength(old_data_ref);
+    uint32_t new_len = CFDataGetLength(new_data_ref);
+    if (old_len == new_len) {
+      const unsigned char* old_data = CFDataGetBytePtr(old_data_ref);
+      const unsigned char* new_data = CFDataGetBytePtr(new_data_ref);
+      needs_redraw = false;
+      for (int i = 0; i < old_len; i++) {
+        if (old_data[i] != new_data[i]) {
+          needs_redraw = true;
+          break;
+        }
+      }
+    }
+    CFRelease(new_data_ref);
+    CFRelease(old_data_ref);
+  }
 
-  CGImageRelease(alias->image_ref);
-  alias->image_ref = tmp_ref;
+  if (needs_redraw) {
+    CGImageRelease(alias->image_ref);
+    alias->image_ref = tmp_ref;
+  }
 
-  return true;
+  return needs_redraw;
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {

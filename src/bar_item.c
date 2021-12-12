@@ -162,8 +162,7 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
     }
 
     // Alias Update
-    if (bar_item->has_alias) {
-      alias_update_image(&bar_item->alias);
+    if (bar_item->has_alias && alias_update_image(&bar_item->alias)) {
       bar_item_needs_update(bar_item);
       return true;
     }
