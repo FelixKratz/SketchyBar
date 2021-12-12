@@ -131,14 +131,12 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       graph_init(&bar_item->graph, token_to_uint32t(width));
     }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
-      char* owner = NULL;
-      char* nme = NULL;
       char* tmp_name = string_copy(name.text);
-      get_key_value_pair(tmp_name, &owner, &nme, ',');
-      if (!nme || !owner)
+      struct key_value_pair key_value_pair = get_key_value_pair(tmp_name, ',');
+      if (!key_value_pair.key || !key_value_pair.value)
         alias_init(&bar_item->alias, token_to_string(name), NULL);
       else
-        alias_init(&bar_item->alias, string_copy(owner), string_copy(nme));
+        alias_init(&bar_item->alias, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
       free(tmp_name);
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
@@ -168,12 +166,10 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   bool needs_update = false;
   struct token property = get_token(&message);
 
-  struct token subdom;
-  struct token entry;
-  get_key_value_pair(property.text, &subdom.text, &entry.text, '.');
-  if (subdom.text && entry.text) {
-    subdom.length = strlen(subdom.text);
-    entry.length = strlen(entry.text);
+  struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+  if (key_value_pair.key && key_value_pair.value) {
+    struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
+    struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
     if (token_equals(subdom, SUB_DOMAIN_ICON))
       needs_update = text_parse_sub_domain(&bar_item->icon, rsp, entry, message);
     else if (token_equals(subdom, SUB_DOMAIN_LABEL))
@@ -325,12 +321,10 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
 }
 
 static char* reformat_batch_key_value_pair(struct token token) {
-  char* key = NULL;
-  char* value = NULL;
-  get_key_value_pair(token.text, &key, &value, '=');
-  if (!key) return NULL;
-  char* rbr_msg = malloc((strlen(key) + (value ? strlen(value) : 0) + 3) * sizeof(char)); 
-  pack_key_value_pair(rbr_msg, key, value);
+  struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
+  if (!key_value_pair.key) return NULL;
+  char* rbr_msg = malloc((strlen(key_value_pair.key) + (key_value_pair.value ? strlen(key_value_pair.value) : 0) + 3) * sizeof(char)); 
+  pack_key_value_pair(rbr_msg, &key_value_pair);
   return rbr_msg;
 }
 

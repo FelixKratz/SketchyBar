@@ -196,12 +196,10 @@ static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token pro
     return true;
   } 
   else {
-    struct token subdom;
-    struct token entry;
-    get_key_value_pair(property.text, &subdom.text, &entry.text, '.');
-    if (subdom.text && entry.text) {
-      subdom.length = strlen(subdom.text);
-      entry.length = strlen(entry.text);
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
+      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
       if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
         return background_parse_sub_domain(&text->background, rsp, entry, message);
       else {

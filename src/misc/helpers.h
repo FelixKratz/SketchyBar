@@ -12,6 +12,12 @@ extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;
 
+
+struct key_value_pair {
+  char* key;
+  char* value;
+};
+
 struct signal_args {
     char name[7][255];
     char value[7][255];
@@ -51,6 +57,41 @@ static struct rgba_color rgba_color_from_hex(uint32_t color) {
     result.b = ((color >> 0) & 0xff) / 255.0;
     result.a = ((color >> 24) & 0xff) / 255.0;
     return result;
+}
+
+static struct key_value_pair get_key_value_pair(char *token, char split) {
+    struct key_value_pair key_value_pair;
+    key_value_pair.key = token;
+
+    while (*token) {
+        if (token[0] == split) break;
+        ++token;
+    }
+
+    if (*token != split) {
+        key_value_pair.key = NULL;
+        key_value_pair.value = NULL;
+    } else if (token[1]) {
+        *token = '\0';
+        key_value_pair.value = token + 1;
+    } else {
+        *token = '\0';
+        key_value_pair.value = NULL;
+    }
+
+    return key_value_pair;
+}
+
+static void pack_key_value_pair(char* cursor, struct key_value_pair* key_value_pair) {
+  uint32_t key_len = strlen(key_value_pair->key);
+  uint32_t val_len = key_value_pair->value ? strlen(key_value_pair->value) : 0;
+  memcpy(cursor, key_value_pair->key, key_len);
+  cursor += key_len;
+  *cursor++ = '\0';
+  memcpy(cursor, key_value_pair->value, val_len);
+  cursor += val_len;
+  *cursor++ = '\0';
+  *cursor++ = '\0';
 }
 
 static inline bool is_root(void) {
@@ -141,38 +182,6 @@ static struct token get_token(char **message) {
   }
 
   return token;
-}
-
-static void get_key_value_pair(char *token, char **key, char **value, char split) {
-    *key = token;
-
-    while (*token) {
-        if (token[0] == split) break;
-        ++token;
-    }
-
-    if (*token != split) {
-        *key = NULL;
-        *value = NULL;
-    } else if (token[1]) {
-        *token = '\0';
-        *value = token + 1;
-    } else {
-        *token = '\0';
-        *value = NULL;
-    }
-}
-
-static void pack_key_value_pair(char* cursor, char* key, char* value) {
-  uint32_t key_len = strlen(key);
-  uint32_t val_len = value ? strlen(value) : 0;
-  memcpy(cursor, key, key_len);
-  cursor += key_len;
-  *cursor++ = '\0';
-  memcpy(cursor, value, val_len);
-  cursor += val_len;
-  *cursor++ = '\0';
-  *cursor++ = '\0';
 }
 
 static inline uint32_t get_set_bit_position(uint32_t mask) {
