@@ -113,7 +113,8 @@ void text_clear_pointers(struct text* text) {
 uint32_t text_get_length(struct text* text, bool override) {
   if (!text->drawing) return 0;
   if (text->has_const_width && !override) return text->custom_width;
-  return text->bounds.size.width + text->padding_left + text->padding_right; 
+  int len = text->bounds.size.width + text->padding_left + text->padding_right;
+  return (len < 0 ? 0 : len);
 }
 
 uint32_t text_get_height(struct text* text) {
