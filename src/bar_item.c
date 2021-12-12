@@ -233,8 +233,8 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
   if (!bar_item) return;
 
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("BUTTON"), get_type_description(type));
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), get_modifier_description(modifier));
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("BUTTON"), string_copy(get_type_description(type)));
+  env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), string_copy(get_modifier_description(modifier)));
 
   if (strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args);
