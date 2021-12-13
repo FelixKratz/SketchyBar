@@ -163,7 +163,7 @@ bool alias_update_image(struct alias* alias) {
   if (needs_redraw) {
     CGImageRelease(alias->image_ref);
     alias->image_ref = tmp_ref;
-  }
+  } else CGImageRelease(tmp_ref);
 
   return needs_redraw;
 }
