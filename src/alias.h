@@ -12,6 +12,7 @@ struct alias {
   uint64_t pid;
   uint32_t wid;
   CGImageRef image_ref;
+  CFDataRef data_ref;
   CGRect bounds;
 };
 

@@ -68,6 +68,7 @@ void alias_init(struct alias* alias, char* owner, char* name) {
   alias->owner = owner;
   alias->wid = 0;
   alias->image_ref = NULL;
+  alias->data_ref = NULL;
   alias_get_permission(alias);
   alias_update_image(alias);
 }
@@ -129,6 +130,7 @@ bool alias_update_image(struct alias* alias) {
   if (alias->wid == 0) alias_find_window(alias);
   if (alias->wid == 0) {
     alias->image_ref = NULL;
+    alias->data_ref = NULL;
     return false;
   }
 
@@ -139,14 +141,15 @@ bool alias_update_image(struct alias* alias) {
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
 
   if (!tmp_ref) { alias->wid = 0; return false; }
+
   bool needs_redraw = true;
-  if (alias->image_ref) {
-    CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
-    CFDataRef old_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(alias->image_ref));
-    uint32_t old_len = CFDataGetLength(old_data_ref);
+  CFDataRef new_data_ref = NULL;
+  if (alias->image_ref && alias->data_ref) {
+    new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
+    uint32_t old_len = CFDataGetLength(alias->data_ref);
     uint32_t new_len = CFDataGetLength(new_data_ref);
     if (old_len == new_len) {
-      const unsigned char* old_data = CFDataGetBytePtr(old_data_ref);
+      const unsigned char* old_data = CFDataGetBytePtr(alias->data_ref);
       const unsigned char* new_data = CFDataGetBytePtr(new_data_ref);
       needs_redraw = false;
       for (int i = 0; i < old_len; i++) {
@@ -156,14 +159,19 @@ bool alias_update_image(struct alias* alias) {
         }
       }
     }
-    CFRelease(new_data_ref);
-    CFRelease(old_data_ref);
   }
 
   if (needs_redraw) {
     CGImageRelease(alias->image_ref);
     alias->image_ref = tmp_ref;
-  } else CGImageRelease(tmp_ref);
+
+    if (alias->data_ref) CFRelease(alias->data_ref);
+    if (new_data_ref) alias->data_ref = new_data_ref;
+    else alias->data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
+  } else {
+    CGImageRelease(tmp_ref);
+    if (new_data_ref) CFRelease(new_data_ref);
+  }
 
   return needs_redraw;
 }
