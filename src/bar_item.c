@@ -304,7 +304,7 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
 void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin) {
   if (bar_item->num_rects < adid) {
     bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * adid);
-    memset(bar_item->bounding_rects, 0, sizeof(CGRect*) * adid);
+    memset(bar_item->bounding_rects + bar_item->num_rects, 0, sizeof(CGRect*) * (adid - bar_item->num_rects));
     bar_item->num_rects = adid;
   }
   if (!bar_item->bounding_rects[adid - 1]) {
