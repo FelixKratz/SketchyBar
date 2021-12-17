@@ -427,7 +427,12 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   while (name.text && name.length > 0) {
     int index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-    if (index < 0) continue;
+    if (index < 0) {
+      fprintf(rsp, "Item: %s does not exist in bar items.\n", name.text);
+      printf("Item: %s does not exist in bar items.\n", name.text);
+      name = get_token(&message);
+      continue;
+    }
     ordering[count] = g_bar_manager.bar_items[index];
     count++;
 
