@@ -5,6 +5,7 @@
 #include "group.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
+#include "popup.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -93,6 +94,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   text_init(&bar_item->label);
   background_init(&bar_item->background);
   env_vars_init(&bar_item->signal_args.env_vars);
+  popup_init(&bar_item->popup);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 
@@ -247,6 +249,8 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
     fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
+
+  //popup_set_drawing(&bar_item->popup, !bar_item->popup.drawing);
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {

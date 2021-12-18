@@ -141,21 +141,21 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
   bar->hidden = hidden;
 }
 
-void bar_set_font_smoothing(struct bar* bar, bool smoothing) {
-  CGContextSetAllowsFontSmoothing(bar->context, smoothing);
+void context_set_font_smoothing(CGContextRef context, bool smoothing) {
+  CGContextSetAllowsFontSmoothing(context, smoothing);
 }
 
-void bar_set_blur_radius(struct bar* bar) {
-  SLSSetWindowBackgroundBlurRadius(g_connection, bar->id, g_bar_manager.blur_radius);
+void window_set_blur_radius(uint32_t wid) {
+  SLSSetWindowBackgroundBlurRadius(g_connection, wid, g_bar_manager.blur_radius);
 }
 
-void bar_disable_shadow(struct bar* bar) {
+void window_disable_shadow(uint32_t wid) {
   CFIndex shadow_density = 0;
   CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault, kCFNumberCFIndexType, &shadow_density);
   const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
   const void *values[1] = { shadow_density_cf };
   CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  SLSWindowSetShadowProperties(bar->id, shadow_props_cf);
+  SLSWindowSetShadowProperties(wid, shadow_props_cf);
   CFRelease(shadow_density_cf);
   CFRelease(shadow_props_cf);
 }
@@ -175,13 +175,13 @@ void bar_create_window(struct bar* bar) {
   SLSSetWindowTags(g_connection, bar->id, &set_tags, 64);
   SLSClearWindowTags(g_connection, bar->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, bar->id, 0);
-  bar_set_blur_radius(bar);
-  if (!g_bar_manager.shadow) bar_disable_shadow(bar);
+  window_set_blur_radius(bar->id);
+  if (!g_bar_manager.shadow) window_disable_shadow(bar->id);
 
   SLSSetWindowLevel(g_connection, bar->id, g_bar_manager.window_level);
   bar->context = SLWindowContextCreate(g_connection, bar->id, 0);
   CGContextSetInterpolationQuality(bar->context, kCGInterpolationNone);
-  bar_set_font_smoothing(bar, g_bar_manager.font_smoothing);
+  context_set_font_smoothing(bar->context, g_bar_manager.font_smoothing);
 }
 
 void bar_close_window(struct bar* bar) {

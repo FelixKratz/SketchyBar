@@ -1,0 +1,27 @@
+#ifndef POPUP_H
+#define POPUP_H
+
+#include <_types/_uint32_t.h>
+struct popup {
+  uint32_t id;
+  bool drawing;
+  bool horizontal;
+  uint32_t cell_size;
+  CGPoint anchor;
+  CGContextRef context;
+  CGRect frame;
+  struct background background;
+
+  uint32_t num_items;
+  struct bar_item** items;
+};
+
+void popup_init(struct popup* popup);
+void popup_set_anchor(struct popup* popup, CGPoint anchor);
+void popup_add_item(struct popup* popup, struct bar_item* item);
+void popup_set_drawing(struct popup* popup, bool drawing);
+void popup_draw(struct popup* popup);
+
+void popup_destroy(struct popup* popup);
+
+#endif // !POPUP_H

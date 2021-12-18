@@ -62,6 +62,9 @@ struct bar_item {
   // Bounding Boxes for click events and background drawing (individual per display)
   uint32_t num_rects;
   CGRect** bounding_rects;
+
+  // Popup
+  struct popup popup;
 };
 
 struct bar_item* bar_item_create();

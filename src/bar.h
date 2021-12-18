@@ -1,6 +1,7 @@
 #ifndef BAR_H
 #define BAR_H
 
+#include <_types/_uint32_t.h>
 #include <stdint.h>
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
@@ -55,7 +56,9 @@ void bar_create_window(struct bar* bar);
 void bar_close_window(struct bar* bar);
 void bar_destroy(struct bar* bar);
 void bar_set_hidden(struct bar* bar, bool hidden);
-void bar_set_font_smoothing(struct bar* bar, bool smoothing);
-void bar_set_blur_radius(struct bar* bar);
+void context_set_font_smoothing(CGContextRef context, bool smoothing);
+
+void window_set_blur_radius(uint32_t wid);
+void window_disable_shadow(uint32_t wid);
 
 #endif
