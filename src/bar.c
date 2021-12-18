@@ -84,6 +84,11 @@ void bar_redraw(struct bar* bar) {
     bar_item->graph.rtl = rtl;
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item, bar->frame.size.height - (g_bar_manager.background.border_width + 1), *next_position, y);
 
+    CGPoint anchor = bar->origin;
+    anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
+    anchor.y += bar_item->icon.bounds.origin.y + bar->frame.size.height / 2;
+    popup_set_anchor(&bar_item->popup, anchor);
+
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length
                                                     + bar_item->background.padding_left
