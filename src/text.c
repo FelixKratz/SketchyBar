@@ -57,6 +57,7 @@ void text_prepare_line(struct text* text) {
   CTLineGetTypographicBounds(text->line.line, &text->line.ascent, &text->line.descent, NULL);
   text->bounds = CTLineGetBoundsWithOptions(text->line.line, kCTLineBoundsUseGlyphPathBounds);
   text->bounds.size.width = (uint32_t) (text->bounds.size.width + 0.5);
+  text->bounds.size.height = (uint32_t) (text->bounds.size.height + 0.5);
   text->bounds.origin.x = (uint32_t) (text->bounds.origin.x + 0.5);
   text->line.color = text->highlight ? text->highlight_color : text->color;
 
@@ -142,7 +143,7 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   } else if (text->align == POSITION_RIGHT && text->has_const_width) {
     text->bounds.origin.x = x + text->custom_width - text_get_length(text, true);
   }
-  text->bounds.origin.y = y - ((text->line.ascent - text->line.descent) / 2);
+  text->bounds.origin.y =(uint32_t)(y - ((text->line.ascent - text->line.descent) / 2));
 
   if (text->background.enabled) {
     text->background.bounds.size.width = text_get_length(text, false);
