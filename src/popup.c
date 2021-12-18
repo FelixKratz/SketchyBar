@@ -23,7 +23,7 @@ void popup_init(struct popup* popup) {
 void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->cell_size / 2;
   uint32_t width = 0;
-  for (int i = 0; i < popup->num_items; i++) {
+  for (int i = popup->num_items - 1; i >= 0; i--) {
     uint32_t item_width = popup->items[i]->background.padding_right + popup->items[i]->background.padding_left + bar_item_calculate_bounds(popup->items[i], popup->cell_size, 0, y);
     if (item_width > width) width = item_width;
     y += popup->cell_size;
@@ -62,7 +62,9 @@ void popup_create_window(struct popup* popup) {
   context_set_font_smoothing(popup->context, g_bar_manager.font_smoothing);
 
   popup->drawing = true;
+  SLSDisableUpdate(g_connection);
   popup_draw(popup);
+  SLSReenableUpdate(g_connection);
 }
 
 void popup_close_window(struct popup* popup) {
@@ -80,9 +82,10 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   popup->items[popup->num_items - 1] = bar_item;
 }
 
-void popup_set_anchor(struct popup* popup, CGPoint anchor) {
+void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   popup->anchor = anchor;
   popup->anchor.y += popup->y_offset;
+  popup->adid = adid;
 
   if (popup->drawing) {
     //popup_close_window(popup);
@@ -99,19 +102,23 @@ void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
   popup_calculate_bounds(popup);
 
-  SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, popup->id, -1, 0);
   draw_rect(popup->context, popup->frame, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
 
   for (int i = 0; i < popup->num_items; i++) {
-    bool state = popup->items[i]->popup.drawing;
-    popup->items[i]->popup.drawing = false;
-    bar_item_draw(popup->items[i], popup->context);
-    popup->items[i]->popup.drawing = state;
+    struct bar_item* bar_item = popup->items[i];
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
+      SLSAddTrackingRect(g_connection, popup->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+
+    bar_item_set_bounding_rect_for_display(bar_item, popup->adid, popup->anchor, popup->background.bounds.size.height);
+
+    bool state = bar_item->popup.drawing;
+    bar_item->popup.drawing = false;
+    bar_item_draw(bar_item, popup->context);
+    bar_item->popup.drawing = state;
   }
   CGContextFlush(popup->context);
   SLSOrderWindow(g_connection, popup->id, 1, popup->id);
-  SLSReenableUpdate(g_connection);
 }
 
 void popup_destroy(struct popup* popup) {

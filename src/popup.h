@@ -4,6 +4,7 @@
 #include <_types/_uint32_t.h>
 struct popup {
   uint32_t id;
+  uint32_t adid;
   bool drawing;
   bool horizontal;
   int y_offset;
@@ -18,7 +19,7 @@ struct popup {
 };
 
 void popup_init(struct popup* popup);
-void popup_set_anchor(struct popup* popup, CGPoint anchor);
+void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid);
 void popup_add_item(struct popup* popup, struct bar_item* item);
 void popup_set_drawing(struct popup* popup, bool drawing);
 void popup_draw(struct popup* popup);

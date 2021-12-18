@@ -35,7 +35,7 @@ void bar_draw_bar_items(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    bar_item_remove_associated_bar(bar_item, bar->adid);
+    if (!(bar_item->position == POSITION_POPUP)) bar_item_remove_associated_bar(bar_item, bar->adid);
     if (!bar_draws_item(bar, bar_item)) continue;
 
     bar_item_append_associated_bar(bar_item, bar->adid);
@@ -43,7 +43,7 @@ void bar_draw_bar_items(struct bar* bar) {
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
       SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
 
-    bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin);
+    bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin, bar->frame.size.height);
     bar_item_draw(bar_item, bar->context);
   }
 
@@ -89,7 +89,7 @@ void bar_redraw(struct bar* bar) {
     CGPoint anchor = bar->origin;
     anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
     anchor.y += bar_item->icon.bounds.origin.y + bar->frame.size.height / 2;
-    popup_set_anchor(&bar_item->popup, anchor);
+    popup_set_anchor(&bar_item->popup, anchor, bar->adid);
 
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length

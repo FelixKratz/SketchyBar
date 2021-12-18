@@ -303,7 +303,7 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   return bounding_rect;
 }
 
-void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin) {
+void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height) {
   if (bar_item->num_rects < adid) {
     bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * adid);
     memset(bar_item->bounding_rects + bar_item->num_rects, 0, sizeof(CGRect*) * (adid - bar_item->num_rects));
@@ -315,7 +315,7 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
   }
   CGRect rect = bar_item_construct_bounding_rect(bar_item);
   bar_item->bounding_rects[adid - 1]->origin.x = rect.origin.x + bar_origin.x;
-  bar_item->bounding_rects[adid - 1]->origin.y = rect.origin.y + bar_origin.y;
+  bar_item->bounding_rects[adid - 1]->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
   bar_item->bounding_rects[adid - 1]->size = rect.size;
 }
 
@@ -366,6 +366,8 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
     alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph)
     graph_draw(&bar_item->graph, context);
+  if (bar_item->popup.drawing)
+    popup_draw(&bar_item->popup);
 }
 
 void bar_item_destroy(struct bar_item* bar_item) {

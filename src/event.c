@@ -110,13 +110,14 @@ static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
 
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     debug("%s\n", __FUNCTION__);
+    printf("Clicked\n");
     CGPoint point = CGEventGetLocation(context);
     CGEventType type = CGEventGetType(context);
     uint32_t modifier_keys = CGEventGetFlags(context);
     uint32_t adid = display_arrangement(display_active_display_id());
-    debug("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ", adid, point.x, point.y);
+    printf("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ", adid, point.x, point.y);
     struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    printf("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item, type, modifier_keys);
     CFRelease(context);
     return EVENT_SUCCESS;
