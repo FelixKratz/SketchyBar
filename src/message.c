@@ -131,6 +131,20 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   bar_item_set_type(bar_item, command.text[0]);
   bar_item->position = position.text[0];
+  struct key_value_pair key_value_pair = get_key_value_pair(position.text, '.');
+  if (key_value_pair.key && key_value_pair.value) {
+    if (key_value_pair.key[0] == POSITION_POPUP) {
+      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
+      if (item_index_for_name < 0) {
+        fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
+        printf("Name: %s not found in bar items \n", key_value_pair.value);
+        return;
+      }
+      struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
+      popup_add_item(&target_item->popup, bar_item);
+    } 
+  }
+
   bar_item_set_name(bar_item, token_to_string(name));
 
   if (token_equals(command, COMMAND_ADD_ITEM)) {
@@ -187,6 +201,8 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
       needs_update = background_parse_sub_domain(&bar_item->background, rsp, entry, message);
     else if (token_equals(subdom, SUB_DOMAIN_GRAPH))
       needs_update = graph_parse_sub_domain(&bar_item->graph, rsp, entry, message);
+    else if (token_equals(subdom, SUB_DOMAIN_POPUP))
+      needs_update = popup_parse_sub_domain(&bar_item->popup, rsp, entry, message);
     else {
       fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
       printf("Invalid subdomain: %s \n", subdom.text);
@@ -224,7 +240,21 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {
-    bar_item->position = get_token(&message).text[0];
+    struct token position = get_token(&message);
+    bar_item->position = position.text[0];
+    struct key_value_pair key_value_pair = get_key_value_pair(position.text, '.');
+    if (key_value_pair.key && key_value_pair.value) {
+      if (key_value_pair.key[0] == POSITION_POPUP) {
+        int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
+        if (item_index_for_name < 0) {
+          fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
+          printf("Name: %s not found in bar items \n", key_value_pair.value);
+          return;
+        }
+        struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
+        popup_add_item(&target_item->popup, bar_item);
+      } 
+    }
     needs_update = true;
   } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
     struct token token = get_token(&message);

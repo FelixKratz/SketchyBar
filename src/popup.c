@@ -11,6 +11,7 @@ void popup_init(struct popup* popup) {
   popup->id = 0;
   popup->frame.origin = (CGPoint){0,0};
   popup->anchor = (CGPoint){100, 100};
+  popup->y_offset = 0;
   
   popup->num_items = 0;
   popup->cell_size = 30;
@@ -81,6 +82,7 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
 
 void popup_set_anchor(struct popup* popup, CGPoint anchor) {
   popup->anchor = anchor;
+  popup->anchor.y += popup->y_offset;
 
   if (popup->drawing) {
     //popup_close_window(popup);
@@ -120,3 +122,30 @@ void popup_destroy(struct popup* popup) {
   if (popup->context) free(popup->context);
 }
 
+static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
+  if (token_equals(property, PROPERTY_YOFFSET)) {
+    popup->y_offset = token_to_int(get_token(&message));
+    return true;
+  } else if (token_equals(property, PROPERTY_DRAWING)) {
+    popup_set_drawing(popup, evaluate_boolean_state(get_token(&message), popup->drawing));
+    return true;
+  } 
+  else {
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
+      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+      if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
+        return background_parse_sub_domain(&popup->background, rsp, entry, message);
+      else {
+        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
+        printf("Invalid subdomain: %s \n", subdom.text);
+      }
+    }
+    else {
+      fprintf(rsp, "Unknown property: %s \n", property.text);
+      printf("Unknown property: %s \n", property.text);
+    }
+  }
+  return false;
+}

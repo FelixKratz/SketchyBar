@@ -249,10 +249,6 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
     fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
-
-  //if (bar_item->popup.num_items == 0)
-  //  popup_add_item(&bar_item->popup, bar_item);
-  //popup_set_drawing(&bar_item->popup, !bar_item->popup.drawing);
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {

@@ -31,6 +31,7 @@
 #define SUB_DOMAIN_LABEL                                    "label"
 #define SUB_DOMAIN_BACKGROUND                               "background"
 #define SUB_DOMAIN_GRAPH                                    "graph"
+#define SUB_DOMAIN_POPUP                                    "popup"
 
 #define PROPERTY_FONT                                       "font"
 #define PROPERTY_COLOR                                      "color"
@@ -109,6 +110,7 @@
 #define POSITION_LEFT   'l'
 #define POSITION_RIGHT  'r'
 #define POSITION_CENTER 'c'
+#define POSITION_POPUP 'p'
 #define POSITION_CENTER_LEFT 'q'
 #define POSITION_CENTER_RIGHT 'e'
 

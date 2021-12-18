@@ -6,6 +6,7 @@ struct popup {
   uint32_t id;
   bool drawing;
   bool horizontal;
+  int y_offset;
   uint32_t cell_size;
   CGPoint anchor;
   CGContextRef context;
@@ -23,5 +24,7 @@ void popup_set_drawing(struct popup* popup, bool drawing);
 void popup_draw(struct popup* popup);
 
 void popup_destroy(struct popup* popup);
+
+static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message);
 
 #endif // !POPUP_H

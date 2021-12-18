@@ -21,6 +21,7 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing) return false;
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << bar->adid))) return false;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << bar->sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) return false;
+    if (bar_item->position == POSITION_POPUP) return false;
     return true;
 }
 
@@ -76,7 +77,8 @@ void bar_redraw(struct bar* bar) {
     else if (bar_item->position == POSITION_CENTER) next_position = &bar_center_first_item_x;
     else if (bar_item->position == POSITION_RIGHT) next_position = &bar_right_first_item_x, rtl = true;
     else if (bar_item->position == POSITION_CENTER_RIGHT) next_position = &bar_center_right_first_item_x;
-    else next_position = &bar_center_left_first_item_x, rtl = true;
+    else if (bar_item->position == POSITION_CENTER_LEFT) next_position = &bar_center_left_first_item_x, rtl = true;
+    else continue;
 
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT)
       *next_position -= bar_item_display_length + bar_item->background.padding_left + bar_item->background.padding_right;
