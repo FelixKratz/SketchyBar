@@ -12,6 +12,7 @@ void popup_init(struct popup* popup) {
   popup->frame.origin = (CGPoint){0,0};
   popup->anchor = (CGPoint){100, 100};
   popup->y_offset = 0;
+  popup->adid = 0;
   
   popup->num_items = 0;
   popup->cell_size = 30;
