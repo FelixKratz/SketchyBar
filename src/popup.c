@@ -24,6 +24,7 @@ void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->cell_size / 2;
   uint32_t width = 0;
   for (int i = popup->num_items - 1; i >= 0; i--) {
+    if (!popup->items[i]->drawing) continue;
     uint32_t item_width = popup->items[i]->background.padding_right + popup->items[i]->background.padding_left + bar_item_calculate_bounds(popup->items[i], popup->cell_size, 0, y);
     if (item_width > width) width = item_width;
     y += popup->cell_size;
@@ -126,6 +127,7 @@ void popup_draw(struct popup* popup) {
 
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
+    if (!bar_item->drawing) continue;
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
       SLSAddTrackingRect(g_connection, popup->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
 
