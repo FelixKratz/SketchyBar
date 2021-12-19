@@ -72,6 +72,7 @@
 #define PROPERTY_SHADOW                                     "shadow"
 #define PROPERTY_ALIGN                                      "align"
 #define PROPERTY_NOTCH_WIDTH                                "notch_width"
+#define PROPERTY_HORIZONTAL                                 "horizontal"
 
 #define DOMAIN_SUBSCRIBE                                    "--subscribe"
 #define COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED                "front_app_switched"

@@ -10,7 +10,7 @@ void popup_init(struct popup* popup) {
   popup->context = NULL;
   popup->id = 0;
   popup->frame.origin = (CGPoint){0,0};
-  popup->anchor = (CGPoint){100, 100};
+  popup->anchor = (CGPoint){0, 0};
   popup->y_offset = 0;
   popup->adid = 0;
   
@@ -25,16 +25,29 @@ void popup_init(struct popup* popup) {
 
 void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->cell_size / 2;
+  uint32_t x = 0;
   uint32_t width = 0;
-  for (int i = popup->num_items - 1; i >= 0; i--) {
-    if (!popup->items[i]->drawing) continue;
-    uint32_t item_width = popup->items[i]->background.padding_right + popup->items[i]->background.padding_left + bar_item_calculate_bounds(popup->items[i], popup->cell_size, 0, y);
-    if (item_width > width) width = item_width;
+  for (int j = popup->num_items - 1; j >= 0; j--) {
+    struct bar_item* bar_item = NULL;
+    if (popup->horizontal) bar_item = popup->items[popup->num_items - 1 - j];
+    else bar_item = popup->items[j];
+    if (!bar_item->drawing) continue;
+    uint32_t item_width = bar_item->background.padding_right + bar_item->background.padding_left + bar_item_calculate_bounds(bar_item, popup->cell_size, x, y);
+    if (item_width > width && !popup->horizontal) width = item_width;
+    if (popup->horizontal) x += item_width;
+    else y += popup->cell_size;
+  }
+
+  if (popup->horizontal) {
+    width = x;
     y += popup->cell_size;
   }
-  if (popup->background.bounds.size.width != width || popup->background.bounds.size.height != y - popup->cell_size / 2) {
+
+  if ((popup->background.bounds.size.width != width + 2) || (popup->background.bounds.size.height != y - popup->cell_size / 2)) {
     popup->background.bounds.size.width = width + 2;
     popup->background.bounds.size.height = y - popup->cell_size / 2;
+    printf("Resizing\n");
+
     popup_resize(popup);
   }
 }
@@ -122,6 +135,7 @@ void popup_set_drawing(struct popup* popup, bool drawing) {
 
 void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
+  printf("Drawing....\n");
 
   SLSOrderWindow(g_connection, popup->id, -1, 0);
   draw_rect(popup->context, popup->frame, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
@@ -157,6 +171,9 @@ static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token 
     return true;
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     popup_set_drawing(popup, evaluate_boolean_state(get_token(&message), popup->drawing));
+    return true;
+  } else if (token_equals(property, PROPERTY_HORIZONTAL)) {
+    popup->horizontal = evaluate_boolean_state(get_token(&message), popup->horizontal);
     return true;
   } 
   else {
