@@ -25,6 +25,20 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     return true;
 }
 
+void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
+    bar_item->popup.cell_size = bar->frame.size.height;
+    popup_calculate_bounds(&bar_item->popup);
+    CGPoint anchor = bar->origin;
+    anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
+    anchor.y += bar_item->icon.bounds.origin.y + (g_bar_manager.position == POSITION_BOTTOM ? (-bar->frame.size.height/2 - bar_item->popup.background.bounds.size.height) : bar->frame.size.height / 2);
+    if (anchor.x + bar_item->popup.background.bounds.size.width > bar->frame.size.width) {
+      anchor.x = bar->frame.size.width - bar_item->popup.background.bounds.size.width;
+      popup_calculate_bounds(&bar_item->popup);
+    }
+    popup_set_anchor(&bar_item->popup, anchor, bar->adid);
+    popup_calculate_bounds(&bar_item->popup);
+}
+
 void bar_draw_bar_items(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
@@ -86,17 +100,7 @@ void bar_redraw(struct bar* bar) {
     bar_item->graph.rtl = rtl;
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item, bar->frame.size.height - (g_bar_manager.background.border_width + 1), *next_position, y);
 
-    CGPoint anchor = bar->origin;
-    anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
-    anchor.y += bar_item->icon.bounds.origin.y + bar->frame.size.height / 2;
-    bar_item->popup.cell_size = bar->frame.size.height;
-    popup_calculate_bounds(&bar_item->popup);
-    if (anchor.x + bar_item->popup.background.bounds.size.width > bar->frame.size.width) {
-      anchor.x = bar->frame.size.width - bar_item->popup.background.bounds.size.width;
-      popup_calculate_bounds(&bar_item->popup);
-    }
-    popup_set_anchor(&bar_item->popup, anchor, bar->adid);
-    popup_calculate_bounds(&bar_item->popup);
+    if (bar_item->popup.drawing) bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
 
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length
