@@ -13,6 +13,7 @@ void popup_init(struct popup* popup) {
   popup->anchor = (CGPoint){0, 0};
   popup->y_offset = 0;
   popup->adid = 0;
+  popup->align = POSITION_LEFT;
   
   popup->num_items = 0;
   popup->cell_size = 30;
@@ -46,7 +47,6 @@ void popup_calculate_bounds(struct popup* popup) {
   if ((popup->background.bounds.size.width != width + 2) || (popup->background.bounds.size.height != y - popup->cell_size / 2)) {
     popup->background.bounds.size.width = width + 2;
     popup->background.bounds.size.height = y - popup->cell_size / 2;
-    printf("Resizing\n");
 
     popup_resize(popup);
   }
@@ -135,7 +135,6 @@ void popup_set_drawing(struct popup* popup, bool drawing) {
 
 void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
-  printf("Drawing....\n");
 
   SLSOrderWindow(g_connection, popup->id, -1, 0);
   draw_rect(popup->context, popup->frame, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
@@ -174,6 +173,10 @@ static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token 
     return true;
   } else if (token_equals(property, PROPERTY_HORIZONTAL)) {
     popup->horizontal = evaluate_boolean_state(get_token(&message), popup->horizontal);
+    return true;
+  } else if (token_equals(property, PROPERTY_ALIGN)) {
+    popup->align = get_token(&message).text[0];
+    printf("Align: %c \n", popup->align);
     return true;
   } 
   else {

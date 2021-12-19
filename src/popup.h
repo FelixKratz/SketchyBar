@@ -13,6 +13,7 @@ struct popup {
   CGContextRef context;
   CGRect frame;
   struct background background;
+  char align;
 
   uint32_t num_items;
   struct bar_item** items;
