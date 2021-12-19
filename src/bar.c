@@ -30,7 +30,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
     popup_calculate_bounds(&bar_item->popup);
     CGPoint anchor = bar->origin;
     anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
-    anchor.y += bar_item->icon.bounds.origin.y + (g_bar_manager.position == POSITION_BOTTOM ? (-bar->frame.size.height/2 - bar_item->popup.background.bounds.size.height) : bar->frame.size.height / 2);
+    anchor.y += (g_bar_manager.position == POSITION_BOTTOM ? (-bar->frame.size.height - bar_item->popup.background.bounds.size.height) : bar->frame.size.height);
     if (anchor.x + bar_item->popup.background.bounds.size.width > bar->frame.size.width) {
       anchor.x = bar->frame.size.width - bar_item->popup.background.bounds.size.width;
       popup_calculate_bounds(&bar_item->popup);

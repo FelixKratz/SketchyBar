@@ -18,7 +18,9 @@ void popup_init(struct popup* popup) {
   popup->cell_size = 30;
   popup->items = NULL;
   background_init(&popup->background);
-  popup->background.color = rgba_color_from_hex(0xff000000);
+  popup->background.border_color = rgba_color_from_hex(0xffff0000);
+  popup->background.color = rgba_color_from_hex(0x44000000);
+
 }
 
 void popup_calculate_bounds(struct popup* popup) {
@@ -31,7 +33,7 @@ void popup_calculate_bounds(struct popup* popup) {
     y += popup->cell_size;
   }
   if (popup->background.bounds.size.width != width || popup->background.bounds.size.height != y - popup->cell_size / 2) {
-    popup->background.bounds.size.width = width;
+    popup->background.bounds.size.width = width + 2;
     popup->background.bounds.size.height = y - popup->cell_size / 2;
     popup_resize(popup);
   }
