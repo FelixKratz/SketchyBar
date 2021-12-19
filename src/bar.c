@@ -89,8 +89,13 @@ void bar_redraw(struct bar* bar) {
     CGPoint anchor = bar->origin;
     anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
     anchor.y += bar_item->icon.bounds.origin.y + bar->frame.size.height / 2;
-    popup_set_anchor(&bar_item->popup, anchor, bar->adid);
     bar_item->popup.cell_size = bar->frame.size.height;
+    popup_calculate_bounds(&bar_item->popup);
+    if (anchor.x + bar_item->popup.background.bounds.size.width > bar->frame.size.width) {
+      anchor.x = bar->frame.size.width - bar_item->popup.background.bounds.size.width;
+      popup_calculate_bounds(&bar_item->popup);
+    }
+    popup_set_anchor(&bar_item->popup, anchor, bar->adid);
     popup_calculate_bounds(&bar_item->popup);
 
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {

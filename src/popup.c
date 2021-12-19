@@ -104,14 +104,12 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
 }
 
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
-  popup->anchor = anchor;
-  popup->anchor.y += popup->y_offset;
-  popup->adid = adid;
-
-  if (popup->drawing) {
-    //popup_close_window(popup);
-    //popup_create_window(popup);
+  if (popup->anchor.x != anchor.x || popup->anchor.y != anchor.y + popup->y_offset) {
+    popup->anchor = anchor;
+    popup->anchor.y += popup->y_offset;
+    if (popup->drawing) popup_resize(popup);
   }
+  popup->adid = adid;
 }
 
 void popup_set_drawing(struct popup* popup, bool drawing) {
