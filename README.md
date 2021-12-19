@@ -4,9 +4,9 @@ This bar project aims to create a highly flexible, customizable and fast statusb
 shell scripts and want to make their statusbar show exactly the information they need for their workflow.
 
 The configuration of the bar takes place in a confiuration file where almost everything can be configured.
-Bascially, the bar itself is a rectangle that can hold arbitrarily many *items* and *components*, which can be configured to do awesome stuff.
+Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
 An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
-*scripts* that can be attached to the *item*. It is also possible to *subscribe* and *item* to certain *events* for their *script* execution action,
+*scripts* that can be attached to the *item*. It is also possible to *subscribe* an *item* to certain *events* for their *script* execution action,
 which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
 Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
 of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
@@ -29,6 +29,7 @@ In the center I have a spotify indicator (only when music is playing) and on the
 * Performance friendly
 * No accessibility permissions needed
 * As many widgets as you like at any of the three positions: left, center, right
+* Popup Menus
 * Associate widgets to certain displays or spaces, to show specific information on the relevant screens/displays
 * The widgets are highly customizable with settings for different fonts, colors, icon paddings, label paddings, etc. for each individual element
 * Display items from the default menu bar and configure them in sketchybar
@@ -38,7 +39,6 @@ In the center I have a spotify indicator (only when music is playing) and on the
 * Let items subscribe to system events (e.g. space changed, etc.) for their refresh action
 * Create custom events and trigger them externaly
 * "click" events for the widgets, where a script can be specified to run on a mouse click
-* Cache the scripts in RAM to reduce I/O operations
 * Offset the bar from its original location, rounded corners and background blur
 * Batch configuration messages for easy configuration
 
@@ -93,7 +93,7 @@ brew services start sketchybar
 ```
 
 ### Plugins and Fonts
-If you want to use your own plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
+When you use additional plugins, make sure that they are referenced in the rc with the correct path and that they are made executable via
 ```bash
 chmod +x name/of/plugin.sh
 ```
@@ -168,7 +168,7 @@ Icon properties:
 * *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *icon.y_offset*: the vertical offset of the icon (default: 0)
 * *icon.width*: Used to make the icon have a fixed custom width given in points (default: *dynamic*)
-* *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*) (Only on HEAD)
+* *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
 * *icon.background.<property>*: all background properties are also available for the icon
 
 Label properties:
@@ -182,7 +182,7 @@ Label properties:
 * *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *label.y_offset*: the vertical offset of the label (default: 0)
 * *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
-* *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*) (Only on HEAD)
+* *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
 * *label.background.<property>*: all background properties are also available for the label
 
 Background properties:
@@ -321,7 +321,18 @@ All further default menu items currently available on your system can be found v
 sketchybar -m --query default_menu_items
 ```
 
-This pushes the data point into the graph with name *name*.
+## Popup Menus
+<img src="https://user-images.githubusercontent.com/22680421/146688291-b8bc5e77-e6a2-42ee-bd9f-b3709c63d936.png" width="300"> <br>
+Popup menus are a powerful way to make further `items` accessible in a small popup window below any bar item.
+Every item has a popup available with the properties:
+* *popup.background.*: All background properties are available for the popup
+* *popup.align*: Where to align the popup below the item (values: *left*, *right*, *center*, default: *left*)
+* *popup.horizontal*: If the popup should draw horizontally, by default popups will draw vertically (values: *on*, *off*, *toggle*, default: *off*)
+* *popup.drawing*: If the popup should draw (values: *on*, *off*, *toggle*, default: *on*)
+* *popup.y_offset*: The vertical offset for the popup anchor (default: 0)
+
+Items can be added to a popup menu by setting the `position` of those items to `popup.<name>` where <name> is the name of the item containing the popup.
+You can find a demo implementation of this [here](https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-1843975).
 
 ## Batching of configuration commands
 It is possible to batch commands together into a single call to sketchybar, this can be helpful to
@@ -361,7 +372,7 @@ where the events are:
 * *mouse.clicked*: when an item is clicked
 
 When an item is subscribed to these events the *script* is run and it gets passed the *$SENDER* variable, which holds exactly the above names, to distinguish between the different events.
-It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*. I will soon create an example an link it here.
+It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*.
 
 Alternatively a fixed *update_freq* can be *--set*, such that the event is routinely run to poll for change.
 
@@ -420,10 +431,6 @@ sketchybar -m --query bar
 The output is a json structure containing relevant information about the configuration settings of the bar.
 ### Item Properties
 Information about an item can be queried via:
-```bash
-sketchybar -m --query item <name>
-```
-Additional valid syntax on HEAD (above still works):
 ```bash
 sketchybar -m --query <name>
 ```
