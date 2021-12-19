@@ -23,6 +23,8 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid);
 void popup_add_item(struct popup* popup, struct bar_item* item);
 void popup_set_drawing(struct popup* popup, bool drawing);
 void popup_draw(struct popup* popup);
+void popup_resize(struct popup* popup);
+void popup_calculate_bounds(struct popup* popup);
 
 void popup_destroy(struct popup* popup);
 

@@ -28,8 +28,11 @@ void popup_calculate_bounds(struct popup* popup) {
     if (item_width > width) width = item_width;
     y += popup->cell_size;
   }
-  popup->background.bounds.size.width = width;
-  popup->background.bounds.size.height = y - popup->cell_size / 2;
+  if (popup->background.bounds.size.width != width || popup->background.bounds.size.height != y - popup->cell_size / 2) {
+    popup->background.bounds.size.width = width;
+    popup->background.bounds.size.height = y - popup->cell_size / 2;
+    popup_resize(popup);
+  }
 }
 
 void popup_create_frame(struct popup *popup, CFTypeRef *frame_region) {
@@ -37,12 +40,29 @@ void popup_create_frame(struct popup *popup, CFTypeRef *frame_region) {
   CGSNewRegionWithRect(&popup->frame, frame_region);
 }
 
+void popup_resize(struct popup* popup) {
+  CFTypeRef frame_region;
+  popup_create_frame(popup, &frame_region);
+
+  SLSDisableUpdate(g_connection);
+  SLSOrderWindow(g_connection, popup->id, -1, 0);
+  SLSSetWindowShape(g_connection, popup->id, popup->anchor.x, popup->anchor.y, frame_region);
+
+  SLSClearActivationRegion(g_connection, popup->id);
+  SLSAddActivationRegion(g_connection, popup->id, frame_region);
+  SLSRemoveAllTrackingAreas(g_connection, popup->id);
+
+  popup_draw(popup);
+  SLSOrderWindow(g_connection, popup->id, 1, 0);
+  SLSReenableUpdate(g_connection);
+  CFRelease(frame_region);
+}
+
 void popup_create_window(struct popup* popup) {
   uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
   uint64_t clear_tags = kCGSSuperStickyTagBit;
 
   CFTypeRef frame_region;
-  popup_calculate_bounds(popup);
   popup_create_frame(popup, &frame_region);
 
   SLSNewWindow(g_connection, 2, popup->anchor.x, popup->anchor.y, frame_region, &popup->id);
@@ -100,7 +120,6 @@ void popup_set_drawing(struct popup* popup, bool drawing) {
 
 void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
-  popup_calculate_bounds(popup);
 
   SLSOrderWindow(g_connection, popup->id, -1, 0);
   draw_rect(popup->context, popup->frame, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);

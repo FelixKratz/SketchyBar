@@ -90,6 +90,8 @@ void bar_redraw(struct bar* bar) {
     anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
     anchor.y += bar_item->icon.bounds.origin.y + bar->frame.size.height / 2;
     popup_set_anchor(&bar_item->popup, anchor, bar->adid);
+    bar_item->popup.cell_size = bar->frame.size.height;
+    popup_calculate_bounds(&bar_item->popup);
 
     if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width ? bar_item_display_length
