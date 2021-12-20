@@ -2,13 +2,16 @@
   <img src="images/Sbar.svg" />
 </p>
 <br>
+<p align="center">
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://opensource.org/licenses/)
 [![GitHub Release](https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat)]()
 [![FOSS](https://img.shields.io/badge/FOSS-yes-green.svg?style=flat)](https://en.wikipedia.org/wiki/Free_and_open-source_software)
 [![GitHub stars](https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star)](https://github.com/FelixKratz/SketchyBar) 
-<br>
 
+</p>
+
+<br>
 This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
 shell scripts.
 
