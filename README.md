@@ -1,35 +1,58 @@
 <p align="center">
   <img src="images/Sbar.svg" />
 </p>
-<br>
 
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://opensource.org/licenses/)
-[![GitHub Release](https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat)]()
-[![FOSS](https://img.shields.io/badge/FOSS-yes-green.svg?style=flat)](https://en.wikipedia.org/wiki/Free_and_open-source_software)
-[![GitHub stars](https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star)](https://github.com/FelixKratz/SketchyBar) 
+<p align="center">
+<a href="https://opensource.org/licenses/"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
+<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat" /></a>
+<a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"><img src="https://img.shields.io/badge/FOSS-100%-green.svg?style=flat"></a>
+<a href="https://github.com/FelixKratz/SketchyBar"><img src="https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star"></a>
+</p>
 
-<br>
+<p align="center">
 This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
 shell scripts.
+</p>
 
 ![](images/example.png)
-Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
+Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)).
 
-The configuration of the bar takes place in a confiuration file where almost everything can be configured.
-Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
-An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
-*scripts* that can be attached to the *item*. It is also possible to *subscribe* an *item* to certain *events* for their *script* execution action,
-which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
-Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
-of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
-These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
-the plugins folder.
+Table of Contents
+=================
 
-Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
-extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
-is a *graph* component, which can be used to display graphs in the bar.
-
-For more details on how the configuration works, see the Configuration section below.
+* [Table of Contents](#table-of-contents)
+   * [Features](#features)
+   * [Installation](#installation)
+      * [Stable Version](#stable-version)
+      * [Plugins and Fonts](#plugins-and-fonts)
+   * [Global configuration of the bar](#global-configuration-of-the-bar)
+   * [Items and their properties](#items-and-their-properties)
+      * [Adding items to sketchybar](#adding-items-to-sketchybar)
+      * [Changing item properties](#changing-item-properties)
+      * [Changing the default values for all further items](#changing-the-default-values-for-all-further-items)
+   * [Components -- Special Items with special properties](#components----special-items-with-special-properties)
+      * [Data Graph -- Draws an arbitrary graph into the bar](#data-graph----draws-an-arbitrary-graph-into-the-bar)
+      * [Space -- Associate mission control spaces with an item](#space----associate-mission-control-spaces-with-an-item)
+      * [Item Bracket -- Group Items in e.g. colored sections](#item-bracket----group-items-in-eg-colored-sections)
+      * [Item Alias -- Mirror items of the original macOS status bar into sketchybar](#item-alias----mirror-items-of-the-original-macos-status-bar-into-sketchybar)
+   * [Popup Menus](#popup-menus)
+   * [Batching of configuration commands](#batching-of-configuration-commands)
+   * [Events and Scripting](#events-and-scripting)
+      * [Creating custom events](#creating-custom-events)
+      * [Triggering custom events](#triggering-custom-events)
+      * [Forcing all shell scripts to run and the bar to refresh](#forcing-all-shell-scripts-to-run-and-the-bar-to-refresh)
+   * [Querying](#querying)
+      * [Bar Properties](#bar-properties)
+      * [Item Properties](#item-properties)
+      * [Default Properties](#default-properties)
+      * [Event Properties](#event-properties)
+   * [Item Reordering](#item-reordering)
+   * [Moving Items to specific positions](#moving-items-to-specific-positions)
+   * [Item Cloning](#item-cloning)
+   * [Renaming Items](#renaming-items)
+   * [Removing Items](#removing-items)
+   * [Performance optimizations](#performance-optimizations)
+   * [Credits](#credits)
 
 ## Features
 
@@ -49,42 +72,21 @@ For more details on how the configuration works, see the Configuration section b
 * Offset the bar from its original location, rounded corners and background blur
 * Batch configuration messages for easy configuration
 
-Table of Contents
-=================
+The configuration of the bar takes place in a confiuration file where almost everything can be configured.
+Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
+An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
+*scripts* that can be attached to the *item*. It is also possible to *subscribe* an *item* to certain *events* for their *script* execution action,
+which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
+Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
+of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
+These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
+the plugins folder.
 
-* [SketchyBar](#sketchybar)
-   * [Features](#features)
-* [Table of Contents](#table-of-contents)
-   * [Installation](#installation)
-      * [Stable Version](#stable-version)
-      * [Plugins and Fonts](#plugins-and-fonts)
-   * [Global configuration of the bar](#global-configuration-of-the-bar)
-   * [Items and their properties](#items-and-their-properties)
-      * [Adding items to sketchybar](#adding-items-to-sketchybar)
-      * [Changing item properties](#changing-item-properties)
-      * [Changing the default values for all further items](#changing-the-default-values-for-all-further-items)
-   * [Components -- Special Items with special properties](#components----special-items-with-special-properties)
-      * [Data Graph -- Draws an arbitrary graph into the bar](#data-graph----draws-an-arbitrary-graph-into-the-bar)
-      * [Space -- Associate mission control spaces with an item](#space----associate-mission-control-spaces-with-an-item)
-      * [Item Bracket -- Group Items in e.g. colored sections](#item-bracket----group-items-in-eg-colored-sections)
-      * [Item Alias -- Mirror items of the original macOS status bar into sketchybar](#item-alias----mirror-items-of-the-original-macos-status-bar-into-sketchybar)
-   * [Batching of configuration commands](#batching-of-configuration-commands)
-   * [Events and Scripting](#events-and-scripting)
-      * [Creating custom events](#creating-custom-events)
-      * [Triggering custom events](#triggering-custom-events)
-      * [Forcing all shell scripts to run and the bar to refresh](#forcing-all-shell-scripts-to-run-and-the-bar-to-refresh)
-   * [Querying](#querying)
-      * [Bar Properties](#bar-properties)
-      * [Item Properties](#item-properties)
-      * [Default Properties](#default-properties)
-      * [Event Properties](#event-properties)
-   * [Item Reordering](#item-reordering)
-   * [Moving Items to specific positions](#moving-items-to-specific-positions)
-   * [Item Cloning](#item-cloning)
-   * [Renaming Items](#renaming-items)
-   * [Removing Items](#removing-items)
-   * [Performance optimizations](#performance-optimizations)
-   * [Credits](#credits)
+Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
+extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
+is a *graph* component, which can be used to display graphs in the bar.
+
+For more details on how the configuration works, see the Configuration section below.
 
 ## Installation
 ### Stable Version
