@@ -5,7 +5,7 @@
 <p align="center">
 <a href="https://opensource.org/licenses/"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
 <a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat" /></a>
-<a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"><img src="https://img.shields.io/badge/FOSS-100%-green.svg?style=flat"></a>
+<a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"><img src="https://img.shields.io/badge/FOSS-100%25-green.svg?style=flat"></a>
 <a href="https://github.com/FelixKratz/SketchyBar"><img src="https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star"></a>
 </p>
 
