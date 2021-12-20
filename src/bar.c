@@ -6,6 +6,7 @@
 #include "graph.h"
 #include "group.h"
 #include "misc/helpers.h"
+#include "popup.h"
 #include "text.h"
 #include <_types/_uint32_t.h>
 #include <stdint.h>
@@ -26,7 +27,7 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
 }
 
 void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
-  if (bar->adid != display_arrangement(display_active_display_id())) return;
+  if (bar->adid != g_bar_manager.active_adid) return;
   bar_item->popup.cell_size = bar->frame.size.height;
   popup_calculate_bounds(&bar_item->popup);
   CGPoint anchor = bar->origin;
@@ -38,12 +39,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
     anchor.x += bar_item->icon.bounds.origin.x + bar_item_get_length(bar_item, false) - bar_item->popup.background.bounds.size.width;
   }
   anchor.y += (g_bar_manager.position == POSITION_BOTTOM ? (-bar->frame.size.height - bar_item->popup.background.bounds.size.height) : bar->frame.size.height);
-  if (anchor.x + bar_item->popup.background.bounds.size.width > bar->frame.size.width) {
-    anchor.x = bar->frame.size.width - bar_item->popup.background.bounds.size.width;
-    popup_calculate_bounds(&bar_item->popup);
-  }
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
-  popup_calculate_bounds(&bar_item->popup);
 }
 
 void bar_draw_bar_items(struct bar* bar) {
@@ -66,6 +62,8 @@ void bar_draw_bar_items(struct bar* bar) {
 
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin, bar->frame.size.height);
     bar_item_draw(bar_item, bar->context);
+    if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
+      popup_draw(&bar_item->popup);
   }
 
   CGContextFlush(bar->context);

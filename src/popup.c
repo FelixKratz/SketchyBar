@@ -21,7 +21,6 @@ void popup_init(struct popup* popup) {
   background_init(&popup->background);
   popup->background.border_color = rgba_color_from_hex(0xffff0000);
   popup->background.color = rgba_color_from_hex(0x44000000);
-
 }
 
 void popup_calculate_bounds(struct popup* popup) {
@@ -44,34 +43,24 @@ void popup_calculate_bounds(struct popup* popup) {
     y += popup->cell_size;
   }
 
-  if ((popup->background.bounds.size.width != width + 2) || (popup->background.bounds.size.height != y - popup->cell_size / 2)) {
-    popup->background.bounds.size.width = width + 2;
-    popup->background.bounds.size.height = y - popup->cell_size / 2;
-
-    popup_resize(popup);
-  }
+  popup->background.bounds.size.width = width + 2;
+  popup->background.bounds.size.height = y - popup->cell_size / 2;
 }
 
 void popup_create_frame(struct popup *popup, CFTypeRef *frame_region) {
-  popup->frame.size = popup->background.bounds.size;
-  CGSNewRegionWithRect(&popup->frame, frame_region);
+  CGSNewRegionWithRect(&popup->background.bounds, frame_region);
 }
 
 void popup_resize(struct popup* popup) {
   CFTypeRef frame_region;
   popup_create_frame(popup, &frame_region);
 
-  SLSDisableUpdate(g_connection);
-  SLSOrderWindow(g_connection, popup->id, -1, 0);
   SLSSetWindowShape(g_connection, popup->id, popup->anchor.x, popup->anchor.y, frame_region);
 
   SLSClearActivationRegion(g_connection, popup->id);
   SLSAddActivationRegion(g_connection, popup->id, frame_region);
   SLSRemoveAllTrackingAreas(g_connection, popup->id);
 
-  popup_draw(popup);
-  SLSOrderWindow(g_connection, popup->id, 1, 0);
-  SLSReenableUpdate(g_connection);
   CFRelease(frame_region);
 }
 
@@ -99,9 +88,6 @@ void popup_create_window(struct popup* popup) {
   context_set_font_smoothing(popup->context, g_bar_manager.font_smoothing);
 
   popup->drawing = true;
-  SLSDisableUpdate(g_connection);
-  popup_draw(popup);
-  SLSReenableUpdate(g_connection);
 }
 
 void popup_close_window(struct popup* popup) {
@@ -123,7 +109,7 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   if (popup->anchor.x != anchor.x || popup->anchor.y != anchor.y + popup->y_offset) {
     popup->anchor = anchor;
     popup->anchor.y += popup->y_offset;
-    if (popup->drawing) popup_resize(popup);
+    SLSMoveWindow(g_connection, popup->id, &popup->anchor);
   }
   popup->adid = adid;
 }
@@ -137,7 +123,8 @@ void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
 
   SLSOrderWindow(g_connection, popup->id, -1, 0);
-  draw_rect(popup->context, popup->frame, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
+  popup_resize(popup);
+  draw_rect(popup->context, popup->background.bounds, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
 
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
@@ -176,7 +163,6 @@ static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token 
     return true;
   } else if (token_equals(property, PROPERTY_ALIGN)) {
     popup->align = get_token(&message).text[0];
-    printf("Align: %c \n", popup->align);
     return true;
   } 
   else {

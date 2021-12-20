@@ -31,6 +31,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
+  bar_manager->active_adid = display_arrangement(display_active_display_id());
 
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;
@@ -370,6 +371,8 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 }
 
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  bar_manager->active_adid = display_arrangement(display_active_display_id());
+
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_destroy(bar_manager->bars[i]);
 
@@ -402,6 +405,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
+  bar_manager->active_adid = display_arrangement(display_active_display_id());
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_DISPLAY_CHANGE, NULL);
 }
 

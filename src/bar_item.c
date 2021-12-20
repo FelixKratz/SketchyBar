@@ -367,8 +367,6 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
     alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph)
     graph_draw(&bar_item->graph, context);
-  if (bar_item->popup.drawing)
-    popup_draw(&bar_item->popup);
 }
 
 void bar_item_destroy(struct bar_item* bar_item) {

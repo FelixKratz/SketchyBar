@@ -22,6 +22,7 @@ extern CGError SLSAddActivationRegion(uint32_t cid, uint32_t wid, CFTypeRef regi
 extern CGError SLSAddTrackingRect(uint32_t cid, uint32_t wid, CGRect rect);
 extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
+extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 
 #define kCGSDisableShadowTagBit         (1ULL <<  3)

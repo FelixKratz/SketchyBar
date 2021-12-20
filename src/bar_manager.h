@@ -1,5 +1,6 @@
 #ifndef BAR_MANAGER_H
 #define BAR_MANAGER_H
+#include <_types/_uint32_t.h>
 #include <stdint.h>
 
 #define TIMER_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
@@ -31,6 +32,7 @@ struct bar_manager {
   uint32_t notch_width;
   int y_offset;
   bool shadow;
+  uint32_t active_adid;
 
   struct background background;
   struct custom_events custom_events;
