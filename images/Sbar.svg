@@ -2,10 +2,10 @@
 <!-- Created with matplotlib (https://matplotlib.org/) -->
 
 <svg
-   height="112.56678pt"
+   height="115.15997pt"
    version="1.1"
-   viewBox="0 0 559.12115 112.56678"
-   width="559.12115pt"
+   viewBox="0 0 560.41772 115.15997"
+   width="560.41772pt"
    id="svg507"
    sodipodi:docname="Sbar.svg"
    inkscape:version="1.1.1 (c3084ef, 2021-09-22)"
@@ -28,8 +28,8 @@
      inkscape:document-units="pt"
      showgrid="false"
      inkscape:zoom="2.1864626"
-     inkscape:cx="115.48334"
-     inkscape:cy="110.68106"
+     inkscape:cx="117.31278"
+     inkscape:cy="112.5105"
      inkscape:window-width="1512"
      inkscape:window-height="922"
      inkscape:window-x="0"
@@ -124,18 +124,18 @@
     </clipPath>
   </defs>
   <path
-     style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:5.91024;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+     style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:8.50394;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
      id="rect1298"
      width="106.65637"
      height="106.65603"
-     x="2.9554105"
-     y="2.9553843"
+     x="4.2519684"
+     y="4.2519684"
      inkscape:path-effect="#path-effect975"
-     d="M 17.95541,2.9553843 H 94.611783 A 15,15 45 0 1 109.61178,17.955384 V 94.611413 A 15,15 135 0 1 94.611783,109.61141 H 17.95541 A 15,15 45 0 1 2.9554105,94.611413 V 17.955384 A 15,15 135 0 1 17.95541,2.9553843 Z"
+     d="M 19.251968,4.2519684 H 95.90834 a 15,15 45 0 1 15,14.9999996 v 76.656029 a 15,15 135 0 1 -15,15.000003 H 19.251968 A 15,15 45 0 1 4.2519684,95.907997 V 19.251968 A 15,15 135 0 1 19.251968,4.2519684 Z"
      sodipodi:type="rect" />
   <g
      id="text_13"
-     transform="matrix(11.326022,0,0,11.326022,-3327.4986,-2129.78)"
+     transform="matrix(11.326022,0,0,11.326022,-3326.202,-2128.4834)"
      style="fill:#e1e3e4;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round">
     <!-- $\bar{S}$ -->
     <g
@@ -174,18 +174,18 @@
   <text
      xml:space="preserve"
      style="font-size:22px;line-height:1.25;font-family:sans-serif;stroke-width:0.75"
-     x="165.48476"
-     y="54.082119"
+     x="166.78131"
+     y="55.378704"
      id="text10850"><tspan
        sodipodi:role="line"
        id="tspan10848"
        style="stroke-width:0.75"
-       x="165.48476"
-       y="54.082119" /></text>
+       x="166.78131"
+       y="55.378704" /></text>
   <g
      id="text_13-8"
-     style="fill:#9dd274;stroke-linecap:butt;stroke-linejoin:round;fill-opacity:1"
-     transform="matrix(7.5429152,0,0,7.5429152,-2085.9856,-1401.7999)">
+     style="fill:#9dd274;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round"
+     transform="matrix(7.5429152,0,0,7.5429152,-2084.689,-1400.5033)">
     <!-- $\mathbf{SketchyBar}$ -->
     <g
        style="fill:#9dd274;fill-opacity:1"
