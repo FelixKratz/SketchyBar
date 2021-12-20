@@ -1,16 +1,16 @@
 <p align="center">
   <img src="images/Sbar.svg" />
 </p>
-This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
-shell scripts and want to make their statusbar show exactly the information they need for their workflow.
-
-Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
-![](images/example.png)
-
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://opensource.org/licenses/)
 [![GitHub Release](https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat)]()
 [![FOSS](https://img.shields.io/badge/FOSS-yes-green.svg?style=flat)](https://en.wikipedia.org/wiki/Free_and_open-source_software)
 [![GitHub stars](https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star)](https://github.com/FelixKratz/SketchyBar) <br>
+
+This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
+shell scripts.
+
+![](images/example.png)
+Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
 
 The configuration of the bar takes place in a confiuration file where almost everything can be configured.
 Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
