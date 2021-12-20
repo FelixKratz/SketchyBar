@@ -28,13 +28,13 @@
      inkscape:document-units="pt"
      showgrid="false"
      inkscape:zoom="0.89393939"
-     inkscape:cx="588.9661"
+     inkscape:cx="368.59322"
      inkscape:cy="2.2372881"
-     inkscape:window-width="1910"
-     inkscape:window-height="1130"
-     inkscape:window-x="627"
-     inkscape:window-y="77"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1512"
+     inkscape:window-height="922"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg507" />
   <metadata
      id="metadata276">
@@ -106,53 +106,49 @@
          id="rect502" />
     </clipPath>
   </defs>
+  <rect
+     style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:5.91075;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:stroke markers fill"
+     id="rect1298"
+     width="106.65604"
+     height="106.65604"
+     x="2.9554062"
+     y="2.95538" />
   <g
-     id="g8646"
-     transform="matrix(11.679723,0,0,11.679723,-3336.6883,-2205.7614)">
-    <rect
-       style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:0.506069;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:stroke markers fill"
-       id="rect1298"
-       width="9.1317263"
-       height="9.1317263"
-       x="285.93518"
-       y="189.10695" />
+     id="text_13"
+     transform="matrix(11.679723,0,0,11.679723,-3431.4046,-2197.5818)"
+     style="fill:#e1e3e4;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round">
+    <!-- $\bar{S}$ -->
     <g
-       id="text_13"
-       transform="translate(-8.1094678,0.70032388)"
-       style="fill:#e1e3e4;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round">
-      <!-- $\bar{S}$ -->
-      <g
-         style="fill:#e1e3e4;fill-opacity:1"
-         transform="matrix(0.1,0,0,-0.1,295.2,197.01)"
-         id="g497">
-        <defs
-           id="defs491">
-          <path
-             d="m 39.90625,55 v 2.296875 h -34 V 55 Z"
-             id="path2584" />
-          <path
-             d="M 63.5,69.09375 C 63.5,70 62.796875,70 62.59375,70 c -0.390625,0 -0.5,-0.109375 -1.6875,-1.609375 C 60.296875,67.6875 56.203125,62.53125 56.09375,62.4375 52.796875,68.890625 46.203125,70 42,70 29.296875,70 17.796875,58.46875 17.796875,47.25 c 0,-7.453125 4.5,-11.8125 9.40625,-13.5 1.09375,-0.40625 7,-1.984375 10,-2.6875 5.09375,-1.390625 6.390625,-1.78125 8.5,-3.96875 0.390625,-0.5 2.390625,-2.78125 2.390625,-7.4375 C 48.09375,10.421875 39.5,0.890625 29.5,0.890625 c -8.203125,0 -17.296875,3.46875 -17.296875,14.59375 0,1.890625 0.390625,4.265625 0.703125,5.265625 0,0.296875 0.09375,0.78125 0.09375,0.984375 0,0.40625 -0.203125,0.890625 -1,0.890625 -0.90625,0 -1,-0.1875 -1.40625,-1.875 L 5.5,0.390625 C 5.5,0.296875 5.09375,-1 5.09375,-1.109375 5.09375,-2 5.90625,-2 6.09375,-2 c 0.40625,0 0.5,0.09375 1.703125,1.59375 L 12.40625,5.5625 C 14.796875,1.984375 20,-2 29.296875,-2 42.203125,-2 54,10.421875 54,22.828125 54,27 53,30.671875 49.203125,34.34375 c -2.109375,2.078125 -3.90625,2.578125 -13.109375,4.96875 -6.6875,1.78125 -7.59375,2.078125 -9.390625,3.671875 -1.703125,1.6875 -3,4.0625 -3,7.4375 0,8.34375 8.5,16.875 18,16.875 9.796875,0 14.390625,-5.953125 14.390625,-15.390625 0,-2.578125 -0.5,-5.25 -0.5,-5.65625 0,-0.890625 0.8125,-0.890625 1.109375,-0.890625 0.890625,0 1,0.296875 1.390625,1.890625 z"
-             id="path2586" />
-        </defs>
-        <use
-           transform="matrix(0.996264,0,0,0.996264,18.181134,25.189733)"
-           xlink:href="#CMR17-22"
-           id="use493"
-           x="0"
-           y="0"
-           width="100%"
-           height="100%"
-           style="fill:#e1e3e4;fill-opacity:1" />
-        <use
-           transform="scale(0.996264)"
-           xlink:href="#CMMI12-83"
-           id="use495"
-           x="0"
-           y="0"
-           width="100%"
-           height="100%"
-           style="fill:#e1e3e4;fill-opacity:1" />
-      </g>
+       style="fill:#e1e3e4;fill-opacity:1"
+       transform="matrix(0.1,0,0,-0.1,295.2,197.01)"
+       id="g497">
+      <defs
+         id="defs491">
+        <path
+           d="m 39.90625,55 v 2.296875 h -34 V 55 Z"
+           id="path2584" />
+        <path
+           d="M 63.5,69.09375 C 63.5,70 62.796875,70 62.59375,70 c -0.390625,0 -0.5,-0.109375 -1.6875,-1.609375 C 60.296875,67.6875 56.203125,62.53125 56.09375,62.4375 52.796875,68.890625 46.203125,70 42,70 29.296875,70 17.796875,58.46875 17.796875,47.25 c 0,-7.453125 4.5,-11.8125 9.40625,-13.5 1.09375,-0.40625 7,-1.984375 10,-2.6875 5.09375,-1.390625 6.390625,-1.78125 8.5,-3.96875 0.390625,-0.5 2.390625,-2.78125 2.390625,-7.4375 C 48.09375,10.421875 39.5,0.890625 29.5,0.890625 c -8.203125,0 -17.296875,3.46875 -17.296875,14.59375 0,1.890625 0.390625,4.265625 0.703125,5.265625 0,0.296875 0.09375,0.78125 0.09375,0.984375 0,0.40625 -0.203125,0.890625 -1,0.890625 -0.90625,0 -1,-0.1875 -1.40625,-1.875 L 5.5,0.390625 C 5.5,0.296875 5.09375,-1 5.09375,-1.109375 5.09375,-2 5.90625,-2 6.09375,-2 c 0.40625,0 0.5,0.09375 1.703125,1.59375 L 12.40625,5.5625 C 14.796875,1.984375 20,-2 29.296875,-2 42.203125,-2 54,10.421875 54,22.828125 54,27 53,30.671875 49.203125,34.34375 c -2.109375,2.078125 -3.90625,2.578125 -13.109375,4.96875 -6.6875,1.78125 -7.59375,2.078125 -9.390625,3.671875 -1.703125,1.6875 -3,4.0625 -3,7.4375 0,8.34375 8.5,16.875 18,16.875 9.796875,0 14.390625,-5.953125 14.390625,-15.390625 0,-2.578125 -0.5,-5.25 -0.5,-5.65625 0,-0.890625 0.8125,-0.890625 1.109375,-0.890625 0.890625,0 1,0.296875 1.390625,1.890625 z"
+           id="path2586" />
+      </defs>
+      <use
+         transform="matrix(0.996264,0,0,0.996264,18.181134,25.189733)"
+         xlink:href="#CMR17-22"
+         id="use493"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         style="fill:#e1e3e4;fill-opacity:1" />
+      <use
+         transform="scale(0.996264)"
+         xlink:href="#CMMI12-83"
+         id="use495"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         style="fill:#e1e3e4;fill-opacity:1" />
     </g>
   </g>
   <text
@@ -168,11 +164,11 @@
        y="54.082119" /></text>
   <g
      id="text_13-8"
-     style="fill:#1a1a1a;stroke-linecap:butt;stroke-linejoin:round"
+     style="fill:#9dd274;stroke-linecap:butt;stroke-linejoin:round;fill-opacity:1"
      transform="matrix(7.5429152,0,0,7.5429152,-2085.9856,-1401.7999)">
     <!-- $\mathbf{SketchyBar}$ -->
     <g
-       style="fill:#1a1a1a"
+       style="fill:#9dd274;fill-opacity:1"
        transform="matrix(0.1,0,0,-0.1,295.2,197.01)"
        id="g13254">
       <defs
@@ -216,7 +212,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,62.266501,0)"
          xlink:href="#CMBX12-107"
@@ -225,7 +221,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,118.30635,0)"
          xlink:href="#CMBX12-101"
@@ -234,7 +230,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,169.44562,0)"
          xlink:href="#CMBX12-116"
@@ -243,7 +239,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,213.03217,0)"
          xlink:href="#CMBX12-99"
@@ -252,7 +248,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,259.73204,0)"
          xlink:href="#CMBX12-104"
@@ -261,7 +257,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,318.88522,0)"
          xlink:href="#CMBX12-121"
@@ -270,7 +266,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,378.03839,0)"
          xlink:href="#CMBX12-66"
@@ -279,7 +275,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,457.71653,0)"
          xlink:href="#CMBX12-97"
@@ -288,7 +284,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
       <use
          transform="matrix(0.996264,0,0,0.996264,512.19972,0)"
          xlink:href="#CMBX12-114"
@@ -297,7 +293,7 @@
          y="0"
          width="100%"
          height="100%"
-         style="fill:#1a1a1a" />
+         style="fill:#9dd274;fill-opacity:1" />
     </g>
   </g>
 </svg>
