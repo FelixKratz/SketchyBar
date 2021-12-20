@@ -1,7 +1,16 @@
-# SketchyBar
-
-This bar project aims to create a highly flexible, customizable and fast statusbar for users that like playing around with
+<p align="center">
+  <img src="images/Sbar.svg" />
+</p>
+This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
 shell scripts and want to make their statusbar show exactly the information they need for their workflow.
+
+Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
+![](images/example.png)
+
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://opensource.org/licenses/)
+[![GitHub Release](https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat)]()
+[![FOSS](https://img.shields.io/badge/FOSS-yes-green.svg?style=flat)](https://en.wikipedia.org/wiki/Free_and_open-source_software)
+[![GitHub stars](https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star)](https://github.com/FelixKratz/SketchyBar) <br>
 
 The configuration of the bar takes place in a confiuration file where almost everything can be configured.
 Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
@@ -18,11 +27,6 @@ extra steps. They contain all the properties a regular item does, but they can d
 is a *graph* component, which can be used to display graphs in the bar.
 
 For more details on how the configuration works, see the Configuration section below.
-
-This is an example setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)):
-![](images/myNewSetup.jpg)
-where I have my spaces and a Github indicator on the left. Not shown is the high memory warning which shows the process that is using high system memory on demand.
-In the center I have a spotify indicator (only when music is playing) and on the right I have (not shown) a high cpu process indicator, as well as a cpu graph, a new mail counter and the current date.
 
 ## Features
 
@@ -132,7 +136,7 @@ where the settings currently are:
 
 ## Items and their properties
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
-<img src="images/bar_item.png" width="300"> <br>
+<img src="images/bar_item.svg" width="300"> <br>
 
 ### Adding items to sketchybar
 ```bash
