@@ -27,14 +27,14 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="pt"
      showgrid="false"
-     inkscape:zoom="0.89393939"
-     inkscape:cx="368.59322"
-     inkscape:cy="2.2372881"
+     inkscape:zoom="2.1864626"
+     inkscape:cx="115.48334"
+     inkscape:cy="110.68106"
      inkscape:window-width="1512"
      inkscape:window-height="922"
      inkscape:window-x="0"
      inkscape:window-y="32"
-     inkscape:window-maximized="1"
+     inkscape:window-maximized="0"
      inkscape:current-layer="svg507" />
   <metadata
      id="metadata276">
@@ -54,6 +54,23 @@
   </metadata>
   <defs
      id="defs280">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect975"
+       is_visible="true"
+       lpeversion="1"
+       satellites_param="F,0,0,1,0,15,0,1 @ F,0,0,1,0,15,0,1 @ F,0,0,1,0,15,0,1 @ F,0,0,1,0,15,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="20"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
     <style
        type="text/css"
        id="style278">*{stroke-linecap:butt;stroke-linejoin:round;}</style>
@@ -106,16 +123,19 @@
          id="rect502" />
     </clipPath>
   </defs>
-  <rect
-     style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:5.91075;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:stroke markers fill"
+  <path
+     style="fill:#1a1a1a;fill-opacity:1;fill-rule:evenodd;stroke:#9dd274;stroke-width:5.91024;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
      id="rect1298"
-     width="106.65604"
-     height="106.65604"
-     x="2.9554062"
-     y="2.95538" />
+     width="106.65637"
+     height="106.65603"
+     x="2.9554105"
+     y="2.9553843"
+     inkscape:path-effect="#path-effect975"
+     d="M 17.95541,2.9553843 H 94.611783 A 15,15 45 0 1 109.61178,17.955384 V 94.611413 A 15,15 135 0 1 94.611783,109.61141 H 17.95541 A 15,15 45 0 1 2.9554105,94.611413 V 17.955384 A 15,15 135 0 1 17.95541,2.9553843 Z"
+     sodipodi:type="rect" />
   <g
      id="text_13"
-     transform="matrix(11.679723,0,0,11.679723,-3431.4046,-2197.5818)"
+     transform="matrix(11.326022,0,0,11.326022,-3327.4986,-2129.78)"
      style="fill:#e1e3e4;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round">
     <!-- $\bar{S}$ -->
     <g
