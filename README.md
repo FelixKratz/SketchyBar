@@ -16,7 +16,7 @@ shell scripts.
 
 ![](images/example.png)
 <p align="center">
-More example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47).
+More example setups <a href="https://github.com/FelixKratz/SketchyBar/discussions/47">here</a>.
 </p>
 
 Table of Contents
