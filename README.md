@@ -158,6 +158,7 @@ in which they are added.
 sketchybar -m --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
+(On HEAD: the *name* can be a regular expression inside of two '/': */<regex>/*)
 
 A list of properties available to the *set* command is listed below (components might have additional properties, see the respective component section for them):
 

@@ -7,7 +7,9 @@
 #include "group.h"
 #include "misc/helpers.h"
 #include <_types/_uint32_t.h>
+#include <malloc/_malloc.h>
 #include <string.h>
+#include <regex.h>
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -482,23 +484,71 @@ void handle_message(int sockfd, char* message) {
   while (command.text && command.length > 0) {
     if (token_equals(command, DOMAIN_SET)) {
       struct token name = get_token(&message);
-      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-      if (item_index_for_name < 0) {
-        fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-        printf("Name: %s not found in bar items \n", name.text);
-        break;
+      uint32_t count = 0;
+      struct bar_item** bar_items = NULL;
+
+      if (name.length > 1 && name.text[0] == REGEX_DELIMITER && name.text[name.length - 1] == REGEX_DELIMITER) {
+        char* regstring = malloc(sizeof(char)*(name.length - 1));
+        memcpy(regstring, &name.text[1], name.length - 2);
+        regstring[name.length - 2] = '\0';
+        regex_t regex;
+        int reti;
+        reti = regcomp(&regex, regstring, 0);
+        free(regstring);
+        if (reti) {
+          fprintf(rsp, "Could not compile regex: %s \n", name.text);
+          printf("Could not compile regex: %s \n", name.text);
+          break;
+        }
+
+        for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+          struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+          reti = regexec(&regex, bar_item->name, 0, NULL, 0);
+          if (!reti) {
+            count++;
+            bar_items = realloc(bar_items, sizeof(struct bar_item*)*count);
+            bar_items[count - 1] = bar_item;
+          }
+          else if (reti != REG_NOMATCH) {
+            char buf[100];
+            regerror(reti, &regex, buf, sizeof(buf));
+            fprintf(rsp, "Regex match failed: %s\n", buf);
+            printf("Regex match failed: %s\n", buf);
+            break;
+          }
+        }
+        regfree(&regex);
       }
-      struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
+      else {
+        int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+        if (item_index_for_name < 0) {
+          fprintf(rsp, "Name: %s not found in bar items \n", name.text);
+          printf("Name: %s not found in bar items \n", name.text);
+          break;
+        }
+        bar_items = realloc(bar_items, sizeof(struct bar_item*));
+        bar_items[0] = g_bar_manager.bar_items[item_index_for_name];
+        count = 1;
+      }
+      if (!bar_items || count == 0) return;
+
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
-        char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
-        message_parse_set_message_for_bar_item(rsp, bar_item, rbr_msg);
-        free(rbr_msg);
+        for (int i = 0; i < count; i++) {
+          struct token tmp = {string_copy(token.text), token.length};
+          char* rbr_msg = reformat_batch_key_value_pair(tmp);
+          free(tmp.text);
+          if (!rbr_msg) break;
+          message_parse_set_message_for_bar_item(rsp, bar_items[i], rbr_msg);
+          free(rbr_msg);
+        }
         if (message && message[0] == '-') break;
         token = get_token(&message);
       }
-    } else if (token_equals(command, DOMAIN_DEFAULT)) {
+      free(bar_items);
+    }
+    else if (token_equals(command, DOMAIN_DEFAULT)) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);

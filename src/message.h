@@ -126,6 +126,8 @@
 #define BAR_COMPONENT_GROUP 'b'
 #define BAR_PLUGIN          'p'
 
+#define REGEX_DELIMITER     '/'
+
 static SOCKET_DAEMON_HANDLER(message_handler);
 void handle_message(int sockfd, char *message);
 
