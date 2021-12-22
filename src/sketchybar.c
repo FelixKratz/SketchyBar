@@ -9,8 +9,6 @@
 #define DEBUG_VERBOSE_OPT_SHRT  "-V"
 #define VERSION_OPT_LONG        "--version"
 #define VERSION_OPT_SHRT        "-v"
-#define CONFIG_OPT_LONG         "--config"
-#define CONFIG_OPT_SHRT         "-c"
 
 #define MAJOR 2
 #define MINOR 3
@@ -18,9 +16,6 @@
 
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
-
-#define CONNECTION_CALLBACK(name) void name(uint32_t type, void *data, size_t data_length, void *context, int cid)
-typedef CONNECTION_CALLBACK(connection_callback);
 
 struct event_loop g_event_loop;
 void *g_workspace_context;
@@ -155,7 +150,7 @@ static bool get_config_file(char *restrict filename, char *restrict buffer, int 
 }
 
 static void exec_config_file(void) {
-    if (!*g_config_file && !get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
+    if (!get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
         printf("could not locate config file..");
         return;
     }
@@ -197,64 +192,44 @@ static inline void init_misc_settings(void) {
 #pragma clang diagnostic pop
 
 static void parse_arguments(int argc, char **argv) {
-    if ((string_equals(argv[1], VERSION_OPT_LONG)) ||
-        (string_equals(argv[1], VERSION_OPT_SHRT))) {
-        fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
-        exit(EXIT_SUCCESS);
-    }
+  if ((string_equals(argv[1], VERSION_OPT_LONG)) || (string_equals(argv[1], VERSION_OPT_SHRT))) {
+    fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
+    exit(EXIT_SUCCESS);
+  }
+  
+  if ((string_equals(argv[1], DEBUG_VERBOSE_OPT_LONG) || string_equals(argv[1], DEBUG_VERBOSE_OPT_SHRT)))
+    g_verbose = true;
 
-    if ((string_equals(argv[1], CLIENT_OPT_LONG)) ||
-        (string_equals(argv[1], CLIENT_OPT_SHRT))) {
-        exit(client_send_message(argc-1, argv+1));
-    }
+  if ((string_equals(argv[1], CLIENT_OPT_LONG)) || (string_equals(argv[1], CLIENT_OPT_SHRT)))
+    exit(client_send_message(argc-1, argv+1));
 
-    for (int i = 1; i < argc; ++i) {
-        char *opt = argv[i];
-
-        if ((string_equals(opt, DEBUG_VERBOSE_OPT_LONG)) ||
-            (string_equals(opt, DEBUG_VERBOSE_OPT_SHRT))) {
-            g_verbose = true;
-        } else if ((string_equals(opt, CONFIG_OPT_LONG)) ||
-                   (string_equals(opt, CONFIG_OPT_SHRT))) {
-            char *val = i < argc - 1 ? argv[++i] : NULL;
-            if (!val) error("sketchybar: option '%s|%s' requires an argument!\n", CONFIG_OPT_LONG, CONFIG_OPT_SHRT);
-            snprintf(g_config_file, sizeof(g_config_file), "%s", val);
-        } else {
-            error("sketchybar: '%s' is not a valid option!\n", opt);
-        }
-    }
+  exit(client_send_message(argc, argv));
 }
 
 int main(int argc, char **argv) {
-    if (argc > 1) {
-        parse_arguments(argc, argv);
-    }
+  if (argc > 1) parse_arguments(argc, argv);
 
-    if (is_root()) {
-        error("sketchybar: running as root is not allowed! abort..\n");
-    }
+  if (is_root()) error("sketchybar: running as root is not allowed! abort..\n");
 
-    init_misc_settings();
-    acquire_lockfile();
+  init_misc_settings();
+  acquire_lockfile();
 
-    if (!event_loop_init(&g_event_loop)) {
-        error("sketchybar: could not initialize event_loop! abort..\n");
-    }
+  if (!event_loop_init(&g_event_loop))
+    error("sketchybar: could not initialize event_loop! abort..\n");
 
-    workspace_event_handler_init(&g_workspace_context);
-    bar_manager_init(&g_bar_manager);
+  workspace_event_handler_init(&g_workspace_context);
+  bar_manager_init(&g_bar_manager);
 
-    event_loop_begin(&g_event_loop);
-    mouse_begin();
-    display_begin();
-    workspace_event_handler_begin(&g_workspace_context);
-    bar_manager_begin(&g_bar_manager);
+  event_loop_begin(&g_event_loop);
+  mouse_begin();
+  display_begin();
+  workspace_event_handler_begin(&g_workspace_context);
+  bar_manager_begin(&g_bar_manager);
 
-    if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler)) {
-        error("sketchybar: could not initialize daemon! abort..\n");
-    }
+  if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler))
+    error("sketchybar: could not initialize daemon! abort..\n");
 
-    exec_config_file();
-    RunApplicationEventLoop();
-    return 0;
+  exec_config_file();
+  RunApplicationEventLoop();
+  return 0;
 }
