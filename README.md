@@ -4,7 +4,7 @@
 
 <p align="center">
 <a href="https://opensource.org/licenses/"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
-<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat?color=orange" /></a>
+<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat&color=orange" /></a>
 <a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/commits-since/FelixKratz/SketchyBar/latest.svg?color=orange"></a>
 <a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"><img src="https://img.shields.io/badge/FOSS-100%25-green.svg?style=flat"></a>
 </p>
@@ -180,7 +180,7 @@ Icon properties:
 * *icon.y_offset*: the vertical offset of the icon (default: 0)
 * *icon.width*: Used to make the icon have a fixed custom width given in points (default: *dynamic*)
 * *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
-* *icon.background.<property>*: all background properties are also available for the icon
+* *icon.background.\<property\>*: all background properties are also available for the icon
 
 Label properties:
 * *label*: the label of the item
@@ -194,7 +194,7 @@ Label properties:
 * *label.y_offset*: the vertical offset of the label (default: 0)
 * *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
 * *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
-* *label.background.<property>*: all background properties are also available for the label
+* *label.background.\<property\>*: all background properties are also available for the label
 
 Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
@@ -336,10 +336,10 @@ sketchybar -m --query default_menu_items
 <img src="https://user-images.githubusercontent.com/22680421/146688291-b8bc5e77-e6a2-42ee-bd9f-b3709c63d936.png" width="300"> <br>
 Popup menus are a powerful way to make further `items` accessible in a small popup window below any bar item.
 Every item has a popup available with the properties:
-* *popup.background.*: All background properties are available for the popup
+* *popup.background.\<property\>*: All background properties are available for the popup
 * *popup.align*: Where to align the popup below the item (values: *left*, *right*, *center*, default: *left*)
 * *popup.horizontal*: If the popup should draw horizontally, by default popups will draw vertically (values: *on*, *off*, *toggle*, default: *off*)
-* *popup.drawing*: If the popup should draw (values: *on*, *off*, *toggle*, default: *on*)
+* *popup.drawing*: If the popup should draw (values: *on*, *off*, *toggle*, default: *off*)
 * *popup.y_offset*: The vertical offset for the popup anchor (default: 0)
 
 Items can be added to a popup menu by setting the `position` of those items to `popup.<name>` where <name> is the name of the item containing the popup.
