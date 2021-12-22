@@ -3,6 +3,7 @@
 #include "bar.h"
 #include "bar_item.h"
 #include "misc/helpers.h"
+#include "popup.h"
 #include <_types/_uint32_t.h>
 #include <string.h>
 
@@ -191,6 +192,12 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
     for (int i = 0; i < bar_manager->bar_count; i++) {
       bar_set_hidden(bar_manager->bars[i], hidden);
       bar_manager->any_bar_hidden |= hidden;
+    }
+  }
+
+  if (hidden) {
+    for (int i = 0; i < bar_manager->bar_item_count; i++) {
+      popup_set_drawing(&bar_manager->bar_items[i]->popup, false);
     }
   }
   return true;
