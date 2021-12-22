@@ -4,9 +4,9 @@
 
 <p align="center">
 <a href="https://opensource.org/licenses/"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
-<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat" /></a>
+<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat?color=orange" /></a>
+<a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/commits-since/FelixKratz/SketchyBar/latest.svg?color=orange"></a>
 <a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"><img src="https://img.shields.io/badge/FOSS-100%25-green.svg?style=flat"></a>
-<a href="https://github.com/FelixKratz/SketchyBar"><img src="https://img.shields.io/github/stars/FelixKratz/SketchyBar.svg?style=social&label=Star"></a>
 </p>
 
 <p align="center">
@@ -15,7 +15,9 @@ shell scripts.
 </p>
 
 ![](images/example.png)
-Example Setup (see more example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47)).
+<p align="center">
+More example setups [here](https://github.com/FelixKratz/SketchyBar/discussions/47).
+</p>
 
 Table of Contents
 =================
@@ -207,7 +209,7 @@ Background properties:
 Scripting properties:
 * *update_freq*: time in seconds between script executions
 * *script*: a script to run every *update_freq* seconds
-* *click_script*: script to run when left clicking on item (Note: This is also possible via the *mouse_clicked* event, see #subscribing-items-to-system-events-for-their-script-execution)
+* *click_script*: script to run when left clicking on item (Note: This is a shortcut for implemeting it via the *mouse_clicked* event)
 * *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
 * *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
 
