@@ -1,6 +1,7 @@
 #include "popup.h"
 #include "background.h"
 #include "bar_item.h"
+#include "bar_manager.h"
 #include "misc/helpers.h"
 #include <stdint.h>
 
@@ -145,10 +146,10 @@ void popup_draw(struct popup* popup) {
 
 void popup_destroy(struct popup* popup) {
   for (int i = 0; i < popup->num_items; i++) {
-    free(popup->items[i]);
+    bar_manager_remove_item(&g_bar_manager, popup->items[i]);
   }
   if (popup->items) free(popup->items);
-  if (popup->context) free(popup->context);
+  popup_close_window(popup);
 }
 
 static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
