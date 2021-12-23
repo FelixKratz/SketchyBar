@@ -32,6 +32,7 @@
 #define SUB_DOMAIN_BACKGROUND                               "background"
 #define SUB_DOMAIN_GRAPH                                    "graph"
 #define SUB_DOMAIN_POPUP                                    "popup"
+#define SUB_DOMAIN_SHADOW                                   "shadow"
 
 #define PROPERTY_FONT                                       "font"
 #define PROPERTY_COLOR                                      "color"
@@ -47,6 +48,8 @@
 #define PROPERTY_LINE_WIDTH                                 "line_width"
 #define PROPERTY_BLUR_RADIUS                                "blur_radius"
 #define PROPERTY_DRAWING                                    "drawing"
+#define PROPERTY_DISTANCE                                   "distance"
+#define PROPERTY_ANGLE                                      "angle"
 
 #define PROPERTY_UPDATES                                    "updates"
 #define PROPERTY_POSITION                                   "position"

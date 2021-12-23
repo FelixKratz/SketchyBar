@@ -43,6 +43,7 @@ void text_init(struct text* text) {
   text->font_name = string_copy("Hack Nerd Font:Bold:14.0");
   text_set_font(text, text->font_name, true);
   text_set_string(text, text->string, false);
+  shadow_init(&text->shadow);
 }
 
 void text_prepare_line(struct text* text) {
@@ -156,6 +157,16 @@ void text_draw(struct text* text, CGContextRef context) {
   if (!text->drawing) return;
   if (text->background.enabled)
     background_draw(&text->background, context);
+
+  if (text->shadow.enabled) {
+    printf("Drawing shadow\n");
+    CGContextSetRGBFillColor(context, text->shadow.color.r, text->shadow.color.g, text->shadow.color.b, text->shadow.color.a);
+    CGRect bounds = shadow_get_bounds(&text->shadow, text->bounds);
+    printf("At: %f %f \n", bounds.origin.x, bounds.origin.y);
+    CGContextSetTextPosition(context, bounds.origin.x + text->padding_left, bounds.origin.y + text->y_offset);
+    CTLineDraw(text->line.line, context);
+  }
+
   CGContextSetRGBFillColor(context, text->line.color.r, text->line.color.g, text->line.color.b, text->line.color.a);
   CGContextSetTextPosition(context, text->bounds.origin.x + text->padding_left, text->bounds.origin.y + text->y_offset);
   CTLineDraw(text->line.line, context);
@@ -204,6 +215,8 @@ static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token pro
       struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
       if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
         return background_parse_sub_domain(&text->background, rsp, entry, message);
+      else if (token_equals(subdom, SUB_DOMAIN_SHADOW))
+        return shadow_parse_sub_domain(&text->shadow, rsp, entry, message);
       else {
         fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
         printf("Invalid subdomain: %s \n", subdom.text);

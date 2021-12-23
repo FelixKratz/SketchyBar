@@ -26,6 +26,7 @@ struct text {
   struct text_line line;
   struct rgba_color color;
   struct rgba_color highlight_color;
+  struct shadow shadow;
 
   struct background background;
 };

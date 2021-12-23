@@ -262,7 +262,6 @@ void bar_item_mouse_exited(struct bar_item* bar_item) {
   bar_item->mouse_over = false;
 }
 
-
 void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   if (bar_item->y_offset == offset) return;
   bar_item->y_offset = offset;

@@ -3,8 +3,8 @@
 
 void shadow_init(struct shadow* shadow) {
   shadow->enabled = false;
-  shadow->angle = 45;
-  shadow->distance = 10;
+  shadow->angle = 30;
+  shadow->distance = 5;
   shadow->color = rgba_color_from_hex(0xff000000);
 }
 
@@ -38,7 +38,7 @@ bool shadow_set_color(struct shadow* shadow, uint32_t color) {
 }
 
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
-  return (CGRect){{reference_bounds.origin.x + shadow->distance* cos(((double)shadow->angle)/360.),reference_bounds.origin.y - shadow->distance* sin(((double)shadow->angle)/360.)},reference_bounds.size};
+  return (CGRect){{reference_bounds.origin.x + shadow->distance* cos(((double)shadow->angle)/360. * 2.* M_PI),reference_bounds.origin.y - shadow->distance* sin(((double)shadow->angle)/360. * 2.* M_PI)},reference_bounds.size};
 }
 
 static bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {
