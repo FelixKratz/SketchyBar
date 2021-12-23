@@ -197,7 +197,7 @@ Label properties:
 * *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
 * *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
 * *label.background.\<property\>*: all background properties are also available for the label
-* *icon.shadow.\<property\>*: all shadow properties are available for the shadow
+* *label.shadow.\<property\>*: all shadow properties are available for the shadow
 
 Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
