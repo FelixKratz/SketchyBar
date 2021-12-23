@@ -159,10 +159,8 @@ void text_draw(struct text* text, CGContextRef context) {
     background_draw(&text->background, context);
 
   if (text->shadow.enabled) {
-    printf("Drawing shadow\n");
     CGContextSetRGBFillColor(context, text->shadow.color.r, text->shadow.color.g, text->shadow.color.b, text->shadow.color.a);
     CGRect bounds = shadow_get_bounds(&text->shadow, text->bounds);
-    printf("At: %f %f \n", bounds.origin.x, bounds.origin.y);
     CGContextSetTextPosition(context, bounds.origin.x + text->padding_left, bounds.origin.y + text->y_offset);
     CTLineDraw(text->line.line, context);
   }

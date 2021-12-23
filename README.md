@@ -182,6 +182,7 @@ Icon properties:
 * *icon.width*: Used to make the icon have a fixed custom width given in points (default: *dynamic*)
 * *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
 * *icon.background.\<property\>*: all background properties are also available for the icon
+* *icon.shadow.\<property\>*: all shadow properties are available for the icon
 
 Label properties:
 * *label*: the label of the item
@@ -196,6 +197,7 @@ Label properties:
 * *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
 * *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
 * *label.background.\<property\>*: all background properties are also available for the label
+* *icon.shadow.\<property\>*: all shadow properties are available for the shadow
 
 Background properties:
 * *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
@@ -217,6 +219,13 @@ Scripting properties:
 Drawing properties:
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
+
+Shadow properties (Only on HEAD currently):
+* *shadow.drawing*: If the shadow should be drawn (values: *on*, *off*, *toggle*, default: *off*)
+* *shadow.angle*: The angle of the shadow (between 0 and 360, default: 30)
+* *shadow.distance*: The distance of the shadow (default: 5)
+* *shadow.color*: The color of the shadow (default: 0xff000000)
+
 
 ### Changing the default values for all further items
 It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
