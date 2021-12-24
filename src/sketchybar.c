@@ -12,7 +12,7 @@
 
 #define MAJOR 2
 #define MINOR 3
-#define PATCH 1
+#define PATCH 2
 
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
