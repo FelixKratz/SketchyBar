@@ -1,5 +1,6 @@
 #include "background.h"
 #include "misc/helpers.h"
+#include "shadow.h"
 
 void background_init(struct background* background) {
   background->enabled = false;
@@ -14,6 +15,7 @@ void background_init(struct background* background) {
 
   background->color = rgba_color_from_hex(0xff000000);
   background->border_color = rgba_color_from_hex(0xff000000);
+  shadow_init(&background->shadow);
 }
 
 bool background_set_color(struct background* background, uint32_t color) {
@@ -81,6 +83,11 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
 
 void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
+  if (background->shadow.enabled) {
+    CGRect bounds = shadow_get_bounds(&background->shadow, background->bounds);
+    draw_rect(context, bounds, &background->shadow.color, background->corner_radius, background->border_width, &background->shadow.color, false);
+  }
+
   draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
 
@@ -102,8 +109,21 @@ static bool background_parse_sub_domain(struct background* background, FILE* rsp
   else if (token_equals(property, PROPERTY_PADDING_RIGHT))
     return background_set_padding_right(background, token_to_int(get_token(&message)));
   else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
+      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+      if (token_equals(subdom, SUB_DOMAIN_SHADOW))
+        return shadow_parse_sub_domain(&background->shadow, rsp, entry, message);
+      else {
+        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
+        printf("Invalid subdomain: %s \n", subdom.text);
+      }
+    }
+    else {
+      fprintf(rsp, "Unknown property: %s \n", property.text);
+      printf("Unknown property: %s \n", property.text);
+    }
   }
   return false;
 }

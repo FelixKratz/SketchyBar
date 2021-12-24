@@ -133,18 +133,22 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   bar_item_set_type(bar_item, command.text[0]);
   bar_item->position = position.text[0];
-  struct key_value_pair key_value_pair = get_key_value_pair(position.text, '.');
-  if (key_value_pair.key && key_value_pair.value) {
-    if (key_value_pair.key[0] == POSITION_POPUP) {
+  if (position.text[0] == POSITION_POPUP) {
+    char* pair = malloc(sizeof(char)*position.length);
+    memcpy(pair, position.text, position.length);
+    struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
+    if (key_value_pair.key && key_value_pair.value) {
       int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
       if (item_index_for_name < 0) {
         fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
         printf("Name: %s not found in bar items \n", key_value_pair.value);
+        free(pair);
         return;
       }
       struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
       popup_add_item(&target_item->popup, bar_item);
     } 
+    free(pair);
   }
 
   bar_item_set_name(bar_item, token_to_string(name));
@@ -167,7 +171,9 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
       struct token member = position;
       while (member.text && member.length > 0) {
+        
         int index = bar_manager_get_item_index_for_name(&g_bar_manager, member.text);
+        printf("Index for item %s, %d\n", member.text, index);
         if (index >= 0)
           group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
         else {

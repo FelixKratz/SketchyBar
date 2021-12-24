@@ -12,6 +12,7 @@ struct background {
   int padding_right;
   struct rgba_color color;
   struct rgba_color border_color;
+  struct shadow shadow;
 };
 
 void background_init(struct background* background);
