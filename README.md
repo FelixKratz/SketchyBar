@@ -108,6 +108,8 @@ When you use additional plugins, make sure that they are referenced in the rc wi
 ```bash
 chmod +x name/of/plugin.sh
 ```
+The default plugin folder is located in `~/.config/sketchybar/plugins`.
+All plugins must work with absolute paths because relative paths will not be resolved correclty.
 Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) about plugins and share your own if you want to.
 You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
 
@@ -118,7 +120,7 @@ brew install --cask font-hack-nerd-font
 ```
 
 ## Global configuration of the bar
-For an example configuration see the supplied default *sketchybarrc*.
+For an example configuration see the supplied default *sketchybarrc*. The configuration file resides in `~/.config/sketchybar/`, where everything can be freely configured. It is also possible to play around with properties in a terminal and change them while the bar is running, once you find a fitting value you can include it in the `sketchybarrc` file such that the configuration is restored on restart. The global bar properties can be configured by invoking:
 ```bash
 sketchybar -m --bar <setting>=<value> ... <setting>=<value>
 ```
