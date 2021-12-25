@@ -281,14 +281,6 @@ struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager) {
   return bar_item;
 }
 
-void bar_manager_destroy_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
-  int index = bar_manager_get_item_index_by_address(bar_manager, bar_item);
-  memmove(bar_manager->bar_items + index, bar_manager->bar_items + index + 1, bar_manager->bar_item_count - index - 1);
-  bar_manager->bar_items = (struct bar_item**) realloc(bar_manager->bar_items, sizeof(struct bar_item*) * (bar_manager->bar_item_count - 1));
-  bar_manager->bar_item_count -= 1;
-  bar_item_destroy(bar_item);
-}
-
 void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool forced) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     if ((!bar_item_is_shown(bar_manager->bar_items[i]) && !forced) || bar_manager->bar_items[i]->type != BAR_COMPONENT_ALIAS) continue;
@@ -433,6 +425,18 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, char* cont
   free(context);
   if (!name) return;
   bar_manager_custom_events_trigger(bar_manager, name, NULL);
+}
+
+void bar_manager_destroy(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    bar_item_destroy(bar_manager->bar_items[i]);
+  }
+  if (bar_manager->bar_items) free(bar_manager->bar_items);
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    bar_destroy(bar_manager->bars[i]);
+  }
+  custom_events_destroy(&bar_manager->custom_events);
+  if (bar_manager->bars) free(bar_manager->bars);
 }
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {

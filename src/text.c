@@ -74,7 +74,7 @@ bool text_set_string(struct text* text, char* string, bool forced) {
     return false; 
   }
   if (text->line.line) text_destroy_line(text);
-  if (string != text->string && !text->string) free(text->string);
+  if (string != text->string && text->string) free(text->string);
   text->string = string;
   text_prepare_line(text);
   return true;
@@ -88,6 +88,7 @@ bool text_set_color(struct text* text, uint32_t color) {
 bool text_set_font(struct text* text, char* font_string, bool forced) {
   if (!font_string) return false;
   if (!forced && text->font_name && strcmp(text->font_name, font_string) == 0) { free(font_string); return false; }
+  if (font_string != text->font_name && text->font_name) free(text->font_name);
   if (text->font) CFRelease(text->font);
 
   text->font = text_create_font(font_string);

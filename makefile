@@ -25,8 +25,16 @@ uninstall: clean
 profile: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -Ofast -fvisibility=hidden 
 profile: clean $(x86_BINS)
 
-debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -fsanitize=address -fsanitize=undefined -g -O0 -fvisibility=hidden
+leak: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g
+leak: clean $(ARM_BINS)
+	/usr/libexec/PlistBuddy -c "Add :com.apple.security.get-task-allow bool true" bin/tmp.entitlements
+	codesign -s - --entitlements bin/tmp.entitlements -f ./bin/sketchybar_arm
+	leaks -atExit -- ./bin/sketchybar_arm
+
+
+debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer 
 debug: clean $(ARM_BINS)
+	./bin/sketchybar_arm
 
 update: clean $(UNIVERSAL_BINS)
 	rm /usr/local/bin/sketchybar

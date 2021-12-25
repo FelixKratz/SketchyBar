@@ -7,6 +7,12 @@ void custom_event_init(struct custom_event* custom_event, char* name, char* noti
   custom_event->notification = notification;
 }
 
+void custom_event_destroy(struct custom_event* custom_event) {
+  if (custom_event->name) free(custom_event->name);
+  if (custom_event->notification) free(custom_event->notification);
+  free(custom_event);
+}
+
 void custom_events_init(struct custom_events* custom_events) {
   custom_events->count = 0;
 
@@ -22,7 +28,11 @@ void custom_events_init(struct custom_events* custom_events) {
 }
 
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification) {
-  if (custom_events_get_flag_for_name(custom_events, name) > 0) return;
+  if (custom_events_get_flag_for_name(custom_events, name) > 0) { 
+    if (name) free(name);
+    if (notification) free(notification);
+    return; 
+  }
   custom_events->count++;
   custom_events->events = (struct custom_event**) realloc(custom_events->events, sizeof(struct custom_event*) * custom_events->count);
   custom_events->events[custom_events->count - 1] = custom_event_create();
@@ -49,6 +59,13 @@ char* custom_events_get_name_for_notification(struct custom_events* custom_event
     }
   }
   return NULL;
+}
+
+void custom_events_destroy(struct custom_events* custom_events) {
+  for (int i = 0; i < custom_events->count; i++) {
+    custom_event_destroy(custom_events->events[i]);
+  }
+  free(custom_events->events);
 }
 
 void custom_events_serialize(struct custom_events* custom_events, FILE* rsp) {

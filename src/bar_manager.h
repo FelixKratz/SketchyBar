@@ -20,9 +20,9 @@ struct bar_manager {
   uint32_t window_level;
   CFRunLoopTimerRef refresh_timer;
   CFRunLoopTimerRef shell_refresh_timer;
-  struct bar **bars;
+  struct bar** bars;
   int bar_count;
-  struct bar_item **bar_items;
+  struct bar_item** bar_items;
   struct bar_item default_item;
   int bar_item_count;
   char position;
@@ -82,6 +82,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
 void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager);
+void bar_manager_destroy(struct bar_manager* bar_manager);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t sid);
 

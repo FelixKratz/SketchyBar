@@ -240,9 +240,9 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     }
     needs_update = true;
   } else if (token_equals(property, PROPERTY_SCRIPT)) {
-    bar_item_set_script(bar_item, string_copy(message));
+    bar_item_set_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CLICK_SCRIPT)) {
-    bar_item_set_click_script(bar_item, string_copy(message));
+    bar_item_set_click_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {
@@ -617,6 +617,9 @@ void handle_message(int sockfd, char* message) {
       char* rbr_msg = get_batch_line(&message);
       handle_domain_rename(rsp, command, rbr_msg);
       free(rbr_msg);
+    } else if (token_equals(command, DOMAIN_EXIT)) {
+      bar_manager_destroy(&g_bar_manager);
+      exit(0);
     } else {
       char* rbr_msg = get_batch_line(&message);
       fprintf(rsp, "unknown domain %s\n", command.text);

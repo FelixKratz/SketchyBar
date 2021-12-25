@@ -27,6 +27,8 @@
 
 #define DOMAIN_SET                                          "--set"
 
+#define DOMAIN_EXIT                                         "--exit"
+
 #define SUB_DOMAIN_ICON                                     "icon"
 #define SUB_DOMAIN_LABEL                                    "label"
 #define SUB_DOMAIN_BACKGROUND                               "background"

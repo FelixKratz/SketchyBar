@@ -181,6 +181,13 @@ void alias_draw(struct alias* alias, CGContextRef context) {
   CGContextDrawImage(context, alias->bounds, alias->image_ref);
 }
 
+void alias_destroy(struct alias* alias) {
+  CGImageRelease(alias->image_ref);
+  if (alias->data_ref) CFRelease(alias->data_ref);
+  if (alias->name) free(alias->name);
+  if (alias->owner) free(alias->owner);
+}
+
 void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
   alias->bounds.origin.x = x;
   alias->bounds.origin.y = y - alias->bounds.size.height / 2;

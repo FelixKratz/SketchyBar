@@ -52,6 +52,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
 
   if (bar_item->type == BAR_COMPONENT_SPACE) {
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
     env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
     env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
   }
@@ -97,8 +98,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   popup_init(&bar_item->popup);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
-
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
 }
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
@@ -183,7 +182,7 @@ void bar_item_clear_needs_update(struct bar_item* bar_item) {
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (!name) return;
   if (bar_item->name && strcmp(bar_item->name, name) == 0) { free(name); return; }
-  if (name != bar_item->name && !bar_item->name) free(bar_item->name);
+  if (name != bar_item->name && bar_item->name) free(bar_item->name);
   bar_item->name = name;
   env_vars_set(&bar_item->signal_args.env_vars, string_copy("NAME"), string_copy(name));
 }
@@ -198,6 +197,7 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
+    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
     env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy("0"));
     env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy("0"));
   }
@@ -220,17 +220,23 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
   if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
-  if (script != bar_item->script && !bar_item->script) free(bar_item->script);
-  if (bar_item->cache_scripts && file_exists(resolve_path(script))) bar_item->script = read_file(resolve_path(script));
-  else bar_item->script = script;
+  if (script != bar_item->script && bar_item->script) free(bar_item->script);
+  char* path = resolve_path(script);
+  if (bar_item->cache_scripts && file_exists(path)) {
+    bar_item->script = read_file(path);
+  }
+  else bar_item->script = path;
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
   if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) { free(script); return; }
-  if (script != bar_item->click_script && !bar_item->click_script) free(bar_item->click_script);
-  if (bar_item->cache_scripts && file_exists(resolve_path(script))) bar_item->click_script = read_file(resolve_path(script));
-  else bar_item->click_script = script;
+  if (script != bar_item->click_script && bar_item->click_script) free(bar_item->click_script);
+  char* path = resolve_path(script);
+  if (bar_item->cache_scripts && file_exists(path)) {
+    bar_item->click_script = read_file(path);
+  }
+  else bar_item->click_script = path;
 }
 
 void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
@@ -370,8 +376,8 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
 
 void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->name) free(bar_item->name);
-  if (bar_item->script && !bar_item->cache_scripts) free(bar_item->script);
-  if (bar_item->click_script && !bar_item->cache_scripts) free(bar_item->click_script);
+  if (bar_item->script) free(bar_item->script);
+  if (bar_item->click_script) free(bar_item->click_script);
 
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
@@ -384,6 +390,9 @@ void bar_item_destroy(struct bar_item* bar_item) {
   }
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
+  }
+  if (bar_item->has_alias) {
+    alias_destroy(&bar_item->alias);
   }
   if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP) group_destroy(bar_item->group);
   else if (bar_item->group) group_remove_member(bar_item->group, bar_item);
