@@ -109,7 +109,7 @@ When you use additional plugins, make sure that they are referenced in the rc wi
 chmod +x name/of/plugin.sh
 ```
 The default plugin folder is located in `~/.config/sketchybar/plugins`.
-All plugins must work with absolute paths because relative paths will not be resolved correclty.
+All plugins must work with absolute paths because relative paths will not be resolved correctly.
 Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) about plugins and share your own if you want to.
 You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
 
@@ -160,7 +160,7 @@ in which they are added.
 sketchybar -m --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
-(On HEAD: the *name* can be a regular expression inside of two '/': */\<regex\>/*)
+(The *name* can be a regular expression inside of two '/': */\<regex\>/*)
 
 A list of properties available to the *set* command is listed below (components might have additional properties, see the respective component section for them):
 
@@ -210,6 +210,7 @@ Background properties:
 * *background.border_width*: the border width of the items background (default: 0)
 * *background.padding_left*: the left padding applied around the background of the item (default: 0)
 * *background.padding_right*: the right padding applied around the background of the item (default: 0)
+* *background.shadow.\<property\>*: all shadow properties are available for the backgrounds
 
 Scripting properties:
 * *update_freq*: time in seconds between script executions
@@ -222,7 +223,7 @@ Drawing properties:
 * *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
 * *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
 
-Shadow properties (Only on HEAD currently):
+Shadow properties:
 * *shadow.drawing*: If the shadow should be drawn (values: *on*, *off*, *toggle*, default: *off*)
 * *shadow.angle*: The angle of the shadow (between 0 and 360, default: 30)
 * *shadow.distance*: The distance of the shadow (default: 5)
