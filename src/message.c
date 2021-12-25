@@ -134,8 +134,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   bar_item_set_type(bar_item, command.text[0]);
   bar_item->position = position.text[0];
   if (position.text[0] == POSITION_POPUP) {
-    char* pair = malloc(sizeof(char)*position.length);
-    memcpy(pair, position.text, position.length);
+    char* pair = string_copy(position.text);
     struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
     if (key_value_pair.key && key_value_pair.value) {
       int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
@@ -173,7 +172,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       while (member.text && member.length > 0) {
         
         int index = bar_manager_get_item_index_for_name(&g_bar_manager, member.text);
-        printf("Index for item %s, %d\n", member.text, index);
         if (index >= 0)
           group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
         else {
