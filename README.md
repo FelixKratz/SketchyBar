@@ -122,7 +122,7 @@ brew install --cask font-hack-nerd-font
 ## Global configuration of the bar
 For an example configuration see the supplied default *sketchybarrc*. The configuration file resides in `~/.config/sketchybar/`, where everything can be freely configured. It is also possible to play around with properties in a terminal and change them while the bar is running, once you find a fitting value you can include it in the `sketchybarrc` file such that the configuration is restored on restart. The global bar properties can be configured by invoking:
 ```bash
-sketchybar -m --bar <setting>=<value> ... <setting>=<value>
+sketchybar --bar <setting>=<value> ... <setting>=<value>
 ```
 
 where the settings currently are:
@@ -149,7 +149,7 @@ Items are the main building blocks of sketchybar and can be configured in a numb
 
 ### Adding items to sketchybar
 ```bash
-sketchybar -m --add item <name> <position>
+sketchybar --add item <name> <position>
 ```
 where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
 The *position* is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the ordered
@@ -157,7 +157,7 @@ in which they are added.
 
 ### Changing item properties
 ```bash
-sketchybar -m --set <name> <property>=<value> ... <property>=<value>
+sketchybar --set <name> <property>=<value> ... <property>=<value>
 ```
 where the *name* is used to target the item with this name.
 (The *name* can be a regular expression inside of two '/': */\<regex\>/*)
@@ -235,13 +235,13 @@ It is possible to change the *defaults* at every point in the configuration. All
 inherit these properties from the default item.
 
 ```bash
-sketchybar -m --default <property>=<value> ... <property>=<value>
+sketchybar --default <property>=<value> ... <property>=<value>
 ```
 this works for all item properties.
 
 It is also possible to reset the defaults via the command
 ```bash
-sketchybar -m --default reset
+sketchybar --default reset
 ```
 
 ## Components -- Special Items with special properties
@@ -254,7 +254,7 @@ Currently there are the components (more details in the corresponding sections b
 
 ### Data Graph -- Draws an arbitrary graph into the bar
 ```bash
-sketchybar -m --add graph <name> <position> <width in points>
+sketchybar --add graph <name> <position> <width in points>
 ```
 
 Additional graph properties:
@@ -264,12 +264,12 @@ Additional graph properties:
 
 Push data points into the graph via:
 ```bash
-sketchybar -m --push <name> <data point>
+sketchybar --push <name> <data point>
 ```
 
 ### Space -- Associate mission control spaces with an item
 ```bash
-sketchybar -m --add space <name> <position>
+sketchybar --add space <name> <position>
 ```
 The space component overrides the definition of the following properties and they must be set to correctly associate a mission control space with this item:
 * *associated_space*: Which space this item represents
@@ -285,11 +285,11 @@ where *$SELECTED* has the value *true* if the associated space is selected and *
 
 By default the space component invokes the following script:
 ```bash
-sketchybar -m --set $NAME icon.highlight=$SELECTED
+sketchybar --set $NAME icon.highlight=$SELECTED
 ```
 which you can freely configure to your liking by supplying a different script to the space component:
 ```bash
-sketchybar -m --set <name> script=<script/path>
+sketchybar --set <name> script=<script/path>
 ```
 
 For performance reasons the space script is only run on change.
@@ -297,20 +297,20 @@ For performance reasons the space script is only run on change.
 ### Item Bracket -- Group Items in e.g. colored sections
 It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
 ```bash
-sketchybar -m --add bracket <name> <first item name> ... <n-th item name>
+sketchybar --add bracket <name> <first item name> ... <n-th item name>
 ```
 The first item must always be the one listed earliest in the config. It is now possible to
 set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
 E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
 ```bash
-sketchybar -m --add bracket primary_spaces code                        \
-                                           writing                     \
-                                           reading                     \
-                                           entertainment               \
-                                                                       \
-              --set         primary_spaces background.color=0xffffffff \
-                                           background.corner_radius=4  \
-                                           background.height=20
+sketchybar --add bracket primary_spaces code                        \
+                                        writing                     \
+                                        reading                     \
+                                        entertainment               \
+                                                                    \
+           --set         primary_spaces background.color=0xffffffff \
+                                        background.corner_radius=4  \
+                                        background.height=20
 ```
 this draws a white background below all my space components. I plan to expand the capability of item brackets significantly in the future.
 
@@ -322,7 +322,7 @@ I highly recommend setting a wallpaper on all spaces that makes the default menu
 
 It is now possible to create an alias of a default menu bar item with the following syntax:
 ```bash
-sketchybar -m --add alias <application_name> <position>
+sketchybar --add alias <application_name> <position>
 ```
 this operation requires *screen capture permissions*, which should be granted in the system preferences.
 This will put the default item into sketchybar. 
@@ -330,7 +330,7 @@ Aliases currently are not clickable but can be modified with all the options ava
 
 The command can be overloaded by providing a *window_owner* and a *window_name*
 ```bash
-sketchybar -m --add alias <window_owner>,<window_name> <position>
+sketchybar --add alias <window_owner>,<window_name> <position>
 ```
 this way the default system items can also be slurped into sketchybar, e.g.: <br>
 "Control Center,Bluetooth" <br>
@@ -342,7 +342,7 @@ etc...<br>
 
 All further default menu items currently available on your system can be found via the command:
 ```bash
-sketchybar -m --query default_menu_items
+sketchybar --query default_menu_items
 ```
 
 ## Popup Menus
@@ -363,19 +363,19 @@ It is possible to batch commands together into a single call to sketchybar, this
 keep the configuration file a bit cleaner and also to reduce startup times.
 Assume 5 individual configuration calls to sketchybar:
 ```bash
-sketchybar -m --bar position=top
-sketchybar -m --bar margin=5
-sketchybar -m --add item demo left
-sketchybar -m --set demo label=Hello
-sketchybar -m --subscribe demo system_woke
+sketchybar --bar position=top
+sketchybar --bar margin=5
+sketchybar --add item demo left
+sketchybar --set demo label=Hello
+sketchybar --subscribe demo system_woke
 ```
 after each configuration command the bar is redrawn (if needed), thus it is more perfomant to append these calls into a single command like so:
 ```bash
-sketchybar -m --bar position=top           \
-                    margin=5               \
-              --add item demo left         \
-              --set demo label=Hello       \
-              --subscribe demo system_woke
+sketchybar --bar position=top           \
+                 margin=5               \
+           --add item demo left         \
+           --set demo label=Hello       \
+           --subscribe demo system_woke
 ```
 The backslash at the end of the first 4 lines is the default bash way to join lines together and should not be followed by a whitespace.  
 
@@ -383,7 +383,7 @@ The backslash at the end of the first 4 lines is the default bash way to join li
 Any item can *subscribe* to arbitrary *events*, when the *event* happens, all items subscribed to the *event* will execute their *script*.
 This can be used to create more reactive and performant items which react to events rather than polling for a change.
 ```bash
-sketchybar -m --subscribe <name> <event> ... <event>
+sketchybar --subscribe <name> <event> ... <event>
 ```
 where the events are:
 * *front_app_switched*: when the frontmost application changes (not triggered if a different app of the same window is focused)
@@ -420,7 +420,7 @@ All scripts are forced to terminate after 60 seconds and do not run while the sy
 ### Creating custom events
 This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
 ```bash
-sketchybar -m --add event <name> [optional: <NSDistributedNotificationName>]
+sketchybar --add event <name> [optional: <NSDistributedNotificationName>]
 ```
 Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
 the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged" [example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842), or the
@@ -430,11 +430,11 @@ to create more responsive items.
 ### Triggering custom events
 This triggers a custom event that has been added before
 ```bash
-sketchybar -m --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]
+sketchybar --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]
 ```
 Optionaly you can add environment variables to the trigger command witch are passed to the script, e.g.:
 ```bash
-sketchybar -m --trigger demo VAR=Test
+sketchybar --trigger demo VAR=Test
 ```
 will trigger the demo event and `$VAR` will be available as an environment variable in the scripts that this event invokes.
 This could be used to link the powerful event system of yabai to sketchybar by triggering the custom action via a yabai event.
@@ -442,7 +442,7 @@ This could be used to link the powerful event system of yabai to sketchybar by t
 
 ### Forcing all shell scripts to run and the bar to refresh
 ```bash
-sketchybar -m --update
+sketchybar --update
 ```
 
 ## Querying
@@ -450,62 +450,62 @@ sketchybar -m --update
 ### Bar Properties
 Information about the bar can be queried via:
 ```bash
-sketchybar -m --query bar
+sketchybar --query bar
 ```
 The output is a json structure containing relevant information about the configuration settings of the bar.
 ### Item Properties
 Information about an item can be queried via:
 ```bash
-sketchybar -m --query <name>
+sketchybar --query <name>
 ```
 The output is a json structure containing relevant information about the configuration of the item.
 ### Default Properties
 Information about the current defaults.
 ```bash
-sketchybar -m --query defaults
+sketchybar --query defaults
 ```
 ### Event Properties
 Information about the events.
 ```bash
-sketchybar -m --query events
+sketchybar --query events
 ```
 
 ## Item Reordering
 It is possible to reorder items by invoking
 ```bash 
-sketchybar -m --reorder <name> ... <name>
+sketchybar --reorder <name> ... <name>
 ```
 where a new order can be supplied for arbitrary items. Only the specified items get reordered, by swapping them around, everything else stays the same. E.g. if you want to swap two items 
 simply call
 ```bash 
-sketchybar -m --reorder <item 1> <item 2>
+sketchybar --reorder <item 1> <item 2>
 ```
 ## Moving Items to specific positions
 It is possible to move items and order them next to a reference item. <br>
 Move Item *<name>* to appear *before* item *<reference name>*:
 ```bash 
-sketchybar -m --move <name> before <reference name>
+sketchybar --move <name> before <reference name>
 ```
 Move Item *<name>* to appear *after* item *<reference name>*:
 ```bash 
-sketchybar -m --move <name> after <reference name>
+sketchybar --move <name> after <reference name>
 ```
 ## Item Cloning
 It is possible to clone another item instead of adding a completely blank item
 ```bash 
-sketchybar -m --clone <name> <parent name> [optional: before/after]
+sketchybar --clone <name> <parent name> [optional: before/after]
 ```
 the new item will inherit *all* properties of the parent item. The optional *before* and *after* modifiers can be used
 to move the item *before*, or *after* the parent, equivalently to a --move command.
 ## Renaming Items
 It is possible to rename any item. The new name should obviously not be in use by another item:
 ```bash 
-sketchybar -m --rename <old name> <new name>
+sketchybar --rename <old name> <new name>
 ```
 ## Removing Items
 It is possible to remove any item by invoking, the item will be completely destroyed and removed from brackets
 ```bash 
-sketchybar -m --remove <name>
+sketchybar --remove <name>
 ```
 
 ## Performance optimizations
