@@ -503,7 +503,7 @@ It is possible to rename any item. The new name should obviously not be in use b
 sketchybar --rename <old name> <new name>
 ```
 ## Removing Items
-It is possible to remove any item by invoking, the item will be completely destroyed and removed from brackets
+It is possible to remove any item by invoking, the item will be completely destroyed and removed from brackets 
 ```bash 
 sketchybar --remove <name>
 ```
