@@ -35,6 +35,7 @@
 #define SUB_DOMAIN_GRAPH                                    "graph"
 #define SUB_DOMAIN_POPUP                                    "popup"
 #define SUB_DOMAIN_SHADOW                                   "shadow"
+#define SUB_DOMAIN_IMAGE                                    "image"
 
 #define PROPERTY_FONT                                       "font"
 #define PROPERTY_COLOR                                      "color"

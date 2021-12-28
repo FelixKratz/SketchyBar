@@ -1,13 +1,30 @@
 #include "image.h"
+#include "misc/helpers.h"
 #include <_types/_uint32_t.h>
 
 void image_init(struct image* image) {
+  image->enabled = false;
   image->image_ref = NULL;
   image->data_ref = NULL;
   image->bounds = CGRectNull;
 }
 
-void image_load(struct image* image, char* path) {
+bool image_set_enabled(struct image* image, bool enabled) {
+  if (image->enabled == enabled) return false;
+  image->enabled = enabled;
+  return true;
+}
+
+bool image_load(struct image* image, char* path) {
+  CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(path);
+  CGImageRef new_image_ref = CGImageCreateWithPNGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+  if (data_provider && new_image_ref)
+    image_set(image, new_image_ref, CGRectNull, true);
+  else printf("Could find or open image file at: %s!\n", path);
+
+  CGDataProviderRelease(data_provider);
+  free(path);
+  return true;
 }
 
 bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
@@ -31,7 +48,6 @@ bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
   return equals;
 }
 
-
 bool image_set(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
 
@@ -44,9 +60,10 @@ bool image_set(struct image* image, CGImageRef new_image_ref, CGRect bounds, boo
   if (image->image_ref) CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
 
+  image->bounds = bounds;
   image->image_ref = new_image_ref;
   image->data_ref = new_data_ref;
-  image->bounds = bounds;
+  image->enabled = true;
   return true;
 }
 
@@ -64,3 +81,16 @@ void image_destroy(struct image* image) {
   CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
 }
+
+static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
+  if (token_equals(property, PROPERTY_DRAWING))
+    return image_set_enabled(image, evaluate_boolean_state(get_token(&message), image->enabled));
+  else if (token_equals(property, "tmp"))
+    return image_load(image, token_to_string(get_token(&message)));
+  else {
+    fprintf(rsp, "Unknown property: %s \n", property.text);
+    printf("Unknown property: %s \n", property.text);
+  }
+  return false;
+}
+

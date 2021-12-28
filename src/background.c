@@ -1,4 +1,5 @@
 #include "background.h"
+#include "image.h"
 #include "misc/helpers.h"
 #include "shadow.h"
 
@@ -16,6 +17,7 @@ void background_init(struct background* background) {
   background->color = rgba_color_from_hex(0xff000000);
   background->border_color = rgba_color_from_hex(0xff000000);
   shadow_init(&background->shadow);
+  image_init(&background->image);
 }
 
 bool background_set_color(struct background* background, uint32_t color) {
@@ -79,6 +81,9 @@ bool background_set_padding_right(struct background* background, uint32_t pad) {
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y) {
   background->bounds.origin.x = x;
   background->bounds.origin.y = y - background->bounds.size.height / 2;
+
+  if (background->image.enabled)
+    image_calculate_bounds(&background->image, x, y);
 }
 
 void background_draw(struct background* background, CGContextRef context) {
@@ -87,6 +92,9 @@ void background_draw(struct background* background, CGContextRef context) {
     CGRect bounds = shadow_get_bounds(&background->shadow, background->bounds);
     draw_rect(context, bounds, &background->shadow.color, background->corner_radius, background->border_width, &background->shadow.color, false);
   }
+
+  if (background->image.enabled)
+    image_draw(&background->image, context);
 
   draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
@@ -115,6 +123,8 @@ static bool background_parse_sub_domain(struct background* background, FILE* rsp
       struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
       if (token_equals(subdom, SUB_DOMAIN_SHADOW))
         return shadow_parse_sub_domain(&background->shadow, rsp, entry, message);
+      else if (token_equals(subdom, SUB_DOMAIN_IMAGE))
+        return image_parse_sub_domain(&background->image, rsp, entry, message);
       else {
         fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
         printf("Invalid subdomain: %s \n", subdom.text);
