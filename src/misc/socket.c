@@ -83,7 +83,7 @@ bool socket_daemon_begin_un(struct daemon *daemon, char *socket_path, socket_dae
     snprintf(socket_address.sun_path, sizeof(socket_address.sun_path), "%s", socket_path);
     unlink(socket_path);
 
-    if (((daemon->sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) || fcntl(daemon->sockfd, F_SETFD, FD_CLOEXEC | fcntl(daemon->sockfd, F_GETFD))) {
+    if (((daemon->sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) || (fcntl(daemon->sockfd, F_SETFD, FD_CLOEXEC | fcntl(daemon->sockfd, F_GETFD)) == -1)) {
         return false;
     }
 
