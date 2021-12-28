@@ -11,9 +11,7 @@ struct alias {
   char* owner;
   uint64_t pid;
   uint32_t wid;
-  CGImageRef image_ref;
-  CFDataRef data_ref;
-  CGRect bounds;
+  struct image image;
 };
 
 void print_all_menu_items(FILE* rsp);

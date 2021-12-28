@@ -67,19 +67,18 @@ void alias_init(struct alias* alias, char* owner, char* name) {
   alias->name = name;
   alias->owner = owner;
   alias->wid = 0;
-  alias->image_ref = NULL;
-  alias->data_ref = NULL;
+  image_init(&alias->image);
   alias_get_permission(alias);
   alias_update_image(alias);
 }
 
 uint32_t alias_get_length(struct alias* alias) {
-  if (alias->image_ref) return alias->bounds.size.width;
+  if (alias->image.image_ref) return alias->image.bounds.size.width;
   return 0;
 }
 
 uint32_t alias_get_height(struct alias* alias) {
-  if (alias->image_ref) return alias->bounds.size.height;
+  if (alias->image.image_ref) return alias->image.bounds.size.height;
   return 0;
 }
 
@@ -116,7 +115,7 @@ void alias_find_window(struct alias* alias) {
     if (!window_id_ref) continue;
     CFDictionaryRef bounds = CFDictionaryGetValue(dictionary, kCGWindowBounds);
     if (!bounds) continue;
-    CGRectMakeWithDictionaryRepresentation(bounds, &alias->bounds);
+    CGRectMakeWithDictionaryRepresentation(bounds, &alias->image.bounds);
     CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &alias->wid);
 
     CFRelease(window_list);
@@ -128,67 +127,30 @@ void alias_find_window(struct alias* alias) {
 
 bool alias_update_image(struct alias* alias) {
   if (alias->wid == 0) alias_find_window(alias);
-  if (alias->wid == 0) {
-    alias->image_ref = NULL;
-    alias->data_ref = NULL;
-    return false;
-  }
+  if (alias->wid == 0) return false;
 
-  SLSGetScreenRectForWindow(g_connection, alias->wid, &alias->bounds);
-  alias->bounds.size.width = (uint32_t) (alias->bounds.size.width + 0.5);
+  CGRect bounds = CGRectNull;
+  SLSGetScreenRectForWindow(g_connection, alias->wid, &bounds);
+  bounds.size.width = (uint32_t) (bounds.size.width + 0.5);
 
   CGImageRef tmp_ref = NULL;
   SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
 
   if (!tmp_ref) { alias->wid = 0; return false; }
 
-  bool needs_redraw = true;
-  CFDataRef new_data_ref = NULL;
-  if (alias->image_ref && alias->data_ref) {
-    new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
-    uint32_t old_len = CFDataGetLength(alias->data_ref);
-    uint32_t new_len = CFDataGetLength(new_data_ref);
-    if (old_len == new_len) {
-      const unsigned char* old_data = CFDataGetBytePtr(alias->data_ref);
-      const unsigned char* new_data = CFDataGetBytePtr(new_data_ref);
-      needs_redraw = false;
-      for (int i = 0; i < old_len; i++) {
-        if (old_data[i] != new_data[i]) {
-          needs_redraw = true;
-          break;
-        }
-      }
-    }
-  }
-
-  if (needs_redraw) {
-    CGImageRelease(alias->image_ref);
-    alias->image_ref = tmp_ref;
-
-    if (alias->data_ref) CFRelease(alias->data_ref);
-    if (new_data_ref) alias->data_ref = new_data_ref;
-    else alias->data_ref = CGDataProviderCopyData(CGImageGetDataProvider(tmp_ref));
-  } else {
-    CGImageRelease(tmp_ref);
-    if (new_data_ref) CFRelease(new_data_ref);
-  }
-
-  return needs_redraw;
+  return image_set(&alias->image, tmp_ref, bounds, false);
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {
-  if (!alias->image_ref) return;
-  CGContextDrawImage(context, alias->bounds, alias->image_ref);
+  image_draw(&alias->image, context);
 }
 
 void alias_destroy(struct alias* alias) {
-  CGImageRelease(alias->image_ref);
-  if (alias->data_ref) CFRelease(alias->data_ref);
+  image_destroy(&alias->image);
   if (alias->name) free(alias->name);
   if (alias->owner) free(alias->owner);
 }
 
 void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
-  alias->bounds.origin.x = x;
-  alias->bounds.origin.y = y - alias->bounds.size.height / 2;
+  image_calculate_bounds(&alias->image, x, y);
 }
