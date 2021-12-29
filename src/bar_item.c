@@ -6,6 +6,7 @@
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "popup.h"
+#include <_types/_uint32_t.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -277,10 +278,13 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   if (bar_item->has_const_width && !ignore_override) return bar_item->custom_width - bar_item->background.padding_left - bar_item->background.padding_right;
 
-  return text_get_length(&bar_item->icon, false)
-         + text_get_length(&bar_item->label, false)
-         + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
-         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+  uint32_t item_length = text_get_length(&bar_item->icon, false)
+                       + text_get_length(&bar_item->label, false)
+                       + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
+                       + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+  if (bar_item->background.enabled && bar_item->background.image.enabled && bar_item->background.image.bounds.size.width > item_length)
+    return bar_item->background.image.bounds.size.width;
+  return item_length;
 }
 
 uint32_t bar_item_get_height(struct bar_item* bar_item) {

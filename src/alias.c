@@ -138,7 +138,7 @@ bool alias_update_image(struct alias* alias) {
 
   if (!tmp_ref) { alias->wid = 0; return false; }
 
-  return image_set(&alias->image, tmp_ref, bounds, false);
+  return image_set_image(&alias->image, tmp_ref, bounds, false);
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {

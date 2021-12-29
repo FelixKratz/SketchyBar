@@ -210,7 +210,8 @@ Background properties:
 * *background.border_width*: the border width of the items background (default: 0)
 * *background.padding_left*: the left padding applied around the background of the item (default: 0)
 * *background.padding_right*: the right padding applied around the background of the item (default: 0)
-* *background.shadow.\<property\>*: all shadow properties are available for the backgrounds
+* *background.shadow.\<property\>*: all shadow properties are available for backgrounds
+* *background.image.\<property\>*: all image properties are available for backgrounds
 
 Scripting properties:
 * *update_freq*: time in seconds between script executions
@@ -228,6 +229,11 @@ Shadow properties:
 * *shadow.angle*: The angle of the shadow (between 0 and 360, default: 30)
 * *shadow.distance*: The distance of the shadow (default: 5)
 * *shadow.color*: The color of the shadow (default: 0xff000000)
+
+Image properties (Only on HEAD, and still a bit buggy, can be resource intensive if many large images are drawn):
+* *image*: The path to a png or jpeg image file 
+* *image.drawing*: If the image should draw
+* *image.scale*: The scale factor that should be applied to the image
 
 
 ### Changing the default values for all further items

@@ -116,6 +116,8 @@ static bool background_parse_sub_domain(struct background* background, FILE* rsp
     return background_set_padding_left(background, token_to_int(get_token(&message)));
   else if (token_equals(property, PROPERTY_PADDING_RIGHT))
     return background_set_padding_right(background, token_to_int(get_token(&message)));
+  else if (token_equals(property, SUB_DOMAIN_IMAGE))
+    return image_load(&background->image, token_to_string(get_token(&message)));
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
     if (key_value_pair.key && key_value_pair.value) {

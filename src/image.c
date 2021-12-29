@@ -7,6 +7,8 @@ void image_init(struct image* image) {
   image->image_ref = NULL;
   image->data_ref = NULL;
   image->bounds = CGRectNull;
+  image->size = CGSizeZero;
+  image->scale = 1.0;
 }
 
 bool image_set_enabled(struct image* image, bool enabled) {
@@ -16,11 +18,23 @@ bool image_set_enabled(struct image* image, bool enabled) {
 }
 
 bool image_load(struct image* image, char* path) {
+  char* res_path = resolve_path(path);
+  if (!file_exists(res_path)) {
+    printf("File %s not found!\n", res_path);
+    free(res_path);
+    return false;
+  }
+
   CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(path);
-  CGImageRef new_image_ref = CGImageCreateWithPNGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+  CGImageRef new_image_ref = NULL;
+  if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
+    new_image_ref = CGImageCreateWithPNGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+  else {
+    new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+  }
   if (data_provider && new_image_ref)
-    image_set(image, new_image_ref, CGRectNull, true);
-  else printf("Could find or open image file at: %s!\n", path);
+    image_set_image(image, new_image_ref, (CGRect){{0,0},{CGImageGetHeight(new_image_ref),CGImageGetWidth(new_image_ref)}}, true);
+  else printf("Could not open image file at: %s!\n", path);
 
   CGDataProviderRelease(data_provider);
   free(path);
@@ -48,7 +62,7 @@ bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
   return equals;
 }
 
-bool image_set(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
+bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
 
   if (!forced && image_data_equals(image, new_data_ref)) {
@@ -60,10 +74,18 @@ bool image_set(struct image* image, CGImageRef new_image_ref, CGRect bounds, boo
   if (image->image_ref) CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
 
-  image->bounds = bounds;
+  image->size = bounds.size;
+  image->bounds = (CGRect){{bounds.origin.x, bounds.origin.y},{bounds.size.width * image->scale, bounds.size.height * image->scale}};
   image->image_ref = new_image_ref;
   image->data_ref = new_data_ref;
   image->enabled = true;
+  return true;
+}
+
+bool image_set_scale(struct image* image, float scale) {
+  if (scale == image->scale) return false;
+  image->scale = scale;
+  image->bounds = (CGRect){{image->bounds.origin.x, image->bounds.origin.y},{image->size.width * image->scale, image->size.height * image->scale}};
   return true;
 }
 
@@ -85,8 +107,8 @@ void image_destroy(struct image* image) {
 static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
     return image_set_enabled(image, evaluate_boolean_state(get_token(&message), image->enabled));
-  else if (token_equals(property, "tmp"))
-    return image_load(image, token_to_string(get_token(&message)));
+  else if (token_equals(property, PROPERTY_SCALE))
+    return image_set_scale(image, token_to_float(get_token(&message)));
   else {
     fprintf(rsp, "Unknown property: %s \n", property.text);
     printf("Unknown property: %s \n", property.text);
