@@ -353,10 +353,12 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
   }
 
-  bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
+  if (bar_item->background.enabled) {
+    bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
                                                                                   : (bar_height - (g_bar_manager.background.border_width + 1));
-  bar_item->background.bounds.size.width = bar_item_length;
-  background_calculate_bounds(&bar_item->background, icon_position, y + bar_item->y_offset);
+    bar_item->background.bounds.size.width = bar_item_length;
+    background_calculate_bounds(&bar_item->background, icon_position, y + bar_item->y_offset);
+  }
   return bar_item_length;
 }
 
