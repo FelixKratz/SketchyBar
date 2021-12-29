@@ -44,6 +44,7 @@ void text_init(struct text* text) {
   text_set_font(text, text->font_name, true);
   text_set_string(text, text->string, false);
   shadow_init(&text->shadow);
+  background_init(&text->background);
 }
 
 void text_prepare_line(struct text* text) {
