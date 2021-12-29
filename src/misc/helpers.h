@@ -268,7 +268,7 @@ static inline char* read_file(char* path) {
 static inline char* resolve_path(char* path) {
   if (path[0] == '~') {
     char* home = getenv("HOME");
-    char buf[256];
+    char buf[512];
     snprintf(buf, sizeof(buf), "%s%s", home, &path[1]);
     free(path);
     return string_copy(buf);

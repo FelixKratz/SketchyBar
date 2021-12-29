@@ -36,7 +36,7 @@ void popup_calculate_bounds(struct popup* popup) {
     uint32_t item_width = bar_item->background.padding_right + bar_item->background.padding_left + bar_item_calculate_bounds(bar_item, popup->cell_size, x, y);
     if (item_width > width && !popup->horizontal) width = item_width;
     if (popup->horizontal) x += item_width;
-    else y += popup->cell_size;
+    else y += bar_item_get_height(bar_item) > popup->cell_size ? bar_item_get_height(bar_item) : popup->cell_size;
   }
 
   if (popup->horizontal) {

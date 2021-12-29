@@ -17,10 +17,11 @@ bool image_set_enabled(struct image* image, bool enabled) {
   return true;
 }
 
-bool image_load(struct image* image, char* path) {
+bool image_load(struct image* image, char* path, FILE* rsp) {
   char* res_path = resolve_path(path);
   if (!file_exists(res_path)) {
     printf("File %s not found!\n", res_path);
+    fprintf(rsp, "File %s not found!\n", res_path);
     free(res_path);
     return false;
   }
@@ -34,10 +35,10 @@ bool image_load(struct image* image, char* path) {
   }
   if (data_provider && new_image_ref)
     image_set_image(image, new_image_ref, (CGRect){{0,0},{CGImageGetHeight(new_image_ref),CGImageGetWidth(new_image_ref)}}, true);
-  else printf("Could not open image file at: %s!\n", path);
+  else printf("Could not open image file at: %s!\n", res_path), fprintf(rsp, "Could not open image file at: %s!\n", res_path);
 
   CGDataProviderRelease(data_provider);
-  free(path);
+  free(res_path);
   return true;
 }
 
