@@ -436,6 +436,8 @@ void bar_manager_destroy(struct bar_manager* bar_manager) {
     bar_destroy(bar_manager->bars[i]);
   }
   custom_events_destroy(&bar_manager->custom_events);
+  background_destroy(&bar_manager->background);
+
   if (bar_manager->bars) free(bar_manager->bars);
 }
 

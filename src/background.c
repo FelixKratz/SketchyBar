@@ -99,6 +99,10 @@ void background_draw(struct background* background, CGContextRef context) {
   draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
 
+void background_destroy(struct background* background) {
+  image_destroy(&background->image);
+}
+
 static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
     return background_set_enabled(background, evaluate_boolean_state(get_token(&message), background->enabled));

@@ -137,6 +137,7 @@ void text_destroy_line(struct text* text) {
 }
 
 void text_destroy(struct text* text) {
+  background_destroy(&text->background);
   if (text->string) free(text->string);
   if (text->font_name) free(text->font_name);
   if (text->font) CFRelease(text->font);

@@ -408,6 +408,8 @@ void bar_item_destroy(struct bar_item* bar_item) {
   else if (bar_item->group) group_remove_member(bar_item->group, bar_item);
   env_vars_destroy(&bar_item->signal_args.env_vars);
   popup_destroy(&bar_item->popup);
+  background_destroy(&bar_item->background);
+
   free(bar_item);
 }
 
