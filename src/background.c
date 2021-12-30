@@ -14,8 +14,8 @@ void background_init(struct background* background) {
   background->padding_right = 0;
   background->corner_radius = 0;
 
-  background->color = rgba_color_from_hex(0xff000000);
-  background->border_color = rgba_color_from_hex(0xff000000);
+  background->color = rgba_color_from_hex(0x00000000);
+  background->border_color = rgba_color_from_hex(0x00000000);
   shadow_init(&background->shadow);
   image_init(&background->image);
 }
