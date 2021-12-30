@@ -26,7 +26,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     return false;
   }
 
-  CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(path);
+  CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
   CGImageRef new_image_ref = NULL;
   if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
     new_image_ref = CGImageCreateWithPNGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);

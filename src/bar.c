@@ -5,6 +5,7 @@
 #include "display.h"
 #include "graph.h"
 #include "group.h"
+#include "image.h"
 #include "misc/helpers.h"
 #include "popup.h"
 #include "text.h"
@@ -48,6 +49,9 @@ void bar_draw_bar_items(struct bar* bar) {
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
 
   draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
+  if (g_bar_manager.background.image.enabled) {
+    image_draw(&g_bar_manager.background.image, bar->context);
+  }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];

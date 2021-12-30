@@ -142,6 +142,7 @@ where the settings currently are:
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
 * *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 * *shadow*: if the bar should draw a shadow (*on*, *off*, *toggle*, default: *off*)
+* *image*: Sets a background image (further details below in the *image* properties, Only on HEAD)
 
 ## Items and their properties
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
