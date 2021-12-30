@@ -25,27 +25,31 @@ void popup_init(struct popup* popup) {
 }
 
 void popup_calculate_bounds(struct popup* popup) {
-  uint32_t y = popup->cell_size / 2;
+  uint32_t y = popup->background.border_width;
   uint32_t x = 0;
   uint32_t width = 0;
-  for (int j = popup->num_items - 1; j >= 0; j--) {
+  uint32_t height = 0;
+  for (int j = 0; j < popup->num_items; j++) {
     struct bar_item* bar_item = NULL;
-    if (popup->horizontal) bar_item = popup->items[popup->num_items - 1 - j];
-    else bar_item = popup->items[j];
+    if (popup->horizontal) bar_item = popup->items[j];
+    else bar_item = popup->items[popup->num_items - 1 - j];
     if (!bar_item->drawing) continue;
-    uint32_t item_width = bar_item->background.padding_right + bar_item->background.padding_left + bar_item_calculate_bounds(bar_item, popup->cell_size, x, y);
+    uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size ? bar_item_get_height(bar_item) : popup->cell_size;
+    uint32_t item_width = bar_item->background.padding_right + bar_item->background.padding_left + bar_item_calculate_bounds(bar_item, cell_height, x, y + cell_height / 2);
     if (item_width > width && !popup->horizontal) width = item_width;
+    if (cell_height > height && popup->horizontal) height = cell_height;
     if (popup->horizontal) x += item_width;
-    else y += bar_item_get_height(bar_item) > popup->cell_size ? bar_item_get_height(bar_item) : popup->cell_size;
+    else y += cell_height;
   }
 
   if (popup->horizontal) {
     width = x;
-    y += popup->cell_size;
+    y += height;
   }
+  y += popup->background.border_width;
 
-  popup->background.bounds.size.width = width + 2;
-  popup->background.bounds.size.height = y - popup->cell_size / 2;
+  popup->background.bounds.size.width = width;// + popup->background.border_width/2;
+  popup->background.bounds.size.height = y;
 }
 
 void popup_create_frame(struct popup *popup, CFTypeRef *frame_region) {
