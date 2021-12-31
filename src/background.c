@@ -99,8 +99,13 @@ void background_draw(struct background* background, CGContextRef context) {
   draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
 
+void background_clear_pointers(struct background* background) {
+  image_clear_pointers(&background->image);
+}
+
 void background_destroy(struct background* background) {
   image_destroy(&background->image);
+  background_clear_pointers(background);
 }
 
 static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {

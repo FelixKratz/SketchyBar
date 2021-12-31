@@ -63,6 +63,10 @@ bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
   return equals;
 }
 
+void image_copy(struct image* image, CGImageRef source) {
+  if (source) image->image_ref = CGImageCreateCopy(source);
+}
+
 bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
 
@@ -100,9 +104,15 @@ void image_draw(struct image* image, CGContextRef context) {
   CGContextDrawImage(context, image->bounds, image->image_ref);
 }
 
+void image_clear_pointers(struct image* image) {
+  image->image_ref = NULL;
+  image->data_ref = NULL;
+}
+
 void image_destroy(struct image* image) {
   CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
+  image_clear_pointers(image);
 }
 
 static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {

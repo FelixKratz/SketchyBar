@@ -29,6 +29,9 @@ bool background_set_padding_right(struct background* background, uint32_t pad);
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y);
 void background_draw(struct background* background, CGContextRef context);
 
+void background_clear_pointers(struct background* background);
+void background_destroy(struct background* background);
+
 static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);
 
 #endif // !BACKGROUND_H

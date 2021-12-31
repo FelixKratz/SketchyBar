@@ -27,6 +27,7 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->signal_args.env_vars.count = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
+  background_clear_pointers(&bar_item->background);
 }
 
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
@@ -51,6 +52,10 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
 
   bar_item_set_script(bar_item, string_copy(ancestor->script));
   bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+
+  image_copy(&bar_item->background.image, ancestor->background.image.image_ref);
+  image_copy(&bar_item->icon.background.image, ancestor->icon.background.image.image_ref);
+  image_copy(&bar_item->label.background.image, ancestor->label.background.image.image_ref);
 
   if (bar_item->type == BAR_COMPONENT_SPACE) {
     env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));

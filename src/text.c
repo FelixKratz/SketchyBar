@@ -112,6 +112,7 @@ void text_clear_pointers(struct text* text) {
   text->font_name = NULL;
   text->font = NULL;
   text->line.line = NULL;
+  background_clear_pointers(&text->background);
 }
 
 uint32_t text_get_length(struct text* text, bool override) {
