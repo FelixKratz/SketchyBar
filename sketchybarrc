@@ -1,5 +1,5 @@
 # This is a demo config to bring across some of the most important commands more easily.
-#
+# For a more advanced configuration example see https://github.com/FelixKratz/SketchyBar/discussions/47#discussioncomment-1774620
 ############## BAR ############## 
 sketchybar -m --bar height=25        \
                     blur_radius=50   \
@@ -25,8 +25,8 @@ sketchybar -m --default label.padding_left=2  \
 
 ############## PRIMARY DISPLAY SPACES ############## 
 sketchybar -m --add space code left                              \
-              --set code associated_space=1                      \
-                         associated_display=1                    \
+              --set code associated_display=1                    \
+                         associated_space=1                      \
                          icon.font="Hack Nerd Font:Bold:20.0"    \
                          icon=                                  \
                          icon.highlight_color=0xff48aa2a         \
@@ -36,8 +36,8 @@ sketchybar -m --add space code left                              \
               --add space tex left                               \
               --set tex  associated_display=1                    \
                          associated_space=2                      \
-                         icon.highlight_color=0xfffab402         \
                          icon=                                  \
+                         icon.highlight_color=0xfffab402         \
                          label=tex                               \
                          click_script="yabai -m space --focus 2"
 
@@ -49,7 +49,6 @@ sketchybar -m --add space misc left                              \
                          icon.font="Hack Nerd Font:Bold:20.0"    \
                          icon=                                  \
                          icon.highlight_color=0xff48aa2a         \
-                         icon.padding_left=0                     \
                          label=misc                              \
                          click_script="yabai -m space --focus 5"
 
@@ -64,7 +63,6 @@ sketchybar -m --default label.padding_left=2  \
 sketchybar -m --add item space_separator left                                                  \
               --set space_separator  icon=                                                    \
                                      associated_space=1                                        \
-                                     associated_space=3                                        \
                                      icon.padding_left=15                                      \
                                      label.padding_right=15                                    \
                                      icon.font="Hack Nerd Font:Bold:15.0"                      \
