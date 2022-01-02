@@ -1,5 +1,5 @@
 # This is a demo config to bring across some of the most important commands more easily.
-# For a more advanced configuration example see https://github.com/FelixKratz/SketchyBar/discussions/47#discussioncomment-1774620
+# For a more advanced configuration example see https://github.com/FelixKratz/SketchyBar/discussions/47#discussion-3587958
 ############## BAR ############## 
 sketchybar -m --bar height=25        \
                     blur_radius=50   \
