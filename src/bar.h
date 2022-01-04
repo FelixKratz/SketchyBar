@@ -24,6 +24,7 @@ extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
 extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
+extern int SLSSpaceGetType(int cid, uint64_t sid);
 
 #define kCGSDisableShadowTagBit         (1ULL <<  3)
 #define kCGSHighQualityResamplingTagBit (1ULL <<  4)
@@ -39,6 +40,7 @@ extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef proper
 
 struct bar {
   bool hidden;
+  bool shown;
   uint32_t id;
   uint32_t did;
   uint32_t sid;

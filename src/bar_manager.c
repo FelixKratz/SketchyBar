@@ -397,7 +397,11 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_count; i++) bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
+    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, bar_manager->bars[i]->sid) != 4;
+
+  }
   bar_manager_update_space_components(bar_manager, false);
   bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_SPACE_CHANGE, NULL);
   bar_manager_refresh(bar_manager, true);

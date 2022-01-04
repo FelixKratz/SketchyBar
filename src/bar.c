@@ -20,7 +20,7 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 }
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
-    if (!bar_item->drawing) return false;
+    if (!bar_item->drawing || !bar->shown) return false;
     if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << bar->adid))) return false;
     if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << bar->sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) return false;
     if (bar_item->position == POSITION_POPUP) return false;
@@ -223,6 +223,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->notch_width = CGDisplayIsBuiltin(did) ? g_bar_manager.notch_width : 0;
+  bar->shown = true;
   bar_create_window(bar);
   return bar;
 }
