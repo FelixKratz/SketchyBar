@@ -11,8 +11,8 @@
 #define VERSION_OPT_SHRT        "-v"
 
 #define MAJOR 2
-#define MINOR 3
-#define PATCH 2
+#define MINOR 4
+#define PATCH 0
 
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);

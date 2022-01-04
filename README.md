@@ -142,7 +142,7 @@ where the settings currently are:
 * *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
 * *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
 * *shadow*: if the bar should draw a shadow (*on*, *off*, *toggle*, default: *off*)
-* *image*: Sets a background image (further details below in the *image* properties, Only on HEAD)
+* *image*: Sets a background image (further details below in the *image* properties)
 
 ## Items and their properties
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
@@ -231,7 +231,7 @@ Shadow properties:
 * *shadow.distance*: The distance of the shadow (default: 5)
 * *shadow.color*: The color of the shadow (default: 0xff000000)
 
-Image properties (Only on HEAD, and still a bit buggy, can be resource intensive if many large images are drawn):
+Image properties (Can be resource intensive if many large images are drawn):
 * *image*: The path to a png or jpeg image file 
 * *image.drawing*: If the image should draw
 * *image.scale*: The scale factor that should be applied to the image
