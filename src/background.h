@@ -5,15 +5,17 @@
 struct background {
   bool enabled;
   bool overrides_height;
-  CGRect bounds;
-  uint32_t corner_radius;
-  uint32_t border_width;
+
   int padding_left;
   int padding_right;
-  struct rgba_color color;
-  struct rgba_color border_color;
+  uint32_t border_width;
+  uint32_t corner_radius;
+
+  CGRect bounds;
   struct image image;
   struct shadow shadow;
+  struct rgba_color color;
+  struct rgba_color border_color;
 };
 
 void background_init(struct background* background);

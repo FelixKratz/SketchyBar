@@ -20,11 +20,12 @@ struct signal_args {
 
 struct rgba_color {
     bool is_valid;
-    uint32_t p;
+
     float r;
     float g;
     float b;
     float a;
+    uint32_t p;
 };
 
 struct token {
@@ -357,21 +358,6 @@ out:
 
 static inline uint32_t current_space(void) {
   return mission_control_index(SLSGetActiveSpace(g_connection));
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static inline bool psn_equals(ProcessSerialNumber *a, ProcessSerialNumber *b) {
-    Boolean result;
-    SameProcess(a, b, &result);
-    return result == 1;
-}
-#pragma clang diagnostic pop
-
-static inline float clampf_range(float value, float min, float max) {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
 }
 
 #endif

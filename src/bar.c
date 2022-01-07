@@ -43,7 +43,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
 }
 
-void bar_draw_bar_items(struct bar* bar) {
+void bar_draw(struct bar* bar) {
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
@@ -75,7 +75,7 @@ void bar_draw_bar_items(struct bar* bar) {
   SLSReenableUpdate(g_connection);
 }
 
-void bar_redraw(struct bar* bar) {
+void bar_calculate_bounds(struct bar* bar) {
   if (bar->hidden) return;
   if (bar->sid == 0) return;
 
@@ -119,7 +119,7 @@ void bar_redraw(struct bar* bar) {
     } else 
       *next_position += bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right;
   }
-  bar_draw_bar_items(bar);
+  bar_draw(bar);
 }
 
 void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
@@ -155,7 +155,8 @@ void bar_resize(struct bar *bar) {
   SLSAddActivationRegion(g_connection, bar->id, frame_region);
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
 
-  bar_redraw(bar);
+  bar_calculate_bounds(bar);
+  bar_draw(bar);
   SLSOrderWindow(g_connection, bar->id, 1, 0);
   SLSReenableUpdate(g_connection);
   CFRelease(frame_region);

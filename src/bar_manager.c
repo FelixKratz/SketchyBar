@@ -9,7 +9,7 @@
 
 extern struct event_loop g_event_loop;
 
-static SHELL_TIMER_CALLBACK(shell_timer_handler) {
+static CLOCK_CALLBACK(clock_handler) {
   struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
   event_loop_post(&g_event_loop, event);
 }
@@ -47,8 +47,8 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   
   int shell_refresh_frequency = 1;
 
-  bar_manager->shell_refresh_timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, shell_timer_handler, NULL);
-  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->shell_refresh_timer, kCFRunLoopCommonModes);
+  bar_manager->clock = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + shell_refresh_frequency, shell_refresh_frequency, 0, 0, clock_handler, NULL);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), bar_manager->clock, kCFRunLoopCommonModes);
 }
 
 void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count) {
@@ -261,7 +261,8 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   if (forced) bar_manager_reset_bar_association(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; ++i) {
     if (forced || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
-      bar_redraw(bar_manager->bars[i]);
+      bar_calculate_bounds(bar_manager->bars[i]);
+      bar_draw(bar_manager->bars[i]);
     }
   }
   bar_manager_clear_needs_update(bar_manager);

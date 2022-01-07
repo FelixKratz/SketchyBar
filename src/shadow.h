@@ -5,13 +5,14 @@
 
 struct shadow {
   bool enabled;
+
   uint32_t angle;
   uint32_t distance;
+
   struct rgba_color color;
 };
 
 void shadow_init(struct shadow* shadow);
-
 bool shadow_set_enabled(struct shadow* shadow, bool enabled);
 bool shadow_set_angle(struct shadow* shadow, float angle);
 bool shadow_set_distance(struct shadow* shadow, float distance);

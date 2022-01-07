@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-extern CFArrayRef SLSHWCaptureWindowList(uint32_t cid, uint32_t* wid, uint32_t count, uint32_t flags);
 extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
 
@@ -63,7 +62,6 @@ void alias_get_permission(struct alias* alias) {
 }
 
 void alias_init(struct alias* alias, char* owner, char* name) {
-  alias->using_light_colors = true;
   alias->name = name;
   alias->owner = owner;
   alias->wid = 0;

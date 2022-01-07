@@ -39,29 +39,32 @@ extern int SLSSpaceGetType(int cid, uint64_t sid);
 #define ALIGN_CENTER 5
 
 struct bar {
-  bool hidden;
   bool shown;
+  bool hidden;
+
   uint32_t id;
   uint32_t did;
   uint32_t sid;
   uint32_t adid;
   uint32_t notch_width;
-  CGContextRef context;
-  CFRunLoopTimerRef shell_refresh_timer;
+
   CGRect frame;
   CGPoint origin;
+  CGContextRef context;
 };
 
-void bar_redraw(struct bar* bar);
-void bar_resize(struct bar* bar);
 struct bar *bar_create(uint32_t did);
 void bar_create_window(struct bar* bar);
 void bar_close_window(struct bar* bar);
 void bar_destroy(struct bar* bar);
 void bar_set_hidden(struct bar* bar, bool hidden);
-void context_set_font_smoothing(CGContextRef context, bool smoothing);
+void bar_calculate_bounds(struct bar* bar);
+void bar_resize(struct bar* bar);
+void bar_draw(struct bar* bar);
 
 void window_set_blur_radius(uint32_t wid);
 void window_disable_shadow(uint32_t wid);
+
+void context_set_font_smoothing(CGContextRef context, bool smoothing);
 
 #endif

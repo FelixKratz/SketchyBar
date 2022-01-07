@@ -4,8 +4,8 @@
 #include <_types/_uint32_t.h>
 
 struct bar_item {
-  char* name;
   char type;
+  char* name;
 
   // Update Modifiers
   uint32_t counter;
@@ -72,8 +72,6 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
 void bar_item_destroy(struct bar_item* bar_item);
 
-void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
-
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars);
 bool bar_item_is_shown(struct bar_item* bar_item);
 
@@ -105,5 +103,7 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
 
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
+
+void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
 
 #endif

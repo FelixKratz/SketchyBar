@@ -15,11 +15,6 @@ void graph_init(struct graph* graph, uint32_t width) {
   graph->enabled = true;
 }
 
-void graph_destroy(struct graph* graph) {
-  if (!graph->enabled) return;
-  free(graph->y);
-}
-
 float graph_get_y(struct graph* graph, uint32_t i) {
   if (!graph->enabled) return 0.f;
   return graph->y[ (graph->cursor + i)%graph->width ];
@@ -104,6 +99,11 @@ void graph_serialize(struct graph* graph, FILE* rsp) {
               graph->y[i]);
     }
     fprintf(rsp, "\n\t]\n\t}");
+}
+
+void graph_destroy(struct graph* graph) {
+  if (!graph->enabled) return;
+  free(graph->y);
 }
 
 static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {

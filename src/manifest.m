@@ -11,7 +11,6 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-#include "misc/timing.h"
 #include "misc/log.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
