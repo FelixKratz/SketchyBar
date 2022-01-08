@@ -1,6 +1,7 @@
 #include "image.h"
 #include "misc/helpers.h"
 #include <_types/_uint32_t.h>
+#include <string.h>
 
 void image_init(struct image* image) {
   image->enabled = false;
@@ -47,17 +48,8 @@ bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
   if (image->image_ref && image->data_ref) {
     uint32_t old_len = CFDataGetLength(image->data_ref);
     uint32_t new_len = CFDataGetLength(new_data_ref);
-    if (old_len == new_len) {
-      const unsigned char* old_data = CFDataGetBytePtr(image->data_ref);
-      const unsigned char* new_data = CFDataGetBytePtr(new_data_ref);
-      equals = true;
-      for (int i = 0; i < old_len; i++) {
-        if (old_data[i] != new_data[i]) {
-          equals = false;
-          break;
-        }
-      }
-    }
+    if (old_len == new_len)
+      equals = memcmp(CFDataGetBytePtr(image->data_ref), CFDataGetBytePtr(new_data_ref), old_len) == 0;
   }
 
   return equals;
