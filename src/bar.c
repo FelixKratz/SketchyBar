@@ -119,7 +119,6 @@ void bar_calculate_bounds(struct bar* bar) {
     } else 
       *next_position += bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right;
   }
-  bar_draw(bar);
 }
 
 void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
