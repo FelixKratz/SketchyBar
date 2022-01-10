@@ -231,7 +231,7 @@ Shadow properties:
 * *shadow.distance*: The distance of the shadow (default: 5)
 * *shadow.color*: The color of the shadow (default: 0xff000000)
 
-Image properties (Can be resource intensive if many large images are drawn):
+Image properties (Still Experimental and a buggy; Can be resource intensive if many large images are drawn):
 * *image*: The path to a png or jpeg image file 
 * *image.drawing*: If the image should draw
 * *image.scale*: The scale factor that should be applied to the image
