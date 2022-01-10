@@ -35,7 +35,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
   }
   if (data_provider && new_image_ref)
-    image_set_image(image, new_image_ref, (CGRect){{0,0},{CGImageGetHeight(new_image_ref),CGImageGetWidth(new_image_ref)}}, true);
+    image_set_image(image, new_image_ref, (CGRect){{0,0},{CGImageGetWidth(new_image_ref), CGImageGetHeight(new_image_ref)}}, true);
   else printf("Could not open image file at: %s!\n", res_path), fprintf(rsp, "Could not open image file at: %s!\n", res_path);
 
   CGDataProviderRelease(data_provider);
