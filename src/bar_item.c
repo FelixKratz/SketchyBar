@@ -315,10 +315,10 @@ void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
-  bounding_rect.origin.y = (bar_item->icon.bounds.origin.y < bar_item->label.bounds.origin.y ? bar_item->icon.bounds.origin.y : bar_item->label.bounds.origin.y) + bar_item->y_offset;
+  bounding_rect.origin.y = bar_item->icon.bounds.origin.y < bar_item->label.bounds.origin.y ? bar_item->icon.bounds.origin.y : bar_item->label.bounds.origin.y;
 
-  if (bar_item->has_alias && bounding_rect.origin.y - bar_item->y_offset > bar_item->alias.image.bounds.origin.y)
-    bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y + bar_item->y_offset;
+  if (bar_item->has_alias && bounding_rect.origin.y > bar_item->alias.image.bounds.origin.y)
+    bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y;
   bounding_rect.size.width = bar_item_get_length(bar_item, false);
   bounding_rect.size.height = bar_item_get_height(bar_item);
   return bounding_rect;
