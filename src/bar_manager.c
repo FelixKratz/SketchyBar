@@ -393,8 +393,12 @@ void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager) {
     bar_item_mouse_exited(bar_manager->bar_items[i]);
 }
 
-void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager) {
-  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED, NULL);
+void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  env_vars_set(&env_vars, string_copy("INFO"), info);
+  bar_manager_custom_events_trigger(bar_manager, COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED, &env_vars);
+  env_vars_destroy(&env_vars);
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {

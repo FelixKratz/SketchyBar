@@ -28,7 +28,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {
 
 static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
     debug("%s\n", __FUNCTION__);
-    bar_manager_handle_front_app_switch(&g_bar_manager);
+    bar_manager_handle_front_app_switch(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
