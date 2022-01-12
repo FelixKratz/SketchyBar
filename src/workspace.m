@@ -86,8 +86,12 @@ void workspace_create_custom_observer (void **context, char* notification) {
 }
 
 - (void)appSwitched:(NSNotification *)notification {
-    NSRunningApplication *app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
-    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, string_copy((char*)[[app localizedName] UTF8String]));
+    char* name = NULL;
+    if (notification && notification.userInfo) {
+      NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
+      if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
+    }
+    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, name);
     event_loop_post(&g_event_loop, event);
 }
 
