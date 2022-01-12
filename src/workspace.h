@@ -1,6 +1,14 @@
 #ifndef WORKSPACE_H
 #define WORKSPACE_H
 
+struct notification {
+  char* name;
+  char* info;
+};
+
+struct notification* notification_create();
+void notification_destroy(struct notification* notification);
+
 @interface workspace_context : NSObject {
 }
 - (id)init;

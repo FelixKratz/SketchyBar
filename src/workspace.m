@@ -1,7 +1,20 @@
 #include "workspace.h"
 #include "misc/helpers.h"
+#include <string.h>
 
 extern struct event_loop g_event_loop;
+
+struct notification* notification_create() {
+  struct notification* notification = malloc(sizeof(struct notification));
+  memset(notification, 0, sizeof(struct notification));
+  return notification;
+}
+
+void notification_destroy(struct notification* notification) {
+  if (notification->name) free(notification->name);
+  if (notification->info) free(notification->info);
+  free(notification);
+}
 
 void workspace_event_handler_init(void **context) {
     workspace_context *ws_context = [workspace_context alloc];
@@ -70,8 +83,14 @@ void workspace_create_custom_observer (void **context, char* notification) {
 }
 
 - (void) allDistributedNotifications:(NSNotification *)note {
-    char* name = (char*)[[note name] UTF8String];
-    struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, string_copy(name));
+    struct notification* notification = notification_create();
+    notification->name = string_copy((char*)[[note name] UTF8String]);
+    if (note.userInfo) {
+      NSData* data = [NSJSONSerialization dataWithJSONObject:note.userInfo options:NSJSONWritingPrettyPrinted error:NULL];
+      if (data) notification->info = string_copy((char*)[data bytes]);
+    }
+
+    struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, notification);
     event_loop_post(&g_event_loop, event);
 }
 

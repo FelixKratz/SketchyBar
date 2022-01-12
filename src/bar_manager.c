@@ -2,6 +2,7 @@
 #include "background.h"
 #include "bar.h"
 #include "bar_item.h"
+#include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "popup.h"
 #include <_types/_uint32_t.h>
@@ -429,11 +430,19 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager_refresh(bar_manager, true);
 }
 
-void bar_manager_handle_notification(struct bar_manager* bar_manager, char* context) {
-  char* name = custom_events_get_name_for_notification(&bar_manager->custom_events, context);
-  free(context);
-  if (!name) return;
-  bar_manager_custom_events_trigger(bar_manager, name, NULL);
+void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {
+  char* name = custom_events_get_name_for_notification(&bar_manager->custom_events, notification->name);
+  if (!name) {
+    notification_destroy(notification);
+    return;
+  }
+
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  if (notification->info) env_vars_set(&env_vars, string_copy("INFO"), string_copy(notification->info));
+  bar_manager_custom_events_trigger(bar_manager, name, &env_vars);
+  env_vars_destroy(&env_vars);
+  notification_destroy(notification);
 }
 
 void bar_manager_destroy(struct bar_manager* bar_manager) {

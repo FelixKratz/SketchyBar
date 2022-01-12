@@ -45,7 +45,7 @@ void bar_manager_begin(struct bar_manager* bar_manager);
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager);
 void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* item, struct bar_item* reference, bool before);
-void bar_manager_handle_notification(struct bar_manager* bar_manager, char* context);
+void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification);
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced);
