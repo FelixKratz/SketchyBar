@@ -76,7 +76,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;
   bar_item->cache_scripts = false;
-  bar_item->position = POSITION_RIGHT;
+  bar_item->position = POSITION_LEFT;
+  bar_item->align = POSITION_LEFT;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
@@ -223,6 +224,12 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
   }
 }
 
+void bar_item_set_position(struct bar_item* bar_item, char position) {
+  bar_item->position = position;
+  if (bar_item->position != POSITION_POPUP)
+    bar_item->align = position;
+}
+
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
   if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
@@ -281,7 +288,6 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 }
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
-
   uint32_t item_length = text_get_length(&bar_item->icon, false)
                        + text_get_length(&bar_item->label, false)
                        + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)

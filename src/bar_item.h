@@ -19,6 +19,7 @@ struct bar_item {
   // Drawing Modifiers
   bool drawing;
   bool has_const_width;
+  char align;
   uint32_t custom_width;
 
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
@@ -82,6 +83,7 @@ void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid);
 void bar_item_reset_associated_bar(struct bar_item* bar_item);
 void bar_item_set_name(struct bar_item* bar_item, char* name);
 void bar_item_set_type(struct bar_item* bar_item, char type);
+void bar_item_set_position(struct bar_item* bar_item, char position);
 void bar_item_set_script(struct bar_item* bar_item, char* script);
 void bar_item_set_click_script(struct bar_item* bar_item, char* script);
 void bar_item_set_drawing(struct bar_item* bar_item, bool state);

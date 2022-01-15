@@ -132,7 +132,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
   bar_item_set_type(bar_item, command.text[0]);
-  bar_item->position = position.text[0];
+  bar_item_set_position(bar_item, position.text[0]);
   if (position.text[0] == POSITION_POPUP) {
     char* pair = string_copy(position.text);
     struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
@@ -247,7 +247,7 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {
     struct token position = get_token(&message);
-    bar_item->position = position.text[0];
+    bar_item_set_position(bar_item, position.text[0]);
     struct key_value_pair key_value_pair = get_key_value_pair(position.text, '.');
     if (key_value_pair.key && key_value_pair.value) {
       if (key_value_pair.key[0] == POSITION_POPUP) {
@@ -262,6 +262,12 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
       } 
     }
     needs_update = true;
+  } else if (token_equals(property, PROPERTY_ALIGN)) {
+    struct token position = get_token(&message);
+    if (bar_item->align != position.text[0]) {
+      bar_item->align = position.text[0];
+      needs_update = true;
+    }
   } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_space;
