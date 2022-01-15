@@ -118,11 +118,8 @@ void text_clear_pointers(struct text* text) {
 uint32_t text_get_length(struct text* text, bool override) {
   if (!text->drawing) return 0;
   int len = text->bounds.size.width + text->padding_left + text->padding_right;
-  if (!override && text->background.enabled && text->background.image.enabled && text->background.image.bounds.size.width > len) {
-    text->has_const_width = true;
-    text->custom_width = text->background.image.bounds.size.width;
+  if ((!text->has_const_width || override) && text->background.enabled && text->background.image.enabled && text->background.image.bounds.size.width > len && !text->has_const_width)
     return text->background.image.bounds.size.width;
-  }
 
   if (text->has_const_width && !override) return text->custom_width;
   return (len < 0 ? 0 : len);
@@ -147,13 +144,13 @@ void text_destroy(struct text* text) {
 }
 
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
-  if (text->align == POSITION_LEFT) {
-    text->bounds.origin.x = x;
-  } else if (text->align == POSITION_CENTER && text->has_const_width) {
+  if (text->align == POSITION_CENTER && text->has_const_width)
     text->bounds.origin.x = x + (text->custom_width - text_get_length(text, true)) / 2;
-  } else if (text->align == POSITION_RIGHT && text->has_const_width) {
+  else if (text->align == POSITION_RIGHT && text->has_const_width)
     text->bounds.origin.x = x + text->custom_width - text_get_length(text, true);
-  }
+  else
+    text->bounds.origin.x = x;
+
   text->bounds.origin.y =(uint32_t)(y - ((text->line.ascent - text->line.descent) / 2));
 
   if (text->background.enabled) {
