@@ -48,12 +48,12 @@ uint32_t group_get_length(struct group* group) {
   for (int i = 1; i < group->num_members; i++) {
     if (group->members[i]->drawing) {
       if (group->members[i]->position == POSITION_RIGHT) {
-        if (i > 1) length += group->members[i]->background.padding_right;
-        if (i < group->num_members - 1) length += group->members[i]->background.padding_left;
+        if (i > 1 && !group->members[i]->has_const_width) length += group->members[i]->background.padding_right;
+        if (i < group->num_members - 1 && !group->members[i]->has_const_width) length += group->members[i]->background.padding_left;
       }
       else {
-        if (i > 1) length += group->members[i]->background.padding_left;
-        if (i < group->num_members - 1) length += group->members[i]->background.padding_right;
+        if (i > 1 && !group->members[i]->has_const_width) length += group->members[i]->background.padding_left;
+        if (i < group->num_members - 1 && !group->members[i]->has_const_width) length += group->members[i]->background.padding_right;
       }
       length += bar_item_get_length(group->members[i], false);
     }

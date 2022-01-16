@@ -170,7 +170,7 @@ Geometry Properties:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
 * *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*)
-* *align*: aligns the content within a larger background (*left*, *center*, *right*, default: *left*)(Only on HEAD)
+* *align*: aligns the content within a larger background (either by setting a custom *width* or a background image) (*left*, *center*, *right*, default: *\<position\>*)(Only on HEAD)
 * *y_offset*: the vertical offset of this item (default: 0)
 
 Icon properties:

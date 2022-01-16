@@ -226,6 +226,8 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
 void bar_item_set_position(struct bar_item* bar_item, char position) {
   bar_item->position = position;
+  if (position != POSITION_POPUP)
+    bar_item->align = position;
 }
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
@@ -286,10 +288,12 @@ void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
 }
 
 uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
-  return text_get_length(&bar_item->icon, false)
+  int length = text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
          + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+ 
+  return length > 0 ? length : 0;
 }
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
@@ -297,7 +301,9 @@ uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   if (bar_item->background.enabled && bar_item->background.image.enabled && bar_item->background.image.bounds.size.width > content_length)
     content_length = bar_item->background.image.bounds.size.width;
 
-  if (bar_item->has_const_width && (!ignore_override || bar_item->custom_width > content_length)) return bar_item->custom_width - bar_item->background.padding_left - bar_item->background.padding_right;
+  if (bar_item->has_const_width && (!ignore_override || bar_item->custom_width > content_length)) {
+    return bar_item->custom_width;
+  }
   return content_length;
 }
 
