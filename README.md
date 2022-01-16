@@ -170,7 +170,7 @@ Geometry Properties:
 * *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
 * *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
 * *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*)
-* *align*: aligns the content within a larger background (either by setting a custom *width* or a background image) (*left*, *center*, *right*, default: *\<position\>*)(Only on HEAD)
+* *align*: aligns the content within a larger background (either by setting a custom *width* or a background image) (*left*, *center*, *right*, default: *\<position\>*)
 * *y_offset*: the vertical offset of this item (default: 0)
 
 Icon properties:
@@ -289,7 +289,7 @@ $SID
 $DID
 ```
 where *$SELECTED* has the value *true* if the associated space is selected and *false* if the selected space is not selected, while
-*$SID* holds the space id and *$DID* the display id.
+`$SID` holds the space id and `$DID` the display id.
 
 By default the space component invokes the following script:
 ```bash
@@ -403,8 +403,8 @@ where the events are:
 * *mouse.exited*: when the mouse leaves an item
 * *mouse.clicked*: when an item is clicked
 
-When an item is subscribed to these events the *script* is run and it gets passed the *$SENDER* variable, which holds exactly the above names, to distinguish between the different events.
-It is thus possible to have a script that reacts to each event differently e.g. via a switch for the *$SENDER* variable in the *script*.
+When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names, to distinguish between the different events.
+It is thus possible to have a script that reacts to each event differently e.g. via a switch for the `$SENDER` variable in the *script*.
 
 Alternatively a fixed *update_freq* can be *--set*, such that the event is routinely run to poll for change.
 
@@ -413,15 +413,17 @@ When an item invokes a script, the script has access to some environment variabl
 $NAME
 $SENDER
 ```
-Where *$NAME* is the name of the item that has invoked the script and *$SENDER* is the reason why the script is executed.
+Where `$NAME` is the name of the item that has invoked the script and `$SENDER` is the reason why the script is executed.
 
 If an item is *clicked* the script has access to the additional variables:
 ```bash 
 $BUTTON
 $MODIFIER
 ```
-where the $BUTTON can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the $MODIFIER is either *shift*, *ctrl*, *alt* or *cmd* and 
+where the `$BUTTON` can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the `$MODIFIER` is either *shift*, *ctrl*, *alt* or *cmd* and 
 specifies the modifier key held down while clicking the item.
+
+Some events send additional information in the `$INFO` variable
 
 All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 
@@ -433,7 +435,7 @@ sketchybar --add event <name> [optional: <NSDistributedNotificationName>]
 Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
 the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged" [example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842), or the
 notification sent by the system when a bluetooth device connected, or disconnected: *com.apple.bluetooth.state* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1465761))
-to create more responsive items.
+to create more responsive items. Custom events that subscribe to NSDistributedNotificationCenter notifications will receive additional notification information in the `$INFO` variable if available.
 
 ### Triggering custom events
 This triggers a custom event that has been added before
