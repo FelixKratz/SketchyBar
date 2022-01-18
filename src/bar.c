@@ -117,7 +117,7 @@ void bar_calculate_bounds(struct bar* bar) {
                                                     + bar_item->background.padding_right
                                                     - bar_item->custom_width : 0;
     } else 
-      *next_position += bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right;
+      *next_position += bar_item->has_const_width ? bar_item->custom_width : (bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right);
   }
 }
 
