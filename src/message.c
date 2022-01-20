@@ -434,13 +434,58 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
 // Syntax: sketchybar -m --remove <name>
 static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
-  int item_index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
-  if (item_index < 0) {
+  uint32_t count = 0;
+  struct bar_item** bar_items = NULL;
+
+  if (name.length > 1 && name.text[0] == REGEX_DELIMITER && name.text[name.length - 1] == REGEX_DELIMITER) {
+    char* regstring = malloc(sizeof(char)*(name.length - 1));
+    memcpy(regstring, &name.text[1], name.length - 2);
+    regstring[name.length - 2] = '\0';
+    regex_t regex;
+    int reti;
+    reti = regcomp(&regex, regstring, 0);
+    free(regstring);
+    if (reti) {
+      fprintf(rsp, "Could not compile regex: %s \n", name.text);
+      printf("Could not compile regex: %s \n", name.text);
+      return;
+    }
+
+    for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+      struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+      reti = regexec(&regex, bar_item->name, 0, NULL, 0);
+      if (!reti) {
+        count++;
+        bar_items = realloc(bar_items, sizeof(struct bar_item*)*count);
+        bar_items[count - 1] = bar_item;
+      }
+      else if (reti != REG_NOMATCH) {
+        char buf[100];
+        regerror(reti, &regex, buf, sizeof(buf));
+        fprintf(rsp, "Regex match failed: %s\n", buf);
+        printf("Regex match failed: %s\n", buf);
+        return;
+      }
+    }
+    regfree(&regex);
+  }
+  else {
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    if (item_index_for_name < 0) {
       fprintf(rsp, "Name: %s not found in bar items \n", name.text);
       printf("Name: %s not found in bar items \n", name.text);
       return;
+    }
+    bar_items = realloc(bar_items, sizeof(struct bar_item*));
+    bar_items[0] = g_bar_manager.bar_items[item_index_for_name];
+    count = 1;
   }
-  bar_manager_remove_item(&g_bar_manager, g_bar_manager.bar_items[item_index]);
+  if (!bar_items || count == 0) return;
+
+  for (int i = 0; i < count; i++) {
+    bar_manager_remove_item(&g_bar_manager, bar_items[i]);
+  }
 }
 
 // Syntax: sketchybar -m --move <name> </> <reference>
