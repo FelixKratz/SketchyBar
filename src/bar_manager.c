@@ -110,6 +110,11 @@ void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* ite
 }
 
 void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  if (bar_item->position == POSITION_POPUP) {
+    // FIXME:  Popup items must be explicitly removed from the popup lists, as done for groups.
+    printf("Removing popup items is not implemented...\n");
+    return;
+  }
   if (bar_manager->bar_item_count <= 0 || !bar_item) return;
   if (bar_manager->bar_item_count == 1) {
     free(bar_manager->bar_items);
