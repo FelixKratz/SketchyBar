@@ -110,6 +110,34 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   popup->items[popup->num_items - 1] = bar_item;
 }
 
+bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
+  for (int i = 0; i < popup->num_items; i++) {
+    if (popup->items[i] == bar_item) return true;
+  }
+  return false;
+}
+
+void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
+  if (popup->num_items == 0 || !popup_contains_item(popup, bar_item)) return;
+  else if (popup->num_items == 1) {
+    free(popup->items);
+    popup->items = NULL;
+    popup->num_items = 0;
+    return;
+  }
+
+  struct bar_item* tmp[popup->num_items - 1];
+  int count = 0;
+  for (int i = 0; i < popup->num_items; i++) {
+    if (popup->items[i] == bar_item) continue;
+    tmp[count++] = popup->items[i];
+  }
+  popup->num_items--;
+  popup->items = realloc(popup->items, sizeof(struct bar_item*)*popup->num_items);
+  memcpy(popup->items, tmp, sizeof(struct bar_item*)*popup->num_items);
+}
+
+
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   if (popup->anchor.x != anchor.x || popup->anchor.y != anchor.y + popup->y_offset) {
     popup->anchor = anchor;
