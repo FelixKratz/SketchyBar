@@ -469,7 +469,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "\t\"geometry\": {\n"
                "\t\t\"position\": \"%c\",\n"
                "\t\t\"height\": %u,\n"
-               "\t\t\"margin\": %u,\n"
+               "\t\t\"margin\": %d,\n"
                "\t\t\"y_offset\": %d,\n"
                "\t\t\"corner_radius\": %u,\n"
                "\t\t\"border_width\": %u,\n"

@@ -316,7 +316,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
 
   if (token_equals(command, PROPERTY_MARGIN)) {
     struct token token = get_token(&message);
-    g_bar_manager.margin = token_to_uint32t(token);
+    g_bar_manager.margin = token_to_int(token);
     needs_refresh = true;
   } else if (token_equals(command, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
