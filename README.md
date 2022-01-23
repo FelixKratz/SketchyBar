@@ -212,6 +212,7 @@ Background properties:
 * *background.border_width*: the border width of the items background (default: 0)
 * *background.padding_left*: the left padding applied around the background of the item (default: 0)
 * *background.padding_right*: the right padding applied around the background of the item (default: 0)
+* *background.y_offset*: the y_offset of the background from its default position (default: 0)
 * *background.shadow.\<property\>*: all shadow properties are available for backgrounds
 * *background.image.\<property\>*: all image properties are available for backgrounds
 
@@ -517,6 +518,7 @@ It is possible to remove any item by invoking, the item will be completely destr
 ```bash 
 sketchybar --remove <name>
 ```
+the `<name>` can again be a regex: `/<regex>/`.
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
