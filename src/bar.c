@@ -61,8 +61,13 @@ void bar_draw(struct bar* bar) {
 
     bar_item_append_associated_bar(bar_item, bar->adid);
 
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
-      SLSAddTrackingRect(g_connection, bar->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
+      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item), bar->frame.size.height / 2.);
+      tracking_rect.origin.y -= tracking_rect.size.height;
+      SLSAddTrackingRect(g_connection, bar->id, tracking_rect);
+
+
+    }
 
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin, bar->frame.size.height);
     bar_item_draw(bar_item, bar->context);

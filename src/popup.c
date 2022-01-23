@@ -162,8 +162,11 @@ void popup_draw(struct popup* popup) {
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
     if (!bar_item->drawing) continue;
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED)
-      SLSAddTrackingRect(g_connection, popup->id, CGRectInset(bar_item_construct_bounding_rect(bar_item), 1, 1));
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
+      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item), popup->background.bounds.size.height / 2.);
+      tracking_rect.origin.y -= tracking_rect.size.height;
+      SLSAddTrackingRect(g_connection, popup->id, tracking_rect);
+    }
 
     bar_item_set_bounding_rect_for_display(bar_item, popup->adid, popup->anchor, popup->background.bounds.size.height);
 

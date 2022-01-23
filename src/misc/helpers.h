@@ -204,6 +204,12 @@ static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_co
   CFRelease(path);
 }
 
+static inline CGRect cgrect_mirror_y(CGRect rect, float y) {
+  CGRect mirrored_rect = rect;
+  mirrored_rect.origin.y = 2*y - rect.origin.y;
+  return mirrored_rect;
+}
+
 static inline bool cgrect_contains_point(CGRect* r, CGPoint* p) {
     return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
            p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;

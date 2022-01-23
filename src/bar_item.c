@@ -336,6 +336,7 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
     bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y;
   bounding_rect.size.width = bar_item_get_length(bar_item, false);
   bounding_rect.size.height = bar_item_get_height(bar_item);
+  
   return bounding_rect;
 }
 
@@ -350,7 +351,7 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
     bar_item->bounding_rects[adid - 1] = malloc(sizeof(CGRect));
     memset(bar_item->bounding_rects[adid - 1], 0, sizeof(CGRect));
   }
-  CGRect rect = bar_item_construct_bounding_rect(bar_item);
+  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1, -1);
   bar_item->bounding_rects[adid - 1]->origin.x = rect.origin.x + bar_origin.x;
   bar_item->bounding_rects[adid - 1]->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
   bar_item->bounding_rects[adid - 1]->size = rect.size;

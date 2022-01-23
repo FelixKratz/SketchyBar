@@ -13,6 +13,7 @@ void background_init(struct background* background) {
   background->padding_left = 0;
   background->padding_right = 0;
   background->corner_radius = 0;
+  background->y_offset = 0;
 
   background->color = rgba_color_from_hex(0x00000000);
   background->border_color = rgba_color_from_hex(0x00000000);
@@ -78,6 +79,12 @@ bool background_set_padding_right(struct background* background, uint32_t pad) {
   return true;
 }
 
+bool background_set_yoffset(struct background* background, int offset) {
+  if (background->y_offset == offset) return false;
+  background->y_offset = offset;
+  return true;
+}
+
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y) {
   background->bounds.origin.x = x;
   background->bounds.origin.y = y - background->bounds.size.height / 2;
@@ -88,15 +95,17 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
 
 void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
+  CGRect background_bounds = background->bounds;
+  background_bounds.origin.y += background->y_offset;
   if (background->shadow.enabled) {
-    CGRect bounds = shadow_get_bounds(&background->shadow, background->bounds);
+    CGRect bounds = shadow_get_bounds(&background->shadow, background_bounds);
     draw_rect(context, bounds, &background->shadow.color, background->corner_radius, background->border_width, &background->shadow.color, false);
   }
 
   if (background->image.enabled)
     image_draw(&background->image, context);
 
-  draw_rect(context, background->bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
+  draw_rect(context, background_bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
 }
 
 void background_clear_pointers(struct background* background) {
@@ -125,6 +134,8 @@ static bool background_parse_sub_domain(struct background* background, FILE* rsp
     return background_set_padding_left(background, token_to_int(get_token(&message)));
   else if (token_equals(property, PROPERTY_PADDING_RIGHT))
     return background_set_padding_right(background, token_to_int(get_token(&message)));
+  else if (token_equals(property, PROPERTY_YOFFSET))
+    return background_set_yoffset(background, token_to_int(get_token(&message)));
   else if (token_equals(property, SUB_DOMAIN_IMAGE))
     return image_load(&background->image, token_to_string(get_token(&message)), rsp);
   else {

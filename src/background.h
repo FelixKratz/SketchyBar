@@ -8,6 +8,7 @@ struct background {
 
   int padding_left;
   int padding_right;
+  int y_offset;
   uint32_t border_width;
   uint32_t corner_radius;
 
