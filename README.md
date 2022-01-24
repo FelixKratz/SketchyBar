@@ -60,25 +60,21 @@ Table of Contents
 
 * Performance friendly
 * No accessibility permissions needed
-* As many widgets as you like at any of the three positions: left, center, right
+* Fully scriptable
+* Highly configurable
+* Supports drawing native macOS menu bar applications
+* Powerful event system (items can subscribe to many system events)
 * Popup Menus
-* Associate widgets to certain displays or spaces, to show specific information on the relevant screens/displays
-* The widgets are highly customizable with settings for different fonts, colors, icon paddings, label paddings, etc. for each individual element
-* Display items from the default menu bar and configure them in sketchybar
-* Draw arbitrary graphs in the bar with external data provider scripts that push the data into the graph
-* Overlay as many graphs as wanted, like system cpu usage and user cpu usage in one figure
-* Individual refresh frequencies for each widget
-* Let items subscribe to system events (e.g. space changed, etc.) for their refresh action
-* Create custom events and trigger them externaly
-* "click" events for the widgets, where a script can be specified to run on a mouse click
-* Offset the bar from its original location, rounded corners and background blur
-* Batch configuration messages for easy configuration
+* Mouse Support
+* Many visual features
+* Support for graphs
+* Per display and per space individualization
 
 The configuration of the bar takes place in a confiuration file where almost everything can be configured.
-Bascially, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
+Basically, the bar itself is a rectangle that can hold arbitrarily many *items*, which can be configured to do awesome stuff.
 An *item* will occupy a space in the bar and can be equipped to show an *icon* and a *label*. The *icon* and *label* can be changed through
 *scripts* that can be attached to the *item*. It is also possible to *subscribe* an *item* to certain *events* for their *script* execution action,
-which makes very powerful items possible. Additionally, an *item* can be assigned a *click_script*, which executes on a mouse click.
+which makes very powerful items possible.
 Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
 of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
 These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
@@ -88,7 +84,7 @@ Some special features can not be accomplished with a simple *item*, this is wher
 extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
 is a *graph* component, which can be used to display graphs in the bar.
 
-For more details on how the configuration works, see the Configuration section below.
+For more details on how the configuration works, see the configuration section below.
 
 ## Installation
 ### Stable Version
@@ -125,24 +121,26 @@ For an example configuration see the supplied default *sketchybarrc*. The config
 sketchybar --bar <setting>=<value> ... <setting>=<value>
 ```
 
-where the settings currently are:
-* *position*: the position of the bar on the screen, either *top* or *bottom*
-* *height*: the height of the bar in points
-* *margin*: the screen margin around the bar
-* *y_offset*: the y-offset in points from the default position
-* *corner_radius*: the corner radius of the bar
-* *border_width*: the width of the bars border
-* *border_color*: the color of the bars border
-* *blur_radius*: the blur radius to be applied to the background of the bar
-* *padding_left*: padding on the left before first item
-* *padding_right*: just as padding_right
-* *color*: the color of the bar
-* *display*: on which display to show bar (*main* or *all*)
-* *hidden*: hides and unhides the bar, for hotkey toggling of the bar (*on*, *off*, *toggle*; optional: *<display_number>* or *current*)
-* *topmost*: draws sketchybar on top of *everything* (even the default menu bar) (*on*, *off*, *toggle*, default: *off*)
-* *font_smoothing*: wheter fonts should be smoothened (*on*, *off*, *toggle*, default: *off*)
-* *shadow*: if the bar should draw a shadow (*on*, *off*, *toggle*, default: *off*)
-* *image*: Sets a background image (further details below in the *image* properties)
+where possible settings are:
+
+| `<setting>`      | `<value>`            | default      | description                                                 |
+| :-------:        | :------:             | :-------:    | -----------                                                 |
+| `color`          | `<argb hex>`         | `0x44000000` | Color of the bar                                            |
+| `border_color`   | `<argb hex>`         | `0xffff0000` | Color of the bars border                                    |
+| `position`       | `top`, `bottom`      | `top`        | Position of the bar on the screen                           |
+| `height`         | `<integer>`          | `25`         | Height of the bar                                           |
+| `margin`         | `<integer>`          | `0`          | Margin around the bar                                       |
+| `y_offset`       | `<integer>`          | `0`          | Vertical offset of the bar from its default position        |
+| `corner_radius`  | `<positive integer>` | `0`          | Corner radius of the bar                                    |
+| `border_width`   | `<positive integer>` | `0`          | Border width of the bars border                             |
+| `blur_radius`    | `<positive integer>` | `0`          | Blur radius applied to the background of the bar            |
+| `padding_left`   | `<positive integer>` | `0`          | Padding between the left bar border and the leftmost item   |
+| `padding_right`  | `<positive integer>` | `0`          | Padding between the right bar border and the rightmost item |
+| `display`        | `main`, `all`        | `all`        | Display to show the bar on                                  |
+| `hidden`         | `<boolean>`          | `off`        | If the bar is hidden                                        |
+| `topmost`        | `<boolean>`          | `off`        | If the bar should be drawn on top of `everything`           |
+| `font_smoothing` | `<boolean>`          | `off`        | If fonts should be smoothened                               |
+| `shadow`         | `<boolean>`          | `off`        | If the bar should draw a shadow                             |
 
 ## Items and their properties
 Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure: <br>
@@ -152,9 +150,12 @@ Items are the main building blocks of sketchybar and can be configured in a numb
 ```bash
 sketchybar --add item <name> <position>
 ```
-where the *name* should not contain whitespaces, it can be used to further configure the item, which is covered later.
-The *position* is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the ordered
-in which they are added.
+where the `<name>` should not contain whitespaces (or must be quoted), it can be used to further configure the item.
+The `<position>` is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the order
+in which they are added, but can be moved later on.
+
+| `<name>`     | `<string>`                                 |
+| `<position>` | `left`, `right`, `center`, (`q`, `e` #120) |
 
 ### Changing item properties
 ```bash
@@ -165,79 +166,96 @@ where the *name* is used to target the item with this name.
 
 A list of properties available to the *set* command is listed below (components might have additional properties, see the respective component section for them):
 
-Geometry Properties:
-* *position*: Overrides the position set in the *add* command (*left*, *right*, *center*)
-* *associated_space*: on which space to show this item (can be multiple, not specifying anything will show item on all spaces)
-* *associated_display*: on which displays to show this item (can be multiple, not specifying anything will show item on all displays)
-* *width*: overrides the width of the item (useful for items which frequently change in width and thus move all other items) (values: width in points and *dynamic*)
-* *align*: aligns the content within a larger background (either by setting a custom *width* or a background image) (*left*, *center*, *right*, default: *\<position\>*)
-* *y_offset*: the vertical offset of this item (default: 0)
+* Geometry Properties:
 
-Icon properties:
-* *icon*: the icon of the item
-* *icon.font*: the font for the icon
-* *icon.color*: the color of the icon
-* *icon.highlight_color*: the highlight color of the icon (e.g. for active space icon)
-* *icon.padding_left*: left padding of icon (default: 0)
-* *icon.padding_right*: right padding of icon (default: 0)
-* *icon.highlight*: wether the icon is highlighted with the *icon_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
-* *icon.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
-* *icon.y_offset*: the vertical offset of the icon (default: 0)
-* *icon.width*: Used to make the icon have a fixed custom width given in points (default: *dynamic*)
-* *icon.align*: Used to align icons when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
-* *icon.background.\<property\>*: all background properties are also available for the icon
-* *icon.shadow.\<property\>*: all shadow properties are available for the icon
+| `<property>`         | `<value>`                         | default   | description                                                                                          |
+| :-------:            | :------:                          | :-------: | -----------                                                                                          |
+| `position`           | `left`, `right`, `center`         |           | Position of the item in the bar                                                                      |
+| `associated_space`   | `<positive integer list>`         | `0`       | Spaces to show this item on                                                                          |
+| `associated_display` | `<positive integer list>`         | `0`       | Displays to show this item on                                                                        |
+| `y_offset`           | `<integer>`                       | `0`       | Vertical offset applied to the `text`                                                                |
+| `width`              | `<positive integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points                                                 |
+| `align`              | `center`, `left`, `right`         | `left`    | Aligns the `item` content in its container when it has a fixed `width` larger than the content width |
 
-Label properties:
-* *label*: the label of the item
-* *label.font*: the font for the label
-* *label.color*: the color of the label
-* *label.highlight_color*: the highlight color of the label (e.g. for active space icon)
-* *label.padding_left*: left padding of label (default: 0)
-* *label.padding_right*: right padding of label (default: 0)
-* *label.highlight*: wether the label is highlighted with the *label_highlight_color* (values: *on*, *off*, *toggle*, default: *off*)
-* *label.drawing*: If the icon should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
-* *label.y_offset*: the vertical offset of the label (default: 0)
-* *label.width*: Used to make the label have a fixed custom width given in points (default: *dynamic*)
-* *label.align*: Used to align labels when they have a fixed width (values: *center*, *left*, *right*, default: *left*)
-* *label.background.\<property\>*: all background properties are also available for the label
-* *label.shadow.\<property\>*: all shadow properties are available for the label
+* Drawing properties:
 
-Background properties:
-* *background.drawing*: wether the item should draw a background (values: *on*, *off*, *toggle*, default: *off*)
-* *background.color*: draws a rectangular background for this item in the given color (this automatically activates *draws_background*)
-* *background.height*: the height of the background, the background will always be centered vertically around the center of the item
-* *background.border_color*: the color of the backgrounds border
-* *background.corner_radius*: the corner radius of the items background (default: 0)
-* *background.border_width*: the border width of the items background (default: 0)
-* *background.padding_left*: the left padding applied around the background of the item (default: 0)
-* *background.padding_right*: the right padding applied around the background of the item (default: 0)
-* *background.y_offset*: the y_offset of the background from its default position (default: 0)
-* *background.shadow.\<property\>*: all shadow properties are available for backgrounds
-* *background.image.\<property\>*: all image properties are available for backgrounds
+| `<property>` | `<value>`                                                                                     | default     | description |
+| :-------:    | :------:                                                                                      | :-------:   | ----------- |
+| `drawing`    | If the item should be drawn into the bar                                                      | `boolean`   | `on`        |
+| `lazy`       | Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways | `<boolean>` | `off`       |
 
-Scripting properties:
-* *update_freq*: time in seconds between script executions
-* *script*: a script to run every *update_freq* seconds
-* *click_script*: script to run when left clicking on item (Note: This is a shortcut for implemeting it via the *mouse_clicked* event)
-* *cache_scripts*: If the scripts should be cached in RAM or read from disc every time (values: *on*, *off*, *toggle*, default: *off*)
-* *updates*: If and when the item updates e.g. via script execution (values: *on*, *off*, *toggle*, *when_shown*,  default: *on*)
+* Icon properties:
 
-Drawing properties:
-* *drawing*: If the item should be drawn into the bar (values: *on*, *off*, *toggle*,  default: *on*)
-* *lazy*: Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways (values: *on*, *off*, *toggle*, default: *off*)
+| `<property>`           | `<value>`  | default   | description                         |
+| :-------:              | :------:   | :-------: | -----------                         |
+| `icon`                 | `<string>` |           | Icon of the item                    |
+| `icon.<text property>` |            |           | Icons support all *text* properties |
 
-Shadow properties:
-* *shadow.drawing*: If the shadow should be drawn (values: *on*, *off*, *toggle*, default: *off*)
-* *shadow.angle*: The angle of the shadow (between 0 and 360, default: 30)
-* *shadow.distance*: The distance of the shadow (default: 5)
-* *shadow.color*: The color of the shadow (default: 0xff000000)
+* Label properties:
 
-Image properties (Still Experimental and a buggy; Can be resource intensive if many large images are drawn):
-* *image*: The path to a png or jpeg image file 
-* *image.drawing*: If the image should draw
-* *image.scale*: The scale factor that should be applied to the image
+| `<property>`            | `<value>`  | default   | description                          |
+| :-------:               | :------:   | :-------: | -----------                          |
+| `label`                 | `<string>` |           | Label of the item                    |
+| `label.<text property>` |            |           | Labels support all *text* properties |
 
+* Scripting properties:
+
+| `<property>`    | `<value>`                  | default   | description                                                                |
+| :-------:       | :------:                   | :-------: | -----------                                                                |
+| `script`        | `<path>`, `<string>`       |           | Script to run on an `event`                                                |
+| `click_script`  | `<path>`, `<string>`       |           | Script to run on a mouse click (Difference to `mouse.clicked` event: #109) |
+| `update_freq`   | `<positive integer>`       | `1`       | Time in seconds between routine script executions                          |
+| `cache_scripts` | `<boolean>`                | `off`     | If scripts should be cached                                                |
+| `updates`       | `<boolean>`, `when_shown`  | `on`      | If and when the item updates e.g. via script execution                     |
+
+* Text properties:
+
+| `<text property>`                  | `<value>`                         | default      | description                                                                                  |
+| :-------:                          | :------:                          | :-------:    | -----------                                                                                  |
+| `drawing`                          | `<boolean>`                       | `on`         | If the text is rendered                                                                      |
+| `highlight`                        | `<boolean>`                       | `off`        | If the text uses the `highlight_color` or the regular `color`                                |
+| `color`                            | `<argb hex>`                      | `0xffffffff` | Color used to render the text                                                                |
+| `highlight_color`                  | `<argb hex>`                      | `0xff000000` | Highlight color of the text (e.g. for active space icon                                      |
+| `padding_left`                     | `<integer>`                       | `0`          | Padding to the left of the `text`                                                            |
+| `padding_right`                    | `<integer>`                       | `0`          | Padding to the right of the `text`                                                           |
+| `y_offset`                         | `<integer>`                       | `0`          | Vertical offset applied to the `text`                                                        |
+| `width`                            | `<positive integer>` or `dynamic` | `dynamic`    | Makes the `text` use a fixed `width` given in points                                         |
+| `align`                            | `center`, `left`, `right`         | `left`       | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
+| `background.<background property>` |                                   |              | Texts support all `background` properties                                                    |
+| `shadow.<shadow property>`         |                                   |              | Texts support all `shadow` properties                                                        |
+
+* Background properties:
+
+| `<background property>`    | `<value>`            | default      | description                                 |
+| :-------:                  | :------:             | :-------:    | -----------                                 |
+| `drawing`                  | `<boolean>`          | `off`        | If the `background` should be rendered      |
+| `color`                    | `<argb hex>`         | `0x00000000` | Fill color of the `background`              |
+| `border_color`             | `<argb hex>`         | `0x00000000` | Color of the backgrounds border             |
+| `border_width`             | `<positive integer>` | `0`          | Width of the background border              |
+| `height`                   | `<unsigned integer>` | `0`          | Overrides the `height` of the background    |
+| `corner_radius`            | `<positive integer>` | `0`          | Corner radius of the background             |
+| `padding_left`             | `<integer>`          | `0`          | Padding to the left of the `background`     |
+| `padding_right`            | `<integer>`          | `0`          | Padding to the right of the `background`    |
+| `y_offset`                 | `<integer>`          | `0`          | Vertical offset applied to the `background` |
+| `shadow.<shadow property>` |                      |              | Backgrounds support all `shadow` properties |
+| `image.<image property>`   |                      |              | Backgrounds support all `image` properties  |
+
+* Shadow properties:
+
+| `<shadow property>` | `<value>`            | default    | description                   |
+| :-------:           | :------:             | :-------:  | -----------                   |
+| `shadow.drawing`    | `<boolean>`          | `off`      | If the shadow should be drawn |
+| `shadow.color`      | `<argb hex>`         | 0xff000000 | Color of the shadow           |
+| `shadow.angle`      | `<positive integer>` | 30         | Angle of the shadow           |
+| `shadow.distance`   | `<positive integer>` | 5          | Distance of the shadow        |
+
+* Image properties (Can be resource intensive if many large images are drawn):
+
+| `<image property>` | `<value>`                                            | default              | description |
+| :-------:          | :------:                                             | :-------:            | ----------- |
+| `image`            | The path to a png or jpeg image file                 | `<path>`             |             |
+| `image.drawing`    | If the image should draw                             | `<boolean>`          | `off`       |
+| `image.scale`      | The scale factor that should be applied to the image | `<positive integer>` | `0`         |
 
 ### Changing the default values for all further items
 It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
@@ -434,7 +452,7 @@ This allows to define events which are triggered by a different application (see
 sketchybar --add event <name> [optional: <NSDistributedNotificationName>]
 ```
 Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
-the notification Spotify sends on track change: "com.spotify.client.PlaybackStateChanged" [example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842), or the
+the notification Spotify sends on track change: *com.spotify.client.PlaybackStateChanged* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842)), or the
 notification sent by the system when a bluetooth device connected, or disconnected: *com.apple.bluetooth.state* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1465761))
 to create more responsive items. Custom events that subscribe to NSDistributedNotificationCenter notifications will receive additional notification information in the `$INFO` variable if available.
 

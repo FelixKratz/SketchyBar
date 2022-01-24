@@ -37,6 +37,7 @@ void text_init(struct text* text) {
   text->align = POSITION_LEFT;
 
   text->color = rgba_color_from_hex(0xffffffff);
+  text->highlight_color = rgba_color_from_hex(0xff000000);
 
   text->font = NULL;
   text->string = string_copy("");
