@@ -123,19 +123,19 @@ sketchybar --bar <setting>=<value> ... <setting>=<value>
 
 where possible settings are:
 
-| `<setting>`      | `<value>`            | default      | description                                                 |
+| \<setting\>      | \<value\>            | default      | description                                                 |
 | :-------:        | :------:             | :-------:    | -----------                                                 |
-| `color`          | `<argb hex>`         | `0x44000000` | Color of the bar                                            |
-| `border_color`   | `<argb hex>`         | `0xffff0000` | Color of the bars border                                    |
+| `color`          | `<argb_hex>`         | `0x44000000` | Color of the bar                                            |
+| `border_color`   | `<argb_hex>`         | `0xffff0000` | Color of the bars border                                    |
 | `position`       | `top`, `bottom`      | `top`        | Position of the bar on the screen                           |
 | `height`         | `<integer>`          | `25`         | Height of the bar                                           |
 | `margin`         | `<integer>`          | `0`          | Margin around the bar                                       |
 | `y_offset`       | `<integer>`          | `0`          | Vertical offset of the bar from its default position        |
-| `corner_radius`  | `<positive integer>` | `0`          | Corner radius of the bar                                    |
-| `border_width`   | `<positive integer>` | `0`          | Border width of the bars border                             |
-| `blur_radius`    | `<positive integer>` | `0`          | Blur radius applied to the background of the bar            |
-| `padding_left`   | `<positive integer>` | `0`          | Padding between the left bar border and the leftmost item   |
-| `padding_right`  | `<positive integer>` | `0`          | Padding between the right bar border and the rightmost item |
+| `corner_radius`  | `<positive_integer>` | `0`          | Corner radius of the bar                                    |
+| `border_width`   | `<positive_integer>` | `0`          | Border width of the bars border                             |
+| `blur_radius`    | `<positive_integer>` | `0`          | Blur radius applied to the background of the bar            |
+| `padding_left`   | `<positive_integer>` | `0`          | Padding between the left bar border and the leftmost item   |
+| `padding_right`  | `<positive_integer>` | `0`          | Padding between the right bar border and the rightmost item |
 | `display`        | `main`, `all`        | `all`        | Display to show the bar on                                  |
 | `hidden`         | `<boolean>`          | `off`        | If the bar is hidden                                        |
 | `topmost`        | `<boolean>`          | `off`        | If the bar should be drawn on top of `everything`           |
@@ -168,94 +168,94 @@ A list of properties available to the *set* command is listed below (components 
 
 * Geometry Properties:
 
-| `<property>`         | `<value>`                         | default   | description                                                                                          |
+| \<property\>         | \<value\>                         | default   | description                                                                                          |
 | :-------:            | :------:                          | :-------: | -----------                                                                                          |
 | `position`           | `left`, `right`, `center`         |           | Position of the item in the bar                                                                      |
-| `associated_space`   | `<positive integer list>`         | `0`       | Spaces to show this item on                                                                          |
-| `associated_display` | `<positive integer list>`         | `0`       | Displays to show this item on                                                                        |
+| `associated_space`   | `<positive_integer list>`         | `0`       | Spaces to show this item on                                                                          |
+| `associated_display` | `<positive_integer list>`         | `0`       | Displays to show this item on                                                                        |
 | `y_offset`           | `<integer>`                       | `0`       | Vertical offset applied to the `text`                                                                |
-| `width`              | `<positive integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points                                                 |
+| `width`              | `<positive_integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points                                                 |
 | `align`              | `center`, `left`, `right`         | `left`    | Aligns the `item` content in its container when it has a fixed `width` larger than the content width |
 
 * Drawing properties:
 
-| `<property>` | `<value>`                                                                                     | default     | description |
+| \<property\> | \<value\>                                                                                     | default     | description |
 | :-------:    | :------:                                                                                      | :-------:   | ----------- |
 | `drawing`    | If the item should be drawn into the bar                                                      | `boolean`   | `on`        |
 | `lazy`       | Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways | `<boolean>` | `off`       |
 
 * Icon properties:
 
-| `<property>`           | `<value>`  | default   | description                         |
+| \<property\>           | \<value\>  | default   | description                         |
 | :-------:              | :------:   | :-------: | -----------                         |
 | `icon`                 | `<string>` |           | Icon of the item                    |
-| `icon.<text property>` |            |           | Icons support all *text* properties |
+| `icon.<text_property>` |            |           | Icons support all *text* properties |
 
 * Label properties:
 
-| `<property>`            | `<value>`  | default   | description                          |
+| \<property\>            | \<value\>  | default   | description                          |
 | :-------:               | :------:   | :-------: | -----------                          |
 | `label`                 | `<string>` |           | Label of the item                    |
-| `label.<text property>` |            |           | Labels support all *text* properties |
+| `label.<text_property>` |            |           | Labels support all *text* properties |
 
 * Scripting properties:
 
-| `<property>`    | `<value>`                  | default   | description                                                                |
+| \<property\>    | \<value\>                  | default   | description                                                                |
 | :-------:       | :------:                   | :-------: | -----------                                                                |
 | `script`        | `<path>`, `<string>`       |           | Script to run on an `event`                                                |
 | `click_script`  | `<path>`, `<string>`       |           | Script to run on a mouse click (Difference to `mouse.clicked` event: #109) |
-| `update_freq`   | `<positive integer>`       | `1`       | Time in seconds between routine script executions                          |
+| `update_freq`   | `<positive_integer>`       | `1`       | Time in seconds between routine script executions                          |
 | `cache_scripts` | `<boolean>`                | `off`     | If scripts should be cached                                                |
 | `updates`       | `<boolean>`, `when_shown`  | `on`      | If and when the item updates e.g. via script execution                     |
 
 * Text properties:
 
-| `<text property>`                  | `<value>`                         | default      | description                                                                                  |
+| \<text_property\>                  | \<value\>                         | default      | description                                                                                  |
 | :-------:                          | :------:                          | :-------:    | -----------                                                                                  |
 | `drawing`                          | `<boolean>`                       | `on`         | If the text is rendered                                                                      |
 | `highlight`                        | `<boolean>`                       | `off`        | If the text uses the `highlight_color` or the regular `color`                                |
-| `color`                            | `<argb hex>`                      | `0xffffffff` | Color used to render the text                                                                |
-| `highlight_color`                  | `<argb hex>`                      | `0xff000000` | Highlight color of the text (e.g. for active space icon                                      |
+| `color`                            | `<argb_hex>`                      | `0xffffffff` | Color used to render the text                                                                |
+| `highlight_color`                  | `<argb_hex>`                      | `0xff000000` | Highlight color of the text (e.g. for active space icon                                      |
 | `padding_left`                     | `<integer>`                       | `0`          | Padding to the left of the `text`                                                            |
 | `padding_right`                    | `<integer>`                       | `0`          | Padding to the right of the `text`                                                           |
 | `y_offset`                         | `<integer>`                       | `0`          | Vertical offset applied to the `text`                                                        |
-| `width`                            | `<positive integer>` or `dynamic` | `dynamic`    | Makes the `text` use a fixed `width` given in points                                         |
+| `width`                            | `<positive_integer>` or `dynamic` | `dynamic`    | Makes the `text` use a fixed `width` given in points                                         |
 | `align`                            | `center`, `left`, `right`         | `left`       | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
-| `background.<background property>` |                                   |              | Texts support all `background` properties                                                    |
-| `shadow.<shadow property>`         |                                   |              | Texts support all `shadow` properties                                                        |
+| `background.<background_property>` |                                   |              | Texts support all `background` properties                                                    |
+| `shadow.<shadow_property>`         |                                   |              | Texts support all `shadow` properties                                                        |
 
 * Background properties:
 
-| `<background property>`    | `<value>`            | default      | description                                 |
+| \<background_property\>    | \<value\>            | default      | description                                 |
 | :-------:                  | :------:             | :-------:    | -----------                                 |
 | `drawing`                  | `<boolean>`          | `off`        | If the `background` should be rendered      |
-| `color`                    | `<argb hex>`         | `0x00000000` | Fill color of the `background`              |
-| `border_color`             | `<argb hex>`         | `0x00000000` | Color of the backgrounds border             |
-| `border_width`             | `<positive integer>` | `0`          | Width of the background border              |
-| `height`                   | `<unsigned integer>` | `0`          | Overrides the `height` of the background    |
-| `corner_radius`            | `<positive integer>` | `0`          | Corner radius of the background             |
+| `color`                    | `<argb_hex>`         | `0x00000000` | Fill color of the `background`              |
+| `border_color`             | `<argb_hex>`         | `0x00000000` | Color of the backgrounds border             |
+| `border_width`             | `<positive_integer>` | `0`          | Width of the background border              |
+| `height`                   | `<positive_integer>` | `0`          | Overrides the `height` of the background    |
+| `corner_radius`            | `<positive_integer>` | `0`          | Corner radius of the background             |
 | `padding_left`             | `<integer>`          | `0`          | Padding to the left of the `background`     |
 | `padding_right`            | `<integer>`          | `0`          | Padding to the right of the `background`    |
 | `y_offset`                 | `<integer>`          | `0`          | Vertical offset applied to the `background` |
-| `shadow.<shadow property>` |                      |              | Backgrounds support all `shadow` properties |
-| `image.<image property>`   |                      |              | Backgrounds support all `image` properties  |
+| `shadow.<shadow_property>` |                      |              | Backgrounds support all `shadow` properties |
+| `image.<image_property>`   |                      |              | Backgrounds support all `image` properties  |
 
 * Shadow properties:
 
-| `<shadow property>` | `<value>`            | default    | description                   |
+| \<shadow_property\> | \<value\>            | default    | description                   |
 | :-------:           | :------:             | :-------:  | -----------                   |
 | `shadow.drawing`    | `<boolean>`          | `off`      | If the shadow should be drawn |
-| `shadow.color`      | `<argb hex>`         | 0xff000000 | Color of the shadow           |
-| `shadow.angle`      | `<positive integer>` | 30         | Angle of the shadow           |
-| `shadow.distance`   | `<positive integer>` | 5          | Distance of the shadow        |
+| `shadow.color`      | `<argb_hex>`         | 0xff000000 | Color of the shadow           |
+| `shadow.angle`      | `<positive_integer>` | 30         | Angle of the shadow           |
+| `shadow.distance`   | `<positive_integer>` | 5          | Distance of the shadow        |
 
 * Image properties (Can be resource intensive if many large images are drawn):
 
-| `<image property>` | `<value>`                                            | default              | description |
+| \<image_property\> | \<value\>                                            | default              | description |
 | :-------:          | :------:                                             | :-------:            | ----------- |
 | `image`            | The path to a png or jpeg image file                 | `<path>`             |             |
 | `image.drawing`    | If the image should draw                             | `<boolean>`          | `off`       |
-| `image.scale`      | The scale factor that should be applied to the image | `<positive integer>` | `0`         |
+| `image.scale`      | The scale factor that should be applied to the image | `<positive_integer>` | `0`         |
 
 ### Changing the default values for all further items
 It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
