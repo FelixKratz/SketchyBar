@@ -85,7 +85,7 @@ void popup_create_window(struct popup* popup) {
   SLSClearWindowTags(g_connection, popup->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, popup->id, 0);
   SLSSetWindowBackgroundBlurRadius(g_connection, popup->id, g_bar_manager.blur_radius);
-  window_disable_shadow(popup->id);
+  if (!popup->background.shadow.enabled) window_disable_shadow(popup->id);
 
   SLSSetWindowLevel(g_connection, popup->id, NSScreenSaverWindowLevel);
   popup->context = SLWindowContextCreate(g_connection, popup->id, 0);
