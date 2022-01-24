@@ -154,8 +154,9 @@ where the `<name>` should not contain whitespaces (or must be quoted), it can be
 The `<position>` is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the order
 in which they are added, but can be moved later on.
 
-| `<name>`     | `<string>`                                 |
-| `<position>` | `left`, `right`, `center`, (`q`, `e` #120) |
+| `<name>`     | `<string>`                                                                                        |
+| -----        | ---------                                                                                         |
+| `<position>` | `left`, `right`, `center`, (`q`, `e` [#120](https://github.com/FelixKratz/SketchyBar/issues/120)) |
 
 ### Changing item properties
 ```bash
@@ -200,13 +201,13 @@ A list of properties available to the *set* command is listed below (components 
 
 * Scripting properties:
 
-| \<property\>    | \<value\>                  | default   | description                                                                |
-| :-------:       | :------:                   | :-------: | -----------                                                                |
-| `script`        | `<path>`, `<string>`       |           | Script to run on an `event`                                                |
-| `click_script`  | `<path>`, `<string>`       |           | Script to run on a mouse click (Difference to `mouse.clicked` event: #109) |
-| `update_freq`   | `<positive_integer>`       | `1`       | Time in seconds between routine script executions                          |
-| `cache_scripts` | `<boolean>`                | `off`     | If scripts should be cached                                                |
-| `updates`       | `<boolean>`, `when_shown`  | `on`      | If and when the item updates e.g. via script execution                     |
+| \<property\>    | \<value\>                 | default   | description                                                                                                                            |
+| :-------:       | :------:                  | :-------: | -----------                                                                                                                            |
+| `script`        | `<path>`, `<string>`      |           | Script to run on an `event`                                                                                                            |
+| `click_script`  | `<path>`, `<string>`      |           | Script to run on a mouse click (Difference to `mouse.clicked` event: [#109](https://github.com/FelixKratz/SketchyBar/discussions/109)) |
+| `update_freq`   | `<positive_integer>`      | `1`       | Time in seconds between routine script executions                                                                                      |
+| `cache_scripts` | `<boolean>`               | `off`     | If scripts should be cached                                                                                                            |
+| `updates`       | `<boolean>`, `when_shown` | `on`      | If and when the item updates e.g. via script execution                                                                                 |
 
 * Text properties:
 
