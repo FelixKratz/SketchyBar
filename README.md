@@ -180,10 +180,10 @@ A list of properties available to the *set* command is listed below (components 
 
 * Drawing properties:
 
-| \<property\> | \<value\>                                                                                     | default     | description |
-| :-------:    | :------:                                                                                      | :-------:   | ----------- |
-| `drawing`    | If the item should be drawn into the bar                                                      | `boolean`   | `on`        |
-| `lazy`       | Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways | `<boolean>` | `off`       |
+| \<property\> | \<value\>   | default   | description                                                                                   |
+| :-------:    | :------:    | :-------: | -----------                                                                                   |
+| `drawing`    | `<boolean>`   | `on`      | If the item should be drawn into the bar                                                      |
+| `lazy`       | `<boolean>` | `off`     | Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways |
 
 * Icon properties:
 
@@ -271,6 +271,18 @@ It is also possible to reset the defaults via the command
 ```bash
 sketchybar --default reset
 ```
+
+### Type nomenclature
+
+| `type`                    | `values`                                                         |
+| -----                     | ---------                                                        |
+| `<boolean>`               | `on`, `off`, `yes`, `no`, `true`, `false`, `1`, `0`, `toggle`    |
+| `<argb_hex>`              | Color as an 8 digit hex with alpha, red, green and blue channels |
+| `<path>`                  | An absolute file path                                            |
+| `<string>`                | Any UTF-8 string or symbol                                       |
+| `<integer>`               | An integer                                                       |
+| `<positive_integer>`      | A positive integer                                               |
+| `<positive_integer list>` | A comma separated list of positive integers                      |
 
 ## Components -- Special Items with special properties
 Components are essentially items, but with special properties.
