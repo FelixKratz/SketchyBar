@@ -318,11 +318,6 @@ static bool sync_exec(char *command, struct env_vars *env_vars) {
       }
     }
 
-    if (file_exists(command)) {
-      char *exec[] = { command, NULL};
-      return execv(exec[0], exec);
-    }
-
     char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
     return execvp(exec[0], exec);
 }

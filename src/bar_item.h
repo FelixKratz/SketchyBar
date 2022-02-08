@@ -28,7 +28,6 @@ struct bar_item {
   uint32_t associated_space;
   uint32_t update_frequency;
 
-  bool cache_scripts;
   char* script;
   char* click_script;
   struct signal_args signal_args;

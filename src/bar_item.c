@@ -75,7 +75,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->counter = 0;
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;
-  bar_item->cache_scripts = false;
   bar_item->position = POSITION_LEFT;
   bar_item->align = POSITION_LEFT;
   bar_item->associated_display = 0;
@@ -235,10 +234,6 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
   if (script != bar_item->script && bar_item->script) free(bar_item->script);
   char* path = resolve_path(script);
-  // if (bar_item->cache_scripts && file_exists(path)) {
-  //   bar_item->script = read_file(path);
-  // }
-  // else
   bar_item->script = path;
 }
 
@@ -247,10 +242,7 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) { free(script); return; }
   if (script != bar_item->click_script && bar_item->click_script) free(bar_item->click_script);
   char* path = resolve_path(script);
-  if (bar_item->cache_scripts && file_exists(path)) {
-    bar_item->click_script = read_file(path);
-  }
-  else bar_item->click_script = path;
+  bar_item->click_script = path;
 }
 
 void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
@@ -484,7 +476,6 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"drawing\": %d,\n"
                "\t\t\"updates\": %d,\n"
                "\t\t\"lazy\": %d,\n"
-               "\t\t\"cache_scripts\": %d,\n"
                "\t\t\"associated_bar_mask\": %u,\n"
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"associated_space_mask\": %u,\n"
@@ -518,7 +509,6 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->drawing,
                bar_item->updates,
                bar_item->lazy,
-               bar_item->cache_scripts,
                bar_item->associated_bar,
                bar_item->associated_display,
                bar_item->associated_space,
