@@ -203,7 +203,7 @@ A list of properties available to the *set* command is listed below (components 
 
 | \<property\>    | \<value\>                 | default   | description                                                                                                                            |
 | :-------:       | :------:                  | :-------: | -----------                                                                                                                            |
-| `script`        | `<path>`, `<string>`      |           | Script to run on an `event` (All scripts *must* include a shebang                                                                      |
+| `script`        | `<path>`, `<string>`      |           | Script to run on an `event`                                                                                                            |
 | `click_script`  | `<path>`, `<string>`      |           | Script to run on a mouse click (Difference to `mouse.clicked` event: [#109](https://github.com/FelixKratz/SketchyBar/discussions/109)) |
 | `update_freq`   | `<positive_integer>`      | `1`       | Time in seconds between routine script executions                                                                                      |
 | `updates`       | `<boolean>`, `when_shown` | `on`      | If and when the item updates e.g. via script execution                                                                                 |
