@@ -137,7 +137,6 @@ void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
   memcpy(popup->items, tmp, sizeof(struct bar_item*)*popup->num_items);
 }
 
-
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   if (popup->anchor.x != anchor.x || popup->anchor.y != anchor.y + popup->y_offset) {
     popup->anchor = anchor;

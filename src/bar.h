@@ -13,7 +13,6 @@ extern CGError SLSSetWindowShape(int cid, uint32_t wid, float x_offset, float y_
 extern CGError SLSSetWindowResolution(int cid, uint32_t wid, double res);
 extern CGError SLSSetWindowOpacity(int cid, uint32_t wid, bool isOpaque);
 extern CGError SLSSetWindowBackgroundBlurRadius(int cid, uint32_t wid, uint32_t radius);
-extern CGError SLSSetMouseEventEnableFlags(int cid, uint32_t wid, bool shouldEnable);
 extern CGError SLSOrderWindow(int cid, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSSetWindowLevel(int cid, uint32_t wid, int level);
 extern CGContextRef SLWindowContextCreate(int cid, uint32_t wid, CFDictionaryRef options);
@@ -26,7 +25,6 @@ extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 extern int SLSSpaceGetType(int cid, uint64_t sid);
 
-#define kCGSDisableShadowTagBit         (1ULL <<  3)
 #define kCGSHighQualityResamplingTagBit (1ULL <<  4)
 #define kCGSStickyTagBit                (1ULL << 11)
 #define kCGSSuperStickyTagBit           (1ULL << 45)

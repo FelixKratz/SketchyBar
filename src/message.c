@@ -291,7 +291,8 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
-    bar_item->cache_scripts = evaluate_boolean_state(get_token(&message), bar_item->cache_scripts);
+    printf("cache_scripts property is deprecated.\n");
+    // bar_item->cache_scripts = evaluate_boolean_state(get_token(&message), bar_item->cache_scripts);
   } else if (token_equals(property, PROPERTY_LAZY)) {
     bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {

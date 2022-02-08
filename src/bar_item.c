@@ -235,10 +235,11 @@ void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
   if (script != bar_item->script && bar_item->script) free(bar_item->script);
   char* path = resolve_path(script);
-  if (bar_item->cache_scripts && file_exists(path)) {
-    bar_item->script = read_file(path);
-  }
-  else bar_item->script = path;
+  // if (bar_item->cache_scripts && file_exists(path)) {
+  //   bar_item->script = read_file(path);
+  // }
+  // else
+  bar_item->script = path;
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
