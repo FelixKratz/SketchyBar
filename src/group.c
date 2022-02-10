@@ -1,7 +1,6 @@
 #include "group.h"
 #include "background.h"
 #include "bar_item.h"
-#include <malloc/_malloc.h>
 #include <stdint.h>
 #include <string.h>
 

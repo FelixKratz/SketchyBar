@@ -2,7 +2,6 @@
 #define ENV_VARS_H
 
 #include <_types/_uint32_t.h>
-#include <malloc/_malloc.h>
 #include <string.h>
 
 struct key_value_pair {
