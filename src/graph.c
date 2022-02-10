@@ -1,5 +1,4 @@
 #include "graph.h"
-#include <_types/_uint32_t.h>
 
 void graph_init(struct graph* graph, uint32_t width) {
   graph->width = width;

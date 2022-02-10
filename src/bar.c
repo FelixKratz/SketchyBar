@@ -9,11 +9,8 @@
 #include "misc/helpers.h"
 #include "popup.h"
 #include "text.h"
-#include <_types/_uint32_t.h>
-#include <stdint.h>
 
 extern struct bar_manager g_bar_manager;
-
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;

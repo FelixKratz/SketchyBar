@@ -3,7 +3,6 @@
 #include "bar_item.h"
 #include "bar_manager.h"
 #include "misc/helpers.h"
-#include <stdint.h>
 
 void popup_init(struct popup* popup) {
   popup->drawing = false;

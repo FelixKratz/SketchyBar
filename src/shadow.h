@@ -1,8 +1,6 @@
 #ifndef SHADOW_H
 #define SHADOW_H
 
-#include <_types/_uint32_t.h>
-
 struct shadow {
   bool enabled;
 

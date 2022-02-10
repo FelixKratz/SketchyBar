@@ -1,7 +1,6 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <_types/_uint32_t.h>
 struct graph {
   bool rtl;
   bool fill;

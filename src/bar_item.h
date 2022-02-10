@@ -1,8 +1,6 @@
 #ifndef BAR_ITEM_H
 #define BAR_ITEM_H
 
-#include <_types/_uint32_t.h>
-
 struct bar_item {
   char type;
   char* name;

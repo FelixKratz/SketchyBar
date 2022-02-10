@@ -6,9 +6,6 @@
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "popup.h"
-#include <_types/_uint32_t.h>
-#include <stdint.h>
-#include <string.h>
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));

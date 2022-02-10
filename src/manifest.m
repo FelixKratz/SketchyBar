@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <regex.h>
 
 #include "misc/log.h"
 #include "misc/env_vars.h"

@@ -1,8 +1,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <_types/_uint16_t.h>
-#include <_types/_uint32_t.h>
 struct image {
   bool enabled;
 

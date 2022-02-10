@@ -1,8 +1,6 @@
 #ifndef GROUP_H_
 #define GROUP_H_
 
-#include <_types/_uint32_t.h>
-
 struct group {
   CGRect bounds;
   uint32_t num_members;

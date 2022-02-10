@@ -1,6 +1,5 @@
 #include "workspace.h"
 #include "misc/helpers.h"
-#include <string.h>
 
 extern struct event_loop g_event_loop;
 

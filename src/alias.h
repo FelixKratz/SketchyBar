@@ -1,7 +1,6 @@
 #ifndef ALIAS_H
 #define ALIAS_H
 
-#include <stdint.h>
 #define MENUBAR_LAYER 0x19
 
 struct alias {

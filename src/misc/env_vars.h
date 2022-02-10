@@ -1,10 +1,6 @@
 #ifndef ENV_VARS_H
 #define ENV_VARS_H
 
-#include <_types/_uint32_t.h>
-#include <malloc/_malloc.h>
-#include <string.h>
-
 struct key_value_pair {
   char* key;
   char* value;

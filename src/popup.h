@@ -1,7 +1,6 @@
 #ifndef POPUP_H
 #define POPUP_H
 
-#include <_types/_uint32_t.h>
 struct popup {
   bool drawing;
   bool horizontal;

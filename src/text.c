@@ -1,7 +1,6 @@
 #include "text.h"
 #include "background.h"
 #include "misc/helpers.h"
-#include <stdint.h>
 
 static CTFontRef text_create_font(char *cstring) {
   float size = 10.0f;

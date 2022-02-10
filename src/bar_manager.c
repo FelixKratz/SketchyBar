@@ -5,8 +5,6 @@
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "popup.h"
-#include <_types/_uint32_t.h>
-#include <string.h>
 
 extern struct event_loop g_event_loop;
 

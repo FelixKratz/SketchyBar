@@ -1,8 +1,6 @@
 #ifndef BAR_H
 #define BAR_H
 
-#include <_types/_uint32_t.h>
-#include <stdint.h>
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
 extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint32_t *wid);

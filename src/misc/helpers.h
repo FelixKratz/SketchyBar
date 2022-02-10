@@ -1,13 +1,10 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-#include <_types/_uint32_t.h>
-#include <stdint.h>
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
 #define FORK_TIMEOUT 60
 
-#include <string.h>
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern uint32_t SLSGetActiveSpace(int cid);
 extern int g_connection;

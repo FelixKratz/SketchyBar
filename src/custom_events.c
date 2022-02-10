@@ -1,3 +1,5 @@
+#include "custom_events.h"
+
 struct custom_event* custom_event_create(void) {
   return malloc(sizeof(struct custom_event));
 }

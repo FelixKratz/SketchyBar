@@ -1,5 +1,4 @@
 #include "event.h"
-#include <_types/_uint32_t.h>
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;

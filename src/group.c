@@ -1,9 +1,6 @@
 #include "group.h"
 #include "background.h"
 #include "bar_item.h"
-#include <malloc/_malloc.h>
-#include <stdint.h>
-#include <string.h>
 
 struct group* group_create() {
   struct group* group = malloc(sizeof(struct group));

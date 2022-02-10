@@ -1,8 +1,6 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include <_types/_uint32_t.h>
-#include <stdint.h>
 struct text_line {
   CTLineRef line;
   CGFloat ascent;

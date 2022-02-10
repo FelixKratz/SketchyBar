@@ -1,7 +1,5 @@
 #include "image.h"
 #include "misc/helpers.h"
-#include <_types/_uint32_t.h>
-#include <string.h>
 
 void image_init(struct image* image) {
   image->enabled = false;

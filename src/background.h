@@ -1,7 +1,6 @@
 #ifndef BACKGROUND_H
 #define BACKGROUND_H
 
-#include <stdint.h>
 struct background {
   bool enabled;
   bool overrides_height;

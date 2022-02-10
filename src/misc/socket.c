@@ -1,5 +1,4 @@
 #include "socket.h"
-#include <pthread.h>
 
 char* socket_read(int sockfd, int* len) {
     int cursor = 0;
