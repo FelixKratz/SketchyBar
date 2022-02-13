@@ -1,7 +1,7 @@
 #include "alias.h"
 #include "misc/helpers.h"
 
-extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint32_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
+extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
 
 void print_all_menu_items(FILE* rsp) {
@@ -58,11 +58,19 @@ void alias_get_permission(struct alias* alias) {
 #endif
 }
 
-void alias_init(struct alias* alias, char* owner, char* name) {
+void alias_init(struct alias* alias) {
+  alias->name = NULL;
+  alias->owner = NULL;
+  alias->wid = 0;
+  alias->color_override = false;
+  alias->color = rgba_color_from_hex(0xffff0000);
+
+  image_init(&alias->image);
+}
+
+void alias_setup(struct alias* alias, char* owner, char* name) {
   alias->name = name;
   alias->owner = owner;
-  alias->wid = 0;
-  image_init(&alias->image);
   alias_get_permission(alias);
   alias_update_image(alias);
 }
@@ -137,15 +145,51 @@ bool alias_update_image(struct alias* alias) {
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {
-  image_draw(&alias->image, context);
+  if (alias->color_override) {
+    CGContextSaveGState(context);
+    image_draw(&alias->image, context);
+    CGContextClipToMask(context, alias->image.bounds, alias->image.image_ref);
+    CGContextSetRGBFillColor(context, alias->color.r, alias->color.g, alias->color.b, alias->color.a);
+    CGContextFillRect(context, alias->image.bounds);
+    CGContextRestoreGState(context);
+  }
+  else {
+    image_draw(&alias->image, context);
+  }
 }
 
 void alias_destroy(struct alias* alias) {
   image_destroy(&alias->image);
   if (alias->name) free(alias->name);
   if (alias->owner) free(alias->owner);
+  alias->name = NULL;
+  alias->owner = NULL;
 }
 
 void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
   image_calculate_bounds(&alias->image, x, y);
 }
+
+static bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message) {
+  struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+  if (key_value_pair.key && key_value_pair.value) {
+    struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
+    struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+    if (token_equals(subdom, SUB_DOMAIN_SHADOW))
+      return shadow_parse_sub_domain(&alias->image.shadow, rsp, entry, message);
+    else {
+      fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
+      printf("Invalid subdomain: %s \n", subdom.text);
+    }
+  }
+  else if (token_equals(property, PROPERTY_COLOR)) {
+    alias->color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    alias->color_override = true;
+    return true;
+  } else {
+    fprintf(rsp, "Unknown property: %s \n", property.text);
+    printf("Unknown property: %s \n", property.text);
+  }
+  return false;
+}
+

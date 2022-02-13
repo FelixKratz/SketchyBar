@@ -356,9 +356,6 @@ this draws a white background below all my space components. I plan to expand th
 ### Item Alias -- Mirror items of the original macOS status bar into sketchybar
 It is possible to create an alias for default menu bar items (such as MeetingBar, etc.) in sketchybar. The default menu bar can be set to autohide and this should still work.
 
-Important: <br>
-I highly recommend setting a wallpaper on all spaces that makes the default menu bar items appear in either the light or the dark theme consitently.
-
 It is now possible to create an alias of a default menu bar item with the following syntax:
 ```bash
 sketchybar --add alias <application_name> <position>
@@ -382,6 +379,10 @@ etc...<br>
 All further default menu items currently available on your system can be found via the command:
 ```bash
 sketchybar --query default_menu_items
+```
+You can override the color of an alias via the property (HEAD only):
+```bash
+sketchybar --set <name> alias.color=<rgba_hex>
 ```
 
 ## Popup Menus

@@ -33,6 +33,7 @@
 #define SUB_DOMAIN_LABEL                                    "label"
 #define SUB_DOMAIN_BACKGROUND                               "background"
 #define SUB_DOMAIN_GRAPH                                    "graph"
+#define SUB_DOMAIN_ALIAS                                    "alias"
 #define SUB_DOMAIN_POPUP                                    "popup"
 #define SUB_DOMAIN_SHADOW                                   "shadow"
 #define SUB_DOMAIN_IMAGE                                    "image"

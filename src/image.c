@@ -1,5 +1,6 @@
 #include "image.h"
 #include "misc/helpers.h"
+#include "shadow.h"
 
 void image_init(struct image* image) {
   image->enabled = false;
@@ -8,6 +9,8 @@ void image_init(struct image* image) {
   image->bounds = CGRectNull;
   image->size = CGSizeZero;
   image->scale = 1.0;
+
+  shadow_init(&image->shadow);
 }
 
 bool image_set_enabled(struct image* image, bool enabled) {
@@ -91,6 +94,17 @@ void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
 
 void image_draw(struct image* image, CGContextRef context) {
   if (!image->image_ref) return;
+
+  // if (image->shadow.enabled) {
+  //   CGContextSaveGState(context);
+  //   CGRect sbounds = shadow_get_bounds(&image->shadow, image->bounds);
+  //   CGContextDrawImage(context, sbounds, image->image_ref);
+  //   CGContextClipToMask(context, sbounds, image->image_ref);
+  //   CGContextSetRGBFillColor(context, image->shadow.color.r, image->shadow.color.g, image->shadow.color.b, image->shadow.color.a);
+  //   CGContextFillRect(context, sbounds);
+  //   CGContextRestoreGState(context);
+  // } 
+
   CGContextDrawImage(context, image->bounds, image->image_ref);
 }
 

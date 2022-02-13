@@ -1,17 +1,21 @@
 #include "graph.h"
 
-void graph_init(struct graph* graph, uint32_t width) {
-  graph->width = width;
-  graph->y = malloc(sizeof(float) * width);
-  memset(graph->y, 0, sizeof(float) * width);
+void graph_init(struct graph* graph) {
+  graph->width = 0;
   graph->cursor = 0;
 
   graph->line_color = rgba_color_from_hex(0xcccccc);
   graph->fill_color = rgba_color_from_hex(0xcccccc);
-  graph->line_width = 0.5; 
+  graph->line_width = 0.5;
   graph->fill = true;
   graph->overrides_fill_color = false;
   graph->enabled = true;
+}
+
+void graph_setup(struct graph* graph, uint32_t width) {
+  graph->width = width;
+  graph->y = malloc(sizeof(float) * width);
+  memset(graph->y, 0, sizeof(float) * width);
 }
 
 float graph_get_y(struct graph* graph, uint32_t i) {

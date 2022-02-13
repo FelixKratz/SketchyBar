@@ -17,7 +17,8 @@ struct graph {
   struct rgba_color fill_color;
 };
 
-void graph_init(struct graph* graph, uint32_t width);
+void graph_init(struct graph* graph);
+void graph_setup(struct graph* graph, uint32_t width);
 void graph_push_back(struct graph* graph, float y);
 float graph_get_y(struct graph* graph, uint32_t i);
 uint32_t graph_get_length(struct graph* graph);

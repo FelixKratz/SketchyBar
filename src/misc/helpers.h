@@ -16,13 +16,10 @@ struct signal_args {
 };
 
 struct rgba_color {
-    bool is_valid;
-
     float r;
     float g;
     float b;
     float a;
-    uint32_t p;
 };
 
 struct token {
@@ -41,8 +38,6 @@ static uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
 
 static struct rgba_color rgba_color_from_hex(uint32_t color) {
     struct rgba_color result;
-    result.is_valid = true;
-    result.p = color;
     result.r = ((color >> 16) & 0xff) / 255.0;
     result.g = ((color >> 8) & 0xff) / 255.0;
     result.b = ((color >> 0) & 0xff) / 255.0;

@@ -152,15 +152,15 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   } else if (command.length > 0) {
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
-      graph_init(&bar_item->graph, token_to_uint32t(width));
+      graph_setup(&bar_item->graph, token_to_uint32t(width));
     }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
       char* tmp_name = string_copy(name.text);
       struct key_value_pair key_value_pair = get_key_value_pair(tmp_name, ',');
       if (!key_value_pair.key || !key_value_pair.value)
-        alias_init(&bar_item->alias, token_to_string(name), NULL);
+        alias_setup(&bar_item->alias, token_to_string(name), NULL);
       else
-        alias_init(&bar_item->alias, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
+        alias_setup(&bar_item->alias, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
       free(tmp_name);
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
@@ -205,6 +205,8 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
       needs_update = graph_parse_sub_domain(&bar_item->graph, rsp, entry, message);
     else if (token_equals(subdom, SUB_DOMAIN_POPUP))
       needs_update = popup_parse_sub_domain(&bar_item->popup, rsp, entry, message);
+    else if (token_equals(subdom, SUB_DOMAIN_ALIAS))
+      needs_update = alias_parse_sub_domain(&bar_item->alias, rsp, entry, message);
     else {
       fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
       printf("Invalid subdomain: %s \n", subdom.text);

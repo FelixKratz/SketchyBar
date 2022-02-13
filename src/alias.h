@@ -10,12 +10,16 @@ struct alias {
   char* owner;
 
   uint64_t pid;
-  uint32_t wid;
+  uint64_t wid;
 
+  bool color_override;
+  struct rgba_color color;
   struct image image;
+
 };
 
-void alias_init(struct alias* alias, char* owner, char* name);
+void alias_init(struct alias* alias);
+void alias_setup(struct alias* alias, char* owner, char* name);
 bool alias_update_image(struct alias* alias);
 void alias_find_window(struct alias* alias);
 uint32_t alias_get_length(struct alias* alias);
@@ -26,5 +30,7 @@ void alias_draw(struct alias* alias, CGContextRef context);
 void alias_destroy(struct alias* alias);
 
 void print_all_menu_items(FILE* rsp);
+
+static bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message);
 
 #endif

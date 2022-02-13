@@ -10,6 +10,8 @@ struct image {
 
   CGImageRef image_ref;
   CFDataRef data_ref;
+
+  struct shadow shadow;
 };
 
 void image_init(struct image* image);
@@ -24,4 +26,5 @@ void image_draw(struct image* image, CGContextRef context);
 void image_clear_pointers(struct image* image);
 void image_destroy(struct image* image);
 
+static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message);
 #endif

@@ -99,6 +99,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   background_init(&bar_item->background);
   env_vars_init(&bar_item->signal_args.env_vars);
   popup_init(&bar_item->popup);
+  graph_init(&bar_item->graph);
+  alias_init(&bar_item->alias);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 }
