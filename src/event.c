@@ -95,15 +95,11 @@ static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
+static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
-    int sockfd = *((int*)context);
-    int length;
-    char* message = socket_read(sockfd, &length);
+    char* message = (char*) context;
 
-    if (message) handle_message(sockfd, message), free(message);
-    socket_close(sockfd);
-    free(context);
+    if (message) handle_message_mach(message);
     return EVENT_SUCCESS;
 }
 

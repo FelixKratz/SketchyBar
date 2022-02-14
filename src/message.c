@@ -528,8 +528,8 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, false);
 }
 
-void handle_message(int sockfd, char* message) {
-  FILE* rsp = fdopen(sockfd, "w");
+void handle_message_mach(char* message) {
+  FILE* rsp = fopen("/tmp/sketchy.log", "w");
 
   bar_manager_freeze(&g_bar_manager);
   struct token command = get_token(&message);
@@ -688,9 +688,7 @@ void handle_message(int sockfd, char* message) {
   if (rsp) fclose(rsp);
 }
 
-static SOCKET_DAEMON_HANDLER(message_handler) {
-  int* _sockfd = malloc(sizeof(int));
-  memcpy(_sockfd, &sockfd, sizeof(int));
-  struct event *event = event_create(&g_event_loop, DAEMON_MESSAGE, _sockfd);
+static MACH_HANDLER(mach_message_handler) {
+  struct event *event = event_create(&g_event_loop, MACH_MESSAGE, message);
   event_loop_post(&g_event_loop, event);
 }
