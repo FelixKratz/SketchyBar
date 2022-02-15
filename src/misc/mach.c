@@ -7,12 +7,16 @@ bool mach_send_message(char* message, uint32_t len) {
   mach_port_name_t task = mach_task_self();
 
   mach_port_t bs_port;
-  if (task_get_special_port(task, TASK_BOOTSTRAP_PORT, &bs_port) != KERN_SUCCESS) {
+  if (task_get_special_port(task,
+                            TASK_BOOTSTRAP_PORT,
+                            &bs_port            ) != KERN_SUCCESS) {
     return NULL;
   }
 
   mach_port_t port;
-  if (bootstrap_look_up(bs_port, "git.felix.sketchybar", &port) != KERN_SUCCESS) {
+  if (bootstrap_look_up(bs_port,
+                        "git.felix.sketchybar",
+                        &port                  ) != KERN_SUCCESS) {
     return NULL;
   }
 
@@ -22,8 +26,7 @@ bool mach_send_message(char* message, uint32_t len) {
   msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
                                             0,
                                             0,
-                                            MACH_MSGH_BITS_COMPLEX);
-  msg.header.msgh_id = 1;
+                                            MACH_MSGH_BITS_COMPLEX  );
   msg.header.msgh_size = sizeof(struct mach_message);
 
   msg.msgh_descriptor_count = 1;
@@ -38,7 +41,7 @@ bool mach_send_message(char* message, uint32_t len) {
                                           0,
                                           MACH_PORT_NULL,
                                           MACH_MSG_TIMEOUT_NONE,
-                                          MACH_PORT_NULL);
+                                          MACH_PORT_NULL              );
 
   return msg_return == MACH_MSG_SUCCESS;
 }
@@ -51,7 +54,7 @@ char* mach_receive_message(struct mach_server* mach_server) {
                                           sizeof(struct mach_buffer),
                                           mach_server->port,
                                           MACH_MSG_TIMEOUT_NONE,
-                                          MACH_PORT_NULL);
+                                          MACH_PORT_NULL             );
   if (msg_return != MACH_MSG_SUCCESS) {
     return NULL;
   }
@@ -71,19 +74,28 @@ static void* mach_connection_handler(void *context) {
 bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   mach_server->task = mach_task_self();
 
-  if (mach_port_allocate(mach_server->task, MACH_PORT_RIGHT_RECEIVE, &mach_server->port) != KERN_SUCCESS) {
+  if (mach_port_allocate(mach_server->task,
+                         MACH_PORT_RIGHT_RECEIVE,
+                         &mach_server->port      ) != KERN_SUCCESS) {
     return false;
   }
 
-  if (mach_port_insert_right(mach_server->task, mach_server->port, mach_server->port, MACH_MSG_TYPE_MAKE_SEND) != KERN_SUCCESS) {
+  if (mach_port_insert_right(mach_server->task,
+                             mach_server->port,
+                             mach_server->port,
+                             MACH_MSG_TYPE_MAKE_SEND) != KERN_SUCCESS) {
     return false;
   }
 
-  if (task_get_special_port(mach_server->task, TASK_BOOTSTRAP_PORT, &mach_server->bs_port) != KERN_SUCCESS) {
+  if (task_get_special_port(mach_server->task,
+                            TASK_BOOTSTRAP_PORT,
+                            &mach_server->bs_port) != KERN_SUCCESS) {
     return false;
   }
 
-  if (bootstrap_register(mach_server->bs_port, "git.felix.sketchybar", mach_server->port) != KERN_SUCCESS) {
+  if (bootstrap_register(mach_server->bs_port,
+                         "git.felix.sketchybar",
+                          mach_server->port     ) != KERN_SUCCESS) {
     return false;
   }
 
