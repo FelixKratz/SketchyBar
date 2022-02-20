@@ -41,7 +41,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->background.color = rgba_color_from_hex(0x44000000);
 
   bar_item_init(&bar_manager->default_item, NULL);
-  bar_manager->default_item.name = string_copy("defaults");
+  bar_item_set_name(&bar_manager->default_item, string_copy("defaults"));
   custom_events_init(&bar_manager->custom_events);
   
   int shell_refresh_frequency = 1;

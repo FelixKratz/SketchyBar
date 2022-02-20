@@ -25,6 +25,8 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
 }
 
 void mouse_begin(void) {
-  EventTargetRef target = GetEventDispatcherTarget();
-  InstallEventHandler(target, NewEventHandlerUPP(mouse_handler), GetEventTypeCount(mouse_events), mouse_events, 0, 0);
+  InstallEventHandler(GetEventDispatcherTarget(),
+                      NewEventHandlerUPP(mouse_handler),
+                      GetEventTypeCount(mouse_events),
+                      mouse_events, 0, 0);
 }
