@@ -484,6 +484,8 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
   for (int i = 0; i < count; i++) {
     bar_manager_remove_item(&g_bar_manager, bar_items[i]);
   }
+
+  if (bar_items) free(bar_items);
 }
 
 // Syntax: sketchybar -m --move <name> </> <reference>

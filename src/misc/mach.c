@@ -109,6 +109,7 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len,
     mach_receive_message(response_port, &buffer, true);
     if (buffer.message.descriptor.address)
       printf("%s", (char*)buffer.message.descriptor.address);
+    mach_msg_destroy(&buffer.message.header);
   }
 
   return msg_return == MACH_MSG_SUCCESS;

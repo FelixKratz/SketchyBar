@@ -1,4 +1,5 @@
 #include "event.h"
+#include <mach/mach.h>
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -98,7 +99,9 @@ static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
 static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
 
-    if (context) handle_message_mach(context), free(context);
+    if (context) handle_message_mach(context);
+    mach_msg_destroy(&((struct mach_buffer*) context)->message.header);
+    free(context);
     return EVENT_SUCCESS;
 }
 

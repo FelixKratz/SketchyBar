@@ -47,8 +47,10 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
   text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
 
-  bar_item_set_script(bar_item, string_copy(ancestor->script));
-  bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+  if (ancestor->script)
+    bar_item_set_script(bar_item, string_copy(ancestor->script));
+  if (ancestor->click_script)
+    bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
 
   image_copy(&bar_item->background.image, ancestor->background.image.image_ref);
   image_copy(&bar_item->icon.background.image, ancestor->icon.background.image.image_ref);
@@ -90,9 +92,9 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->has_alias = false;
   bar_item->has_graph = false;
 
-  bar_item->name = string_copy("");
-  bar_item->script = string_copy("");
-  bar_item->click_script = string_copy("");
+  bar_item->name = NULL;
+  bar_item->script = NULL;
+  bar_item->click_script = NULL;
 
   text_init(&bar_item->icon);
   text_init(&bar_item->label);
@@ -158,7 +160,7 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
     bar_item->counter = 0;
 
     // Script Update
-    if (strlen(bar_item->script) > 0) {
+    if (bar_item->script && strlen(bar_item->script) > 0) {
       if (!env_vars) env_vars = &bar_item->signal_args.env_vars;
       else env_vars_set(env_vars, string_copy("NAME"), string_copy(bar_item->name));
 
@@ -196,7 +198,7 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
   bar_item->type = type;
 
   if (type == BAR_COMPONENT_SPACE) {
-    if (strlen(bar_item->script) == 0) { 
+    if (!bar_item->script) { 
         bar_item_set_script(bar_item, string_copy("sketchybar -m --set $NAME icon.highlight=$SELECTED"));
     }
 
@@ -256,7 +258,7 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
   env_vars_set(&bar_item->signal_args.env_vars, string_copy("BUTTON"), string_copy(get_type_description(type)));
   env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), string_copy(get_modifier_description(modifier)));
 
-  if (strlen(bar_item->click_script) > 0)
+  if (bar_item->click_script && strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
