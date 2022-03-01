@@ -32,7 +32,7 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer,
                                           0,
                                           sizeof(struct mach_buffer),
                                           port,
-                                          5,
+                                          10,
                                           MACH_PORT_NULL             );
   else 
     msg_return = mach_msg(&buffer->message.header,
@@ -50,7 +50,7 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer,
 
 bool mach_send_message(mach_port_t port, char* message, uint32_t len,
                                                         bool await_response) {
-  if (!message || len < 1 || !port) {
+  if (!message || !port) {
     if (message) free(message);
     return false;
   }
@@ -58,9 +58,8 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len,
   mach_port_t response_port;
   if (await_response) {
     mach_port_name_t task = mach_task_self();
-    if (mach_port_allocate(task,
-          MACH_PORT_RIGHT_RECEIVE,
-          &response_port          ) != KERN_SUCCESS) {
+    if (mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE,
+                                 &response_port          ) != KERN_SUCCESS) {
       return false;
     }
 
@@ -73,12 +72,21 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len,
 
   struct mach_message msg = { 0 };
   msg.header.msgh_remote_port = port;
-  if (await_response) msg.header.msgh_local_port = response_port;
+  if (await_response) {
+    msg.header.msgh_local_port = response_port;
+    msg.header.msgh_id = response_port;
+    msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
+                                              MACH_MSG_TYPE_MAKE_SEND_ONCE,
+                                              0,
+                                              MACH_MSGH_BITS_COMPLEX       );
+  } else {
+    msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_MOVE_SEND_ONCE
+                                              & MACH_MSGH_BITS_REMOTE_MASK,
+                                              0,
+                                              0,
+                                              MACH_MSGH_BITS_COMPLEX       );
+  }
 
-  msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
-                                            MACH_MSG_TYPE_MAKE_SEND_ONCE,
-                                            0,
-                                            MACH_MSGH_BITS_COMPLEX  );
   msg.header.msgh_size = sizeof(struct mach_message);
 
   msg.msgh_descriptor_count = 1;
@@ -97,13 +105,11 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len,
                                           MACH_PORT_NULL              );
 
   if (await_response) {
-    // struct mach_buffer buffer = { 0 };
-    // mach_receive_message(response_port, &buffer, false);
-    // printf("Response: %s\n", (char*)buffer.message.descriptor.address);
+    struct mach_buffer buffer = { 0 };
+    mach_receive_message(response_port, &buffer, true);
+    if (buffer.message.descriptor.address)
+      printf("%s", (char*)buffer.message.descriptor.address);
   }
-  else 
-    free(message);
-
 
   return msg_return == MACH_MSG_SUCCESS;
 }
@@ -151,7 +157,8 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
 
   mach_server->handler = handler;
   mach_server->is_running = true;
-  pthread_create(&mach_server->thread, NULL, &mach_connection_handler, mach_server);
+  pthread_create(&mach_server->thread, NULL, &mach_connection_handler,
+                                             mach_server              );
 
   return true;
 }
