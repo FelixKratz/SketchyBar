@@ -97,9 +97,8 @@ static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
 
 static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
-    char* message = (char*) context;
 
-    if (message) handle_message_mach(message);
+    if (context) handle_message_mach(context), free(context);
     return EVENT_SUCCESS;
 }
 

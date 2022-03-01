@@ -2,29 +2,81 @@
 #include <mach/message.h>
 #include <stdint.h>
 
-bool mach_send_message(char* message, uint32_t len) {
-  if (!message || len < 1) return false;
+mach_port_t mach_get_bs_port() {
   mach_port_name_t task = mach_task_self();
 
   mach_port_t bs_port;
   if (task_get_special_port(task,
                             TASK_BOOTSTRAP_PORT,
                             &bs_port            ) != KERN_SUCCESS) {
-    return NULL;
+    return 0;
   }
 
   mach_port_t port;
   if (bootstrap_look_up(bs_port,
                         "git.felix.sketchybar",
                         &port                  ) != KERN_SUCCESS) {
-    return NULL;
+    return 0;
+  }
+
+  return port;
+}
+
+void mach_receive_message(mach_port_t port, struct mach_buffer* buffer,
+                                            bool timeout               ) {
+  *buffer = (struct mach_buffer) { 0 };
+  mach_msg_return_t msg_return;
+  if (timeout)
+    msg_return = mach_msg(&buffer->message.header,
+                                          MACH_RCV_MSG | MACH_RCV_TIMEOUT,
+                                          0,
+                                          sizeof(struct mach_buffer),
+                                          port,
+                                          5,
+                                          MACH_PORT_NULL             );
+  else 
+    msg_return = mach_msg(&buffer->message.header,
+                                          MACH_RCV_MSG,
+                                          0,
+                                          sizeof(struct mach_buffer),
+                                          port,
+                                          MACH_MSG_TIMEOUT_NONE,
+                                          MACH_PORT_NULL             );
+
+  if (msg_return != MACH_MSG_SUCCESS) {
+    buffer->message.descriptor.address = NULL;
+  }
+}
+
+bool mach_send_message(mach_port_t port, char* message, uint32_t len,
+                                                        bool await_response) {
+  if (!message || len < 1 || !port) {
+    if (message) free(message);
+    return false;
+  }
+
+  mach_port_t response_port;
+  if (await_response) {
+    mach_port_name_t task = mach_task_self();
+    if (mach_port_allocate(task,
+          MACH_PORT_RIGHT_RECEIVE,
+          &response_port          ) != KERN_SUCCESS) {
+      return false;
+    }
+
+    if (mach_port_insert_right(task, response_port,
+                                     response_port,
+                                     MACH_MSG_TYPE_MAKE_SEND)!= KERN_SUCCESS) {
+      return false;
+    }
   }
 
   struct mach_message msg = { 0 };
   msg.header.msgh_remote_port = port;
+  if (await_response) msg.header.msgh_local_port = response_port;
 
   msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
-                                            0,
+                                            MACH_MSG_TYPE_MAKE_SEND_ONCE,
                                             0,
                                             MACH_MSGH_BITS_COMPLEX  );
   msg.header.msgh_size = sizeof(struct mach_message);
@@ -33,44 +85,42 @@ bool mach_send_message(char* message, uint32_t len) {
   msg.descriptor.address = message;
   msg.descriptor.size = len * sizeof(char);
   msg.descriptor.copy = MACH_MSG_VIRTUAL_COPY;
-  msg.descriptor.deallocate = true;
+  msg.descriptor.deallocate = await_response;
   msg.descriptor.type = MACH_MSG_OOL_DESCRIPTOR;
 
-  mach_msg_return_t msg_return = mach_msg(&msg.header, MACH_SEND_MSG,
+  mach_msg_return_t msg_return = mach_msg(&msg.header,
+                                          MACH_SEND_MSG,
                                           sizeof(struct mach_message),
                                           0,
                                           MACH_PORT_NULL,
                                           MACH_MSG_TIMEOUT_NONE,
                                           MACH_PORT_NULL              );
 
+  if (await_response) {
+    // struct mach_buffer buffer = { 0 };
+    // mach_receive_message(response_port, &buffer, false);
+    // printf("Response: %s\n", (char*)buffer.message.descriptor.address);
+  }
+  else 
+    free(message);
+
+
   return msg_return == MACH_MSG_SUCCESS;
 }
 
-char* mach_receive_message(struct mach_server* mach_server) {
-  mach_server->buffer = (struct mach_buffer) { 0 };
-  mach_msg_return_t msg_return = mach_msg(&mach_server->buffer.message.header,
-                                          MACH_RCV_MSG,
-                                          0,
-                                          sizeof(struct mach_buffer),
-                                          mach_server->port,
-                                          MACH_MSG_TIMEOUT_NONE,
-                                          MACH_PORT_NULL             );
-  if (msg_return != MACH_MSG_SUCCESS) {
-    return NULL;
-  }
-
-  return mach_server->buffer.message.descriptor.address;
-}
-
 static void* mach_connection_handler(void *context) {
-    struct mach_server* server = context;
-    while (server->is_running) {
-        server->handler(mach_receive_message(server));
-    }
+  struct mach_server* server = context;
+  while (server->is_running) {
+    struct mach_buffer* buffer = malloc(sizeof(struct mach_buffer));
+    mach_receive_message(server->port, buffer, false);
+    server->handler(buffer);
+  }
 
   return NULL;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   mach_server->task = mach_task_self();
 
@@ -105,3 +155,4 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
 
   return true;
 }
+#pragma clang diagnostic pop

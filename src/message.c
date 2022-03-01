@@ -528,8 +528,13 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, false);
 }
 
-void handle_message_mach(char* message) {
-  FILE* rsp = fopen("/tmp/sketchy.log", "w");
+void handle_message_mach(struct mach_buffer* buffer) {
+  char* message = buffer->message.descriptor.address;
+  if (!message) return;
+
+  char* response = NULL;
+  size_t length = 0;
+  FILE* rsp = open_memstream(&response, &length);
 
   bar_manager_freeze(&g_bar_manager);
   struct token command = get_token(&message);
@@ -686,6 +691,13 @@ void handle_message_mach(char* message) {
     bar_manager_refresh(&g_bar_manager, false);
   }
   if (rsp) fclose(rsp);
+
+  if (response && length > 0)
+    // mach_send_message(buffer->message.header.msgh_local_port,
+    //                   string_copy(response),
+    //                   length,
+    //                   false                                   );
+  if (response) free(response);
 }
 
 static MACH_HANDLER(mach_message_handler) {

@@ -136,6 +136,6 @@
 
 #define REGEX_DELIMITER     '/'
 
-void handle_message_mach(char* message);
+void handle_message_mach(struct mach_buffer* buffer);
 
 #endif

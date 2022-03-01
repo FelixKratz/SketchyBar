@@ -53,9 +53,9 @@ static int client_send_message(int argc, char **argv) {
     }
     *temp++ = '\0';
 
-    if (!mach_send_message(message, message_length)) return EXIT_FAILURE;
+    if (!mach_send_message(mach_get_bs_port(), message, message_length, true))
+      return EXIT_FAILURE;
 
-    // TODO: Handle responses via mach messages
     return 0;
 
 }
