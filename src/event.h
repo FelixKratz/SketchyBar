@@ -17,7 +17,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED);
 static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE);
 static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP);
 static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH);
-static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE);
+static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE);
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED);
 static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED);
@@ -45,7 +45,7 @@ enum event_type {
     SYSTEM_WOKE,
     SYSTEM_WILL_SLEEP,
     SHELL_REFRESH,
-    DAEMON_MESSAGE,
+    MACH_MESSAGE,
     MOUSE_UP,
     MOUSE_ENTERED,
     MOUSE_EXITED,
@@ -68,7 +68,7 @@ static const char *event_type_str[] = {
     [SYSTEM_WOKE]                    = "system_woke",
     [SYSTEM_WILL_SLEEP]              = "system_will_sleep",
     [SHELL_REFRESH]                  = "shell_refresh",
-    [DAEMON_MESSAGE]                 = "daemon_message",
+    [MACH_MESSAGE]                   = "mach_message",
     [MOUSE_UP]                       = "mouse_up",
     [MOUSE_ENTERED]                  = "mouse_entered",
     [MOUSE_EXITED]                   = "mouse_exited",
@@ -94,7 +94,7 @@ static event_callback *event_handler[] = {
     [SYSTEM_WOKE]                    = EVENT_HANDLER_SYSTEM_WOKE,
     [SYSTEM_WILL_SLEEP]              = EVENT_HANDLER_SYSTEM_WILL_SLEEP,
     [SHELL_REFRESH]                  = EVENT_HANDLER_SHELL_REFRESH,
-    [DAEMON_MESSAGE]                 = EVENT_HANDLER_DAEMON_MESSAGE,
+    [MACH_MESSAGE]                   = EVENT_HANDLER_MACH_MESSAGE,
 };
 
 struct event {

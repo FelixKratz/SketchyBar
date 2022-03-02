@@ -16,8 +16,8 @@
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "misc/memory_pool.h"
-#include "misc/socket.h"
-#include "misc/socket.c"
+#include "misc/mach.h"
+#include "misc/mach.c"
 
 #include "event_loop.h"
 #include "mouse.h"

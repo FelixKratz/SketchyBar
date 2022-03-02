@@ -484,6 +484,8 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
   for (int i = 0; i < count; i++) {
     bar_manager_remove_item(&g_bar_manager, bar_items[i]);
   }
+
+  if (bar_items) free(bar_items);
 }
 
 // Syntax: sketchybar -m --move <name> </> <reference>
@@ -528,8 +530,13 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   bar_manager_refresh(&g_bar_manager, false);
 }
 
-void handle_message(int sockfd, char* message) {
-  FILE* rsp = fdopen(sockfd, "w");
+void handle_message_mach(struct mach_buffer* buffer) {
+  if (!buffer->message.descriptor.address) return;
+  char* message = buffer->message.descriptor.address;
+  char* response = NULL;
+  size_t length = 0;
+  FILE* rsp = open_memstream(&response, &length);
+  fprintf(rsp, "");
 
   bar_manager_freeze(&g_bar_manager);
   struct token command = get_token(&message);
@@ -686,11 +693,14 @@ void handle_message(int sockfd, char* message) {
     bar_manager_refresh(&g_bar_manager, false);
   }
   if (rsp) fclose(rsp);
+
+  mach_send_message(buffer->message.header.msgh_remote_port, response,
+                                                             length,
+                                                             false    );
+  if (response) free(response);
 }
 
-static SOCKET_DAEMON_HANDLER(message_handler) {
-  int* _sockfd = malloc(sizeof(int));
-  memcpy(_sockfd, &sockfd, sizeof(int));
-  struct event *event = event_create(&g_event_loop, DAEMON_MESSAGE, _sockfd);
+static MACH_HANDLER(mach_message_handler) {
+  struct event *event = event_create(&g_event_loop, MACH_MESSAGE, message);
   event_loop_post(&g_event_loop, event);
 }

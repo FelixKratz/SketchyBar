@@ -1,4 +1,5 @@
 #include "event.h"
+#include <mach/mach.h>
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -95,14 +96,11 @@ static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DAEMON_MESSAGE) {
+static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
-    int sockfd = *((int*)context);
-    int length;
-    char* message = socket_read(sockfd, &length);
 
-    if (message) handle_message(sockfd, message), free(message);
-    socket_close(sockfd);
+    if (context) handle_message_mach(context);
+    mach_msg_destroy(&((struct mach_buffer*) context)->message.header);
     free(context);
     return EVENT_SUCCESS;
 }

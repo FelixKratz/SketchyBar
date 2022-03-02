@@ -136,7 +136,6 @@
 
 #define REGEX_DELIMITER     '/'
 
-static SOCKET_DAEMON_HANDLER(message_handler);
-void handle_message(int sockfd, char *message);
+void handle_message_mach(struct mach_buffer* buffer);
 
 #endif

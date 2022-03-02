@@ -336,15 +336,15 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
   if (bar_manager->display == DISPLAY_MAIN) {
     uint32_t did = display_main_display_id();
     bar_manager->bar_count = 1;
-    bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
-    memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
+    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
+    memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
     bar_manager->bars[0]->adid = 1;
   } 
   else {
     bar_manager->bar_count = display_active_display_count();
-    bar_manager->bars = (struct bar **) malloc(sizeof(struct bar *) * bar_manager->bar_count);
-    memset(bar_manager->bars,0, sizeof(struct bar*) * bar_manager->bar_count);
+    bar_manager->bars = (struct bar **) realloc(bar_manager->bars, sizeof(struct bar *) * bar_manager->bar_count);
+    memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
     for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);

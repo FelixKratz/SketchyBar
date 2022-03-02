@@ -1,5 +1,3 @@
-#include "misc/socket.h"
-#define SOCKET_PATH_FMT         "/tmp/sketchybar_%s.socket"
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
 #define CLIENT_OPT_LONG         "--message"
@@ -19,11 +17,10 @@ extern int RunApplicationEventLoop(void);
 
 struct event_loop g_event_loop;
 void *g_workspace_context;
-struct daemon g_daemon;
+struct mach_server g_mach_server;
 struct bar_manager g_bar_manager;
 int g_connection;
 
-char g_socket_file[MAXLEN];
 char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_verbose;
@@ -38,30 +35,16 @@ static int client_send_message(int argc, char **argv) {
         error("sketchybar-msg: 'env USER' not set! abort..\n");
     }
 
-    int sockfd;
-    char socket_file[MAXLEN];
-    snprintf(socket_file, sizeof(socket_file), SOCKET_PATH_FMT, user);
-
-    int count = 0;
-    while (!socket_connect_un(&sockfd, socket_file)) {
-      count++;
-      if (count > 100) {
-        shutdown(sockfd, SHUT_WR);
-        socket_close(sockfd);
-        error("sketchybar-msg: failed to connect to socket..\n");
-      } 
-    }
-
     int message_length = argc;
     int argl[argc];
 
     for (int i = 1; i < argc; ++i) {
         argl[i] = strlen(argv[i]);
-        message_length += argl[i];
+        message_length += argl[i] + 1;
     }
 
-    char message[message_length];
-    char *temp = message;
+    char* message = malloc((sizeof(char) * (message_length + 1)));
+    char* temp = message;
 
     for (int i = 1; i < argc; ++i) {
         memcpy(temp, argv[i], argl[i]);
@@ -70,47 +53,11 @@ static int client_send_message(int argc, char **argv) {
     }
     *temp++ = '\0';
 
-    count = 0;
-    while (!socket_write_bytes(sockfd, message, message_length)) {
-      count++;
-      if (count > 100) {
-        shutdown(sockfd, SHUT_WR);
-        socket_close(sockfd);
-        error("sketchybar-msg: failed to send data..\n");
-      }
-    }
+    if (!mach_send_message(mach_get_bs_port(), message, message_length, true))
+      return EXIT_FAILURE;
 
-    shutdown(sockfd, SHUT_WR);
-    int result = EXIT_SUCCESS;
-    int byte_count = 0;
-    char rsp[BUFSIZ];
+    return 0;
 
-    struct pollfd fds[] = {
-        { sockfd, POLLIN, 0 }
-    };
-
-    int timeout = 100;
-    while (poll(fds, 1, timeout) > 0) {
-        if (fds[0].revents & POLLIN) {
-            if ((byte_count = recv(sockfd, rsp, sizeof(rsp)-1, 0)) <= 0) {
-                break;
-            }
-
-            rsp[byte_count] = '\0';
-
-            if (rsp[0] == FAILURE_MESSAGE[0]) {
-                result = EXIT_FAILURE;
-                fprintf(stderr, "%s", rsp + 1);
-                fflush(stderr);
-            } else {
-                fprintf(stdout, "%s", rsp);
-                fflush(stdout);
-           }
-        }
-    }
-
-    socket_close(sockfd);
-    return result;
 }
 
 static void acquire_lockfile(void) {
@@ -179,7 +126,6 @@ static inline void init_misc_settings(void) {
         error("sketchybar: 'env USER' not set! abort..\n");
     }
 
-    snprintf(g_socket_file, sizeof(g_socket_file), SOCKET_PATH_FMT, user);
     snprintf(g_lock_file, sizeof(g_lock_file), LCFILE_PATH_FMT, user);
 
     NSApplicationLoad();
@@ -226,7 +172,7 @@ int main(int argc, char **argv) {
   workspace_event_handler_begin(&g_workspace_context);
   bar_manager_begin(&g_bar_manager);
 
-  if (!socket_daemon_begin_un(&g_daemon, g_socket_file, message_handler))
+  if (!mach_server_begin(&g_mach_server, mach_message_handler))
     error("sketchybar: could not initialize daemon! abort..\n");
 
   exec_config_file();
