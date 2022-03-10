@@ -26,7 +26,8 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
 
 void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
   if (bar->adid != g_bar_manager.active_adid) return;
-  bar_item->popup.cell_size = bar->frame.size.height;
+  if (!bar_item->popup.overrides_cell_size)
+    bar_item->popup.cell_size = bar->frame.size.height;
   popup_calculate_bounds(&bar_item->popup);
   CGPoint anchor = bar->origin;
   if (bar_item->popup.align == POSITION_CENTER) {

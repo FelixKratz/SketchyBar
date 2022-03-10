@@ -7,6 +7,7 @@
 void popup_init(struct popup* popup) {
   popup->drawing = false;
   popup->horizontal = false;
+  popup->overrides_cell_size = false;
   popup->context = NULL;
   popup->id = 0;
   popup->frame.origin = (CGPoint){0,0};
@@ -197,6 +198,10 @@ static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token 
     return true;
   } else if (token_equals(property, PROPERTY_ALIGN)) {
     popup->align = get_token(&message).text[0];
+    return true;
+  } else if (token_equals(property, PROPERTY_HEIGHT)) {
+    popup->cell_size = token_to_int(get_token(&message));
+    popup->overrides_cell_size = true;
     return true;
   } 
   else {

@@ -394,6 +394,7 @@ Every item has a popup available with the properties:
 * *popup.horizontal*: If the popup should draw horizontally, by default popups will draw vertically (values: *on*, *off*, *toggle*, default: *off*)
 * *popup.drawing*: If the popup should draw (values: *on*, *off*, *toggle*, default: *off*)
 * *popup.y_offset*: The vertical offset for the popup anchor (default: 0)
+* *popup.height*: The vertical spacing between items in the vertical layout (default: bar height) (Only on HEAD)
 
 Items can be added to a popup menu by setting the `position` of those items to `popup.<name>` where <name> is the name of the item containing the popup.
 You can find a demo implementation of this [here](https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-1843975).
