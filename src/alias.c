@@ -66,6 +66,7 @@ void alias_init(struct alias* alias) {
   alias->color = rgba_color_from_hex(0xffff0000);
 
   image_init(&alias->image);
+  // ax_init(&alias->ax);
 }
 
 void alias_setup(struct alias* alias, char* owner, char* name) {
@@ -122,6 +123,7 @@ void alias_find_window(struct alias* alias) {
     CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &alias->wid);
 
     CFRelease(window_list);
+    // ax_get_extra_menu_item(&alias->ax, alias->pid, alias->name);
     return;
   }
   alias->wid = 0;

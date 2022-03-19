@@ -32,6 +32,7 @@
 #include "popup.h"
 #include "text.h"
 #include "graph.h"
+/* #include "ax.h" */
 #include "alias.h"
 #include "group.h"
 #include "bar_item.h"
@@ -51,6 +52,7 @@
 #include "popup.c"
 #include "text.c"
 #include "graph.c"
+/* #include "ax.c" */
 #include "alias.c"
 #include "group.c"
 #include "bar_item.c"

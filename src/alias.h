@@ -9,13 +9,13 @@ struct alias {
   char* name;
   char* owner;
 
-  uint64_t pid;
+  pid_t pid;
   uint64_t wid;
 
   bool color_override;
   struct rgba_color color;
   struct image image;
-
+  // struct ax ax;
 };
 
 void alias_init(struct alias* alias);
