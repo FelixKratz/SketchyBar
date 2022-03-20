@@ -1,5 +1,7 @@
-#ifndef TEXT_H
-#define TEXT_H
+#pragma once
+#include <CoreText/CoreText.h>
+#include "background.h"
+#include "misc/helpers.h"
 
 struct text_line {
   CTLineRef line;
@@ -47,6 +49,4 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
 void text_draw(struct text* text, CGContextRef context);
 void text_destroy(struct text* text);
 
-static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);
-
-#endif // !TEXT_H_
+bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);

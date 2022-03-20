@@ -1,5 +1,5 @@
-#ifndef SHADOW_H
-#define SHADOW_H
+#pragma once
+#include "misc/helpers.h"
 
 struct shadow {
   bool enabled;
@@ -17,7 +17,4 @@ bool shadow_set_distance(struct shadow* shadow, float distance);
 bool shadow_set_color(struct shadow* shadow, uint32_t color);
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds);
 
-static bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message);
-
-#endif
-
+bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message);

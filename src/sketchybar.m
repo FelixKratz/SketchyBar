@@ -1,3 +1,10 @@
+#include "bar_manager.h"
+#include "workspace.h"
+#include "event_loop.h"
+#include "mach.h"
+#include "mouse.h"
+#include "message.h"
+
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
 #define CLIENT_OPT_LONG         "--message"
@@ -15,10 +22,6 @@
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
 
-struct event_loop g_event_loop;
-void *g_workspace_context;
-struct mach_server g_mach_server;
-struct bar_manager g_bar_manager;
 int g_connection;
 
 char g_config_file[4096];

@@ -1,5 +1,10 @@
-#ifndef HELPERS_H
-#define HELPERS_H
+#pragma once
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include "env_vars.h"
+#include "defines.h"
 
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define MAXLEN 512
@@ -27,7 +32,24 @@ struct token {
     unsigned int length;
 };
 
-static uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
+struct notification {
+  char* name;
+  char* info;
+};
+
+static inline struct notification* notification_create() {
+  struct notification* notification = malloc(sizeof(struct notification));
+  memset(notification, 0, sizeof(struct notification));
+  return notification;
+}
+
+static inline void notification_destroy(struct notification* notification) {
+  if (notification->name) free(notification->name);
+  if (notification->info) free(notification->info);
+  free(notification);
+}
+
+static inline uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
   uint32_t result = 0;
   result += ((uint32_t)(rgba_color.a * 255.0)) << 24;
   result += ((uint32_t)(rgba_color.r * 255.0)) << 16;
@@ -36,7 +58,7 @@ static uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
   return result;
 }
 
-static struct rgba_color rgba_color_from_hex(uint32_t color) {
+static inline struct rgba_color rgba_color_from_hex(uint32_t color) {
     struct rgba_color result;
     result.r = ((color >> 16) & 0xff) / 255.0;
     result.g = ((color >> 8) & 0xff) / 255.0;
@@ -45,7 +67,7 @@ static struct rgba_color rgba_color_from_hex(uint32_t color) {
     return result;
 }
 
-static struct key_value_pair get_key_value_pair(char *token, char split) {
+static inline struct key_value_pair get_key_value_pair(char *token, char split) {
     struct key_value_pair key_value_pair;
     key_value_pair.key = token;
 
@@ -68,7 +90,7 @@ static struct key_value_pair get_key_value_pair(char *token, char split) {
     return key_value_pair;
 }
 
-static void pack_key_value_pair(char* cursor, struct key_value_pair* key_value_pair) {
+static inline void pack_key_value_pair(char* cursor, struct key_value_pair* key_value_pair) {
   uint32_t key_len = strlen(key_value_pair->key);
   uint32_t val_len = key_value_pair->value ? strlen(key_value_pair->value) : 0;
   memcpy(cursor, key_value_pair->key, key_len);
@@ -112,7 +134,7 @@ static inline char* get_modifier_description(uint32_t modifier) {
     return "none";
 }
 
-static bool token_equals(struct token token, char *match) {
+static inline bool token_equals(struct token token, char *match) {
   char *at = match;
   for (int i = 0; i < token.length; ++i, ++at) {
     if ((*at == 0) || (token.text[i] != *at)) {
@@ -122,7 +144,7 @@ static bool token_equals(struct token token, char *match) {
   return *at == 0;
 }
 
-static char *token_to_string(struct token token) {
+static inline char *token_to_string(struct token token) {
   char *result = malloc(token.length + 1);
   if (!result) return NULL;
 
@@ -131,28 +153,28 @@ static char *token_to_string(struct token token) {
   return result;
 }
 
-static uint32_t token_to_uint32t(struct token token) {
+static inline uint32_t token_to_uint32t(struct token token) {
   char buffer[token.length + 1];
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
   return strtoul(buffer, NULL, 0);
 }
 
-static int token_to_int(struct token token) {
+static inline int token_to_int(struct token token) {
   char buffer[token.length + 1];
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
   return (int) strtol(buffer, NULL, 0);
 }
 
-static float token_to_float(struct token token) {
+static inline float token_to_float(struct token token) {
   char buffer[token.length + 1];
   memcpy(buffer, token.text, token.length);
   buffer[token.length] = '\0';
   return strtof(buffer, NULL);
 }
 
-static struct token get_token(char **message) {
+static inline struct token get_token(char **message) {
   struct token token;
 
   token.text = *message;
@@ -168,6 +190,12 @@ static struct token get_token(char **message) {
   }
 
   return token;
+}
+
+static inline bool evaluate_boolean_state(struct token state, bool previous_state) {
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE) || token_equals(state, ARGUMENT_COMMON_VAL_ONE)) return true;
+  else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
+  else return false;
 }
 
 static inline uint32_t get_set_bit_position(uint32_t mask) {
@@ -303,7 +331,7 @@ static inline bool ensure_executable_permission(char *filename) {
     return true;
 }
 
-static bool sync_exec(char *command, struct env_vars *env_vars) {
+static inline bool sync_exec(char *command, struct env_vars *env_vars) {
     if (env_vars) {
       for (int i = 0; i < env_vars->count; i++) {
         setenv(env_vars->vars[i]->key, env_vars->vars[i]->value, 1);
@@ -316,7 +344,7 @@ static bool sync_exec(char *command, struct env_vars *env_vars) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-static bool fork_exec(char *command, struct env_vars* env_vars) {
+static inline bool fork_exec(char *command, struct env_vars* env_vars) {
     int pid = vfork();
     if (pid == -1) return false;
     if (pid !=  0) return true;
@@ -357,5 +385,3 @@ out:
 static inline uint32_t current_space(void) {
   return mission_control_index(SLSGetActiveSpace(g_connection));
 }
-
-#endif

@@ -1,5 +1,6 @@
-#ifndef BAR_MANAGER_H
-#define BAR_MANAGER_H
+#pragma once
+#include "bar.h"
+#include "bar_item.h"
 
 #define CLOCK_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef CLOCK_CALLBACK(clock_callback);
@@ -36,6 +37,7 @@ struct bar_manager {
   struct custom_events custom_events;
 };
 
+struct bar_manager g_bar_manager;
 void bar_manager_init(struct bar_manager* bar_manager);
 void bar_manager_begin(struct bar_manager* bar_manager);
 
@@ -81,5 +83,3 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 void bar_manager_destroy(struct bar_manager* bar_manager);
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp);
-
-#endif

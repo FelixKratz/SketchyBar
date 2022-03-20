@@ -1,5 +1,6 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#pragma once
+#include "shadow.h"
+#include "misc/defines.h"
 
 struct image {
   bool enabled;
@@ -26,5 +27,4 @@ void image_draw(struct image* image, CGContextRef context);
 void image_clear_pointers(struct image* image);
 void image_destroy(struct image* image);
 
-static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message);
-#endif
+bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message);

@@ -1,5 +1,4 @@
 #include "shadow.h"
-#include "misc/helpers.h"
 
 void shadow_init(struct shadow* shadow) {
   shadow->enabled = false;
@@ -41,7 +40,7 @@ CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
   return (CGRect){{reference_bounds.origin.x + shadow->distance* cos(((double)shadow->angle)/360. * 2.* M_PI),reference_bounds.origin.y - shadow->distance* sin(((double)shadow->angle)/360. * 2.* M_PI)},reference_bounds.size};
 }
 
-static bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {
+bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
     return shadow_set_enabled(shadow, evaluate_boolean_state(get_token(&message), shadow->enabled));
   else if (token_equals(property, PROPERTY_DISTANCE))

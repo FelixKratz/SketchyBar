@@ -1,56 +1,53 @@
-FRAMEWORK_PATH = -F/System/Library/PrivateFrameworks
-FRAMEWORK      = -framework Carbon -framework Cocoa -framework SkyLight 
-BUILD_FLAGS    = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden
-BUILD_PATH     = ./bin
-SKETCHYBAR_SRC = ./src/manifest.m
-UNIVERSAL_BINS = $(BUILD_PATH)/sketchybar
-ARM_BINS       = $(BUILD_PATH)/sketchybar_arm
-x86_BINS       = $(BUILD_PATH)/sketchybar_x86
+CFLAGS   = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden
+LIBS     = -framework Carbon -framework Cocoa -F/System/Library/PrivateFrameworks -framework SkyLight
+ODIR     = bin
+SRC      = src
 
-.PHONY: all clean install
+_OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
+       image.o mouse.o shadow.o text.o message.o mouse.o ax.o bar.o \
+       bar_manager.o display.o event_loop.o group.o mach.o popup.o workspace.om
+OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
-all: clean $(UNIVERSAL_BINS)
+.PHONY: all clean arm x86 profile leak universal
 
-arm: clean $(ARM_BINS)
-
-x86: clean $(x86_BINS)
-
-install: clean $(UNIVERSAL_BINS)
-	ln ./bin/sketchybar /usr/local/bin/sketchybar
-	echo "Install complete... Do not forget to setup the configuration file."
-
-uninstall: clean
-	rm /usr/local/bin/sketchybar
-
-profile: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -Ofast -fvisibility=hidden 
-profile: clean $(x86_BINS)
+all: clean universal
 
 leak: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g
-leak: clean $(ARM_BINS)
+leak: clean arm64
+leak:
 	/usr/libexec/PlistBuddy -c "Add :com.apple.security.get-task-allow bool true" bin/tmp.entitlements
-	codesign -s - --entitlements bin/tmp.entitlements -f ./bin/sketchybar_arm
-	leaks -atExit -- ./bin/sketchybar_arm
+	codesign -s - --entitlements bin/tmp.entitlements -f ./bin/sketchybar
+	leaks -atExit -- ./bin/sketchybar
 
+x86: CFLAGS+=-target x86_64-apple-macos10.13
+x86: $(ODIR)/sketchybar
 
-debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer 
-debug: clean $(ARM_BINS)
-	./bin/sketchybar_arm
+arm64: CFLAGS+=-target arm64-apple-macos11
+arm64: $(ODIR)/sketchybar
 
-update: clean $(UNIVERSAL_BINS)
-	rm /usr/local/bin/sketchybar
-	ln ./bin/sketchybar /usr/local/bin/sketchybar
-	echo "Update complete... ~/.config/ folder not touched and might need update too...."
-	
+universal:
+	$(MAKE) x86
+	mv $(ODIR)/sketchybar $(ODIR)/sketchybar_x86
+	rm -rf $(ODIR)/*.o*
+	$(MAKE) arm64
+	mv $(ODIR)/sketchybar $(ODIR)/sketchybar_arm64
+	lipo -create -output $(ODIR)/sketchybar $(ODIR)/sketchybar_x86 $(ODIR)/sketchybar_arm64
+
+debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
+debug: clean arm64
+	./bin/sketchybar
+
+$(ODIR)/sketchybar: $(SRC)/sketchybar.m $(OBJ) | $(ODIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(ODIR)/%.o: $(SRC)/%.c $(SRC)/%.h | $(ODIR)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(ODIR)/%.om: $(SRC)/%.m $(SRC)/%.h | $(ODIR)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(ODIR):
+	mkdir $(ODIR)
+
 clean:
-	rm -rf $(BUILD_PATH)
-
-$(BUILD_PATH)/sketchybar_x86: $(SKETCHYBAR_SRC)
-	mkdir -p $(BUILD_PATH)
-	clang $^ $(BUILD_FLAGS) -target x86_64-apple-macos10.13 $(FRAMEWORK_PATH) $(FRAMEWORK) -o $@
-
-$(BUILD_PATH)/sketchybar_arm: $(SKETCHYBAR_SRC)
-	mkdir -p $(BUILD_PATH)
-	clang $^ $(BUILD_FLAGS) -target arm64-apple-macos11 $(FRAMEWORK_PATH) $(FRAMEWORK) -o $@
-
-$(BUILD_PATH)/sketchybar: $(BUILD_PATH)/sketchybar_arm $(BUILD_PATH)/sketchybar_x86
-	lipo -create -output $(BUILD_PATH)/sketchybar $(BUILD_PATH)/sketchybar_x86 $(BUILD_PATH)/sketchybar_arm
+	rm -rf $(ODIR)

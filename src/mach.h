@@ -1,9 +1,10 @@
-#ifndef MACH_H
-#define MACH_H
-
+#pragma once
 #include <bootstrap.h>
 #include <mach/mach.h>
 #include <mach/message.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 
 struct mach_message {
@@ -30,7 +31,8 @@ struct mach_server {
   mach_handler* handler;
 };
 
+struct mach_server g_mach_server;
 bool mach_server_begin(struct mach_server* mach_server, mach_handler handler);
 bool mach_send_message(mach_port_t port, char* message, uint32_t len,
                                                         bool await_response);
-#endif // !MACH_H
+mach_port_t mach_get_bs_port();

@@ -1,5 +1,7 @@
-#ifndef ALIAS_H
-#define ALIAS_H
+#pragma once
+#include <stdbool.h>
+#include "misc/helpers.h"
+#include "image.h"
 
 #define MENUBAR_LAYER 0x19
 
@@ -30,6 +32,4 @@ void alias_destroy(struct alias* alias);
 
 void print_all_menu_items(FILE* rsp);
 
-static bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message);
-
-#endif
+bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message);

@@ -1,16 +1,8 @@
 #include "bar.h"
-#include "alias.h"
-#include "background.h"
-#include "bar_item.h"
+#include "bar_manager.h"
+#include "event.h"
+#include "event_loop.h"
 #include "display.h"
-#include "graph.h"
-#include "group.h"
-#include "image.h"
-#include "misc/helpers.h"
-#include "popup.h"
-#include "text.h"
-
-extern struct bar_manager g_bar_manager;
 
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;

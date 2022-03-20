@@ -1,4 +1,5 @@
 #include "event_loop.h"
+#include "event.h"
 
 #ifdef STATS
 struct cycle_counter {

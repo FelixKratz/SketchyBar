@@ -1,5 +1,5 @@
 #include "event.h"
-#include <mach/mach.h>
+#include "event_loop.h"
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -20,83 +20,83 @@ struct event *event_create(struct event_loop *event_loop, enum event_type type, 
     return event;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {
+EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {
     debug("%s\n", context);
     bar_manager_handle_notification(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
+EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_front_app_switch(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
+EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_space_change(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
+EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
-    debug("%s\n", __FUNCTION__);
-    bar_manager_handle_display_change(&g_bar_manager);
-    bar_manager_display_changed(&g_bar_manager);
-    return EVENT_SUCCESS;
-}
-
-static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
+EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
+EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
+EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
     debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
+EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
+    debug("%s\n", __FUNCTION__);
+    bar_manager_handle_display_change(&g_bar_manager);
+    bar_manager_display_changed(&g_bar_manager);
+    return EVENT_SUCCESS;
+}
+
+EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
     debug("%s:\n", __FUNCTION__);
     bar_manager_resize(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
+EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
     debug("%s:\n", __FUNCTION__);
     bar_manager_handle_system_woke(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP) {
+EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP) {
     debug("%s:\n", __FUNCTION__);
     bar_manager_handle_system_will_sleep(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
+EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     debug("%s\n", __FUNCTION__);
     bar_manager_update(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
+EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
 
     if (context) handle_message_mach(context);
@@ -105,7 +105,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     debug("%s\n", __FUNCTION__);
     CGPoint point = CGEventGetLocation(context);
     CGEventType type = CGEventGetType(context);
@@ -119,7 +119,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     debug("%s\n", __FUNCTION__);
     CGPoint point = CGEventGetLocation(context);
     uint32_t adid = display_arrangement(display_active_display_id());
@@ -131,7 +131,7 @@ static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     return EVENT_SUCCESS;
 }
 
-static EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     debug("%s\n", __FUNCTION__);
     debug("EVENT_HANDLER_MOUSE_EXITED \n");
     bar_manager_handle_mouse_exited(&g_bar_manager);

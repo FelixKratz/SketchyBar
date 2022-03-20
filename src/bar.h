@@ -1,5 +1,6 @@
-#ifndef BAR_H
-#define BAR_H
+#pragma once
+#include "bar_item.h"
+#include "misc/helpers.h"
 
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
@@ -60,7 +61,6 @@ void bar_draw(struct bar* bar);
 
 void window_set_blur_radius(uint32_t wid);
 void window_disable_shadow(uint32_t wid);
+bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
-
-#endif

@@ -1,21 +1,8 @@
 #include "message.h"
-#include "alias.h"
-#include "background.h"
-#include "bar_item.h"
-#include "bar_manager.h"
-#include "display.h"
-#include "group.h"
-#include "misc/helpers.h"
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 extern bool g_verbose;
-
-static bool evaluate_boolean_state(struct token state, bool previous_state) {
-  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE) || token_equals(state, ARGUMENT_COMMON_VAL_ONE)) return true;
-  else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
-  else return false;
-}
 
 static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
   struct token event = get_token(&message);
@@ -700,7 +687,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
   if (response) free(response);
 }
 
-static MACH_HANDLER(mach_message_handler) {
+MACH_HANDLER(mach_message_handler) {
   struct event *event = event_create(&g_event_loop, MACH_MESSAGE, message);
   event_loop_post(&g_event_loop, event);
 }

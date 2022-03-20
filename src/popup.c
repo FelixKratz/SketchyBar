@@ -1,8 +1,6 @@
 #include "popup.h"
-#include "background.h"
 #include "bar_item.h"
 #include "bar_manager.h"
-#include "misc/helpers.h"
 
 void popup_init(struct popup* popup) {
   popup->drawing = false;
@@ -87,7 +85,7 @@ void popup_create_window(struct popup* popup) {
   SLSSetWindowBackgroundBlurRadius(g_connection, popup->id, g_bar_manager.blur_radius);
   if (!popup->background.shadow.enabled) window_disable_shadow(popup->id);
 
-  SLSSetWindowLevel(g_connection, popup->id, NSScreenSaverWindowLevel);
+  SLSSetWindowLevel(g_connection, popup->id, kCGScreenSaverWindowLevelKey);
   popup->context = SLWindowContextCreate(g_connection, popup->id, 0);
   CGContextSetInterpolationQuality(popup->context, kCGInterpolationNone);
   context_set_font_smoothing(popup->context, g_bar_manager.font_smoothing);
@@ -186,7 +184,7 @@ void popup_destroy(struct popup* popup) {
   popup_close_window(popup);
 }
 
-static bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
+bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_YOFFSET)) {
     popup->y_offset = token_to_int(get_token(&message));
     return true;

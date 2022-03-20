@@ -117,7 +117,7 @@ void background_destroy(struct background* background) {
   background_clear_pointers(background);
 }
 
-static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
+bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
     return background_set_enabled(background, evaluate_boolean_state(get_token(&message), background->enabled));
   else if (token_equals(property, PROPERTY_HEIGHT))

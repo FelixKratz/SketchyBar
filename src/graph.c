@@ -109,7 +109,7 @@ void graph_destroy(struct graph* graph) {
   free(graph->y);
 }
 
-static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {
+bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_COLOR)) {
     graph->line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     return true;

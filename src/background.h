@@ -1,5 +1,5 @@
-#ifndef BACKGROUND_H
-#define BACKGROUND_H
+#pragma once
+#include "image.h"
 
 struct background {
   bool enabled;
@@ -34,6 +34,4 @@ void background_draw(struct background* background, CGContextRef context);
 void background_clear_pointers(struct background* background);
 void background_destroy(struct background* background);
 
-static bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);
-
-#endif // !BACKGROUND_H
+bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);

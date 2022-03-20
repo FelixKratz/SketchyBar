@@ -1,5 +1,9 @@
-#ifndef EVENT_LOOP_H
-#define EVENT_LOOP_H
+#pragma once
+#include <semaphore.h>
+#include <pthread.h>
+#include "misc/memory_pool.h"
+
+struct event;
 
 #define EVENT_POOL_SIZE KILOBYTES(128)
 #define EVENT_MAX_COUNT ((EVENT_POOL_SIZE) / (sizeof(struct event)))
@@ -32,9 +36,8 @@ struct event_loop {
 #endif
 };
 
+struct event_loop g_event_loop;
 bool event_loop_init(struct event_loop *event_loop);
 bool event_loop_begin(struct event_loop *event_loop);
 bool event_loop_end(struct event_loop *event_loop);
 void event_loop_post(struct event_loop *event_loop, struct event *event);
-
-#endif

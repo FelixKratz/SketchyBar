@@ -1,5 +1,4 @@
 #include "alias.h"
-#include "misc/helpers.h"
 
 extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
@@ -170,7 +169,7 @@ void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
   image_calculate_bounds(&alias->image, x, y);
 }
 
-static bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message) {
+bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message) {
   struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
   if (key_value_pair.key && key_value_pair.value) {
     struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };

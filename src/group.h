@@ -1,5 +1,5 @@
-#ifndef GROUP_H_
-#define GROUP_H_
+#pragma once
+#include "bar_item.h"
 
 struct group {
   CGRect bounds;
@@ -21,5 +21,3 @@ void group_draw(struct group* group, CGContextRef context);
 void group_destroy(struct group* group);
 
 void group_serialize(struct group* group, FILE* rsp);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ENV_VARS_H
-#define ENV_VARS_H
+#pragma once
 
 struct key_value_pair {
   char* key;
@@ -11,12 +10,12 @@ struct env_vars {
   struct key_value_pair** vars;
 };
 
-void env_vars_init(struct env_vars* env_vars) {
+static inline void env_vars_init(struct env_vars* env_vars) {
   env_vars->vars = NULL;
   env_vars->count = 0;
 }
 
-void env_vars_unset(struct env_vars* env_vars, char* key) {
+static inline void env_vars_unset(struct env_vars* env_vars, char* key) {
   struct key_value_pair* key_value_pair = NULL;
   for (int i = 0; i < env_vars->count; i++) {
     if (strcmp(env_vars->vars[i]->key, key) == 0) key_value_pair = env_vars->vars[i];
@@ -45,7 +44,7 @@ void env_vars_unset(struct env_vars* env_vars, char* key) {
   free(key_value_pair);
 }
 
-void env_vars_set(struct env_vars* env_vars, char* key, char* value) {
+static inline void env_vars_set(struct env_vars* env_vars, char* key, char* value) {
   env_vars_unset(env_vars, key);
 
   env_vars->count++;
@@ -55,14 +54,14 @@ void env_vars_set(struct env_vars* env_vars, char* key, char* value) {
   env_vars->vars[env_vars->count - 1]->value = value;
 }
 
-char* env_vars_get_value_for_key(struct env_vars* env_vars, char* key) {
+static inline char* env_vars_get_value_for_key(struct env_vars* env_vars, char* key) {
   for (int i = 0; i < env_vars->count; i++) {
     if (strcmp(env_vars->vars[i]->key, key) == 0) return env_vars->vars[i]->value;
   }
   return NULL;
 }
 
-void env_vars_destroy(struct env_vars* env_vars) {
+static inline void env_vars_destroy(struct env_vars* env_vars) {
   for (int i = 0; i < env_vars->count; i++) {
     if (env_vars->vars[i]->key) free(env_vars->vars[i]->key);
     if (env_vars->vars[i]->value) free(env_vars->vars[i]->value);
@@ -70,5 +69,3 @@ void env_vars_destroy(struct env_vars* env_vars) {
   }
   free(env_vars->vars);
 }
-
-#endif

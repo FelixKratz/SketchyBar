@@ -3,18 +3,6 @@
 
 extern struct event_loop g_event_loop;
 
-struct notification* notification_create() {
-  struct notification* notification = malloc(sizeof(struct notification));
-  memset(notification, 0, sizeof(struct notification));
-  return notification;
-}
-
-void notification_destroy(struct notification* notification) {
-  if (notification->name) free(notification->name);
-  if (notification->info) free(notification->info);
-  free(notification);
-}
-
 void workspace_event_handler_init(void **context) {
     workspace_context *ws_context = [workspace_context alloc];
     *context = ws_context;

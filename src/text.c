@@ -1,6 +1,4 @@
 #include "text.h"
-#include "background.h"
-#include "misc/helpers.h"
 
 static CTFontRef text_create_font(char *cstring) {
   float size = 10.0f;
@@ -177,7 +175,7 @@ void text_draw(struct text* text, CGContextRef context) {
   CTLineDraw(text->line.line, context);
 }
 
-static bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
+bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_COLOR))
     return text_set_color(text, token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {

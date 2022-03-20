@@ -1,10 +1,8 @@
 #include "bar_manager.h"
-#include "background.h"
-#include "bar.h"
-#include "bar_item.h"
+#include "event.h"
+#include "event_loop.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
-#include "popup.h"
 
 extern struct event_loop g_event_loop;
 
@@ -27,7 +25,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
-  bar_manager->window_level = NSNormalWindowLevel;
+  bar_manager->window_level = kCGNormalWindowLevelKey;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
@@ -209,8 +207,8 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
 
 bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   for (int i = 0; i < bar_manager->bar_count; i++) bar_destroy(bar_manager->bars[i]);
-  if (topmost) bar_manager->window_level = NSScreenSaverWindowLevel;
-  else bar_manager->window_level = NSNormalWindowLevel;
+  if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevelKey;
+  else bar_manager->window_level = kCGNormalWindowLevelKey;
   bar_manager_begin(bar_manager);
   bar_manager->topmost = topmost;
   return true;

@@ -119,7 +119,7 @@ void image_destroy(struct image* image) {
   image_clear_pointers(image);
 }
 
-static bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
+bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
     return image_set_enabled(image, evaluate_boolean_state(get_token(&message), image->enabled));
   else if (token_equals(property, PROPERTY_SCALE))

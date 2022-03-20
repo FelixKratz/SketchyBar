@@ -1,5 +1,5 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#pragma once
+#include "misc/helpers.h"
 
 struct graph {
   bool rtl;
@@ -28,8 +28,4 @@ void graph_draw(struct graph* graph, CGContextRef context);
 void graph_destroy(struct graph* graph);
 
 void graph_serialize(struct graph* graph, FILE* rsp);
-static bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message);
-
-#endif
-
-
+bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message);

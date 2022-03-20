@@ -1,3 +1,5 @@
+#include "mouse.h"
+
 extern struct event_loop g_event_loop;
 
 static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void *data) {

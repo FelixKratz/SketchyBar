@@ -1,5 +1,5 @@
-#ifndef CUSTOM_EVENT_H
-#define CUSTOM_EVENT_H
+#pragma once
+#include "misc/helpers.h"
 
 #define UPDATE_FRONT_APP_SWITCHED 1ULL
 #define UPDATE_SPACE_CHANGE       1ULL << 1
@@ -11,6 +11,7 @@
 #define UPDATE_SYSTEM_WILL_SLEEP  1ULL << 7
 
 extern void* g_workspace_context;
+extern void workspace_create_custom_observer(void** context, char* name);
 
 struct custom_event {
   char* name;
@@ -31,5 +32,3 @@ char* custom_events_get_name_for_notification(struct custom_events* custom_event
 void custom_events_destroy(struct custom_events* custom_events);
 
 void custom_events_serialize(struct custom_events* custom_events, FILE* rsp);
-
-#endif

@@ -1,5 +1,4 @@
 #include "display.h"
-#include "misc/helpers.h"
 
 extern struct event_loop g_event_loop;
 extern int g_connection;

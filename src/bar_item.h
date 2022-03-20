@@ -1,5 +1,13 @@
-#ifndef BAR_ITEM_H
-#define BAR_ITEM_H
+#pragma once
+
+#include "alias.h"
+#include "custom_events.h"
+#include "graph.h"
+#include "group.h"
+#include "misc/env_vars.h"
+#include "misc/helpers.h"
+#include "popup.h"
+#include "text.h"
 
 struct bar_item {
   char type;
@@ -104,5 +112,3 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
-
-#endif

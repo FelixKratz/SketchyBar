@@ -1,11 +1,5 @@
 #include "bar_item.h"
-#include "alias.h"
-#include "custom_events.h"
-#include "graph.h"
-#include "group.h"
-#include "misc/env_vars.h"
-#include "misc/helpers.h"
-#include "popup.h"
+#include "bar_manager.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));

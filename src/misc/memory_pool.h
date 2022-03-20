@@ -1,5 +1,7 @@
-#ifndef MEMORY_POOL_H
-#define MEMORY_POOL_H
+#pragma once
+#include <stdlib.h>
+#include <stdbool.h>
+#include <sys/mman.h>
 
 #define KILOBYTES(value) ((value) * 1024ULL)
 #define MEGABYTES(value) (KILOBYTES(value) * 1024ULL)
@@ -11,7 +13,7 @@ struct memory_pool {
     volatile uint64_t used;
 };
 
-bool memory_pool_init(struct memory_pool *pool, uint64_t size) {
+static inline bool memory_pool_init(struct memory_pool *pool, uint64_t size) {
     pool->used = 0;
     pool->size = size;
     pool->memory = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
@@ -19,7 +21,7 @@ bool memory_pool_init(struct memory_pool *pool, uint64_t size) {
 }
 
 #define memory_pool_push(p, t) memory_pool_push_size(p, sizeof(t))
-void *memory_pool_push_size(struct memory_pool *pool, uint64_t size) {
+static inline void *memory_pool_push_size(struct memory_pool *pool, uint64_t size) {
     for (;;) {
         uint64_t used = pool->used;
         uint64_t new_used = used + size;
@@ -35,5 +37,3 @@ void *memory_pool_push_size(struct memory_pool *pool, uint64_t size) {
         }
     }
 }
-
-#endif
