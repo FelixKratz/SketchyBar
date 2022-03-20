@@ -15,7 +15,6 @@ struct alias {
   bool color_override;
   struct rgba_color color;
   struct image image;
-  // struct ax ax;
 };
 
 void alias_init(struct alias* alias);

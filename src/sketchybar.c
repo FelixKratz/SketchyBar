@@ -57,7 +57,6 @@ static int client_send_message(int argc, char **argv) {
       return EXIT_FAILURE;
 
     return 0;
-
 }
 
 static void acquire_lockfile(void) {

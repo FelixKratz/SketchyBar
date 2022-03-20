@@ -63,8 +63,6 @@ void bar_draw(struct bar* bar) {
       CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item), bar->frame.size.height / 2.);
       tracking_rect.origin.y -= tracking_rect.size.height;
       SLSAddTrackingRect(g_connection, bar->id, tracking_rect);
-
-
     }
 
     bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin, bar->frame.size.height);
