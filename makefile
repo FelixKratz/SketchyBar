@@ -12,7 +12,7 @@ OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 all: clean universal
 
-leak: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g
+leak: CFLAGS=-std=c99 -Wall -DDEBUG -g
 leak: clean arm64
 leak:
 	/usr/libexec/PlistBuddy -c "Add :com.apple.security.get-task-allow bool true" bin/tmp.entitlements
@@ -33,8 +33,11 @@ universal:
 	mv $(ODIR)/sketchybar $(ODIR)/sketchybar_arm64
 	lipo -create -output $(ODIR)/sketchybar $(ODIR)/sketchybar_x86 $(ODIR)/sketchybar_arm64
 
-debug: BUILD_FLAGS=-std=c99 -Wall -DDEBUG -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
-debug: clean arm64
+debug: CFLAGS=-std=c99 -Wall -DDEBUG -g
+debug: arm64
+
+asan: CFLAGS=-std=c99 -Wall -DDEBUG -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
+asan: clean arm64
 	./bin/sketchybar
 
 $(ODIR)/sketchybar: $(SRC)/sketchybar.m $(OBJ) | $(ODIR)
