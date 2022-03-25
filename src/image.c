@@ -31,13 +31,28 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
   CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
   CGImageRef new_image_ref = NULL;
   if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
-    new_image_ref = CGImageCreateWithPNGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+    new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
+                                                     NULL,
+                                                     false,
+                                                     kCGRenderingIntentDefault);
   else {
-    new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider, NULL, false, kCGRenderingIntentDefault);
+    new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider,
+                                                      NULL,
+                                                      false,
+                                                      kCGRenderingIntentDefault);
   }
   if (data_provider && new_image_ref)
-    image_set_image(image, new_image_ref, (CGRect){{0,0},{CGImageGetWidth(new_image_ref), CGImageGetHeight(new_image_ref)}}, true);
-  else printf("Could not open image file at: %s!\n", res_path), fprintf(rsp, "Could not open image file at: %s!\n", res_path);
+    image_set_image(image,
+                    new_image_ref,
+                    (CGRect){{0,0},
+                             {CGImageGetWidth(new_image_ref),
+                              CGImageGetHeight(new_image_ref)}},
+                    true                                        );
+
+  else {
+    printf("Could not open image file at: %s!\n", res_path);
+    fprintf(rsp, "Could not open image file at: %s!\n", res_path);
+  }
 
   CGDataProviderRelease(data_provider);
   free(res_path);
@@ -50,7 +65,10 @@ bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
     uint32_t old_len = CFDataGetLength(image->data_ref);
     uint32_t new_len = CFDataGetLength(new_data_ref);
     if (old_len == new_len)
-      equals = memcmp(CFDataGetBytePtr(image->data_ref), CFDataGetBytePtr(new_data_ref), old_len) == 0;
+      equals = memcmp(CFDataGetBytePtr(image->data_ref),
+                      CFDataGetBytePtr(new_data_ref),
+                      old_len                           )
+               == 0;
   }
 
   return equals;
@@ -73,7 +91,10 @@ bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bound
   if (image->data_ref) CFRelease(image->data_ref);
 
   image->size = bounds.size;
-  image->bounds = (CGRect){{bounds.origin.x, bounds.origin.y},{bounds.size.width * image->scale, bounds.size.height * image->scale}};
+  image->bounds = (CGRect){{bounds.origin.x, bounds.origin.y},
+                           {bounds.size.width * image->scale,
+                            bounds.size.height * image->scale}};
+
   image->image_ref = new_image_ref;
   image->data_ref = new_data_ref;
   image->enabled = true;
@@ -83,7 +104,9 @@ bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bound
 bool image_set_scale(struct image* image, float scale) {
   if (scale == image->scale) return false;
   image->scale = scale;
-  image->bounds = (CGRect){{image->bounds.origin.x, image->bounds.origin.y},{image->size.width * image->scale, image->size.height * image->scale}};
+  image->bounds = (CGRect){{image->bounds.origin.x, image->bounds.origin.y},
+                           {image->size.width * image->scale,
+                            image->size.height * image->scale}};
   return true;
 }
 
@@ -121,7 +144,9 @@ void image_destroy(struct image* image) {
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
-    return image_set_enabled(image, evaluate_boolean_state(get_token(&message), image->enabled));
+    return image_set_enabled(image,
+                             evaluate_boolean_state(get_token(&message),
+                             image->enabled)                            );
   else if (token_equals(property, PROPERTY_SCALE))
     return image_set_scale(image, token_to_float(get_token(&message)));
   else {

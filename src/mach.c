@@ -22,8 +22,7 @@ mach_port_t mach_get_bs_port() {
   return port;
 }
 
-void mach_receive_message(mach_port_t port, struct mach_buffer* buffer,
-                                            bool timeout               ) {
+void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool timeout) {
   *buffer = (struct mach_buffer) { 0 };
   mach_msg_return_t msg_return;
   if (timeout)
@@ -48,8 +47,7 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer,
   }
 }
 
-bool mach_send_message(mach_port_t port, char* message, uint32_t len,
-                                                        bool await_response) {
+bool mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response) {
   if (!message || !port) {
     if (message) free(message);
     return false;

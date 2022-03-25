@@ -5,6 +5,9 @@
 
 #define MENUBAR_LAYER 0x19
 
+extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
+extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
+
 struct alias {
   bool permission;
 

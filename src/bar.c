@@ -10,9 +10,15 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown) return false;
-    if (bar_item->associated_display > 0 && !(bar_item->associated_display & (1 << bar->adid))) return false;
-    if (bar_item->associated_space > 0 && !(bar_item->associated_space & (1 << bar->sid)) && (bar_item->type != BAR_COMPONENT_SPACE)) return false;
-    if (bar_item->position == POSITION_POPUP) return false;
+    if (bar_item->associated_display > 0
+        && !(bar_item->associated_display & (1 << bar->adid)))
+      return false;
+    if (bar_item->associated_space > 0
+        && !(bar_item->associated_space & (1 << bar->sid))
+        && (bar_item->type != BAR_COMPONENT_SPACE)        )
+      return false;
+    if (bar_item->position == POSITION_POPUP)
+      return false;
     return true;
 }
 
@@ -23,13 +29,22 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   popup_calculate_bounds(&bar_item->popup);
   CGPoint anchor = bar->origin;
   if (bar_item->popup.align == POSITION_CENTER) {
-    anchor.x += bar_item->icon.bounds.origin.x + bar_item->background.padding_left / 2 + (bar_item_get_length(bar_item, false) - bar_item->popup.background.bounds.size.width) / 2;
+    anchor.x += bar_item->icon.bounds.origin.x
+                + bar_item->background.padding_left / 2
+                + (bar_item_get_length(bar_item, false)
+                - bar_item->popup.background.bounds.size.width) / 2;
   } else if (bar_item->popup.align == POSITION_LEFT) {
-    anchor.x += bar_item->icon.bounds.origin.x - bar_item->background.padding_left;
+    anchor.x += bar_item->icon.bounds.origin.x
+                - bar_item->background.padding_left;
   } else {
-    anchor.x += bar_item->icon.bounds.origin.x + bar_item_get_length(bar_item, false) - bar_item->popup.background.bounds.size.width;
+    anchor.x += bar_item->icon.bounds.origin.x
+                + bar_item_get_length(bar_item, false)
+                - bar_item->popup.background.bounds.size.width;
   }
-  anchor.y += (g_bar_manager.position == POSITION_BOTTOM ? (-bar->frame.size.height - bar_item->popup.background.bounds.size.height) : bar->frame.size.height);
+  anchor.y += (g_bar_manager.position == POSITION_BOTTOM
+              ? (-bar->frame.size.height
+                 - bar_item->popup.background.bounds.size.height)
+              : bar->frame.size.height);
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
 }
 
@@ -38,7 +53,14 @@ void bar_draw(struct bar* bar) {
   SLSOrderWindow(g_connection, bar->id, -1, 0);
   SLSRemoveAllTrackingAreas(g_connection, bar->id);
 
-  draw_rect(bar->context, bar->frame, &g_bar_manager.background.color, g_bar_manager.background.corner_radius, g_bar_manager.background.border_width, &g_bar_manager.background.border_color, true);
+  draw_rect(bar->context,
+            bar->frame,
+            &g_bar_manager.background.color,
+            g_bar_manager.background.corner_radius,
+            g_bar_manager.background.border_width,
+            &g_bar_manager.background.border_color,
+            true                                   );
+
   if (g_bar_manager.background.image.enabled) {
     image_draw(&g_bar_manager.background.image, bar->context);
   }
@@ -46,18 +68,27 @@ void bar_draw(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!(bar_item->position == POSITION_POPUP)) bar_item_remove_associated_bar(bar_item, bar->adid);
+    if (!(bar_item->position == POSITION_POPUP))
+      bar_item_remove_associated_bar(bar_item, bar->adid);
     if (!bar_draws_item(bar, bar_item)) continue;
 
     bar_item_append_associated_bar(bar_item, bar->adid);
 
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item), bar->frame.size.height / 2.);
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
+        || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
+      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(
+                                                                     bar_item),
+                                             bar->frame.size.height / 2.);
+
       tracking_rect.origin.y -= tracking_rect.size.height;
       SLSAddTrackingRect(g_connection, bar->id, tracking_rect);
     }
 
-    bar_item_set_bounding_rect_for_display(bar_item, bar->adid, bar->origin, bar->frame.size.height);
+    bar_item_set_bounding_rect_for_display(bar_item,
+                                           bar->adid,
+                                           bar->origin,
+                                           bar->frame.size.height);
+
     bar_item_draw(bar_item, bar->context);
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
@@ -72,11 +103,23 @@ void bar_calculate_bounds(struct bar* bar) {
   if (bar->hidden) return;
   if (bar->sid == 0) return;
 
+  uint32_t center_length = bar_manager_length_for_bar_side(&g_bar_manager,
+                                                           bar,
+                                                           POSITION_CENTER);
+
   uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left;
-  uint32_t bar_right_first_item_x = bar->frame.size.width - g_bar_manager.background.padding_right;
-  uint32_t bar_center_first_item_x = (bar->frame.size.width - 2*g_bar_manager.margin - bar_manager_length_for_bar_side(&g_bar_manager, bar, POSITION_CENTER)) / 2 - 1;
-  uint32_t bar_center_right_first_item_x = (bar->frame.size.width + bar->notch_width) / 2 - 1;
-  uint32_t bar_center_left_first_item_x = (bar->frame.size.width - bar->notch_width) / 2 - 1; 
+  uint32_t bar_right_first_item_x = bar->frame.size.width
+                                    - g_bar_manager.background.padding_right;
+
+  uint32_t bar_center_first_item_x = (bar->frame.size.width
+                                      - 2*g_bar_manager.margin
+                                      - center_length) / 2 - 1;
+
+  uint32_t bar_center_right_first_item_x = (bar->frame.size.width
+                                            + bar->notch_width) / 2 - 1;
+
+  uint32_t bar_center_left_first_item_x = (bar->frame.size.width
+                                           - bar->notch_width) / 2 - 1; 
 
   uint32_t* next_position = NULL;
   uint32_t y = bar->frame.size.height / 2;
@@ -89,28 +132,48 @@ void bar_calculate_bounds(struct bar* bar) {
     uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
     bool rtl = false;
 
-    if (bar_item->position == POSITION_LEFT) next_position = &bar_left_first_item_x;
-    else if (bar_item->position == POSITION_CENTER) next_position = &bar_center_first_item_x;
-    else if (bar_item->position == POSITION_RIGHT) next_position = &bar_right_first_item_x, rtl = true;
-    else if (bar_item->position == POSITION_CENTER_RIGHT) next_position = &bar_center_right_first_item_x;
-    else if (bar_item->position == POSITION_CENTER_LEFT) next_position = &bar_center_left_first_item_x, rtl = true;
-    else continue;
+    if (bar_item->position == POSITION_LEFT)
+      next_position = &bar_left_first_item_x;
+    else if (bar_item->position == POSITION_CENTER)
+      next_position = &bar_center_first_item_x;
+    else if (bar_item->position == POSITION_RIGHT)
+      next_position = &bar_right_first_item_x, rtl = true;
+    else if (bar_item->position == POSITION_CENTER_RIGHT)
+      next_position = &bar_center_right_first_item_x;
+    else if (bar_item->position == POSITION_CENTER_LEFT)
+      next_position = &bar_center_left_first_item_x, rtl = true;
+    else
+      continue;
 
-    if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT)
-      *next_position -= bar_item_display_length + bar_item->background.padding_left + bar_item->background.padding_right;
+    if (bar_item->position == POSITION_RIGHT
+        || bar_item->position == POSITION_CENTER_LEFT)
+      *next_position -= bar_item_display_length
+                        + bar_item->background.padding_left
+                        + bar_item->background.padding_right;
 
     bar_item->graph.rtl = rtl;
-    uint32_t bar_item_length = bar_item_calculate_bounds(bar_item, bar->frame.size.height - (g_bar_manager.background.border_width + 1), *next_position, y);
+    uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
+                                 bar->frame.size.height
+                                 - (g_bar_manager.background.border_width + 1),
+                                 *next_position,
+                                 y                                           );
 
-    if (bar_item->popup.drawing) bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
+    if (bar_item->popup.drawing)
+      bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
 
-    if (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) {
-      *next_position += bar_item->has_const_width ? bar_item_display_length
-                                                    + bar_item->background.padding_left
-                                                    + bar_item->background.padding_right
-                                                    - bar_item->custom_width : 0;
+    if (bar_item->position == POSITION_RIGHT
+        || bar_item->position == POSITION_CENTER_LEFT) {
+      *next_position += bar_item->has_const_width
+                        ? bar_item_display_length
+                          + bar_item->background.padding_left
+                          + bar_item->background.padding_right
+                          - bar_item->custom_width
+                        : 0;
     } else 
-      *next_position += bar_item->has_const_width ? bar_item->custom_width : (bar_item_length + bar_item->background.padding_left + bar_item->background.padding_right);
+      *next_position += bar_item->has_const_width
+                        ? bar_item->custom_width
+                        : (bar_item_length + bar_item->background.padding_left
+                           + bar_item->background.padding_right              );
   }
 }
 
@@ -123,13 +186,16 @@ void bar_create_frame(struct bar *bar, CFTypeRef *frame_region) {
 
 
   if (g_bar_manager.position == POSITION_BOTTOM) {
-    origin.y = CGRectGetMaxY(bounds) - g_bar_manager.background.bounds.size.height - 2*g_bar_manager.y_offset;
+    origin.y = CGRectGetMaxY(bounds)
+               - g_bar_manager.background.bounds.size.height
+               - 2*g_bar_manager.y_offset;
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
     origin.y += menu.size.height;
   }
 
-  bar->frame = (CGRect) {{0, 0},{bounds.size.width, g_bar_manager.background.bounds.size.height}};
+  bar->frame = (CGRect) {{0, 0},{bounds.size.width,
+                                 g_bar_manager.background.bounds.size.height}};
   bar->origin = origin;
   CGSNewRegionWithRect(&bar->frame, frame_region);
 }
@@ -141,7 +207,11 @@ void bar_resize(struct bar *bar) {
 
   SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->id, -1, 0);
-  SLSSetWindowShape(g_connection, bar->id, bar->origin.x, bar->origin.y, frame_region);
+  SLSSetWindowShape(g_connection,
+                    bar->id,
+                    bar->origin.x,
+                    bar->origin.y,
+                    frame_region  );
 
   SLSClearActivationRegion(g_connection, bar->id);
   SLSAddActivationRegion(g_connection, bar->id, frame_region);
@@ -166,15 +236,25 @@ void context_set_font_smoothing(CGContextRef context, bool smoothing) {
 }
 
 void window_set_blur_radius(uint32_t wid) {
-  SLSSetWindowBackgroundBlurRadius(g_connection, wid, g_bar_manager.blur_radius);
+  SLSSetWindowBackgroundBlurRadius(g_connection,
+                                   wid,
+                                   g_bar_manager.blur_radius);
 }
 
 void window_disable_shadow(uint32_t wid) {
   CFIndex shadow_density = 0;
-  CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault, kCFNumberCFIndexType, &shadow_density);
+  CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault,
+                                                 kCFNumberCFIndexType,
+                                                 &shadow_density      );
   const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
   const void *values[1] = { shadow_density_cf };
-  CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL,
+                                             keys,
+                                             values,
+                                             1,
+                                             &kCFTypeDictionaryKeyCallBacks,
+                                             &kCFTypeDictionaryValueCallBacks);
+
   SLSWindowSetShadowProperties(wid, shadow_props_cf);
   CFRelease(shadow_density_cf);
   CFRelease(shadow_props_cf);
@@ -187,7 +267,13 @@ void bar_create_window(struct bar* bar) {
   CFTypeRef frame_region;
   bar_create_frame(bar, &frame_region);
 
-  SLSNewWindow(g_connection, 2, bar->origin.x, bar->origin.y, frame_region, &bar->id);
+  SLSNewWindow(g_connection,
+               2,
+               bar->origin.x,
+               bar->origin.y,
+               frame_region,
+               &bar->id      );
+
   SLSAddActivationRegion(g_connection, bar->id, frame_region);
   CFRelease(frame_region);
 

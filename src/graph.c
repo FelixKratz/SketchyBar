@@ -38,7 +38,8 @@ uint32_t graph_get_length(struct graph* graph) {
 
 void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y) {
   graph->bounds.origin.x = x;
-  graph->bounds.origin.y = y - graph->bounds.size.height / 2 + graph->line_width;
+  graph->bounds.origin.y = y - graph->bounds.size.height / 2
+                           + graph->line_width;
 }
 
 void graph_draw(struct graph* graph, CGContextRef context) {
@@ -49,14 +50,34 @@ void graph_draw(struct graph* graph, CGContextRef context) {
   uint32_t sample_width = 1;
   bool fill = graph->fill;
   CGContextSaveGState(context);
-  CGContextSetRGBStrokeColor(context, graph->line_color.r, graph->line_color.g, graph->line_color.b, graph->line_color.a);
-  if (graph->overrides_fill_color) CGContextSetRGBFillColor(context, graph->fill_color.r, graph->fill_color.g, graph->fill_color.b, graph->fill_color.a);
-  else CGContextSetRGBFillColor(context, graph->line_color.r, graph->line_color.g, graph->line_color.b, 0.2 * graph->line_color.a);
+  CGContextSetRGBStrokeColor(context,
+                             graph->line_color.r,
+                             graph->line_color.g,
+                             graph->line_color.b,
+                             graph->line_color.a );
+
+  if (graph->overrides_fill_color)
+    CGContextSetRGBFillColor(context,
+                             graph->fill_color.r,
+                             graph->fill_color.g,
+                             graph->fill_color.b,
+                             graph->fill_color.a );
+  else
+    CGContextSetRGBFillColor(context,
+                             graph->line_color.r,
+                             graph->line_color.g,
+                             graph->line_color.b,
+                             0.2 * graph->line_color.a);
+
   CGContextSetLineWidth(context, graph->line_width);
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
   if (graph->rtl) {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, graph->width - 1) * height);
+    CGPathMoveToPoint(p,
+                      NULL,
+                      x,
+                      y + graph_get_y(graph, graph->width - 1) * height);
+
     for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
       CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
     }

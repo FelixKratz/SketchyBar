@@ -8,7 +8,8 @@ static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* me
   struct token event = get_token(&message);
 
   while (event.text && event.length > 0) {
-    bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events, event.text);
+    bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events,
+                                                             event.text                   );
     event = get_token(&message);
   }
 }
@@ -17,7 +18,8 @@ static void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* me
 static void handle_domain_subscribe(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
 
-  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                name.text    );
   if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
@@ -32,7 +34,10 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
   struct token token = get_token(&message);
   while (token.text && token.length > 0) {
     struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
-    env_vars_set(&env_vars, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
+    env_vars_set(&env_vars,
+                 string_copy(key_value_pair.key),
+                 string_copy(key_value_pair.value));
+
     token = get_token(&message);
   }
   bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
@@ -44,7 +49,8 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token y = get_token(&message);
   
-  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+  int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                name.text    );
   if (item_index_for_name < 0) return;
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   graph_push_back(&bar_item->graph, token_to_float(y));
@@ -55,14 +61,20 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
 static void handle_domain_rename(FILE* rsp, struct token domain, char* message) {
   struct token old_name  = get_token(&message);
   struct token new_name  = get_token(&message);
-  int item_index_for_old_name = bar_manager_get_item_index_for_name(&g_bar_manager, old_name.text);
-  int item_index_for_new_name = bar_manager_get_item_index_for_name(&g_bar_manager, new_name.text);
+  int item_index_for_old_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                    old_name.text);
+  int item_index_for_new_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                    new_name.text);
   if (item_index_for_old_name < 0 || item_index_for_new_name >= 0) {
-    fprintf(rsp, "Could not rename item: %s -> %s \n", old_name.text, new_name.text);
-    printf("Could not rename item: %s -> %s \n", old_name.text, new_name.text);
+    fprintf(rsp, "Could not rename item: %s -> %s \n", old_name.text,
+                                                       new_name.text);
+
+    printf("Could not rename item: %s -> %s \n", old_name.text,
+                                                 new_name.text);
     return;
   }
-  bar_item_set_name(g_bar_manager.bar_items[item_index_for_old_name], token_to_string(new_name));
+  bar_item_set_name(g_bar_manager.bar_items[item_index_for_old_name],
+                    token_to_string(new_name)                        );
 }
 
 // Syntax: sketchybar -m --clone <name> <parent name>
@@ -72,8 +84,11 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   struct token modifier = get_token(&message);
   struct bar_item* parent_item = NULL;
 
-  int parent_index = bar_manager_get_item_index_for_name(&g_bar_manager, parent.text);
-  if (parent_index >= 0) parent_item = g_bar_manager.bar_items[parent_index];
+  int parent_index = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                         parent.text    );
+
+  if (parent_index >= 0)
+    parent_item = g_bar_manager.bar_items[parent_index];
   else {
     printf("Parent Item: %s does not exist \n", parent.text);
     fprintf(rsp, "Parent Item: %s does not exist \n", parent.text);
@@ -100,8 +115,13 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   if (token_equals(command, COMMAND_ADD_EVENT)) {
     struct token event = get_token(&message);
-    if (strlen(message) > 0) custom_events_append(&g_bar_manager.custom_events, token_to_string(event), token_to_string(get_token(&message)));
-    else custom_events_append(&g_bar_manager.custom_events, token_to_string(event), NULL);
+    if (strlen(message) > 0)
+      custom_events_append(&g_bar_manager.custom_events,
+                           token_to_string(event),
+                           token_to_string(get_token(&message)));
+    else custom_events_append(&g_bar_manager.custom_events,
+                              token_to_string(event),
+                              NULL                         );
     return;
   } 
 
@@ -120,7 +140,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     char* pair = string_copy(position.text);
     struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
     if (key_value_pair.key && key_value_pair.value) {
-      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
+      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                    key_value_pair.value);
       if (item_index_for_name < 0) {
         fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
         printf("Name: %s not found in bar items \n", key_value_pair.value);
@@ -147,14 +168,18 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       if (!key_value_pair.key || !key_value_pair.value)
         alias_setup(&bar_item->alias, token_to_string(name), NULL);
       else
-        alias_setup(&bar_item->alias, string_copy(key_value_pair.key), string_copy(key_value_pair.value));
+        alias_setup(&bar_item->alias,
+                    string_copy(key_value_pair.key),
+                    string_copy(key_value_pair.value));
+
       free(tmp_name);
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
       struct token member = position;
       while (member.text && member.length > 0) {
         
-        int index = bar_manager_get_item_index_for_name(&g_bar_manager, member.text);
+        int index = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                        member.text    );
         if (index >= 0)
           group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
         else {
@@ -309,34 +334,50 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     needs_refresh = true;
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_background_blur(&g_bar_manager, token_to_uint32t(token));
+    needs_refresh = bar_manager_set_background_blur(&g_bar_manager,
+                                                    token_to_uint32t(token));
   } else if (token_equals(command, PROPERTY_FONT_SMOOTHING)) {
     struct token state = get_token(&message);
-    needs_refresh = bar_manager_set_font_smoothing(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.font_smoothing));
+    needs_refresh = bar_manager_set_font_smoothing(&g_bar_manager,
+                                                   evaluate_boolean_state(state,
+                                                                          g_bar_manager.font_smoothing));
   } else if (token_equals(command, PROPERTY_SHADOW)) {
     struct token state = get_token(&message);
-    needs_refresh = bar_manager_set_shadow(&g_bar_manager, evaluate_boolean_state(state, g_bar_manager.shadow));
+    needs_refresh = bar_manager_set_shadow(&g_bar_manager,
+                                           evaluate_boolean_state(state,
+                                                                  g_bar_manager.shadow));
   } else if (token_equals(command, PROPERTY_NOTCH_WIDTH)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_notch_width(&g_bar_manager, token_to_uint32t(token));
+    needs_refresh = bar_manager_set_notch_width(&g_bar_manager,
+                                                token_to_uint32t(token));
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     struct token select = get_token(&message);
     uint32_t adid = 0;
     if (!(select.length == 0)) {
-      adid = token_equals(select, "current") ? display_arrangement(display_active_display_id()) : atoi(select.text);
+      adid = token_equals(select, "current")
+             ? display_arrangement(display_active_display_id())
+             : atoi(select.text);
+
       if (adid > 0 && adid <= g_bar_manager.bar_count)
-        needs_refresh = bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.bars[adid - 1]->hidden));
+        needs_refresh = bar_manager_set_hidden(&g_bar_manager,
+                                               adid,
+                                               evaluate_boolean_state(state,
+                                                                      g_bar_manager.bars[adid - 1]->hidden));
       else
         printf("No bar on display %u \n", adid);
-    } else needs_refresh = bar_manager_set_hidden(&g_bar_manager, adid, evaluate_boolean_state(state, g_bar_manager.any_bar_hidden));
+    } else needs_refresh = bar_manager_set_hidden(&g_bar_manager,
+                                                  adid,
+                                                  evaluate_boolean_state(state, g_bar_manager.any_bar_hidden));
   } else if (token_equals(command, PROPERTY_TOPMOST)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_topmost(&g_bar_manager, evaluate_boolean_state(token, g_bar_manager.topmost));
+    needs_refresh = bar_manager_set_topmost(&g_bar_manager,
+                                            evaluate_boolean_state(token, g_bar_manager.topmost));
   } else if (token_equals(command, PROPERTY_DISPLAY)) {
     struct token position = get_token(&message);
     if (position.length > 0)
-      needs_refresh = bar_manager_set_display(&g_bar_manager, position.text[0]);
+      needs_refresh = bar_manager_set_display(&g_bar_manager,
+                                              position.text[0]);
     else {
       printf("value for %s must be either 'main' or 'all'.\n", command.text);
       fprintf(rsp, "value for %s must be either 'main' or 'all'.\n", command.text);
@@ -359,7 +400,11 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
 static char* reformat_batch_key_value_pair(struct token token) {
   struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
   if (!key_value_pair.key) return NULL;
-  char* rbr_msg = malloc((strlen(key_value_pair.key) + (key_value_pair.value ? strlen(key_value_pair.value) : 0) + 3) * sizeof(char)); 
+  char* rbr_msg = malloc((strlen(key_value_pair.key) + (key_value_pair.value
+                                                        ? strlen(key_value_pair.value)
+                                                        : 0)
+                          + 3) * sizeof(char)                                         ); 
+
   pack_key_value_pair(rbr_msg, &key_value_pair);
   return rbr_msg;
 }
@@ -368,8 +413,14 @@ static char* get_batch_line(char** message) {
   char* cursor = *message;
   bool end_of_batch = false;
   while (true) {
-    if (*cursor == '\0' && *(cursor + 1) == '\0') { end_of_batch = true; break; }
-    if (*cursor == '\0' && *(cursor + 1) == '-') break;
+    if (*cursor == '\0' && *(cursor + 1) == '\0') {
+      end_of_batch = true;
+      break;
+    }
+
+    if (*cursor == '\0' && *(cursor + 1) == '-')
+      break;
+
     cursor++;
   }
   char* rbr_msg = malloc(sizeof(char) * (cursor - *message + 2));
@@ -391,7 +442,8 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     print_all_menu_items(rsp);
   } else if (token_equals(token, COMMAND_QUERY_ITEM)) {
     struct token name  = get_token(&message);
-    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                  name.text      );
     if (item_index_for_name < 0) {
       fprintf(rsp, "Name: %s not found in bar items \n", name.text);
       printf("Name: %s not found in bar items \n", name.text);
@@ -406,7 +458,8 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     custom_events_serialize(&g_bar_manager.custom_events, rsp);
   } else {
     struct token name = token;
-    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                  name.text      );
     if (item_index_for_name < 0) {
       fprintf(rsp, "Not a valid query, or item: %s not found \n", name.text);
       printf("Not a valid query, or item: %s not found \n", name.text);
@@ -422,7 +475,8 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
   uint32_t count = 0;
   struct bar_item** bar_items = NULL;
 
-  if (name.length > 1 && name.text[0] == REGEX_DELIMITER && name.text[name.length - 1] == REGEX_DELIMITER) {
+  if (name.length > 1 && name.text[0] == REGEX_DELIMITER
+      && name.text[name.length - 1] == REGEX_DELIMITER  ) {
     char* regstring = malloc(sizeof(char)*(name.length - 1));
     memcpy(regstring, &name.text[1], name.length - 2);
     regstring[name.length - 2] = '\0';
@@ -456,7 +510,8 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
     regfree(&regex);
   }
   else {
-    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
+    int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                  name.text      );
     if (item_index_for_name < 0) {
       fprintf(rsp, "Name: %s not found in bar items \n", name.text);
       printf("Name: %s not found in bar items \n", name.text);
@@ -489,7 +544,11 @@ static void handle_domain_move(FILE* rsp, struct token domain, char* message) {
       return;
   }
 
-  bar_manager_move_item(&g_bar_manager, g_bar_manager.bar_items[item_index], g_bar_manager.bar_items[reference_item_index], token_equals(direction, ARGUMENT_COMMON_VAL_BEFORE));
+  bar_manager_move_item(&g_bar_manager,
+                        g_bar_manager.bar_items[item_index],
+                        g_bar_manager.bar_items[reference_item_index],
+                        token_equals(direction, ARGUMENT_COMMON_VAL_BEFORE));
+
   bar_item_needs_update(g_bar_manager.bar_items[item_index]);
 }
 
@@ -534,7 +593,8 @@ void handle_message_mach(struct mach_buffer* buffer) {
       uint32_t count = 0;
       struct bar_item** bar_items = NULL;
 
-      if (name.length > 1 && name.text[0] == REGEX_DELIMITER && name.text[name.length - 1] == REGEX_DELIMITER) {
+      if (name.length > 1 && name.text[0] == REGEX_DELIMITER
+          && name.text[name.length - 1] == REGEX_DELIMITER  ) {
         char* regstring = malloc(sizeof(char)*(name.length - 1));
         memcpy(regstring, &name.text[1], name.length - 2);
         regstring[name.length - 2] = '\0';

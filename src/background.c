@@ -99,13 +99,25 @@ void background_draw(struct background* background, CGContextRef context) {
   background_bounds.origin.y += background->y_offset;
   if (background->shadow.enabled) {
     CGRect bounds = shadow_get_bounds(&background->shadow, background_bounds);
-    draw_rect(context, bounds, &background->shadow.color, background->corner_radius, background->border_width, &background->shadow.color, false);
+    draw_rect(context,
+              bounds,
+              &background->shadow.color,
+              background->corner_radius,
+              background->border_width,
+              &background->shadow.color,
+              false                     );
   }
 
   if (background->image.enabled)
     image_draw(&background->image, context);
 
-  draw_rect(context, background_bounds, &background->color, background->corner_radius, background->border_width, &background->border_color, false);
+  draw_rect(context,
+            background_bounds,
+            &background->color,
+            background->corner_radius,
+            background->border_width,
+            &background->border_color,
+            false                     );
 }
 
 void background_clear_pointers(struct background* background) {
@@ -119,32 +131,48 @@ void background_destroy(struct background* background) {
 
 bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_DRAWING))
-    return background_set_enabled(background, evaluate_boolean_state(get_token(&message), background->enabled));
+    return background_set_enabled(background,
+                                  evaluate_boolean_state(get_token(&message),
+                                                         background->enabled));
   else if (token_equals(property, PROPERTY_HEIGHT))
-    return background_set_height(background, token_to_uint32t(get_token(&message)));
+    return background_set_height(background,
+                                 token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_CORNER_RADIUS))
-    return background_set_corner_radius(background, token_to_uint32t(get_token(&message)));
+    return background_set_corner_radius(background,
+                                        token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_BORDER_WIDTH))
-    return background_set_border_width(background, token_to_uint32t(get_token(&message)));
+    return background_set_border_width(background,
+                                       token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_COLOR))
-    return background_set_color(background, token_to_uint32t(get_token(&message)));
+    return background_set_color(background,
+                                token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_BORDER_COLOR))
-    return background_set_border_color(background, token_to_uint32t(get_token(&message)));
+    return background_set_border_color(background,
+                                       token_to_uint32t(get_token(&message)));
   else if (token_equals(property, PROPERTY_PADDING_LEFT))
-    return background_set_padding_left(background, token_to_int(get_token(&message)));
+    return background_set_padding_left(background,
+                                       token_to_int(get_token(&message)));
   else if (token_equals(property, PROPERTY_PADDING_RIGHT))
-    return background_set_padding_right(background, token_to_int(get_token(&message)));
+    return background_set_padding_right(background,
+                                        token_to_int(get_token(&message)));
   else if (token_equals(property, PROPERTY_YOFFSET))
-    return background_set_yoffset(background, token_to_int(get_token(&message)));
+    return background_set_yoffset(background,
+                                  token_to_int(get_token(&message)));
   else if (token_equals(property, SUB_DOMAIN_IMAGE))
-    return image_load(&background->image, token_to_string(get_token(&message)), rsp);
+    return image_load(&background->image,
+                      token_to_string(get_token(&message)),
+                      rsp                                  );
   else {
-    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
     if (key_value_pair.key && key_value_pair.value) {
-      struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
-      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+      struct token subdom = {key_value_pair.key,strlen(key_value_pair.key)};
+      struct token entry = {key_value_pair.value,strlen(key_value_pair.value)};
       if (token_equals(subdom, SUB_DOMAIN_SHADOW))
-        return shadow_parse_sub_domain(&background->shadow, rsp, entry, message);
+        return shadow_parse_sub_domain(&background->shadow,
+                                       rsp,
+                                       entry,
+                                       message             );
       else if (token_equals(subdom, SUB_DOMAIN_IMAGE))
         return image_parse_sub_domain(&background->image, rsp, entry, message);
       else {

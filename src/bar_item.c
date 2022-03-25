@@ -37,7 +37,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->click_script = click_script;
 
   text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
-  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name), true);
+  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name),true);
   text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
   text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
 
@@ -46,14 +46,28 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   if (ancestor->click_script)
     bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
 
-  image_copy(&bar_item->background.image, ancestor->background.image.image_ref);
-  image_copy(&bar_item->icon.background.image, ancestor->icon.background.image.image_ref);
-  image_copy(&bar_item->label.background.image, ancestor->label.background.image.image_ref);
+  image_copy(&bar_item->background.image,
+             ancestor->background.image.image_ref);
+
+  image_copy(&bar_item->icon.background.image,
+             ancestor->icon.background.image.image_ref);
+
+  image_copy(&bar_item->label.background.image,
+             ancestor->label.background.image.image_ref);
 
   if (bar_item->type == BAR_COMPONENT_SPACE) {
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars, "DID")));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SELECTED"),
+                 string_copy("false")            );
+
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SID"),
+                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
+                                                        "DID")                          ));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("DID"),
+                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
+                                                        "DID")                          ));
   }
 }
 
@@ -108,7 +122,9 @@ void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
     bar_item->associated_space = bit;
     char sid_str[32];
     sprintf(sid_str, "%u", get_set_bit_position(bit));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy(sid_str));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SID"),
+                 string_copy(sid_str)            );
   }
 }
 
@@ -119,7 +135,9 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
     bar_item->associated_display = bit;
     char did_str[32];
     sprintf(did_str, "%u", get_set_bit_position(bit));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy(did_str));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("DID"),
+                 string_copy(did_str)            );
   }
 }
 
@@ -144,22 +162,40 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
 }
 
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars) {
-  if ((!bar_item->updates || (bar_item->update_frequency == 0 && !sender)) && !forced) return false;
+  if ((!bar_item->updates || (bar_item->update_frequency == 0 && !sender))
+      && !forced                                                          ) {
+    return false;
+  }
+
   bar_item->counter++;
 
-  bool scheduled_update_needed = bar_item->update_frequency <= bar_item->counter;
-  bool should_update = bar_item->updates_only_when_shown ? bar_item_is_shown(bar_item) : true;
+  bool scheduled_update_needed = bar_item->update_frequency
+                                  <= bar_item->counter;
+  bool should_update = bar_item->updates_only_when_shown
+                       ? bar_item_is_shown(bar_item)
+                       : true;
 
   if (((scheduled_update_needed || sender) && should_update) || forced) {
     bar_item->counter = 0;
 
     // Script Update
     if (bar_item->script && strlen(bar_item->script) > 0) {
-      if (!env_vars) env_vars = &bar_item->signal_args.env_vars;
-      else env_vars_set(env_vars, string_copy("NAME"), string_copy(bar_item->name));
+      if (!env_vars)
+        env_vars = &bar_item->signal_args.env_vars;
+      else
+        env_vars_set(env_vars,
+                     string_copy("NAME"),
+                     string_copy(bar_item->name));
 
-      if (sender) env_vars_set(env_vars, string_copy("SENDER"), string_copy(sender));
-      else env_vars_set(env_vars, string_copy("SENDER"), string_copy(forced ? "forced" : "routine"));
+      if (sender)
+        env_vars_set(env_vars, string_copy("SENDER"), string_copy(sender));
+      else
+        env_vars_set(env_vars,
+                     string_copy("SENDER"),
+                     string_copy(forced
+                                 ? "forced"
+                                 : "routine"));
+
       fork_exec(bar_item->script, env_vars);
     }
 
@@ -182,10 +218,17 @@ void bar_item_clear_needs_update(struct bar_item* bar_item) {
 
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (!name) return;
-  if (bar_item->name && strcmp(bar_item->name, name) == 0) { free(name); return; }
+
+  if (bar_item->name && strcmp(bar_item->name, name) == 0) {
+    free(name);
+    return;
+  }
+
   if (name != bar_item->name && bar_item->name) free(bar_item->name);
   bar_item->name = name;
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("NAME"), string_copy(name));
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("NAME"),
+               string_copy(name)               );
 }
 
 void bar_item_set_type(struct bar_item* bar_item, char type) {
@@ -193,14 +236,23 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
 
   if (type == BAR_COMPONENT_SPACE) {
     if (!bar_item->script) { 
-        bar_item_set_script(bar_item, string_copy("sketchybar -m --set $NAME icon.highlight=$SELECTED"));
+        bar_item_set_script(bar_item,
+            string_copy("sketchybar -m --set $NAME icon.highlight=$SELECTED"));
     }
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SELECTED"), string_copy("false"));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("SID"), string_copy("0"));
-    env_vars_set(&bar_item->signal_args.env_vars, string_copy("DID"), string_copy("0"));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SELECTED"),
+                 string_copy("false")            );
+
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SID"),
+                 string_copy("0")                );
+
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("DID"),
+                 string_copy("0")                );
   }
   else if (type == BAR_COMPONENT_ALIAS) {
     bar_item->update_frequency = 1;
@@ -226,16 +278,30 @@ void bar_item_set_position(struct bar_item* bar_item, char position) {
 
 void bar_item_set_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
-  if (bar_item->script && strcmp(bar_item->script, script) == 0) { free(script); return; }
-  if (script != bar_item->script && bar_item->script) free(bar_item->script);
+
+  if (bar_item->script && strcmp(bar_item->script, script) == 0) {
+    free(script);
+    return;
+  }
+
+  if (script != bar_item->script && bar_item->script)
+    free(bar_item->script);
+
   char* path = resolve_path(script);
   bar_item->script = path;
 }
 
 void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   if (!script) return;
-  if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) { free(script); return; }
-  if (script != bar_item->click_script && bar_item->click_script) free(bar_item->click_script);
+
+  if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) {
+    free(script);
+    return;
+  }
+
+  if (script != bar_item->click_script && bar_item->click_script)
+    free(bar_item->click_script);
+
   char* path = resolve_path(script);
   bar_item->click_script = path;
 }
@@ -249,8 +315,13 @@ void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
   if (!bar_item) return;
 
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("BUTTON"), string_copy(get_type_description(type)));
-  env_vars_set(&bar_item->signal_args.env_vars, string_copy("MODIFIER"), string_copy(get_modifier_description(modifier)));
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("BUTTON"),
+               string_copy(get_type_description(type)));
+
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("MODIFIER"),
+               string_copy(get_modifier_description(modifier)));
 
   if (bar_item->click_script && strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
@@ -265,7 +336,9 @@ void bar_item_mouse_entered(struct bar_item* bar_item) {
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED)) bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
+  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED))
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
+
   bar_item->mouse_over = false;
 }
 
@@ -286,12 +359,17 @@ uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   uint32_t content_length = bar_item_get_content_length(bar_item);
-  if (bar_item->background.enabled && bar_item->background.image.enabled && bar_item->background.image.bounds.size.width > content_length)
+  if (bar_item->background.enabled && bar_item->background.image.enabled
+      && bar_item->background.image.bounds.size.width > content_length  ) {
     content_length = bar_item->background.image.bounds.size.width;
+  }
 
-  if (bar_item->has_const_width && (!ignore_override || bar_item->custom_width > content_length)) {
+  if (bar_item->has_const_width && (!ignore_override
+                                    || bar_item->custom_width
+                                       > content_length      )) {
     return bar_item->custom_width;
   }
+
   return content_length;
 }
 
@@ -300,11 +378,19 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t icon_height = text_get_height(&bar_item->icon);
   uint32_t alias_height = alias_get_height(&bar_item->alias);
   
-  uint32_t text_height = label_height > icon_height ? label_height : icon_height;
-  uint32_t item_height = text_height > alias_height ? text_height : alias_height;
+  uint32_t text_height = label_height > icon_height
+                          ? label_height
+                          : icon_height;
 
-  if (bar_item->background.enabled && bar_item->background.image.enabled && bar_item->background.image.bounds.size.height > item_height)
+  uint32_t item_height = text_height > alias_height
+                         ? text_height
+                         : alias_height;
+
+  if (bar_item->background.enabled && bar_item->background.image.enabled
+      && bar_item->background.image.bounds.size.height > item_height    ) {
     return bar_item->background.image.bounds.size.height;
+  }
+
   return item_height;
 }
 
@@ -318,10 +404,16 @@ void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
-  bounding_rect.origin.y = bar_item->icon.bounds.origin.y < bar_item->label.bounds.origin.y ? bar_item->icon.bounds.origin.y : bar_item->label.bounds.origin.y;
+  bounding_rect.origin.y = bar_item->icon.bounds.origin.y
+                           < bar_item->label.bounds.origin.y
+                           ? bar_item->icon.bounds.origin.y
+                           : bar_item->label.bounds.origin.y;
 
-  if (bar_item->has_alias && bounding_rect.origin.y > bar_item->alias.image.bounds.origin.y)
+  if (bar_item->has_alias
+      && bounding_rect.origin.y > bar_item->alias.image.bounds.origin.y) {
     bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y;
+  }
+
   bounding_rect.size.width = bar_item_get_length(bar_item, false);
   bounding_rect.size.height = bar_item_get_height(bar_item);
   
@@ -331,17 +423,25 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
 void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height) {
   if (adid <= 0) return;
   if (bar_item->num_rects < adid) {
-    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects, sizeof(CGRect*) * adid);
-    memset(bar_item->bounding_rects + bar_item->num_rects, 0, sizeof(CGRect*) * (adid - bar_item->num_rects));
+    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects,
+                                                  sizeof(CGRect*) * adid   );
+    memset(bar_item->bounding_rects + bar_item->num_rects,
+           0,
+           sizeof(CGRect*) * (adid - bar_item->num_rects) );
+
     bar_item->num_rects = adid;
   }
   if (!bar_item->bounding_rects[adid - 1]) {
     bar_item->bounding_rects[adid - 1] = malloc(sizeof(CGRect));
     memset(bar_item->bounding_rects[adid - 1], 0, sizeof(CGRect));
   }
-  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1, -1);
+  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1,-1);
   bar_item->bounding_rects[adid - 1]->origin.x = rect.origin.x + bar_origin.x;
-  bar_item->bounding_rects[adid - 1]->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
+  bar_item->bounding_rects[adid - 1]->origin.y = -rect.origin.y
+                                                 - rect.size.height
+                                                 + bar_origin.y
+                                                 + height;
+
   bar_item->bounding_rects[adid - 1]->size = rect.size;
 }
 
@@ -358,7 +458,9 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   uint32_t icon_position = content_x + bar_item->background.padding_left;
-  uint32_t label_position = icon_position + text_get_length(&bar_item->icon, false);
+  uint32_t label_position = icon_position + text_get_length(&bar_item->icon,
+                                                            false           );
+
   uint32_t sandwich_position = label_position;
   if (bar_item->has_graph) {
     label_position += graph_get_length(&bar_item->graph);
@@ -367,27 +469,50 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-    group_calculate_bounds(bar_item->group, (bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT) ? 
-        (icon_position - group_get_length(bar_item->group) + bar_item_length) : 
-        icon_position, y, bar_item->position == POSITION_RIGHT || bar_item->position == POSITION_CENTER_LEFT);
+    group_calculate_bounds(bar_item->group,
+                           (bar_item->position == POSITION_RIGHT
+                            || bar_item->position == POSITION_CENTER_LEFT)
+                            ? (icon_position
+                              - group_get_length(bar_item->group)
+                              + bar_item_length                  )
+                            : icon_position,
+                           y,
+                           bar_item->position == POSITION_RIGHT
+                           || bar_item->position == POSITION_CENTER_LEFT);
 
-  text_calculate_bounds(&bar_item->icon, icon_position, y + bar_item->y_offset);
-  text_calculate_bounds(&bar_item->label, label_position, y + bar_item->y_offset);
+  text_calculate_bounds(&bar_item->icon,
+                        icon_position,
+                        y + bar_item->y_offset);
+
+  text_calculate_bounds(&bar_item->label,
+                        label_position,
+                        y + bar_item->y_offset);
 
   if (bar_item->has_alias)
-    alias_calculate_bounds(&bar_item->alias, sandwich_position, y + bar_item->y_offset);
+    alias_calculate_bounds(&bar_item->alias,
+                           sandwich_position,
+                           y + bar_item->y_offset);
 
   if (bar_item->has_graph) {
-    bar_item->graph.bounds.size.height = bar_item->background.enabled ? (bar_item->background.bounds.size.height - bar_item->background.border_width - 1)
-                                                                    : (bar_height - (g_bar_manager.background.border_width + 1));
+    bar_item->graph.bounds.size.height = bar_item->background.enabled
+                                         ? (bar_item->background.bounds.size.height
+                                            - bar_item->background.border_width - 1)
+                                         : (bar_height
+                                            - (g_bar_manager.background.border_width + 1));
+
     graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
   }
 
   if (bar_item->background.enabled) {
-    bar_item->background.bounds.size.height = bar_item->background.overrides_height ? bar_item->background.bounds.size.height
-                                                                                  : (bar_height - (g_bar_manager.background.border_width + 1));
+    bar_item->background.bounds.size.height = bar_item->background.overrides_height
+                                              ? bar_item->background.bounds.size.height
+                                              : (bar_height
+                                                 - (g_bar_manager.background.border_width + 1));
+
     bar_item->background.bounds.size.width = bar_item_length;
-    background_calculate_bounds(&bar_item->background, x + bar_item->background.padding_left, y + bar_item->y_offset);
+    background_calculate_bounds(&bar_item->background,
+                                x + bar_item->background.padding_left,
+                                y + bar_item->y_offset                );
   }
   return bar_item_length;
 }
@@ -420,14 +545,20 @@ void bar_item_destroy(struct bar_item* bar_item) {
     }
     free(bar_item->bounding_rects);
   }
+
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
   }
+
   if (bar_item->has_alias) {
     alias_destroy(&bar_item->alias);
   }
-  if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP) group_destroy(bar_item->group);
-  else if (bar_item->group) group_remove_member(bar_item->group, bar_item);
+
+  if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP)
+    group_destroy(bar_item->group);
+  else if (bar_item->group)
+    group_remove_member(bar_item->group, bar_item);
+
   env_vars_destroy(&bar_item->signal_args.env_vars);
   popup_destroy(&bar_item->popup);
   background_destroy(&bar_item->background);

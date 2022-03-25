@@ -32,8 +32,17 @@ void popup_calculate_bounds(struct popup* popup) {
     if (popup->horizontal) bar_item = popup->items[j];
     else bar_item = popup->items[popup->num_items - 1 - j];
     if (!bar_item->drawing) continue;
-    uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size ? bar_item_get_height(bar_item) : popup->cell_size;
-    uint32_t item_width = bar_item->background.padding_right + bar_item->background.padding_left + bar_item_calculate_bounds(bar_item, cell_height, x, y + cell_height / 2);
+    uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size
+                           ? bar_item_get_height(bar_item)
+                           : popup->cell_size;
+
+    uint32_t item_width = bar_item->background.padding_right
+                          + bar_item->background.padding_left
+                          + bar_item_calculate_bounds(bar_item,
+                                                      cell_height,
+                                                      x,
+                                                      y + cell_height / 2);
+
     if (item_width > width && !popup->horizontal) width = item_width;
     if (cell_height > height && popup->horizontal) height = cell_height;
     if (popup->horizontal) x += item_width;
@@ -58,7 +67,11 @@ void popup_resize(struct popup* popup) {
   CFTypeRef frame_region;
   popup_create_frame(popup, &frame_region);
 
-  SLSSetWindowShape(g_connection, popup->id, popup->anchor.x, popup->anchor.y, frame_region);
+  SLSSetWindowShape(g_connection,
+                    popup->id,
+                    popup->anchor.x,
+                    popup->anchor.y,
+                    frame_region    );
 
   SLSClearActivationRegion(g_connection, popup->id);
   SLSAddActivationRegion(g_connection, popup->id, frame_region);
@@ -74,7 +87,13 @@ void popup_create_window(struct popup* popup) {
   CFTypeRef frame_region;
   popup_create_frame(popup, &frame_region);
 
-  SLSNewWindow(g_connection, 2, popup->anchor.x, popup->anchor.y, frame_region, &popup->id);
+  SLSNewWindow(g_connection,
+               2,
+               popup->anchor.x,
+               popup->anchor.y,
+               frame_region,
+               &popup->id      );
+
   SLSAddActivationRegion(g_connection, popup->id, frame_region);
   CFRelease(frame_region);
 
@@ -82,7 +101,10 @@ void popup_create_window(struct popup* popup) {
   SLSSetWindowTags(g_connection, popup->id, &set_tags, 64);
   SLSClearWindowTags(g_connection, popup->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, popup->id, 0);
-  SLSSetWindowBackgroundBlurRadius(g_connection, popup->id, g_bar_manager.blur_radius);
+  SLSSetWindowBackgroundBlurRadius(g_connection,
+                                   popup->id,
+                                   g_bar_manager.blur_radius);
+
   if (!popup->background.shadow.enabled) window_disable_shadow(popup->id);
 
   SLSSetWindowLevel(g_connection, popup->id, kCGScreenSaverWindowLevelKey);
@@ -104,7 +126,8 @@ void popup_close_window(struct popup* popup) {
 
 void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   popup->num_items++;
-  popup->items = realloc(popup->items, sizeof(struct bar_item*)*popup->num_items);
+  popup->items = realloc(popup->items,
+                         sizeof(struct bar_item*)*popup->num_items);
   popup->items[popup->num_items - 1] = bar_item;
 }
 
@@ -116,7 +139,8 @@ bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
 }
 
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
-  if (popup->num_items == 0 || !popup_contains_item(popup, bar_item)) return;
+  if (popup->num_items == 0 || !popup_contains_item(popup, bar_item))
+    return;
   else if (popup->num_items == 1) {
     free(popup->items);
     popup->items = NULL;
@@ -131,12 +155,14 @@ void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
     tmp[count++] = popup->items[i];
   }
   popup->num_items--;
-  popup->items = realloc(popup->items, sizeof(struct bar_item*)*popup->num_items);
+  popup->items = realloc(popup->items,
+                         sizeof(struct bar_item*)*popup->num_items);
   memcpy(popup->items, tmp, sizeof(struct bar_item*)*popup->num_items);
 }
 
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
-  if (popup->anchor.x != anchor.x || popup->anchor.y != anchor.y + popup->y_offset) {
+  if (popup->anchor.x != anchor.x
+      || popup->anchor.y != anchor.y + popup->y_offset) {
     popup->anchor = anchor;
     popup->anchor.y += popup->y_offset;
     SLSMoveWindow(g_connection, popup->id, &popup->anchor);
@@ -154,18 +180,30 @@ void popup_draw(struct popup* popup) {
 
   SLSOrderWindow(g_connection, popup->id, -1, 0);
   popup_resize(popup);
-  draw_rect(popup->context, popup->background.bounds, &popup->background.color, popup->background.corner_radius, popup->background.border_width, &popup->background.border_color, true);
+  draw_rect(popup->context,
+            popup->background.bounds,
+            &popup->background.color,
+            popup->background.corner_radius,
+            popup->background.border_width,
+            &popup->background.border_color,
+            true                            );
 
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
     if (!bar_item->drawing) continue;
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item), popup->background.bounds.size.height / 2.);
+    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
+        || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
+      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(bar_item),
+                                             popup->background.bounds.size.height / 2.  );
+
       tracking_rect.origin.y -= tracking_rect.size.height;
       SLSAddTrackingRect(g_connection, popup->id, tracking_rect);
     }
 
-    bar_item_set_bounding_rect_for_display(bar_item, popup->adid, popup->anchor, popup->background.bounds.size.height);
+    bar_item_set_bounding_rect_for_display(bar_item,
+                                           popup->adid,
+                                           popup->anchor,
+                                           popup->background.bounds.size.height);
 
     bool state = bar_item->popup.drawing;
     bar_item->popup.drawing = false;
@@ -189,10 +227,13 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
     popup->y_offset = token_to_int(get_token(&message));
     return true;
   } else if (token_equals(property, PROPERTY_DRAWING)) {
-    popup_set_drawing(popup, evaluate_boolean_state(get_token(&message), popup->drawing));
+    popup_set_drawing(popup,
+                      evaluate_boolean_state(get_token(&message),
+                      popup->drawing)                            );
     return true;
   } else if (token_equals(property, PROPERTY_HORIZONTAL)) {
-    popup->horizontal = evaluate_boolean_state(get_token(&message), popup->horizontal);
+    popup->horizontal = evaluate_boolean_state(get_token(&message),
+                                               popup->horizontal   );
     return true;
   } else if (token_equals(property, PROPERTY_ALIGN)) {
     popup->align = get_token(&message).text[0];
@@ -203,12 +244,16 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
     return true;
   } 
   else {
-    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
     if (key_value_pair.key && key_value_pair.value) {
       struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
-      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+      struct token entry = {key_value_pair.value,strlen(key_value_pair.value)};
       if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
-        return background_parse_sub_domain(&popup->background, rsp, entry, message);
+        return background_parse_sub_domain(&popup->background,
+                                           rsp,
+                                           entry,
+                                           message            );
       else {
         fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
         printf("Invalid subdomain: %s \n", subdom.text);

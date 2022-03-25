@@ -31,11 +31,16 @@ AXUIElementRef ax_get_extra_menu_item(struct ax* ax, pid_t pid, char* name) {
   CFArrayRef children_ref = NULL;
 
   AXUIElementRef app = AXUIElementCreateApplication(pid);
-  AXError error = AXUIElementCopyAttributeValue(app, kAXExtrasMenuBarAttribute, (CFTypeRef*)&extra_menus_ref);
+  AXError error = AXUIElementCopyAttributeValue(app,
+                                                kAXExtrasMenuBarAttribute,
+                                                (CFTypeRef*)&extra_menus_ref);
   if (app) CFRelease(app);
 
   if (error == kAXErrorSuccess) {
-    error = AXUIElementCopyAttributeValue(extra_menus_ref, kAXVisibleChildrenAttribute, (CFTypeRef*)&children_ref);
+    error = AXUIElementCopyAttributeValue(extra_menus_ref,
+                                          kAXVisibleChildrenAttribute,
+                                          (CFTypeRef*)&children_ref);
+
     uint32_t count = CFArrayGetCount(children_ref);
 
     if (count == 1 || (count > 0 && !name)) {

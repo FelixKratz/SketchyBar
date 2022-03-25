@@ -6,16 +6,28 @@ extern int g_connection;
 
 static DISPLAY_EVENT_HANDLER(display_handler) {
     if (flags & kCGDisplayAddFlag) {
-        struct event *event = event_create(&g_event_loop, DISPLAY_ADDED, (void *)(intptr_t) did);
+        struct event *event = event_create(&g_event_loop,
+                                           DISPLAY_ADDED,
+                                           (void *)(intptr_t) did);
+
         event_loop_post(&g_event_loop, event);
     } else if (flags & kCGDisplayRemoveFlag) {
-        struct event *event = event_create(&g_event_loop, DISPLAY_REMOVED, (void *)(intptr_t) did);
+        struct event *event = event_create(&g_event_loop,
+                                           DISPLAY_REMOVED,
+                                           (void *)(intptr_t) did);
+
         event_loop_post(&g_event_loop, event);
     } else if (flags & kCGDisplayMovedFlag) {
-        struct event *event = event_create(&g_event_loop, DISPLAY_MOVED, (void *)(intptr_t) did);
+        struct event *event = event_create(&g_event_loop,
+                                           DISPLAY_MOVED,
+                                           (void *)(intptr_t) did);
+
         event_loop_post(&g_event_loop, event);
     } else if (flags & kCGDisplayDesktopShapeChangedFlag) {
-        struct event *event = event_create(&g_event_loop, DISPLAY_RESIZED, (void *)(intptr_t) did);
+        struct event *event = event_create(&g_event_loop,
+                                           DISPLAY_RESIZED,
+                                           (void *)(intptr_t) did);
+
         event_loop_post(&g_event_loop, event);
     }
 }
@@ -55,7 +67,9 @@ uint64_t *display_space_list(uint32_t did, int *count) {
 
     for (int i = 0; i < display_spaces_count; ++i) {
         CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
-        CFStringRef identifier = CFDictionaryGetValue(display_ref, CFSTR("Display Identifier"));
+        CFStringRef identifier = CFDictionaryGetValue(display_ref,
+                                                      CFSTR("Display Identifier"));
+
         if (!CFEqual(uuid, identifier)) continue;
 
         CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
@@ -137,7 +151,8 @@ uint32_t display_arrangement_display_id(int arrangement) {
     int displays_count = CFArrayGetCount(displays);
     for (int i = 0; i < displays_count; ++i) {
         if ((i+1) != arrangement) continue;
-        CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL, CFArrayGetValueAtIndex(displays, i));
+        CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL,
+                                                    CFArrayGetValueAtIndex(displays, i));
         result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
         CFRelease(uuid_ref);
         break;
@@ -173,11 +188,13 @@ uint32_t *display_active_display_list(uint32_t *count) {
 }
 
 bool display_begin() {
-    return CGDisplayRegisterReconfigurationCallback(display_handler, NULL) == kCGErrorSuccess;
+    return CGDisplayRegisterReconfigurationCallback(display_handler, NULL)
+            == kCGErrorSuccess;
 }
 
 bool display_end() {
-    return CGDisplayRemoveReconfigurationCallback(display_handler, NULL) == kCGErrorSuccess;
+    return CGDisplayRemoveReconfigurationCallback(display_handler, NULL)
+            == kCGErrorSuccess;
 }
 
 

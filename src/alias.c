@@ -1,13 +1,11 @@
 #include "alias.h"
 
-extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
-extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
-
 void print_all_menu_items(FILE* rsp) {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
   if (__builtin_available(macOS 11.0, *)) CGRequestScreenCaptureAccess();
 #endif
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
+                                                      kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
   printf("[\n");
@@ -17,8 +15,12 @@ void print_all_menu_items(FILE* rsp) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
 
-    CFStringRef owner_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerName);
-    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerPID);
+    CFStringRef owner_ref = CFDictionaryGetValue(dictionary,
+                                                 kCGWindowOwnerName);
+
+    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary,
+                                                     kCGWindowOwnerPID);
+
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
@@ -30,8 +32,11 @@ void print_all_menu_items(FILE* rsp) {
     long long int layer = 0;
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     uint64_t owner_pid = 0;
-    CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &owner_pid);
-    if (layer != MENUBAR_LAYER ) continue;
+    CFNumberGetValue(owner_pid_ref,
+                     CFNumberGetType(owner_pid_ref),
+                     &owner_pid                     );
+
+    if (layer != MENUBAR_LAYER) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
@@ -53,7 +58,8 @@ void print_all_menu_items(FILE* rsp) {
 
 void alias_get_permission(struct alias* alias) { 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 
-  if (__builtin_available(macOS 11.0, *)) alias->permission = CGRequestScreenCaptureAccess();
+  if (__builtin_available(macOS 11.0, *))
+    alias->permission = CGRequestScreenCaptureAccess();
 #endif
 }
 
@@ -85,22 +91,33 @@ uint32_t alias_get_height(struct alias* alias) {
 }
 
 void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
+  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
+                                                      kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
 
-    CFStringRef owner_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerName);
-    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary, kCGWindowOwnerPID);
+    CFStringRef owner_ref = CFDictionaryGetValue(dictionary,
+                                                 kCGWindowOwnerName);
+
+    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary,
+                                                     kCGWindowOwnerPID);
+
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    if (!(alias->owner && strcmp(alias->owner, owner) == 0 && ((alias->name && strcmp(alias->name, name) == 0) || (!alias->name && strcmp(name, "") != 0)))) { free(owner); free(name); continue; }
+    if (!(alias->owner && strcmp(alias->owner, owner) == 0
+          && ((alias->name && strcmp(alias->name, name) == 0)
+              || (!alias->name && strcmp(name, "") != 0)     ))) {
+      free(owner);
+      free(name);
+      continue;
+    }
     free(owner);
     free(name);
 
@@ -111,14 +128,20 @@ void alias_find_window(struct alias* alias) {
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     if (layer != MENUBAR_LAYER) continue;
 
-    CFNumberGetValue(owner_pid_ref, CFNumberGetType(owner_pid_ref), &alias->pid);
+    CFNumberGetValue(owner_pid_ref,
+                     CFNumberGetType(owner_pid_ref),
+                     &alias->pid                    );
 
-    CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary, kCGWindowNumber);
+    CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary,
+                                                     kCGWindowNumber);
+
     if (!window_id_ref) continue;
     CFDictionaryRef bounds = CFDictionaryGetValue(dictionary, kCGWindowBounds);
     if (!bounds) continue;
     CGRectMakeWithDictionaryRepresentation(bounds, &alias->image.bounds);
-    CFNumberGetValue(window_id_ref, CFNumberGetType(window_id_ref), &alias->wid);
+    CFNumberGetValue(window_id_ref,
+                     CFNumberGetType(window_id_ref),
+                     &alias->wid                    );
 
     CFRelease(window_list);
     return;
@@ -136,9 +159,17 @@ bool alias_update_image(struct alias* alias) {
   bounds.size.width = (uint32_t) (bounds.size.width + 0.5);
 
   CGImageRef tmp_ref = NULL;
-  SLSCaptureWindowsContentsToRectWithOptions(g_connection, &alias->wid, true, CGRectNull, 1 << 8, &tmp_ref);
+  SLSCaptureWindowsContentsToRectWithOptions(g_connection,
+                                             &alias->wid,
+                                             true,
+                                             CGRectNull,
+                                             1 << 8,
+                                             &tmp_ref     );
 
-  if (!tmp_ref) { alias->wid = 0; return false; }
+  if (!tmp_ref) {
+    alias->wid = 0;
+    return false;
+  }
 
   return image_set_image(&alias->image, tmp_ref, bounds, false);
 }
@@ -148,7 +179,12 @@ void alias_draw(struct alias* alias, CGContextRef context) {
     CGContextSaveGState(context);
     image_draw(&alias->image, context);
     CGContextClipToMask(context, alias->image.bounds, alias->image.image_ref);
-    CGContextSetRGBFillColor(context, alias->color.r, alias->color.g, alias->color.b, alias->color.a);
+    CGContextSetRGBFillColor(context,
+                             alias->color.r,
+                             alias->color.g,
+                             alias->color.b,
+                             alias->color.a );
+
     CGContextFillRect(context, alias->image.bounds);
     CGContextRestoreGState(context);
   }
@@ -170,12 +206,15 @@ void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y) {
 }
 
 bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token property, char* message) {
-  struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+  struct key_value_pair key_value_pair = get_key_value_pair(property.text,'.');
   if (key_value_pair.key && key_value_pair.value) {
     struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
-    struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+    struct token entry = { key_value_pair.value, strlen(key_value_pair.value)};
     if (token_equals(subdom, SUB_DOMAIN_SHADOW))
-      return shadow_parse_sub_domain(&alias->image.shadow, rsp, entry, message);
+      return shadow_parse_sub_domain(&alias->image.shadow,
+                                     rsp,
+                                     entry,
+                                     message              );
     else {
       fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
       printf("Invalid subdomain: %s \n", subdom.text);
