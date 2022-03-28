@@ -226,36 +226,36 @@ A list of properties available to the *set* command is listed below (components 
 
 * Background properties:
 
-| \<background_property\>    | \<value\>            | default      | description                                 |
-| :-------:                  | :------:             | :-------:    | -----------                                 |
-| `drawing`                  | `<boolean>`          | `off`        | If the `background` should be rendered      |
-| `color`                    | `<argb_hex>`         | `0x00000000` | Fill color of the `background`              |
-| `border_color`             | `<argb_hex>`         | `0x00000000` | Color of the backgrounds border             |
-| `border_width`             | `<positive_integer>` | `0`          | Width of the background border              |
-| `height`                   | `<positive_integer>` | `0`          | Overrides the `height` of the background    |
-| `corner_radius`            | `<positive_integer>` | `0`          | Corner radius of the background             |
-| `padding_left`             | `<integer>`          | `0`          | Padding to the left of the `background`     |
-| `padding_right`            | `<integer>`          | `0`          | Padding to the right of the `background`    |
-| `y_offset`                 | `<integer>`          | `0`          | Vertical offset applied to the `background` |
-| `shadow.<shadow_property>` |                      |              | Backgrounds support all `shadow` properties |
-| `image.<image_property>`   |                      |              | Backgrounds support all `image` properties  |
-
-* Shadow properties:
-
-| \<shadow_property\> | \<value\>            | default    | description                   |
-| :-------:           | :------:             | :-------:  | -----------                   |
-| `shadow.drawing`    | `<boolean>`          | `off`      | If the shadow should be drawn |
-| `shadow.color`      | `<argb_hex>`         | 0xff000000 | Color of the shadow           |
-| `shadow.angle`      | `<positive_integer>` | 30         | Angle of the shadow           |
-| `shadow.distance`   | `<positive_integer>` | 5          | Distance of the shadow        |
+| \<background_property\>    | \<value\>                            | default      | description                                 |
+| :-------:                  | :------:                             | :-------:    | -----------                                 |
+| `drawing`                  | `<boolean>`                          | `off`        | If the `background` should be rendered      |
+| `color`                    | `<argb_hex>`                         | `0x00000000` | Fill color of the `background`              |
+| `border_color`             | `<argb_hex>`                         | `0x00000000` | Color of the backgrounds border             |
+| `border_width`             | `<positive_integer>`                 | `0`          | Width of the background border              |
+| `height`                   | `<positive_integer>`                 | `0`          | Overrides the `height` of the background    |
+| `corner_radius`            | `<positive_integer>`                 | `0`          | Corner radius of the background             |
+| `padding_left`             | `<integer>`                          | `0`          | Padding to the left of the `background`     |
+| `padding_right`            | `<integer>`                          | `0`          | Padding to the right of the `background`    |
+| `y_offset`                 | `<integer>`                          | `0`          | Vertical offset applied to the `background` |
+| `image`                    | The path to a png or jpeg image file | `<path>`     |                                             |
+| `image.<image_property>`   |                                      |              | Backgrounds support all `image` properties  |
+| `shadow.<shadow_property>` |                                      |              | Backgrounds support all `shadow` properties |
 
 * Image properties (Can be resource intensive if many large images are drawn):
 
 | \<image_property\> | \<value\>                                            | default              | description |
 | :-------:          | :------:                                             | :-------:            | ----------- |
-| `image`            | The path to a png or jpeg image file                 | `<path>`             |             |
-| `image.drawing`    | If the image should draw                             | `<boolean>`          | `off`       |
-| `image.scale`      | The scale factor that should be applied to the image | `<positive_integer>` | `0`         |
+| `drawing`          | If the image should draw                             | `<boolean>`          | `off`       |
+| `scale`            | The scale factor that should be applied to the image | `<positive_integer>` | `0`         |
+
+* Shadow properties:
+
+| \<shadow_property\> | \<value\>            | default      | description                   |
+| :-------:           | :------:             | :-------:    | -----------                   |
+| `drawing`           | `<boolean>`          | `off`        | If the shadow should be drawn |
+| `color`             | `<argb_hex>`         | `0xff000000` | Color of the shadow           |
+| `angle`             | `<positive_integer>` | `30`         | Angle of the shadow           |
+| `distance`          | `<positive_integer>` | `5`          | Distance of the shadow        |
 
 ### Changing the default values for all further items
 It is possible to change the *defaults* at every point in the configuration. All item created *after* changing the defaults will
@@ -266,11 +266,6 @@ sketchybar --default <property>=<value> ... <property>=<value>
 ```
 this works for all item properties.
 
-It is also possible to reset the defaults via the command
-```bash
-sketchybar --default reset
-```
-
 ### Type nomenclature
 
 | `type`                    | `values`                                                         |
@@ -279,6 +274,7 @@ sketchybar --default reset
 | `<argb_hex>`              | Color as an 8 digit hex with alpha, red, green and blue channels |
 | `<path>`                  | An absolute file path                                            |
 | `<string>`                | Any UTF-8 string or symbol                                       |
+| `<float>`                 | A floating point number                                          |
 | `<integer>`               | An integer                                                       |
 | `<positive_integer>`      | A positive integer                                               |
 | `<positive_integer list>` | A comma separated list of positive integers                      |
@@ -300,6 +296,12 @@ Additional graph properties:
 * *graph.color*: color of the associated graph
 * *graph.fill_color*: optional property to override the automatically calculated fill color of the graph
 * *graph.line_width*: sets the line width of the associated graph
+
+| \<property\>       | \<value\>    | default    | description                 |
+| :-------:          | :------:     | :-------:  | -----------                 |
+| `graph.color`      | `<argb_hex>` | `0xcccccc` | Color of the graph line     |
+| `graph.fill_color` | `<argb_hex>` | `0xcccccc` | Fill color of the graph     |
+| `graph.line_width` | `<float>`    | `0.5`      | Width of the line in points |
 
 Push data points into the graph via:
 ```bash
@@ -389,14 +391,17 @@ sketchybar --set <name> alias.color=<rgba_hex>
 <img src="https://user-images.githubusercontent.com/22680421/146688291-b8bc5e77-e6a2-42ee-bd9f-b3709c63d936.png" width="300"> <br>
 Popup menus are a powerful way to make further `items` accessible in a small popup window below any bar item.
 Every item has a popup available with the properties:
-* *popup.background.\<property\>*: All background properties are available for the popup
-* *popup.align*: Where to align the popup below the item (values: *left*, *right*, *center*, default: *left*)
-* *popup.horizontal*: If the popup should draw horizontally, by default popups will draw vertically (values: *on*, *off*, *toggle*, default: *off*)
-* *popup.drawing*: If the popup should draw (values: *on*, *off*, *toggle*, default: *off*)
-* *popup.y_offset*: The vertical offset for the popup anchor (default: 0)
-* *popup.height*: The vertical spacing between items in the vertical layout (default: bar height) (Only on HEAD)
 
-Items can be added to a popup menu by setting the `position` of those items to `popup.<name>` where <name> is the name of the item containing the popup.
+| \<property\>                             | \<value\>                 | default    | description                                                  |
+| :-------:                                | :------:                  | :-------:  | -----------                                                  |
+| `popup.drawing`                          | `<boolean>`               | `off`      | If the `popup` should be rendered                            |
+| `popup.horizontal`                       | `<boolean>`               | `off`      | If the `popup` should render horizontally                    |
+| `popup.height`                           | `<positive_integer>`      | bar height | The vertical spacing between items in a popup (Only on HEAD) |
+| `popup.y_offset`                         | `<integer>`               | `0`        | Vertical offset applied to the `popup`                       |
+| `popup.align`                            | `left`, `right`, `center` | `left`     | Alignment of the popup with its parent item in the bar       |
+| `popup.background.<background_property>` |                           |            | Popups have a background and support all properties          |
+
+Items can be added to a popup menu by setting the `position` of those items to `popup.<name>` where `<name>` is the name of the item containing the popup.
 You can find a demo implementation of this [here](https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-1843975).
 
 ## Batching of configuration commands
@@ -427,14 +432,17 @@ This can be used to create more reactive and performant items which react to eve
 sketchybar --subscribe <name> <event> ... <event>
 ```
 where the events are:
-* *front_app_switched*: when the frontmost application changes (not triggered if a different app of the same window is focused)
-* *space_change*: when the space is changed
-* *display_change*: when the display is changed
-* *system_will_sleep*: when the system is preparing to sleep
-* *system_woke*: when the system has awaken from sleep
-* *mouse.entered*: when the mouse enters over an item
-* *mouse.exited*: when the mouse leaves an item
-* *mouse.clicked*: when an item is clicked
+
+| \<event\>            | description                                                                                         |
+| :-------:            | :------:                                                                                            |
+| `front_app_switched` | When the front application changes (not triggered if a different window of the same app is focused) |
+| `space_change`       | When the active mission control space changes                                                       |
+| `display_change`     | When the active display is changed                                                                  |
+| `system_will_sleep`  | When the system prepares to sleep                                                                   |
+| `system_woke`        | When the system has awaken from sleep                                                               |
+| `mouse.entered`      | When the mouse enters over an item                                                                  |
+| `mouse.exited`       | When the mouse leaves an item                                                                       |
+| `mouse.clicked`      | When an item is clicked                                                                             |
 
 When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names, to distinguish between the different events.
 It is thus possible to have a script that reacts to each event differently e.g. via a switch for the `$SENDER` variable in the *script*.
