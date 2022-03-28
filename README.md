@@ -226,27 +226,27 @@ A list of properties available to the *set* command is listed below (components 
 
 * Background properties:
 
-| \<background_property\>    | \<value\>                            | default      | description                                 |
-| :-------:                  | :------:                             | :-------:    | -----------                                 |
-| `drawing`                  | `<boolean>`                          | `off`        | If the `background` should be rendered      |
-| `color`                    | `<argb_hex>`                         | `0x00000000` | Fill color of the `background`              |
-| `border_color`             | `<argb_hex>`                         | `0x00000000` | Color of the backgrounds border             |
-| `border_width`             | `<positive_integer>`                 | `0`          | Width of the background border              |
-| `height`                   | `<positive_integer>`                 | `0`          | Overrides the `height` of the background    |
-| `corner_radius`            | `<positive_integer>`                 | `0`          | Corner radius of the background             |
-| `padding_left`             | `<integer>`                          | `0`          | Padding to the left of the `background`     |
-| `padding_right`            | `<integer>`                          | `0`          | Padding to the right of the `background`    |
-| `y_offset`                 | `<integer>`                          | `0`          | Vertical offset applied to the `background` |
-| `image`                    | The path to a png or jpeg image file | `<path>`     |                                             |
-| `image.<image_property>`   |                                      |              | Backgrounds support all `image` properties  |
-| `shadow.<shadow_property>` |                                      |              | Backgrounds support all `shadow` properties |
+| \<background_property\>    | \<value\>            | default      | description                                 |
+| :-------:                  | :------:             | :-------:    | -----------                                 |
+| `drawing`                  | `<boolean>`          | `off`        | If the `background` should be rendered      |
+| `color`                    | `<argb_hex>`         | `0x00000000` | Fill color of the `background`              |
+| `border_color`             | `<argb_hex>`         | `0x00000000` | Color of the backgrounds border             |
+| `border_width`             | `<positive_integer>` | `0`          | Width of the background border              |
+| `height`                   | `<positive_integer>` | `0`          | Overrides the `height` of the background    |
+| `corner_radius`            | `<positive_integer>` | `0`          | Corner radius of the background             |
+| `padding_left`             | `<integer>`          | `0`          | Padding to the left of the `background`     |
+| `padding_right`            | `<integer>`          | `0`          | Padding to the right of the `background`    |
+| `y_offset`                 | `<integer>`          | `0`          | Vertical offset applied to the `background` |
+| `image`                    | `<path>`             |              | The path to a png or jpeg image file        |
+| `image.<image_property>`   |                      |              | Backgrounds support all `image` properties  |
+| `shadow.<shadow_property>` |                      |              | Backgrounds support all `shadow` properties |
 
 * Image properties (Can be resource intensive if many large images are drawn):
 
-| \<image_property\> | \<value\>                                            | default              | description |
-| :-------:          | :------:                                             | :-------:            | ----------- |
-| `drawing`          | If the image should draw                             | `<boolean>`          | `off`       |
-| `scale`            | The scale factor that should be applied to the image | `<positive_integer>` | `0`         |
+| \<image_property\> | \<value\>            | default   | description                                          |
+| :-------:          | :------:             | :-------: | -----------                                          |
+| `drawing`          | `<boolean>`          | `off`     | If the image should draw                             |
+| `scale`            | `<positive_integer>` | `0`       | The scale factor that should be applied to the image |
 
 * Shadow properties:
 
