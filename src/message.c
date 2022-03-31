@@ -34,9 +34,12 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
   struct token token = get_token(&message);
   while (token.text && token.length > 0) {
     struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
-    env_vars_set(&env_vars,
-                 string_copy(key_value_pair.key),
-                 string_copy(key_value_pair.value));
+    
+    if (key_value_pair.key && key_value_pair.value) {
+      env_vars_set(&env_vars,
+                   string_copy(key_value_pair.key),
+                   string_copy(key_value_pair.value));
+    }
 
     token = get_token(&message);
   }
