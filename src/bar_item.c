@@ -79,6 +79,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->updates_only_when_shown = false;
   bar_item->selected = false;
   bar_item->mouse_over = false;
+  bar_item->ignore_association = false;
   bar_item->counter = 0;
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;

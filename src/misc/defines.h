@@ -68,6 +68,7 @@
 #define PROPERTY_LABEL                                      "label"
 #define PROPERTY_CACHE_SCRIPTS                              "cache_scripts"
 #define PROPERTY_LAZY                                       "lazy"
+#define PROPERTY_IGNORE_ASSOCIATION                         "ignore_association"
 
 #define DOMAIN_BAR                                          "--bar"
 #define PROPERTY_POSITION                                   "position"

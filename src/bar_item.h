@@ -21,6 +21,7 @@ struct bar_item {
   bool lazy;
   bool selected;
   bool mouse_over;
+  bool ignore_association;
 
   // Drawing Modifiers
   bool drawing;

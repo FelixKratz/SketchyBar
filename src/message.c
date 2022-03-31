@@ -1,4 +1,5 @@
 #include "message.h"
+#include "misc/defines.h"
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -307,6 +308,10 @@ static void message_parse_set_message_for_bar_item(FILE* rsp, struct bar_item* b
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {
     bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
+  } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
+    bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
+                                                          bar_item->ignore_association);
+    needs_update = true;
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   } else {

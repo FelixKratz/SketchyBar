@@ -174,6 +174,7 @@ A list of properties available to the *set* command is listed below (components 
 | `position`           | `left`, `right`, `center`         |           | Position of the item in the bar                                                                      |
 | `associated_space`   | `<positive_integer list>`         | `0`       | Spaces to show this item on                                                                          |
 | `associated_display` | `<positive_integer list>`         | `0`       | Displays to show this item on                                                                        |
+| `ignore_association` | `<boolean>`                       | `off`     | Ignores all space / display associations while on (Only on HEAD)                                     |
 | `y_offset`           | `<integer>`                       | `0`       | Vertical offset applied to the `text`                                                                |
 | `width`              | `<positive_integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points                                                 |
 | `align`              | `center`, `left`, `right`         | `left`    | Aligns the `item` content in its container when it has a fixed `width` larger than the content width |
