@@ -91,6 +91,7 @@ void bar_draw(struct bar* bar) {
                                            bar->origin,
                                            bar->frame.size.height);
 
+
     bar_item_draw(bar_item, bar->context);
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);

@@ -275,7 +275,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
                                && bar_item->associated_bar != 0))
         && bar_item->needs_update && (is_associated_space_shown
                                       || is_associated_display_shown)
-        && !bar_item->lazy                                           ) {
+        && (!bar_item->lazy || bar_manager->picky_redraw)            ) {
       return true;
     }
   }

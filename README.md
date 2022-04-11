@@ -308,6 +308,7 @@ Push data points into the graph via:
 ```bash
 sketchybar --push <name> <data point>
 ```
+where the `data point` is a floating point number between 0 and 1.
 
 ### Space -- Associate mission control spaces with an item
 ```bash

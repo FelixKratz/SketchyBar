@@ -267,29 +267,40 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     text->highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     return text_update_color(text);
   } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+    int prev = text->padding_left;
     text->padding_left = token_to_int(get_token(&message));
-    return true;
+    return prev != text->padding_left;
   } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
+    int prev = text->padding_right;
     text->padding_right = token_to_int(get_token(&message));
-    return true;
+    return prev != text->padding_right;
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
+    int prev = text->y_offset;
     text->y_offset = token_to_int(get_token(&message));
-    return true;
+    return prev != text->y_offset;
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    if (token_equals(token, ARGUMENT_DYNAMIC))
-      text->has_const_width = false;
+    if (token_equals(token, ARGUMENT_DYNAMIC)) {
+      if (text->has_const_width) {
+        text->has_const_width = false;
+        return true;
+      }
+    }
     else {
+      uint32_t prev = text->custom_width;
       text->has_const_width = true;
       text->custom_width = token_to_uint32t(token);
+      return prev != text->custom_width;
     }
-    return true;
+    return false;
   } else if (token_equals(property, PROPERTY_DRAWING)) {
+    bool prev = text->drawing;
     text->drawing = evaluate_boolean_state(get_token(&message), text->drawing);
-    return true;
+    return prev != text->drawing;
   } else if (token_equals(property, PROPERTY_ALIGN)) {
+    char prev = text->align;
     text->align = get_token(&message).text[0];
-    return true;
+    return prev != text->align;
   } 
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');

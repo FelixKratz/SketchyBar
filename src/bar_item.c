@@ -415,7 +415,7 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
     bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y;
   }
 
-  bounding_rect.size.width = bar_item_get_length(bar_item, false);
+  bounding_rect.size.width = bar_item_get_length(bar_item, true);
   bounding_rect.size.height = bar_item_get_height(bar_item);
   
   return bounding_rect;
