@@ -545,8 +545,8 @@ void bar_item_destroy(struct bar_item* bar_item) {
   text_destroy(&bar_item->label);
 
   if (bar_item->bounding_rects) {  
-    for (int j = 0; j < bar_item->num_rects; j++) {
-      free(bar_item->bounding_rects[j]);
+    for (int adid = 1; adid <= bar_item->num_rects; adid++) {
+      bar_item_remove_bounding_rect_for_display(bar_item, adid);
     }
     free(bar_item->bounding_rects);
   }
