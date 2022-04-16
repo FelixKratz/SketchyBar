@@ -4,7 +4,7 @@ ODIR     = bin
 SRC      = src
 
 _OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
-       image.o mouse.o shadow.o text.o message.o mouse.o ax.o bar.o \
+       image.o mouse.o shadow.o text.o message.o mouse.o ax.o bar.o window.o \
        bar_manager.o display.o event_loop.o group.o mach.o popup.o workspace.om
 OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 

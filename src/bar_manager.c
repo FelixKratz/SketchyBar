@@ -161,7 +161,7 @@ bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
   if (bar_manager->blur_radius == radius) return false;
   bar_manager->blur_radius = radius;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    window_set_blur_radius(bar_manager->bars[i]->id);
+    window_set_blur_radius(&bar_manager->bars[i]->window, radius);
   }
   return true;
 }
@@ -207,7 +207,7 @@ bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smooth
   if (bar_manager->font_smoothing == smoothing) return false;
   bar_manager->font_smoothing = smoothing;
   for (int i = 0; i < bar_manager->bar_count; i++)
-    context_set_font_smoothing(bar_manager->bars[i]->context, smoothing);
+    context_set_font_smoothing(bar_manager->bars[i]->window.context, smoothing);
   return true;
 }
 

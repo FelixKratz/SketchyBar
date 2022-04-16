@@ -6,9 +6,6 @@ void popup_init(struct popup* popup) {
   popup->drawing = false;
   popup->horizontal = false;
   popup->overrides_cell_size = false;
-  popup->context = NULL;
-  popup->id = 0;
-  popup->frame.origin = (CGPoint){0,0};
   popup->anchor = (CGPoint){0, 0};
   popup->y_offset = 0;
   popup->adid = 0;
@@ -59,68 +56,23 @@ void popup_calculate_bounds(struct popup* popup) {
   popup->background.bounds.size.height = y;
 }
 
-void popup_create_frame(struct popup *popup, CFTypeRef *frame_region) {
-  CGSNewRegionWithRect(&popup->background.bounds, frame_region);
-}
-
-void popup_resize(struct popup* popup) {
-  CFTypeRef frame_region;
-  popup_create_frame(popup, &frame_region);
-
-  SLSSetWindowShape(g_connection,
-                    popup->id,
-                    popup->anchor.x,
-                    popup->anchor.y,
-                    frame_region    );
-
-  SLSClearActivationRegion(g_connection, popup->id);
-  SLSAddActivationRegion(g_connection, popup->id, frame_region);
-  SLSRemoveAllTrackingAreas(g_connection, popup->id);
-
-  CFRelease(frame_region);
-}
-
 void popup_create_window(struct popup* popup) {
-  uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
-  uint64_t clear_tags = kCGSSuperStickyTagBit;
+  window_create(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},
+                                         {popup->background.bounds.size.width,
+                                          popup->background.bounds.size.height}});
 
-  CFTypeRef frame_region;
-  popup_create_frame(popup, &frame_region);
+  if (!popup->background.shadow.enabled)
+    window_disable_shadow(&popup->window);
 
-  SLSNewWindow(g_connection,
-               2,
-               popup->anchor.x,
-               popup->anchor.y,
-               frame_region,
-               &popup->id      );
-
-  SLSAddActivationRegion(g_connection, popup->id, frame_region);
-  CFRelease(frame_region);
-
-  SLSSetWindowResolution(g_connection, popup->id, 2.0f);
-  SLSSetWindowTags(g_connection, popup->id, &set_tags, 64);
-  SLSClearWindowTags(g_connection, popup->id, &clear_tags, 64);
-  SLSSetWindowOpacity(g_connection, popup->id, 0);
-  SLSSetWindowBackgroundBlurRadius(g_connection,
-                                   popup->id,
-                                   g_bar_manager.blur_radius);
-
-  if (!popup->background.shadow.enabled) window_disable_shadow(popup->id);
-
-  SLSSetWindowLevel(g_connection, popup->id, kCGScreenSaverWindowLevelKey);
-  popup->context = SLWindowContextCreate(g_connection, popup->id, 0);
-  CGContextSetInterpolationQuality(popup->context, kCGInterpolationNone);
-  context_set_font_smoothing(popup->context, g_bar_manager.font_smoothing);
+  window_set_level(&popup->window, kCGScreenSaverWindowLevelKey);
+  CGContextSetInterpolationQuality(popup->window.context, kCGInterpolationNone);
+  context_set_font_smoothing(popup->window.context, g_bar_manager.font_smoothing);
 
   popup->drawing = true;
 }
 
 void popup_close_window(struct popup* popup) {
-  CGContextRelease(popup->context);
-  SLSReleaseWindow(g_connection, popup->id);
-
-  popup->context = NULL;
-  popup->id = false;
+  window_close(&popup->window);
   popup->drawing = false;
 }
 
@@ -165,7 +117,7 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
       || popup->anchor.y != anchor.y + popup->y_offset) {
     popup->anchor = anchor;
     popup->anchor.y += popup->y_offset;
-    SLSMoveWindow(g_connection, popup->id, &popup->anchor);
+    SLSMoveWindow(g_connection, popup->window.id, &popup->anchor);
   }
   popup->adid = adid;
 }
@@ -178,9 +130,11 @@ void popup_set_drawing(struct popup* popup, bool drawing) {
 void popup_draw(struct popup* popup) {
   if (!popup->drawing) return;
 
-  SLSOrderWindow(g_connection, popup->id, -1, 0);
-  popup_resize(popup);
-  draw_rect(popup->context,
+  SLSOrderWindow(g_connection, popup->window.id, -1, 0);
+  window_resize(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},
+                                         {popup->background.bounds.size.width,
+                                          popup->background.bounds.size.height}});
+  draw_rect(popup->window.context,
             popup->background.bounds,
             &popup->background.color,
             popup->background.corner_radius,
@@ -197,7 +151,7 @@ void popup_draw(struct popup* popup) {
                                              popup->background.bounds.size.height / 2.  );
 
       tracking_rect.origin.y -= tracking_rect.size.height;
-      SLSAddTrackingRect(g_connection, popup->id, tracking_rect);
+      SLSAddTrackingRect(g_connection, popup->window.id, tracking_rect);
     }
 
     bar_item_set_bounding_rect_for_display(bar_item,
@@ -207,11 +161,11 @@ void popup_draw(struct popup* popup) {
 
     bool state = bar_item->popup.drawing;
     bar_item->popup.drawing = false;
-    bar_item_draw(bar_item, popup->context);
+    bar_item_draw(bar_item, popup->window.context);
     bar_item->popup.drawing = state;
   }
-  CGContextFlush(popup->context);
-  SLSOrderWindow(g_connection, popup->id, 1, popup->id);
+  CGContextFlush(popup->window.context);
+  SLSOrderWindow(g_connection, popup->window.id, 1, popup->window.id);
 }
 
 void popup_destroy(struct popup* popup) {
