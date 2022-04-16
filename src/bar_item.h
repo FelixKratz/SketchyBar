@@ -70,6 +70,10 @@ struct bar_item {
   uint32_t num_rects;
   CGRect** bounding_rects;
 
+  // Windows
+  uint32_t num_windows;
+  struct window** windows;
+
   // Popup
   struct popup popup;
 };
@@ -105,7 +109,8 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
 void bar_item_mouse_entered(struct bar_item* bar_item);
 void bar_item_mouse_exited(struct bar_item* bar_item);
 
-void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid);
+struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid);
+void bar_item_remove_bounding_rect(struct bar_item* bar_item, uint32_t adid);
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
 void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height);
 

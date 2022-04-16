@@ -153,13 +153,13 @@ void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t adid) {
 
 void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid) {
   bar_item->associated_bar &= ~(1 << (adid - 1)); 
-  bar_item_remove_bounding_rect_for_display(bar_item, adid);
+  bar_item_remove_bounding_rect(bar_item, adid);
 }
 
 void bar_item_reset_associated_bar(struct bar_item* bar_item) {
   bar_item->associated_bar = 0;
   for (uint32_t adid = 1; adid <= bar_item->num_rects; adid++)
-    bar_item_remove_bounding_rect_for_display(bar_item, adid);
+    bar_item_remove_bounding_rect(bar_item, adid);
 }
 
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars) {
@@ -399,7 +399,40 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   return item_height;
 }
 
-void bar_item_remove_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid) {
+struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
+  if (adid <= 0) return NULL;
+  if (bar_item->num_windows < adid) {
+    bar_item->windows = (struct window**) realloc(bar_item->windows,
+                                                  sizeof(struct window*)*adid);
+    memset(bar_item->windows + bar_item->num_windows,
+           0,
+           sizeof(struct window*) * (adid - bar_item->num_windows));
+
+    bar_item->num_windows = adid;
+  }
+  if (!bar_item->windows[adid - 1]) {
+    bar_item->windows[adid - 1] = malloc(sizeof(struct window));
+    window_create(bar_item->windows[adid - 1], (CGRect){{0,0}, {1, 1}});
+    window_disable_shadow(bar_item->windows[adid - 1]);
+    context_set_font_smoothing(bar_item->windows[adid - 1]->context,
+                               g_bar_manager.font_smoothing         );
+
+    window_set_level(bar_item->windows[adid - 1],
+                     g_bar_manager.window_level + 1);
+  }
+
+  return bar_item->windows[adid - 1];
+}
+
+void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
+  if (bar_item->num_windows >= adid && bar_item->windows[adid - 1]) {
+    window_close(bar_item->windows[adid - 1]);
+    free(bar_item->windows[adid - 1]);
+    bar_item->windows[adid - 1] = NULL;
+  }
+}
+
+void bar_item_remove_bounding_rect(struct bar_item* bar_item, uint32_t adid) {
   if (bar_item->num_rects >= adid && bar_item->bounding_rects[adid - 1]) {
     free(bar_item->bounding_rects[adid - 1]);
     bar_item->bounding_rects[adid - 1] = NULL;
@@ -451,7 +484,12 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
 }
 
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
+  if (bar_item->lazy) {
+    x = 0;
+  }
+
   uint32_t content_x = x;
+  uint32_t content_y = y;
 
   uint32_t bar_item_length = bar_item_get_length(bar_item, false);
   uint32_t bar_item_content_length = bar_item_get_content_length(bar_item);
@@ -463,6 +501,9 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   uint32_t icon_position = content_x + bar_item->background.padding_left;
+  if ((int)content_x + bar_item->background.padding_left < 0)
+    icon_position = 0;
+
   uint32_t label_position = icon_position + text_get_length(&bar_item->icon,
                                                             false           );
 
@@ -481,22 +522,22 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
                               - group_get_length(bar_item->group)
                               + bar_item_length                  )
                             : icon_position,
-                           y,
+                           content_y,
                            bar_item->position == POSITION_RIGHT
                            || bar_item->position == POSITION_CENTER_LEFT);
 
   text_calculate_bounds(&bar_item->icon,
                         icon_position,
-                        y + bar_item->y_offset);
+                        content_y + bar_item->y_offset);
 
   text_calculate_bounds(&bar_item->label,
                         label_position,
-                        y + bar_item->y_offset);
+                        content_y + bar_item->y_offset);
 
   if (bar_item->has_alias)
     alias_calculate_bounds(&bar_item->alias,
                            sandwich_position,
-                           y + bar_item->y_offset);
+                           content_y + bar_item->y_offset);
 
   if (bar_item->has_graph) {
     bar_item->graph.bounds.size.height = bar_item->background.enabled
@@ -505,7 +546,8 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
                                          : (bar_height
                                             - (g_bar_manager.background.border_width + 1));
 
-    graph_calculate_bounds(&bar_item->graph, sandwich_position, y + bar_item->y_offset);
+    graph_calculate_bounds(&bar_item->graph, sandwich_position,
+                                             content_y + bar_item->y_offset);
   }
 
   if (bar_item->background.enabled) {
@@ -517,7 +559,7 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     bar_item->background.bounds.size.width = bar_item_length;
     background_calculate_bounds(&bar_item->background,
                                 x + bar_item->background.padding_left,
-                                y + bar_item->y_offset                );
+                                content_y + bar_item->y_offset        );
   }
   return bar_item_length;
 }
@@ -544,12 +586,10 @@ void bar_item_destroy(struct bar_item* bar_item) {
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
 
-  if (bar_item->bounding_rects) {  
-    for (int j = 0; j < bar_item->num_rects; j++) {
-      free(bar_item->bounding_rects[j]);
-    }
-    free(bar_item->bounding_rects);
+  for (int j = 0; j < bar_item->num_rects; j++) {
+    bar_item_remove_bounding_rect(bar_item, j);
   }
+  if (bar_item->bounding_rects) free(bar_item->bounding_rects);
 
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
@@ -567,6 +607,11 @@ void bar_item_destroy(struct bar_item* bar_item) {
   env_vars_destroy(&bar_item->signal_args.env_vars);
   popup_destroy(&bar_item->popup);
   background_destroy(&bar_item->background);
+
+  for (int j = 0; j < bar_item->num_windows; j++) {
+    bar_item_remove_window(bar_item, j);
+  }
+  if (bar_item->windows) free(bar_item->windows);
 
   free(bar_item);
 }
@@ -773,6 +818,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {
     bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
+    needs_update = true;
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);
@@ -796,4 +842,3 @@ void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) 
     event = get_token(&message);
   }
 }
-

@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "bar_item.h"
 #include "event.h"
 #include "event_loop.h"
 #include "misc/env_vars.h"
@@ -274,8 +275,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
     if ((bar_item->drawing || (!bar_item->drawing
                                && bar_item->associated_bar != 0))
         && bar_item->needs_update && (is_associated_space_shown
-                                      || is_associated_display_shown)
-        && (!bar_item->lazy || bar_manager->picky_redraw)            ) {
+                                      || is_associated_display_shown)) {
       return true;
     }
   }
@@ -299,7 +299,13 @@ void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
 
 void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   if (bar_manager->frozen) return;
-  if (forced) bar_manager_reset_bar_association(bar_manager);
+  if (forced) {
+    bar_manager_reset_bar_association(bar_manager);
+    for (int j = 0; j < bar_manager->bar_item_count; j++) {
+      bar_item_needs_update(bar_manager->bar_items[j]);
+    }
+  }
+
   for (int i = 0; i < bar_manager->bar_count; ++i) {
     if (forced
         || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 

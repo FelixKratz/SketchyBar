@@ -1,4 +1,5 @@
 #include "window.h"
+#include "alias.h"
 
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
   window->frame = (CGRect) {{0, 0},{frame.size.width, frame.size.height}};
@@ -30,8 +31,12 @@ void window_create(struct window* window, CGRect frame) {
 }
 
 void window_resize(struct window* window, CGRect frame) {
+  CGRect out;
+  SLSGetScreenRectForWindow(g_connection, window->id, &out);
+
+  if (CGRectEqualToRect(frame, out)) return;
+  
   CFTypeRef frame_region = window_create_region(window, frame);
-  SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, window->id, -1, 0);
   SLSSetWindowShape(g_connection,
                     window->id,
@@ -43,8 +48,6 @@ void window_resize(struct window* window, CGRect frame) {
   SLSAddActivationRegion(g_connection, window->id, frame_region);
   SLSRemoveAllTrackingAreas(g_connection, window->id);
 
-  SLSOrderWindow(g_connection, window->id, 1, 0);
-  SLSReenableUpdate(g_connection);
   CFRelease(frame_region);
 }
 

@@ -21,6 +21,8 @@ extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
 extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
+extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, uint32_t child_wid, int order);
+extern CGError SLSRemoveFromOrderingGroup(int cid, uint32_t wid);
 extern int SLSSpaceGetType(int cid, uint64_t sid);
 
 #define kCGSHighQualityResamplingTagBit (1ULL <<  4)
