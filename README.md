@@ -211,19 +211,20 @@ A list of properties available to the *set* command is listed below (components 
 
 * Text properties:
 
-| \<text_property\>                  | \<value\>                         | default      | description                                                                                  |
-| :-------:                          | :------:                          | :-------:    | -----------                                                                                  |
-| `drawing`                          | `<boolean>`                       | `on`         | If the text is rendered                                                                      |
-| `highlight`                        | `<boolean>`                       | `off`        | If the text uses the `highlight_color` or the regular `color`                                |
-| `color`                            | `<argb_hex>`                      | `0xffffffff` | Color used to render the text                                                                |
-| `highlight_color`                  | `<argb_hex>`                      | `0xff000000` | Highlight color of the text (e.g. for active space icon                                      |
-| `padding_left`                     | `<integer>`                       | `0`          | Padding to the left of the `text`                                                            |
-| `padding_right`                    | `<integer>`                       | `0`          | Padding to the right of the `text`                                                           |
-| `y_offset`                         | `<integer>`                       | `0`          | Vertical offset applied to the `text`                                                        |
-| `width`                            | `<positive_integer>` or `dynamic` | `dynamic`    | Makes the `text` use a fixed `width` given in points                                         |
-| `align`                            | `center`, `left`, `right`         | `left`       | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
-| `background.<background_property>` |                                   |              | Texts support all `background` properties                                                    |
-| `shadow.<shadow_property>`         |                                   |              | Texts support all `shadow` properties                                                        |
+| \<text_property\>                  | \<value\>                         | default                    | description                                                                                  |
+| :-------:                          | :------:                          | :-------:                  | -----------                                                                                  |
+| `drawing`                          | `<boolean>`                       | `on`                       | If the text is rendered                                                                      |
+| `highlight`                        | `<boolean>`                       | `off`                      | If the text uses the `highlight_color` or the regular `color`                                |
+| `color`                            | `<argb_hex>`                      | `0xffffffff`               | Color used to render the text                                                                |
+| `highlight_color`                  | `<argb_hex>`                      | `0xff000000`               | Highlight color of the text (e.g. for active space icon                                      |
+| `padding_left`                     | `<integer>`                       | `0`                        | Padding to the left of the `text`                                                            |
+| `padding_right`                    | `<integer>`                       | `0`                        | Padding to the right of the `text`                                                           |
+| `y_offset`                         | `<integer>`                       | `0`                        | Vertical offset applied to the `text`                                                        |
+| `font`                             | `<family>:<type>:<size>`          | `Hack Nerd Font:Bold:14.0` | The font to be used for the `text`                                                           |
+| `width`                            | `<positive_integer>` or `dynamic` | `dynamic`                  | Makes the `text` use a fixed `width` given in points                                         |
+| `align`                            | `center`, `left`, `right`         | `left`                     | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
+| `background.<background_property>` |                                   |                            | Texts support all `background` properties                                                    |
+| `shadow.<shadow_property>`         |                                   |                            | Texts support all `shadow` properties                                                        |
 
 * Background properties:
 
