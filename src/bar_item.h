@@ -113,3 +113,6 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
+
+void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* rsp);
+void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message);
