@@ -586,7 +586,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
 
-  for (int j = 0; j < bar_item->num_rects; j++) {
+  for (int j = 1; j < bar_item->num_rects; j++) {
     bar_item_remove_bounding_rect(bar_item, j);
   }
   if (bar_item->bounding_rects) free(bar_item->bounding_rects);
@@ -608,7 +608,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
   popup_destroy(&bar_item->popup);
   background_destroy(&bar_item->background);
 
-  for (int j = 0; j < bar_item->num_windows; j++) {
+  for (int j = 1; j < bar_item->num_windows; j++) {
     bar_item_remove_window(bar_item, j);
   }
   if (bar_item->windows) free(bar_item->windows);
