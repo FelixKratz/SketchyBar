@@ -360,27 +360,25 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
                                                 token_to_uint32t(token));
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
-    struct token select = get_token(&message);
     uint32_t adid = 0;
-    if (!(select.length == 0)) {
-      adid = token_equals(select, "current")
-             ? display_arrangement(display_active_display_id())
-             : atoi(select.text);
+    if (token_equals(state, "current")) {
+      adid = display_arrangement(display_active_display_id());
 
       if (adid > 0 && adid <= g_bar_manager.bar_count)
         needs_refresh = bar_manager_set_hidden(&g_bar_manager,
                                                adid,
-                                               evaluate_boolean_state(state,
-                                                                      g_bar_manager.bars[adid - 1]->hidden));
+                                               !g_bar_manager.bars[adid - 1]->hidden);
       else
         printf("No bar on display %u \n", adid);
     } else needs_refresh = bar_manager_set_hidden(&g_bar_manager,
                                                   adid,
-                                                  evaluate_boolean_state(state, g_bar_manager.any_bar_hidden));
+                                                  evaluate_boolean_state(state,
+                                                                         g_bar_manager.any_bar_hidden));
   } else if (token_equals(command, PROPERTY_TOPMOST)) {
     struct token token = get_token(&message);
     needs_refresh = bar_manager_set_topmost(&g_bar_manager,
-                                            evaluate_boolean_state(token, g_bar_manager.topmost));
+                                            evaluate_boolean_state(token,
+                                                                   g_bar_manager.topmost));
   } else if (token_equals(command, PROPERTY_DISPLAY)) {
     struct token position = get_token(&message);
     if (position.length > 0)
