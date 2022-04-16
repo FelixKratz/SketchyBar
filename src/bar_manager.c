@@ -473,18 +473,36 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* 
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char info[18 * bar_manager->bar_count + 4];
+  info[0] = '{';
+  info[1] = '\n';
+  uint32_t cursor = 2;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    bar_manager->bars[i]->sid = mission_control_index(display_space_id(bar_manager->bars[i]->did));
+    bar_manager->bars[i]->sid = mission_control_index(
+                                  display_space_id(bar_manager->bars[i]->did));
+
     bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection,
                                                   bar_manager->bars[i]->sid)
                                   != 4;
 
+    snprintf(info + cursor, 18 * bar_manager->bar_count + 4 - cursor,
+                            "\t\"display-%d\": %d\n",
+                            bar_manager->bars[i]->adid,
+                            bar_manager->bars[i]->sid                );
+    cursor = strlen(info);
   }
+  info[cursor] = '}';
+  info[cursor + 1] = '\0';
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(info));
+
   bar_manager_update_space_components(bar_manager, false);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SPACE_CHANGE,
-                                    NULL                           );
+                                    &env_vars                      );
 
+  env_vars_destroy(&env_vars);
   bar_manager_refresh(bar_manager, true);
 }
 

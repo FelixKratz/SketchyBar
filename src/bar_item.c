@@ -183,19 +183,23 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
     if (bar_item->script && strlen(bar_item->script) > 0) {
       if (!env_vars)
         env_vars = &bar_item->signal_args.env_vars;
-      else
+      else {
+        for (int i = 0; i < bar_item->signal_args.env_vars.count; i++) {
+          env_vars_set(env_vars,
+                       string_copy(bar_item->signal_args.env_vars.vars[i]->key),
+                       string_copy(bar_item->signal_args.env_vars.vars[i]->value));
+        }
         env_vars_set(env_vars,
                      string_copy("NAME"),
                      string_copy(bar_item->name));
+      }
 
       if (sender)
         env_vars_set(env_vars, string_copy("SENDER"), string_copy(sender));
       else
         env_vars_set(env_vars,
                      string_copy("SENDER"),
-                     string_copy(forced
-                                 ? "forced"
-                                 : "routine"));
+                     string_copy(forced ? "forced" : "routine"));
 
       fork_exec(bar_item->script, env_vars);
     }
