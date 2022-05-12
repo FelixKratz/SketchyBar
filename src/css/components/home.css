@@ -1,0 +1,69 @@
+/* stylelint-disable docusaurus/copyright-header */
+
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.homepage {
+  height: calc(100vh - 60px);
+  display: grid;
+  place-items: center;
+}
+
+.banner {
+  display: flex;
+  justify-content: space-between;
+}
+
+.banner__right {
+  flex: 2;
+  display: flex;
+  align-items: center;
+}
+
+.banner__right--screenshot {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px,
+    rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+}
+
+.banner_left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.banner_logo {
+  width: 100%;
+  padding: 2rem;
+}
+
+.install_btn {
+  width: 50%;
+  margin: 0 auto;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  transition: all 250ms ease-in-out;
+  color: #2e3440;
+  background-color: #c0e4fe;
+}
+
+.install_btn:hover {
+  color: #c0e4fe;
+  background-color: #2e3440;
+}
+
+@media only screen and (max-width: 1024px) {
+  .banner {
+    flex-direction: column-reverse;
+  }
+  .install_btn {
+    margin-top: 50px;
+  }
+  .banner_logo {
+    display: none;
+  }
+}

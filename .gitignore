@@ -10,3 +10,10 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 compile_commands.json
+node_modules/
+build/
+.docusaurus
+yarn.lock
+yarn-error.log
+pnpm-lock.yaml
+

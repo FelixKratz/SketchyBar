@@ -1,0 +1,27 @@
+/* body */
+html[data-theme="dark"] {
+  background-color: #181c24;
+}
+
+html[data-theme="dark"] {
+  --ifm-background-color: #1e222a !important;
+}
+
+/* navbar */
+html[data-theme="dark"] .navbar {
+  background-color: #1e222a;
+}
+
+html[data-theme="dark"] .navbar__item.navbar__link[href*="github"]:before {
+  background-image: url("/img/brand-github-inverted.svg");
+}
+
+/* home banner */
+
+html[data-theme="dark"] .banner_text {
+  color: white;
+}
+
+html[data-theme="dark"] .navbar__title {
+  color: white;
+}
