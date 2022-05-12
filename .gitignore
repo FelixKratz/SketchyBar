@@ -1,12 +1,1 @@
-bin
-todo.md
-notifications.md
-.ccls-cache
 .DS_Store
-.ccls
-.cache
-.cmake
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-compile_commands.json
