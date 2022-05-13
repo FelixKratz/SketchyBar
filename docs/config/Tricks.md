@@ -3,6 +3,7 @@ id: tricks
 title: Tips & Tricks
 sidebar_position: 1
 ---
+import SketchExample from "../../src/pages/picker.js"
 
 ## Batching of configuration commands
 It is possible to batch commands together into a single call to sketchybar, this can be helpful to
@@ -24,6 +25,13 @@ sketchybar --bar position=top           \
            --subscribe demo system_woke
 ```
 The backslash at the end of the first 4 lines is the default bash way to join lines together and should not be followed by a whitespace.  
+
+## Color Picker
+SketchyBar uses the argb hex color format, which means: `0xAARRGGBB` encodes a
+color.
+
+<SketchExample />
+
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
