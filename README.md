@@ -3,6 +3,16 @@
 </p>
 
 <p align="center">
+<a href="https://felixkratz.github.io/SketchyBar/setup">Install</a>
+<span> • </span>
+<a href="https://felixkratz.github.io/SketchyBar/config/bar">Documentation</a> 
+<span> • </span> 
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/47">Setups</a>
+<span> • </span> 
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/12">Plugins</a>
+</p>
+
+<p align="center">
 <a href="https://opensource.org/licenses/"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
 <a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/v/release/FelixKratz/SketchyBar.svg?style=flat&color=orange" /></a>
 <a href="https://github.com/FelixKratz/SketchyBar/releases"><img src="https://img.shields.io/github/commits-since/FelixKratz/SketchyBar/latest.svg?color=orange"></a>
@@ -16,10 +26,7 @@ shell scripts.
 
 ![](images/example.png)
 <p align="center">
-More example setups <a href="https://github.com/FelixKratz/SketchyBar/discussions/47">here</a>.
-</p>
-<p align="center">
-Full documentation <a href="https://felixkratz.github.io/SketchyBar/config/bar">here</a>.
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/47">More Setups</a>
 </p>
 
 ## Features
@@ -34,10 +41,6 @@ Full documentation <a href="https://felixkratz.github.io/SketchyBar/config/bar">
 * Mouse Support
 * Support for graphs
 * Per display and per space individualization
-
-## Documentation
-For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar)
-or if you prefer a single document see the markdown [docs](https://github.com/FelixKratz/SketchyBar/blob/master/DOCS.md).
 
 ## Installation
 ### Brew Install
@@ -80,6 +83,17 @@ The default plugin folder is located in `~/.config/sketchybar/plugins`.
 Plugins need to be referenced with absolute paths because relative paths will not be resolved correctly.
 Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) for plugins and share your own if you want to.
 You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
+
+## Supporting this project
+*You* can support this project is many ways:
+- By creating issues and pull-requests if you encounter problems
+- By sharing your [plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) and [setups](https://github.com/FelixKratz/SketchyBar/discussions/47)
+- By starring the project on GitHub
+- By donating to a charity of your choice
+
+## Documentation
+For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar)
+or if you prefer a single document see the markdown [docs](https://github.com/FelixKratz/SketchyBar/blob/master/DOCS.md).
 
 ## Credits
 This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>
