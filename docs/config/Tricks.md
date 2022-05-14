@@ -26,6 +26,16 @@ sketchybar --bar position=top           \
 ```
 The backslash at the end of the first 4 lines is the default bash way to join lines together and should not be followed by a whitespace.  
 
+## Debugging Problems
+If you are experiencing problems with the configuration of sketchybar it might be helpful to work through the following steps:
+* 1.) Start sketchybar directly from the commandline to see the verbose error/warning messages
+* 2.) Make sure you have no trailing whitespaces after the bash newline escape char `\`
+* 3.) Make sure your scripts are made executable via: `chmod +x script.sh`
+* 4.) Reduce the configuration to a minimal example and narrow down the problematic region
+* 5.) Try running erroneous scripts directly in the commandline
+* 6.) Query sketchybar for relevant properties and use them to deduce the problems root cause
+* 7.) Create an [Issue](https://github.com/FelixKratz/SketchyBar/issues) on GitHub, a second pair of eyes might now be the only thing that helps
+
 ## Color Picker
 SketchyBar uses the argb hex color format, which means: `0xAARRGGBB` encodes a
 color.

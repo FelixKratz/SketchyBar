@@ -17,9 +17,6 @@ sketchybar --add graph <name> <position> <width in points>
 ```
 
 Additional graph properties:
-* *graph.color*: color of the associated graph
-* *graph.fill_color*: optional property to override the automatically calculated fill color of the graph
-* *graph.line_width*: sets the line width of the associated graph
 
 | <property\>        | <value\>     | default    | description                 |
 | :-------:          | :------:     | :-------:  | -----------                 |

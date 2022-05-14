@@ -4,7 +4,19 @@ title: Bar Properties
 sidebar_position: 1
 ---
 ## Configuration of the bar
-For an example configuration see the supplied default *sketchybarrc*. The configuration file resides in `~/.config/sketchybar/`, where everything can be freely configured. It is also possible to play around with properties in a terminal and change them while the bar is running, once you find a fitting value you can include it in the `sketchybarrc` file such that the configuration is restored on restart. The global bar properties can be configured by invoking:
+For an example configuration see the supplied default *sketchybarrc*.
+The configuration file resides in `~/.config/sketchybar/sketchybarrc` and is a
+regular script that gets executed when sketchybar launches, everything
+persistent should be set up in this script.
+
+It is possible to play with properties in the commandline and change
+them while the bar is running, once you find a fitting
+value you can include it in the `sketchybarrc` file such that the configuration
+is restored on restart. While configuring sketchybar it can be helpful to stop
+the brew service and run sketchybar from the commandline directly to see all
+relevant error messages and warnings from the main program.
+
+The global bar properties can be configured by invoking:
 ```bash
 sketchybar --bar <setting>=<value> ... <setting>=<value>
 ```
