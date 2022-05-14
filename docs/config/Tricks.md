@@ -32,6 +32,18 @@ color.
 
 <SketchExample />
 
+## Finding Icons
+The default font sketchybar uses is the *Hack Nerd Font* which means all *Nerdfont* icons can be used.
+Refer to the *Nerdfont* [cheat-sheet](https://www.nerdfonts.com/cheat-sheet) to find new icons.
+
+Additionally, it is possible to use other icons and glyphs from different fonts, such as the [sf-symbols](https://developer.apple.com/sf-symbols/)
+from apple. Those symbols can be installed via brew:
+```bash
+brew install --cask sf-symbols
+```
+After installing this package, an app called `SF Symbols` will be available where you can find all the available icons.
+Once you find a fitting icon, right click it, select *Copy Symbol* and paste it in the relevant configuration file.
+My [personal setup](https://github.com/FelixKratz/dotfiles) uses *SF Symbols* as well.
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
