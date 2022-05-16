@@ -250,8 +250,8 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   for (int i = 0; i < bar_manager->bar_count; i++)
     bar_destroy(bar_manager->bars[i]);
 
-  if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevelKey;
-  else bar_manager->window_level = kCGNormalWindowLevelKey;
+  if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevel;
+  else bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager_begin(bar_manager);
   bar_manager->topmost = topmost;
   return true;
