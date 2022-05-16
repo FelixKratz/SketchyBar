@@ -59,6 +59,8 @@ for some further tips on your journey. If you are searching for functional items
 For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar)
 or if you prefer a single document, see the [markdown version of the docs](https://github.com/FelixKratz/SketchyBar/blob/master/DOCS.md).
 
+If questions remain, feel free to consult the [Q&A](https://github.com/FelixKratz/SketchyBar/discussions/categories/q-a) section.
+
 ## Supporting
 *You* can support this project is many ways:
 - By creating issues and pull-requests if you encounter problems
