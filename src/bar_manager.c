@@ -25,7 +25,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
-  bar_manager->window_level = kCGNormalWindowLevelKey;
+  bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
