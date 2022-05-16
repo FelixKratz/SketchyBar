@@ -106,6 +106,9 @@ void bar_draw(struct bar* bar) {
 void bar_calculate_bounds(struct bar* bar) {
   if (bar->hidden) return;
   if (bar->sid == 0) return;
+  uint32_t notch_width = CGDisplayIsBuiltin(bar->did)
+                         ? g_bar_manager.notch_width
+                         : 0;
 
   uint32_t center_length = bar_manager_length_for_bar_side(&g_bar_manager,
                                                            bar,
@@ -120,10 +123,10 @@ void bar_calculate_bounds(struct bar* bar) {
                                       - center_length) / 2 - 1;
 
   uint32_t bar_center_right_first_item_x = (bar->window.frame.size.width
-                                            + bar->notch_width) / 2 - 1;
+                                            + notch_width) / 2 - 1;
 
   uint32_t bar_center_left_first_item_x = (bar->window.frame.size.width
-                                           - bar->notch_width) / 2 - 1; 
+                                           - notch_width) / 2 - 1;
 
   uint32_t* next_position = NULL;
   uint32_t y = bar->window.frame.size.height / 2;
@@ -231,7 +234,6 @@ struct bar *bar_create(uint32_t did) {
   bar->hidden = false;
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
-  bar->notch_width = CGDisplayIsBuiltin(did) ? g_bar_manager.notch_width : 0;
   bar->shown = true;
   bar_create_window(bar);
   return bar;

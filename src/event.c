@@ -96,6 +96,12 @@ EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
     return EVENT_SUCCESS;
 }
 
+EVENT_CALLBACK(EVENT_HANDLER_ANIMATOR_REFRESH) {
+    debug("%s\n", __FUNCTION__);
+    bar_manager_animator_refresh(&g_bar_manager);
+    return EVENT_SUCCESS;
+}
+
 EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
     debug("%s\n", __FUNCTION__);
 

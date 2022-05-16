@@ -41,6 +41,8 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_item_init(&bar_manager->default_item, NULL);
   bar_item_set_name(&bar_manager->default_item, string_copy("defaults"));
   custom_events_init(&bar_manager->custom_events);
+
+  animator_init(&bar_manager->animator);
   
   int shell_refresh_frequency = 1;
 
@@ -195,11 +197,8 @@ bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
 
 bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width) {
   if (bar_manager->notch_width == width) return false;
-  bar_manager->notch_width = width;
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
 
-  bar_manager_begin(bar_manager);
+  bar_manager->notch_width = width;
   return true;
 }
 
@@ -372,6 +371,11 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
       } 
     }
   }
+}
+
+void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
+  animator_update(&bar_manager->animator);
+  bar_manager_refresh(bar_manager, true);
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {

@@ -24,6 +24,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE);
 EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP);
 EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH);
+EVENT_CALLBACK(EVENT_HANDLER_ANIMATOR_REFRESH);
 EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED);
@@ -53,6 +54,7 @@ enum event_type {
     SYSTEM_WOKE,
     SYSTEM_WILL_SLEEP,
     SHELL_REFRESH,
+    ANIMATOR_REFRESH,
     MACH_MESSAGE,
     MOUSE_UP,
     MOUSE_ENTERED,
@@ -76,6 +78,7 @@ static const char *event_type_str[] = {
     [SYSTEM_WOKE]                    = "system_woke",
     [SYSTEM_WILL_SLEEP]              = "system_will_sleep",
     [SHELL_REFRESH]                  = "shell_refresh",
+    [ANIMATOR_REFRESH]               = "animator_refresh",
     [MACH_MESSAGE]                   = "mach_message",
     [MOUSE_UP]                       = "mouse_up",
     [MOUSE_ENTERED]                  = "mouse_entered",
@@ -102,6 +105,7 @@ static event_callback *event_handler[] = {
     [SYSTEM_WOKE]                    = EVENT_HANDLER_SYSTEM_WOKE,
     [SYSTEM_WILL_SLEEP]              = EVENT_HANDLER_SYSTEM_WILL_SLEEP,
     [SHELL_REFRESH]                  = EVENT_HANDLER_SHELL_REFRESH,
+    [ANIMATOR_REFRESH]               = EVENT_HANDLER_ANIMATOR_REFRESH,
     [MACH_MESSAGE]                   = EVENT_HANDLER_MACH_MESSAGE,
 };
 

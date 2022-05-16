@@ -1,6 +1,7 @@
 #pragma once
 #include "bar.h"
 #include "bar_item.h"
+#include "animation.h"
 
 #define CLOCK_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef CLOCK_CALLBACK(clock_callback);
@@ -27,14 +28,16 @@ struct bar_manager {
   uint32_t window_level;
 
   struct bar** bars;
-  int bar_count;
+  uint32_t bar_count;
 
   struct bar_item** bar_items;
   struct bar_item default_item;
-  int bar_item_count;
+  uint32_t bar_item_count;
 
   struct background background;
   struct custom_events custom_events;
+
+  struct animator animator;
 };
 
 struct bar_manager g_bar_manager;
@@ -46,6 +49,7 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
 void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* item, struct bar_item* reference, bool before);
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification);
 
+void bar_manager_animator_refresh(struct bar_manager* bar_manager);
 void bar_manager_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced);
 bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius);
