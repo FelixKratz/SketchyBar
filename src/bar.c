@@ -52,7 +52,6 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
 }
 
 void bar_draw(struct bar* bar) {
-  SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, bar->window.id, -1, 0);
   SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
 
@@ -100,7 +99,6 @@ void bar_draw(struct bar* bar) {
 
   CGContextFlush(bar->window.context);
   SLSOrderWindow(g_connection, bar->window.id, 1, bar->window.id);
-  SLSReenableUpdate(g_connection);
 }
 
 void bar_calculate_bounds(struct bar* bar) {

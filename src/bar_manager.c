@@ -159,6 +159,20 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
   bar_item_destroy(bar_item);
 }
 
+bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {
+  if (bar_manager->margin == margin) return false;
+  bar_manager->margin = margin;
+  bar_manager_resize(&g_bar_manager);
+  return true;
+}
+
+bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset) {
+  if (bar_manager->y_offset == y_offset) return false;
+  bar_manager->y_offset = y_offset;
+  bar_manager_resize(&g_bar_manager);
+  return true;
+}
+
 bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
   if (bar_manager->blur_radius == radius) return false;
   bar_manager->blur_radius = radius;
@@ -171,6 +185,7 @@ bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
 bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   if (bar_manager->position == pos) return false;
   bar_manager->position = pos;
+  bar_manager_resize(bar_manager);
   return true;
 }
 
@@ -244,10 +259,16 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
 
 void bar_manager_freeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = true;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    window_freeze(&bar_manager->bars[i]->window);
+  }
 }
 
 void bar_manager_unfreeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = false;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    window_unfreeze(&bar_manager->bars[i]->window);
+  }
 }
 
 uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct bar* bar, char side) {
@@ -374,8 +395,11 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 }
 
 void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
+  bar_manager_freeze(bar_manager);
   animator_update(&bar_manager->animator);
+  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {

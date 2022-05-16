@@ -205,16 +205,15 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
 
   if (token_equals(command, PROPERTY_MARGIN)) {
     struct token token = get_token(&message);
-    g_bar_manager.margin = token_to_int(token);
-    needs_refresh = true;
+    ANIMATE(bar_manager_set_margin, &g_bar_manager, g_bar_manager.margin);
   } else if (token_equals(command, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    g_bar_manager.y_offset = token_to_int(token);
-    needs_refresh = true;
+    ANIMATE(bar_manager_set_y_offset, &g_bar_manager, g_bar_manager.y_offset);
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_background_blur(&g_bar_manager,
-                                                    token_to_uint32t(token));
+    ANIMATE(bar_manager_set_background_blur,
+            &g_bar_manager,
+            g_bar_manager.blur_radius       );
   } else if (token_equals(command, PROPERTY_FONT_SMOOTHING)) {
     struct token state = get_token(&message);
     needs_refresh = bar_manager_set_font_smoothing(&g_bar_manager,
@@ -227,8 +226,9 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
                                                                   g_bar_manager.shadow));
   } else if (token_equals(command, PROPERTY_NOTCH_WIDTH)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_notch_width(&g_bar_manager,
-                                                token_to_uint32t(token));
+    ANIMATE(bar_manager_set_background_blur,
+            &g_bar_manager,
+            g_bar_manager.blur_radius       );
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     uint32_t adid = 0;
@@ -461,9 +461,12 @@ void handle_message_mach(struct mach_buffer* buffer) {
   FILE* rsp = open_memstream(&response, &length);
   fprintf(rsp, "");
 
+  g_bar_manager.animator.interp_function = '\0';
+  g_bar_manager.animator.duration = 0;
   bar_manager_freeze(&g_bar_manager);
   struct token command = get_token(&message);
   bool bar_needs_refresh = false;
+
   while (command.text && command.length > 0) {
     if (token_equals(command, DOMAIN_SET)) {
       struct token name = get_token(&message);
@@ -531,8 +534,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
         token = get_token(&message);
       }
       free(bar_items);
-    }
-    else if (token_equals(command, DOMAIN_DEFAULT)) {
+    } else if (token_equals(command, DOMAIN_DEFAULT)) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);
@@ -542,6 +544,9 @@ void handle_message_mach(struct mach_buffer* buffer) {
         if (message && message[0] == '-') break;
         token = get_token(&message);
       }
+    } else if (token_equals(command, DOMAIN_ANIMATE)) {
+      g_bar_manager.animator.interp_function = get_token(&message).text[0];
+      g_bar_manager.animator.duration = token_to_uint32t(get_token(&message));
     } else if (token_equals(command, DOMAIN_BAR)) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
@@ -608,14 +613,11 @@ void handle_message_mach(struct mach_buffer* buffer) {
     }
     command = get_token(&message);
   }
+  if (bar_needs_refresh) bar_manager_resize(&g_bar_manager);
+  g_bar_manager.frozen = false;
+  bar_manager_refresh(&g_bar_manager, bar_needs_refresh);
   bar_manager_unfreeze(&g_bar_manager);
-  if (bar_needs_refresh) {
-    bar_manager_resize(&g_bar_manager);
-    bar_manager_refresh(&g_bar_manager, true);
-  }
-  else {
-    bar_manager_refresh(&g_bar_manager, false);
-  }
+
   if (rsp) fclose(rsp);
 
   mach_send_message(buffer->message.header.msgh_remote_port, response,

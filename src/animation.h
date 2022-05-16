@@ -1,20 +1,42 @@
 #pragma once
 #include "misc/helpers.h"
 
+#define ANIMATE(f, o, p) \
+{\
+  if (g_bar_manager.animator.duration > 0) { \
+    struct animation* animation = animation_create(); \
+    animation_setup(animation, \
+                    (void*)o, \
+                    (bool (*)(void*, int))&f, \
+                    p, \
+                    token_to_int(token), \
+                    g_bar_manager.animator.duration, \
+                    g_bar_manager.animator.interp_function ); \
+    animator_add(&g_bar_manager.animator, animation); \
+  } else { \
+    needs_refresh = f(o, token_to_int(token)); \
+  } \
+}
+
+#define ANIMATOR_FUNCTION(name) bool name(void* target, int value);
+typedef ANIMATOR_FUNCTION(animator_function);
+
 struct animation {
   uint32_t duration;
   uint32_t counter;
 
-  uint32_t initial_value;
-  uint32_t final_value;
+  int initial_value;
+  int final_value;
+  char interp_function;
 
-  uint32_t* target;
+  void* target;
+  animator_function* update_function;
 };
 
 struct animation* animation_create();
 void animation_destroy(struct animation* animation);
 
-void animation_setup(struct animation* animation, uint32_t* property, uint32_t final_value, uint32_t duration);
+void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function);
 bool animation_update(struct animation* animation);
 
 extern struct event_loop g_event_loop;
@@ -25,6 +47,8 @@ typedef ANIMATOR_CALLBACK(animator_callback);
 struct animator {
   CFRunLoopTimerRef clock;
 
+  uint32_t interp_function;
+  uint32_t duration;
   struct animation** animations;
   uint32_t animation_count;
 };

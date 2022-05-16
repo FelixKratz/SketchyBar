@@ -29,9 +29,16 @@ void window_create(struct window* window, CGRect frame) {
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
 }
 
+void window_freeze(struct window* window) {
+  SLSDisableUpdate(g_connection);
+}
+
+void window_unfreeze(struct window* window) {
+  SLSReenableUpdate(g_connection);
+}
+
 void window_resize(struct window* window, CGRect frame) {
   CFTypeRef frame_region = window_create_region(window, frame);
-  SLSDisableUpdate(g_connection);
   SLSOrderWindow(g_connection, window->id, -1, 0);
   SLSSetWindowShape(g_connection,
                     window->id,
@@ -44,7 +51,6 @@ void window_resize(struct window* window, CGRect frame) {
   SLSRemoveAllTrackingAreas(g_connection, window->id);
 
   SLSOrderWindow(g_connection, window->id, 1, 0);
-  SLSReenableUpdate(g_connection);
   CFRelease(frame_region);
 }
 

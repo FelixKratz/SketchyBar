@@ -1,8 +1,8 @@
 #include "animation.h"
 #include "event.h"
  
-uint32_t function_linear(uint32_t x, double m, uint32_t b) {
-  return ((double)m)*((int)x) + (int)b;
+uint32_t function_linear(int x, double m, int b) {
+  return m*x + b;
 }
 
 static ANIMATOR_CALLBACK(animator_handler) {
@@ -21,25 +21,30 @@ void animation_destroy(struct animation* animation) {
   if (animation) free(animation);
 }
 
-void animation_setup(struct animation* animation, uint32_t* property, uint32_t final_value, uint32_t duration) {
+void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function) {
   animation->counter = 1;
   animation->duration = duration;
-  animation->initial_value = *property;
+  animation->initial_value = initial_value;
   animation->final_value = final_value;
-
-  animation->target = property;
+  animation->update_function = update_function;
+  animation->interp_function = interp_function;
+  animation->target = target;
 }
 
 bool animation_update(struct animation* animation) {
-  if (!animation->target || animation->counter > animation->duration) {
+  if (!animation->target
+      || !animation->update_function
+      || animation->counter > animation->duration) {
     return false;
   }
 
-  *animation->target = function_linear(animation->counter,
-                                       ((double)(animation->final_value)
-                                        - ((double)animation->initial_value))
-                                        / ((double)animation->duration),
-                                       animation->initial_value         );
+  uint32_t value = function_linear(animation->counter,
+                                   ((double)(animation->final_value)
+                                    - ((double)animation->initial_value))
+                                    / ((double)animation->duration),
+                                   animation->initial_value              );
+
+  animation->update_function(animation->target, value);
   animation->counter++;
   return animation->counter <= animation->duration;
 }
@@ -47,6 +52,8 @@ bool animation_update(struct animation* animation) {
 void animator_init(struct animator* animator) {
   animator->animations = NULL;
   animator->animation_count = 0;
+  animator->interp_function = 0;
+  animator->duration = 0;
 }
 
 void animator_add(struct animator* animator, struct animation* animation) {
@@ -58,8 +65,8 @@ void animator_add(struct animator* animator, struct animation* animation) {
   if (animator->animation_count == 1) {
 
     animator->clock = CFRunLoopTimerCreate(NULL,
-                                           CFAbsoluteTimeGetCurrent()+1./60.,
-                                           1./60.,
+                                           CFAbsoluteTimeGetCurrent()+1./120.,
+                                           1./120.,
                                            0,
                                            0,
                                            animator_handler,
@@ -104,10 +111,13 @@ void animator_remove(struct animator* animator, struct animation* animation) {
 }
 
 void animator_update(struct animator* animator) {
+  bool removed = false;
   for (uint32_t i = 0; i < animator->animation_count; i++) {
+    if (removed) i--;
+    removed = false;
     if (!animation_update(animator->animations[i])) {
       animator_remove(animator, animator->animations[i]);
-      i--;
+      removed = true;
     }
   }
 }
