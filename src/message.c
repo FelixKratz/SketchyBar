@@ -228,7 +228,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     struct token token = get_token(&message);
     ANIMATE(bar_manager_set_notch_width,
             &g_bar_manager,
-            g_bar_manager.blur_radius       );
+            g_bar_manager.notch_width   );
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     uint32_t adid = 0;
