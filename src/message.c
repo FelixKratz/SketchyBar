@@ -226,7 +226,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
                                                                   g_bar_manager.shadow));
   } else if (token_equals(command, PROPERTY_NOTCH_WIDTH)) {
     struct token token = get_token(&message);
-    ANIMATE(bar_manager_set_background_blur,
+    ANIMATE(bar_manager_set_notch_width,
             &g_bar_manager,
             g_bar_manager.blur_radius       );
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
