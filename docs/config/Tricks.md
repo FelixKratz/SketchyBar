@@ -53,7 +53,6 @@ brew install --cask sf-symbols
 ```
 After installing this package, an app called `SF Symbols` will be available where you can find all the available icons.
 Once you find a fitting icon, right click it, select *Copy Symbol* and paste it in the relevant configuration file.
-My [personal setup](https://github.com/FelixKratz/dotfiles) uses *SF Symbols* as well.
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 

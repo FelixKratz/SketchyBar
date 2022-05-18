@@ -13,7 +13,7 @@ brew install sketchybar
 Do not forget to copy the example configuration files to your home directory
 (the brew installation specific commands are listed in the caveats section after the brew install is finished).
 The default configuration is intentionally sparse, so if you are looking for something more sophisticated as a starting point, you might want to look at
-[this discussion](https://github.com/FelixKratz/SketchyBar/discussions/47) or my personal [dotfiles](https://github.com/FelixKratz/dotfiles).
+[this discussion](https://github.com/FelixKratz/SketchyBar/discussions/47).
 
 Run the bar automatically at startup:
 ```bash

@@ -104,7 +104,7 @@ All further default menu items currently available on your system can be found v
 ```bash
 sketchybar --query default_menu_items
 ```
-You can override the color of an alias via the property (HEAD only):
+You can override the color of an alias via the property:
 ```bash
 sketchybar --set <name> alias.color=<rgba_hex>
 ```

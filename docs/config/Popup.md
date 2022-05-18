@@ -13,7 +13,7 @@ Every item has a popup available with the properties:
 | :-------:                                | :------:                  | :-------:  | -----------                                                  |
 | `popup.drawing`                          | `<boolean>`               | `off`      | If the `popup` should be rendered                            |
 | `popup.horizontal`                       | `<boolean>`               | `off`      | If the `popup` should render horizontally                    |
-| `popup.height`                           | `<positive_integer>`      | bar height | The vertical spacing between items in a popup (Only on HEAD) |
+| `popup.height`                           | `<positive_integer>`      | bar height | The vertical spacing between items in a popup                |
 | `popup.y_offset`                         | `<integer>`               | `0`        | Vertical offset applied to the `popup`                       |
 | `popup.align`                            | `left`, `right`, `center` | `left`     | Alignment of the popup with its parent item in the bar       |
 | `popup.background.<background_property>` |                           |            | Popups have a background and support all properties          |

@@ -24,8 +24,7 @@ An *item* will occupy a space in the bar and can be equipped to show an *icon* a
 which makes very powerful items possible.
 Furthermore, an *item* can be assigned to mission control spaces or displays, such that they only show on a certain space or display, which makes multi-desktop configuration
 of the bar possible and opens the possibility to create individualized bar configuration on a per display and per space level.
-These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions. For some examples see my sketchybarrc and
-the plugins folder.
+These simple ingredients make *items* almost endlessly customizable and can be used to display arbitrary information and perform useful actions.
 
 Some special features can not be accomplished with a simple *item*, this is where the *components* come into play. They basically are *items* with
 extra steps. They contain all the properties a regular item does, but they can do specialized tasks a simple item can not. For example, there
