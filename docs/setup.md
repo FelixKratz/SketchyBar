@@ -46,6 +46,16 @@ Plugins need to be referenced with absolute paths because relative paths will no
 Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discussions/12) for plugins and share your own if you want to.
 You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
 
+### Hiding the original macOS bar
+If you have a notched MacBook, SketchyBar will (with the default config) appear
+*below* the original macOS bar. You can do a few things to make SketchyBar visible:
+- Give SketchyBar a `y_offset`
+```bash
+sketchybar --bar y_offset=32
+```
+- Hide the default macOS menu bar in *Settings* -> *Dock & Menu Bar*
+![hide_macOS_bar](/img/hide_menubar.png)
+
 ### Compile from source
 It is easy to compile the project from source:
 
