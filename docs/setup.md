@@ -53,7 +53,7 @@ If you have a notched MacBook, SketchyBar will (with the default config) appear
 ```bash
 sketchybar --bar y_offset=32
 ```
-- Hide the default macOS menu bar in *Settings* -> *Dock & Menu Bar*
+- Hide the default macOS menu bar in *System Preferences* -> *Dock & Menu Bar*:
 ![hide_macOS_bar](/img/hide_menubar.png)
 
 ### Compile from source
