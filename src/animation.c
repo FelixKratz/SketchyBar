@@ -1,7 +1,7 @@
 #include "animation.h"
 #include "event.h"
  
-uint32_t function_linear(int x, double m, int b) {
+int function_linear(int x, double m, int b) {
   return m*x + b;
 }
 
@@ -38,11 +38,11 @@ bool animation_update(struct animation* animation) {
     return false;
   }
 
-  uint32_t value = function_linear(animation->counter,
-                                   ((double)(animation->final_value)
-                                    - ((double)animation->initial_value))
-                                    / ((double)animation->duration),
-                                   animation->initial_value              );
+  int value = function_linear(animation->counter,
+                              ((double)(animation->final_value)
+                               - ((double)animation->initial_value))
+                               / ((double)animation->duration),
+                              animation->initial_value              );
 
   animation->update_function(animation->target, value);
   animation->counter++;
@@ -65,8 +65,8 @@ void animator_add(struct animator* animator, struct animation* animation) {
   if (animator->animation_count == 1) {
 
     animator->clock = CFRunLoopTimerCreate(NULL,
-                                           CFAbsoluteTimeGetCurrent()+1./120.,
-                                           1./120.,
+                                           CFAbsoluteTimeGetCurrent()+1./60.,
+                                           1./60.,
                                            0,
                                            0,
                                            animator_handler,
