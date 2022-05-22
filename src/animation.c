@@ -1,8 +1,13 @@
 #include "animation.h"
 #include "event.h"
  
-int function_linear(int x, double m, int b) {
-  return m*x + b;
+double function_linear(double x) {
+  return x;
+}
+
+double function_tanh(double x) {
+  double result = tanh(2.647 * x);
+  return result >= 0.99 ? 1. : result;
 }
 
 static ANIMATOR_CALLBACK(animator_handler) {
@@ -38,11 +43,18 @@ bool animation_update(struct animation* animation) {
     return false;
   }
 
-  int value = function_linear(animation->counter,
-                              ((double)(animation->final_value)
-                               - ((double)animation->initial_value))
-                               / ((double)animation->duration),
-                              animation->initial_value              );
+  double slider = 1.;
+  if (animation->interp_function == INTERP_FUNCTION_LINEAR) {
+    slider = function_linear((double)animation->counter
+                             / (double)animation->duration);
+  }
+  else if (animation->interp_function == INTERP_FUNCTION_TANH) {
+    slider = function_tanh((double)animation->counter
+                           / (double)animation->duration);
+  }
+
+  int value = (1. - slider) * animation->initial_value
+              + slider * animation->final_value;
 
   animation->update_function(animation->target, value);
   animation->counter++;

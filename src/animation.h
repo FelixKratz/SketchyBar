@@ -21,6 +21,10 @@
 #define ANIMATOR_FUNCTION(name) bool name(void* target, int value);
 typedef ANIMATOR_FUNCTION(animator_function);
 
+#define INTERP_FUNCTION_LINEAR 'l'
+#define INTERP_FUNCTION_TANH   't'
+
+
 struct animation {
   uint32_t duration;
   uint32_t counter;
