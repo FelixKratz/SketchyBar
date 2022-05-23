@@ -311,10 +311,10 @@ void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
   bar_item->click_script = path;
 }
 
-void bar_item_set_drawing(struct bar_item* bar_item, bool state) {
-  if (bar_item->drawing == state) return;
+bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
+  if (bar_item->drawing == state) return false;
   bar_item->drawing = state;
-  bar_item_needs_update(bar_item);
+  return true;
 }
 
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
@@ -347,10 +347,19 @@ void bar_item_mouse_exited(struct bar_item* bar_item) {
   bar_item->mouse_over = false;
 }
 
-void bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
-  if (bar_item->y_offset == offset) return;
+bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
+  if (bar_item->y_offset == offset) return false;
   bar_item->y_offset = offset;
-  bar_item_needs_update(bar_item);
+  return true;
+}
+
+bool bar_item_set_width(struct bar_item* bar_item, uint32_t width) {
+  if (bar_item->custom_width == width && bar_item->has_const_width)
+    return false;
+
+  bar_item->custom_width = width;
+  bar_item->has_const_width = true;
+  return true;
 }
 
 uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
@@ -669,34 +678,64 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
 }
 
 void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* rsp) {
-  bool needs_update = false;
+  bool needs_refresh = false;
   struct token property = get_token(&message);
 
-  struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+  struct key_value_pair key_value_pair = get_key_value_pair(property.text,'.');
   if (key_value_pair.key && key_value_pair.value) {
     struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
-    struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+    struct token entry = { key_value_pair.value, strlen(key_value_pair.value)};
     if (token_equals(subdom, SUB_DOMAIN_ICON))
-      needs_update = text_parse_sub_domain(&bar_item->icon, rsp, entry, message);
+      needs_refresh = text_parse_sub_domain(&bar_item->icon,
+                                            rsp,
+                                            entry,
+                                            message         );
+
     else if (token_equals(subdom, SUB_DOMAIN_LABEL))
-      needs_update = text_parse_sub_domain(&bar_item->label, rsp, entry, message);
+      needs_refresh = text_parse_sub_domain(&bar_item->label,
+                                            rsp,
+                                            entry,
+                                            message          );
+
     else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
-      needs_update = background_parse_sub_domain(&bar_item->background, rsp, entry, message);
+      needs_refresh = background_parse_sub_domain(&bar_item->background,
+                                                  rsp,
+                                                  entry,
+                                                  message               );
+
     else if (token_equals(subdom, SUB_DOMAIN_GRAPH))
-      needs_update = graph_parse_sub_domain(&bar_item->graph, rsp, entry, message);
+      needs_refresh = graph_parse_sub_domain(&bar_item->graph,
+                                             rsp,
+                                             entry,
+                                             message          );
+
     else if (token_equals(subdom, SUB_DOMAIN_POPUP))
-      needs_update = popup_parse_sub_domain(&bar_item->popup, rsp, entry, message);
+      needs_refresh = popup_parse_sub_domain(&bar_item->popup,
+                                             rsp,
+                                             entry,
+                                             message          );
+
     else if (token_equals(subdom, SUB_DOMAIN_ALIAS))
-      needs_update = alias_parse_sub_domain(&bar_item->alias, rsp, entry, message);
+      needs_refresh = alias_parse_sub_domain(&bar_item->alias,
+                                             rsp,
+                                             entry,
+                                             message          );
+
     else {
       fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
       printf("Invalid subdomain: %s \n", subdom.text);
     }
   }
   else if (token_equals(property, PROPERTY_ICON)) {
-    needs_update = text_set_string(&bar_item->icon, token_to_string(get_token(&message)), false);
+    needs_refresh = text_set_string(&bar_item->icon,
+                                    token_to_string(get_token(&message)),
+                                    false                                );
+
   } else if (token_equals(property, PROPERTY_LABEL)) {
-    needs_update = text_set_string(&bar_item->label, token_to_string(get_token(&message)), false);
+    needs_refresh = text_set_string(&bar_item->label,
+                                    token_to_string(get_token(&message)),
+                                    false                                );
+
   } else if (token_equals(property, PROPERTY_UPDATES)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_UPDATES_WHEN_SHOWN)) {
@@ -708,16 +747,18 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       bar_item->updates_only_when_shown = false;
     }
   } else if (token_equals(property, PROPERTY_DRAWING)) {
-    bar_item_set_drawing(bar_item, evaluate_boolean_state(get_token(&message), bar_item->drawing));
+    needs_refresh = bar_item_set_drawing(bar_item,
+                                         evaluate_boolean_state(get_token(&message),
+                                                                bar_item->drawing   ));
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    if (token_equals(token, ARGUMENT_DYNAMIC))
+    if (token_equals(token, ARGUMENT_DYNAMIC)) {
+      needs_refresh = bar_item->has_const_width;
       bar_item->has_const_width = false;
-    else {
-      bar_item->has_const_width = true;
-      bar_item->custom_width = token_to_uint32t(token);
     }
-    needs_update = true;
+    else {
+      ANIMATE(bar_item_set_width, bar_item, bar_item->custom_width);
+    }
   } else if (token_equals(property, PROPERTY_SCRIPT)) {
     bar_item_set_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CLICK_SCRIPT)) {
@@ -727,10 +768,13 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, PROPERTY_POSITION)) {
     struct token position = get_token(&message);
     bar_item_set_position(bar_item, position.text[0]);
-    struct key_value_pair key_value_pair = get_key_value_pair(position.text, '.');
+    struct key_value_pair key_value_pair = get_key_value_pair(position.text,
+                                                              '.'           );
+
     if (key_value_pair.key && key_value_pair.value) {
       if (key_value_pair.key[0] == POSITION_POPUP) {
-        int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, key_value_pair.value);
+        int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                      key_value_pair.value);
         if (item_index_for_name < 0) {
           fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
           printf("Name: %s not found in bar items \n", key_value_pair.value);
@@ -740,12 +784,12 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
         popup_add_item(&target_item->popup, bar_item);
       } 
     }
-    needs_update = true;
+    needs_refresh = true;
   } else if (token_equals(property, PROPERTY_ALIGN)) {
     struct token position = get_token(&message);
     if (bar_item->align != position.text[0]) {
       bar_item->align = position.text[0];
-      needs_update = true;
+      needs_refresh = true;
     }
   } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
     struct token token = get_token(&message);
@@ -754,9 +798,12 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item_append_associated_space(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
+      bar_item_append_associated_space(bar_item,
+                                       1 << strtoul(&token.text[sep + 1],
+                                                    NULL,
+                                                    0                    ));
     }
-    needs_update = prev != bar_item->associated_space;
+    needs_refresh = prev != bar_item->associated_space;
   } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_display;
@@ -764,11 +811,15 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     for (int i = 0; i < token.length; i++) {
       int sep = -1;
       if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item_append_associated_display(bar_item, 1 << strtoul(&token.text[sep + 1], NULL, 0));
+      bar_item_append_associated_display(bar_item,
+                                         1 << strtoul(&token.text[sep + 1],
+                                                      NULL,
+                                                      0                    ));
     }
-    needs_update = prev != bar_item->associated_display;
+    needs_refresh = prev != bar_item->associated_display;
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
-    bar_item_set_yoffset(bar_item, token_to_int(get_token(&message)));
+    struct token token = get_token(&message);
+    ANIMATE(bar_item_set_yoffset, bar_item, bar_item->y_offset);
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {
@@ -776,7 +827,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);
-    needs_update = true;
+    needs_refresh = true;
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   } else {
@@ -784,7 +835,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     printf("Invalid propery: %s \n", property.text);
   }
 
-  if (needs_update) bar_item_needs_update(bar_item);
+  if (needs_refresh) bar_item_needs_update(bar_item);
 }
 
 void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
