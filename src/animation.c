@@ -56,9 +56,8 @@ bool animation_update(struct animation* animation) {
   int value = (1. - slider) * animation->initial_value
               + slider * animation->final_value;
 
-  animation->update_function(animation->target, value);
   animation->counter++;
-  return animation->counter <= animation->duration;
+  return animation->update_function(animation->target, value);
 }
 
 void animator_init(struct animator* animator) {
@@ -122,14 +121,17 @@ void animator_remove(struct animator* animator, struct animation* animation) {
   }
 }
 
-void animator_update(struct animator* animator) {
+bool animator_update(struct animator* animator) {
   bool removed = false;
+  bool needs_refresh = false;
   for (uint32_t i = 0; i < animator->animation_count; i++) {
     if (removed) i--;
     removed = false;
-    if (!animation_update(animator->animations[i])) {
+    needs_refresh |= animation_update(animator->animations[i]);
+    if (animator->animations[i]->counter > animator->animations[i]->duration) {
       animator_remove(animator, animator->animations[i]);
       removed = true;
     }
   }
+  return needs_refresh;
 }

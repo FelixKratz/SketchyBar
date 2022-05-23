@@ -60,4 +60,4 @@ struct animator {
 void animator_init(struct animator* animator);
 void animator_add(struct animator* animator, struct animation* animation);
 void animator_remove(struct animator* animator, struct animation* animation);
-void animator_update(struct animator* animator);
+bool animator_update(struct animator* animator);

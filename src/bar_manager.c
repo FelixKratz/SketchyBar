@@ -396,9 +396,10 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 
 void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
   bar_manager_freeze(bar_manager);
-  animator_update(&bar_manager->animator);
-  bar_manager->frozen = false;
-  bar_manager_refresh(bar_manager, true);
+  if (animator_update(&bar_manager->animator)) {
+    bar_manager->frozen = false;
+    bar_manager_refresh(bar_manager, true);
+  }
   bar_manager_unfreeze(bar_manager);
 }
 

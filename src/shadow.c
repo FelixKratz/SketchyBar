@@ -1,4 +1,5 @@
 #include "shadow.h"
+#include "bar_manager.h"
 
 void shadow_init(struct shadow* shadow) {
   shadow->enabled = false;
@@ -13,13 +14,13 @@ bool shadow_set_enabled(struct shadow* shadow, bool enabled) {
   return true;
 }
 
-bool shadow_set_angle(struct shadow* shadow, float angle) {
+bool shadow_set_angle(struct shadow* shadow, uint32_t angle) {
   if (shadow->angle == angle) return false;
   shadow->angle = angle;
   return true;
 }
 
-bool shadow_set_distance(struct shadow* shadow, float distance) {
+bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
   if (shadow->distance == distance) return false;
   shadow->distance = distance;
   return true;
@@ -47,21 +48,29 @@ CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
 }
 
 bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {
-  if (token_equals(property, PROPERTY_DRAWING))
-    return shadow_set_enabled(shadow,
-                              evaluate_boolean_state(get_token(&message),
-                              shadow->enabled                            ));
-
-  else if (token_equals(property, PROPERTY_DISTANCE))
-    return shadow_set_distance(shadow, token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_ANGLE))
-    return shadow_set_angle(shadow, token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_COLOR))
-    return shadow_set_color(shadow, token_to_uint32t(get_token(&message)));
+  bool needs_refresh = false;
+  if (token_equals(property, PROPERTY_DRAWING)) {
+    needs_refresh = shadow_set_enabled(shadow,
+                                       evaluate_boolean_state(get_token(&message),
+                                                              shadow->enabled     ));
+  }
+  else if (token_equals(property, PROPERTY_DISTANCE)) {
+    struct token token = get_token(&message);
+    ANIMATE(shadow_set_distance, shadow, shadow->distance);
+  }
+  else if (token_equals(property, PROPERTY_ANGLE)) {
+    struct token token = get_token(&message);
+    ANIMATE(shadow_set_angle, shadow, shadow->angle);
+  }
+  else if (token_equals(property, PROPERTY_COLOR)) {
+    needs_refresh = shadow_set_color(shadow,
+                                     token_to_uint32t(get_token(&message)));
+  }
   else {
     fprintf(rsp, "Unknown property: %s \n", property.text);
     printf("Unknown property: %s \n", property.text);
   }
-  return false;
+
+  return needs_refresh;
 }
 
