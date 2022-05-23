@@ -311,7 +311,6 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
       }
     }
     else {
-      needs_refresh = text_set_width(text, token_to_int(token));
       ANIMATE(text_set_width, text, text->custom_width);
     }
   } else if (token_equals(property, PROPERTY_DRAWING)) {

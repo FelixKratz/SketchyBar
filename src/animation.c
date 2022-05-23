@@ -10,6 +10,17 @@ double function_tanh(double x) {
   return result >= 0.99 ? 1. : result;
 }
 
+// double function_bounce(double x) {
+//   double alpha = 2.;
+//   double beta = 0.8;
+//   if (x < 1. / alpha) {
+//     return alpha*alpha * x * x;
+//   }
+//   else {
+//     return beta * beta * (x - 1./2. + 1./alpha/2.) + 1. - beta*beta*(1./2. + 1./alpha/2.);
+//   }
+// }
+
 static ANIMATOR_CALLBACK(animator_handler) {
   struct event *event = event_create(&g_event_loop, ANIMATOR_REFRESH, NULL);
   event_loop_post(&g_event_loop, event);
