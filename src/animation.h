@@ -21,8 +21,15 @@
 #define ANIMATOR_FUNCTION(name) bool name(void* target, int value);
 typedef ANIMATOR_FUNCTION(animator_function);
 
-#define INTERP_FUNCTION_LINEAR 'l'
-#define INTERP_FUNCTION_TANH   't'
+#define ANIMATION_FUNCTION(name) double name(double x);
+typedef ANIMATION_FUNCTION(animation_function);
+
+#define INTERP_FUNCTION_LINEAR       'l'
+#define INTERP_FUNCTION_SIN          's'
+#define INTERP_FUNCTION_TANH         't'
+#define INTERP_FUNCTION_BOUNCE       'b'
+#define INTERP_FUNCTION_EXP          'e'
+#define INTERP_FUNCTION_OVERSHOOT    'o'
 
 
 struct animation {
@@ -31,7 +38,7 @@ struct animation {
 
   int initial_value;
   int final_value;
-  char interp_function;
+  animation_function* interp_function;
 
   void* target;
   animator_function* update_function;

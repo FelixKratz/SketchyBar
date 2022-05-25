@@ -10,16 +10,28 @@ double function_tanh(double x) {
   return result >= 0.99 ? 1. : result;
 }
 
-// double function_bounce(double x) {
-//   double alpha = 2.;
-//   double beta = 0.8;
-//   if (x < 1. / alpha) {
-//     return alpha*alpha * x * x;
-//   }
-//   else {
-//     return beta * beta * (x - 1./2. + 1./alpha/2.) + 1. - beta*beta*(1./2. + 1./alpha/2.);
-//   }
-// }
+double function_sin(double x) {
+  return sin(M_PI / 2. * x);
+}
+
+double function_exp(double x) {
+  return x*exp(x - 1.);
+}
+
+double function_bounce(double x) {
+  double alpha = 2.;
+  double beta = 0.8;
+  if (x < 1. / alpha) {
+    return alpha*alpha * x * x;
+  }
+  else {
+    return beta * beta * (x - 1./2. + 1./alpha/2.) + 1. - beta*beta*(1./2. + 1./alpha/2.);
+  }
+}
+
+double function_overshoot(double x) {
+  return x * (1. + 0.5*(sin(3. * M_PI * x)));
+}
 
 static ANIMATOR_CALLBACK(animator_handler) {
   struct event *event = event_create(&g_event_loop, ANIMATOR_REFRESH, NULL);
@@ -43,8 +55,21 @@ void animation_setup(struct animation* animation, void* target, animator_functio
   animation->initial_value = initial_value;
   animation->final_value = final_value;
   animation->update_function = update_function;
-  animation->interp_function = interp_function;
   animation->target = target;
+
+  if (interp_function == INTERP_FUNCTION_TANH) {
+    animation->interp_function = &function_tanh;
+  } else if (interp_function == INTERP_FUNCTION_SIN) {
+    animation->interp_function = &function_sin;
+  } else if (interp_function == INTERP_FUNCTION_BOUNCE) {
+    animation->interp_function = &function_bounce;
+  } else if (interp_function == INTERP_FUNCTION_EXP) {
+    animation->interp_function = &function_exp;
+  } else if (interp_function == INTERP_FUNCTION_OVERSHOOT) {
+    animation->interp_function = &function_overshoot;
+  } else {
+    animation->interp_function = &function_linear;
+  }
 }
 
 bool animation_update(struct animation* animation) {
@@ -54,15 +79,8 @@ bool animation_update(struct animation* animation) {
     return false;
   }
 
-  double slider = 1.;
-  if (animation->interp_function == INTERP_FUNCTION_LINEAR) {
-    slider = function_linear((double)animation->counter
+  double slider = animation->interp_function((double)animation->counter
                              / (double)animation->duration);
-  }
-  else if (animation->interp_function == INTERP_FUNCTION_TANH) {
-    slider = function_tanh((double)animation->counter
-                           / (double)animation->duration);
-  }
 
   int value = (1. - slider) * animation->initial_value
               + slider * animation->final_value;
