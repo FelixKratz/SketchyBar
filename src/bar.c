@@ -110,18 +110,20 @@ void bar_draw(struct bar* bar) {
 
 
     if (bar_item->lazy) {
-      struct window* window = bar_item_get_window(bar_item, bar->adid);
+      if (bar_item->needs_update) {
+        struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-      SLSOrderWindow(g_connection, window->id, -1, 0);
-      draw_rect(window->context, window->frame, &g_transparent,
-                                                0,
-                                                0,
-                                                &g_transparent,
-                                                true           );
+        SLSOrderWindow(g_connection, window->id, -1, 0);
+        draw_rect(window->context, window->frame, &g_transparent,
+                                                  0,
+                                                  0,
+                                                  &g_transparent,
+                                                  true           );
 
-      bar_item_draw(bar_item, window->context);
-      CGContextFlush(window->context);
-      SLSOrderWindow(g_connection, window->id, 1, bar->window.id);
+        bar_item_draw(bar_item, window->context);
+        CGContextFlush(window->context);
+        SLSOrderWindow(g_connection, window->id, 1, bar->window.id);
+      } 
     }
     else {
       bar_item_draw(bar_item, bar->window.context);
