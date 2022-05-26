@@ -139,39 +139,59 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
                                                          background->enabled));
   else if (token_equals(property, PROPERTY_HEIGHT)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_height, background, background->bounds.size.height);
+    ANIMATE(background_set_height,
+            background,
+            background->bounds.size.height,
+            token_to_int(token)            );
   }
   else if (token_equals(property, PROPERTY_CORNER_RADIUS)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_corner_radius, background, background->corner_radius);
+    ANIMATE(background_set_corner_radius,
+            background,
+            background->corner_radius,
+            token_to_int(token)          );
   }
   else if (token_equals(property, PROPERTY_BORDER_WIDTH)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_border_width, background, background->border_width);
+    ANIMATE(background_set_border_width,
+            background,
+            background->border_width,
+            token_to_int(token)         );
   }
   else if (token_equals(property, PROPERTY_COLOR)) {
     struct token token = get_token(&message);
     ANIMATE_BYTES(background_set_color,
                   background,
-                  hex_from_rgba_color(background->color));
+                  hex_from_rgba_color(background->color),
+                  token_to_int(token)                    );
   }
   else if (token_equals(property, PROPERTY_BORDER_COLOR)) {
     struct token token = get_token(&message);
     ANIMATE_BYTES(background_set_border_color,
                   background,
-                  hex_from_rgba_color(background->border_color));
+                  hex_from_rgba_color(background->border_color),
+                  token_to_int(token)                           );
   }
   else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_padding_left, background, background->padding_left);
+    ANIMATE(background_set_padding_left,
+            background,
+            background->padding_left,
+            token_to_int(token)         );
   }
   else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_padding_right, background, background->padding_right);
+    ANIMATE(background_set_padding_right,
+            background,
+            background->padding_right,
+            token_to_int(token)         );
   }
   else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    ANIMATE(background_set_yoffset, background, background->y_offset);
+    ANIMATE(background_set_yoffset,
+            background,
+            background->y_offset,
+            token_to_int(token)    );
   }
   else if (token_equals(property, SUB_DOMAIN_IMAGE))
     return image_load(&background->image,

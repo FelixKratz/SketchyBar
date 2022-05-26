@@ -757,7 +757,10 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       bar_item->has_const_width = false;
     }
     else {
-      ANIMATE(bar_item_set_width, bar_item, bar_item->custom_width);
+      ANIMATE(bar_item_set_width,
+              bar_item,
+              bar_item->custom_width,
+              token_to_int(token)    );
     }
   } else if (token_equals(property, PROPERTY_SCRIPT)) {
     bar_item_set_script(bar_item, token_to_string(get_token(&message)));
@@ -819,7 +822,11 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     needs_refresh = prev != bar_item->associated_display;
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    ANIMATE(bar_item_set_yoffset, bar_item, bar_item->y_offset);
+    ANIMATE(bar_item_set_yoffset,
+            bar_item,
+            bar_item->y_offset,
+            token_to_int(token)  );
+
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {

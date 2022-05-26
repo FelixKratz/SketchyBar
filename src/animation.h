@@ -1,7 +1,7 @@
 #pragma once
 #include "misc/helpers.h"
 
-#define ANIMATE(f, o, p) \
+#define ANIMATE(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \
     struct animation* animation = animation_create(); \
@@ -9,16 +9,16 @@
                     (void*)o, \
                     (bool (*)(void*, int))&f, \
                     p, \
-                    token_to_int(token), \
+                    t, \
                     g_bar_manager.animator.duration, \
                     g_bar_manager.animator.interp_function ); \
     animator_add(&g_bar_manager.animator, animation); \
   } else { \
-    needs_refresh = f(o, token_to_int(token)); \
+    needs_refresh = f(o, t); \
   } \
 }
 
-#define ANIMATE_BYTES(f, o, p) \
+#define ANIMATE_BYTES(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \
     struct animation* animation = animation_create(); \
@@ -26,13 +26,13 @@
                     (void*)o, \
                     (bool (*)(void*, int))&f, \
                     p, \
-                    token_to_int(token), \
+                    t, \
                     g_bar_manager.animator.duration, \
                     g_bar_manager.animator.interp_function ); \
     animation->seperate_bytes = true; \
     animator_add(&g_bar_manager.animator, animation); \
   } else { \
-    needs_refresh = f(o, token_to_int(token)); \
+    needs_refresh = f(o, t); \
   } \
 }
 

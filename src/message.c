@@ -205,15 +205,25 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
 
   if (token_equals(command, PROPERTY_MARGIN)) {
     struct token token = get_token(&message);
-    ANIMATE(bar_manager_set_margin, &g_bar_manager, g_bar_manager.margin);
+    ANIMATE(bar_manager_set_margin,
+            &g_bar_manager,
+            g_bar_manager.margin,
+            token_to_int(token)    );
+
   } else if (token_equals(command, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    ANIMATE(bar_manager_set_y_offset, &g_bar_manager, g_bar_manager.y_offset);
+    ANIMATE(bar_manager_set_y_offset,
+            &g_bar_manager,
+            g_bar_manager.y_offset,
+            token_to_int(token)      );
+
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);
     ANIMATE(bar_manager_set_background_blur,
             &g_bar_manager,
-            g_bar_manager.blur_radius       );
+            g_bar_manager.blur_radius,
+            token_to_int(token)             );
+
   } else if (token_equals(command, PROPERTY_FONT_SMOOTHING)) {
     struct token state = get_token(&message);
     needs_refresh = bar_manager_set_font_smoothing(&g_bar_manager,
@@ -228,7 +238,9 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     struct token token = get_token(&message);
     ANIMATE(bar_manager_set_notch_width,
             &g_bar_manager,
-            g_bar_manager.notch_width   );
+            g_bar_manager.notch_width,
+            token_to_int(token)         );
+
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     uint32_t adid = 0;

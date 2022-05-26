@@ -289,26 +289,67 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_COLOR)) {
     struct token token = get_token(&message);
-    ANIMATE_BYTES(text_set_color, text, hex_from_rgba_color(text->color));
+    ANIMATE_BYTES(text_set_color,
+                  text,
+                  hex_from_rgba_color(text->color),
+                  token_to_int(token)              );
   }
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
-    text->highlight = evaluate_boolean_state(get_token(&message),
-                                             text->highlight     );
+    bool highlight = evaluate_boolean_state(get_token(&message),
+                                             text->highlight    );
+    if (g_bar_manager.animator.duration > 0) {
+      if (text->highlight && !highlight) {
+        uint32_t target = hex_from_rgba_color(text->color);
+        text_set_color(text, hex_from_rgba_color(text->highlight_color));
+
+        ANIMATE_BYTES(text_set_color,
+                      text,
+                      hex_from_rgba_color(text->color),
+                      target                           );
+      }
+      else if (!text->highlight && highlight) {
+        uint32_t target = hex_from_rgba_color(text->highlight_color);
+        text_set_hightlight_color(text, hex_from_rgba_color(text->color));
+
+        ANIMATE_BYTES(text_set_hightlight_color,
+                      text,
+                      hex_from_rgba_color(text->highlight_color),
+                      target                                     );
+      }
+    }
+
+    text->highlight = highlight;
     needs_refresh = text_update_color(text);
   } else if (token_equals(property, PROPERTY_FONT))
     needs_refresh = text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     struct token token = get_token(&message);
-    ANIMATE_BYTES(text_set_hightlight_color, text, hex_from_rgba_color(text->highlight_color));
+    ANIMATE_BYTES(text_set_hightlight_color,
+                  text,
+                  hex_from_rgba_color(text->highlight_color),
+                  token_to_int(token)                        );
+
   } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);
-    ANIMATE(text_set_padding_left, text, text->padding_left);
+    ANIMATE(text_set_padding_left,
+            text,
+            text->padding_left,
+            token_to_int(token)  );
+
   } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
     struct token token = get_token(&message);
-    ANIMATE(text_set_padding_right, text, text->padding_right);
+    ANIMATE(text_set_padding_right,
+            text,
+            text->padding_right,
+            token_to_int(token)    );
+
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
-    ANIMATE(text_set_yoffset, text, text->y_offset);
+    ANIMATE(text_set_yoffset,
+            text,
+            text->y_offset,
+            token_to_int(token));
+
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
@@ -318,7 +359,10 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
       }
     }
     else {
-      ANIMATE(text_set_width, text, text->custom_width);
+      ANIMATE(text_set_width,
+              text,
+              text->custom_width,
+              token_to_int(token));
     }
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     bool prev = text->drawing;
