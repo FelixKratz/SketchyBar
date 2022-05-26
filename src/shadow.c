@@ -63,8 +63,8 @@ bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token prop
     ANIMATE(shadow_set_angle, shadow, shadow->angle);
   }
   else if (token_equals(property, PROPERTY_COLOR)) {
-    needs_refresh = shadow_set_color(shadow,
-                                     token_to_uint32t(get_token(&message)));
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(shadow_set_color, shadow, hex_from_rgba_color(shadow->color));
   }
   else {
     fprintf(rsp, "Unknown property: %s \n", property.text);

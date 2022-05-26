@@ -128,6 +128,11 @@ bool text_set_color(struct text* text, uint32_t color) {
   return text_update_color(text);
 }
 
+bool text_set_hightlight_color(struct text* text, uint32_t color) {
+  text->highlight_color = rgba_color_from_hex(color);
+  return text_update_color(text);
+}
+
 bool text_set_font(struct text* text, char* font_string, bool forced) {
   if (!font_string) return false;
   if (!forced && text->font_name
@@ -282,8 +287,10 @@ void text_draw(struct text* text, CGContextRef context) {
 
 bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
-  if (token_equals(property, PROPERTY_COLOR))
-    return text_set_color(text, token_to_uint32t(get_token(&message)));
+  if (token_equals(property, PROPERTY_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(text_set_color, text, hex_from_rgba_color(text->color));
+  }
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
     text->highlight = evaluate_boolean_state(get_token(&message),
                                              text->highlight     );
@@ -291,8 +298,8 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
   } else if (token_equals(property, PROPERTY_FONT))
     needs_refresh = text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
-    text->highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
-    needs_refresh = text_update_color(text);
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(text_set_hightlight_color, text, hex_from_rgba_color(text->highlight_color));
   } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);
     ANIMATE(text_set_padding_left, text, text->padding_left);

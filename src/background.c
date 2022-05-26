@@ -151,15 +151,15 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
   }
   else if (token_equals(property, PROPERTY_COLOR)) {
     struct token token = get_token(&message);
-    return background_set_color(background, token_to_uint32t(token));
-    // ANIMATE(background_set_color, background,
-    //         hex_from_rgba_color(background->color));
+    ANIMATE_BYTES(background_set_color,
+                  background,
+                  hex_from_rgba_color(background->color));
   }
   else if (token_equals(property, PROPERTY_BORDER_COLOR)) {
     struct token token = get_token(&message);
-    return background_set_border_color(background, token_to_uint32t(token));
-    // ANIMATE(background_set_border_color, background,
-    //         hex_from_rgba_color(background->border_color));
+    ANIMATE_BYTES(background_set_border_color,
+                  background,
+                  hex_from_rgba_color(background->border_color));
   }
   else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);

@@ -56,6 +56,7 @@ void animation_setup(struct animation* animation, void* target, animator_functio
   animation->final_value = final_value;
   animation->update_function = update_function;
   animation->target = target;
+  animation->seperate_bytes = false;
 
   if (interp_function == INTERP_FUNCTION_TANH) {
     animation->interp_function = &function_tanh;
@@ -82,8 +83,20 @@ bool animation_update(struct animation* animation) {
   double slider = animation->interp_function((double)animation->counter
                              / (double)animation->duration);
 
-  int value = (1. - slider) * animation->initial_value
-              + slider * animation->final_value;
+  int value;
+  if (animation->seperate_bytes) {
+    for (int i = 0; i < 4; i++) {
+      unsigned char byte_i = *((unsigned char*)&animation->initial_value + i);
+      unsigned char byte_f = *((unsigned char*)&animation->final_value + i);
+
+      unsigned char byte_val = (1. - slider) * byte_i + slider * byte_f;
+      *((unsigned char*)&value + i) = byte_val;
+    }
+  }
+  else {
+    value = (1. - slider) * animation->initial_value
+                + slider * animation->final_value;
+  }
 
   animation->counter++;
   return animation->update_function(animation->target, value);
