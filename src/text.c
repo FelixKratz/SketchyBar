@@ -1,4 +1,5 @@
 #include "text.h"
+#include "bar_manager.h"
 
 static CTFontRef text_create_font(char *cstring) {
   float size = 10.0f;
@@ -127,6 +128,11 @@ bool text_set_color(struct text* text, uint32_t color) {
   return text_update_color(text);
 }
 
+bool text_set_hightlight_color(struct text* text, uint32_t color) {
+  text->highlight_color = rgba_color_from_hex(color);
+  return text_update_color(text);
+}
+
 bool text_set_font(struct text* text, char* font_string, bool forced) {
   if (!font_string) return false;
   if (!forced && text->font_name
@@ -142,6 +148,31 @@ bool text_set_font(struct text* text, char* font_string, bool forced) {
   text->font = text_create_font(font_string);
   text->font_name = font_string;
   return text_set_string(text, text->string, true);
+}
+
+bool text_set_padding_left(struct text* text, int padding) {
+  if (text->padding_left == padding) return false;
+  text->padding_left = padding;
+  return true;
+}
+
+bool text_set_padding_right(struct text* text, int padding) {
+  if (text->padding_right == padding) return false;
+  text->padding_right = padding;
+  return true;
+}
+
+bool text_set_yoffset(struct text* text, int offset) {
+  if (text->y_offset == offset) return false;
+  text->y_offset = offset;
+  return true;
+}
+
+bool text_set_width(struct text* text, int width) {
+  if (text->custom_width == width && text->has_const_width) return false;
+  text->custom_width = width;
+  text->has_const_width = true;
+  return true;
 }
 
 bool text_update_color(struct text* text) {
@@ -255,44 +286,84 @@ void text_draw(struct text* text, CGContextRef context) {
 }
 
 bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
-  if (token_equals(property, PROPERTY_COLOR))
-    return text_set_color(text, token_to_uint32t(get_token(&message)));
+  bool needs_refresh = false;
+  if (token_equals(property, PROPERTY_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(text_set_color,
+                  text,
+                  hex_from_rgba_color(text->color),
+                  token_to_int(token)              );
+  }
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
-    text->highlight = evaluate_boolean_state(get_token(&message),
-                                             text->highlight     );
-    return text_update_color(text);
+    bool highlight = evaluate_boolean_state(get_token(&message),
+                                             text->highlight    );
+    if (g_bar_manager.animator.duration > 0) {
+      if (text->highlight && !highlight) {
+        uint32_t target = hex_from_rgba_color(text->color);
+        text_set_color(text, hex_from_rgba_color(text->highlight_color));
+
+        ANIMATE_BYTES(text_set_color,
+                      text,
+                      hex_from_rgba_color(text->color),
+                      target                           );
+      }
+      else if (!text->highlight && highlight) {
+        uint32_t target = hex_from_rgba_color(text->highlight_color);
+        text_set_hightlight_color(text, hex_from_rgba_color(text->color));
+
+        ANIMATE_BYTES(text_set_hightlight_color,
+                      text,
+                      hex_from_rgba_color(text->highlight_color),
+                      target                                     );
+      }
+    }
+
+    text->highlight = highlight;
+    needs_refresh = text_update_color(text);
   } else if (token_equals(property, PROPERTY_FONT))
-    return text_set_font(text, string_copy(message), false);
+    needs_refresh = text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
-    text->highlight_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
-    return text_update_color(text);
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(text_set_hightlight_color,
+                  text,
+                  hex_from_rgba_color(text->highlight_color),
+                  token_to_int(token)                        );
+
   } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
-    int prev = text->padding_left;
-    text->padding_left = token_to_int(get_token(&message));
-    return prev != text->padding_left;
+    struct token token = get_token(&message);
+    ANIMATE(text_set_padding_left,
+            text,
+            text->padding_left,
+            token_to_int(token)  );
+
   } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
-    int prev = text->padding_right;
-    text->padding_right = token_to_int(get_token(&message));
-    return prev != text->padding_right;
+    struct token token = get_token(&message);
+    ANIMATE(text_set_padding_right,
+            text,
+            text->padding_right,
+            token_to_int(token)    );
+
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
-    int prev = text->y_offset;
-    text->y_offset = token_to_int(get_token(&message));
-    return prev != text->y_offset;
+    struct token token = get_token(&message);
+    ANIMATE(text_set_yoffset,
+            text,
+            text->y_offset,
+            token_to_int(token));
+
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
       if (text->has_const_width) {
+        needs_refresh = text->has_const_width;
         text->has_const_width = false;
-        return true;
       }
     }
     else {
-      uint32_t prev = text->custom_width;
-      text->has_const_width = true;
-      text->custom_width = token_to_uint32t(token);
-      return prev != text->custom_width;
+      ANIMATE(text_set_width,
+              text,
+              text->custom_width,
+              token_to_int(token));
     }
-    return false;
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     bool prev = text->drawing;
     text->drawing = evaluate_boolean_state(get_token(&message), text->drawing);
@@ -321,5 +392,6 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
       printf("Unknown property: %s \n", property.text);
     }
   }
-  return false;
+
+  return needs_refresh;
 }

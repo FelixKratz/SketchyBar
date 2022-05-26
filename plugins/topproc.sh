@@ -4,8 +4,8 @@ TOPPROC=$(ps axo "%cpu,ucomm" | sort -nr | tail +1 | head -n1 | awk '{printf "%.
 CPUP=$(echo $TOPPROC | sed -nr 's/([^\%]+).*/\1/p')
 
 if [ $CPUP -gt 75 ]; then
-  sketchybar -m --set $NAME label="異 $TOPPROC"
+  sketchybar --set $NAME label="異 $TOPPROC"
 else
-  sketchybar -m --set $NAME label=""
+  sketchybar --set $NAME label=""
 fi
 

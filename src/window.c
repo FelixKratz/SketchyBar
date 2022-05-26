@@ -30,6 +30,14 @@ void window_create(struct window* window, CGRect frame) {
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
 }
 
+void window_freeze(struct window* window) {
+  SLSDisableUpdate(g_connection);
+}
+
+void window_unfreeze(struct window* window) {
+  SLSReenableUpdate(g_connection);
+}
+
 void window_resize(struct window* window, CGRect frame) {
   CGRect out;
   SLSGetScreenRectForWindow(g_connection, window->id, &out);

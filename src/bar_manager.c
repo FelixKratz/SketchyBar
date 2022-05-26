@@ -26,7 +26,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
-  bar_manager->window_level = kCGNormalWindowLevelKey;
+  bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
@@ -42,6 +42,8 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_item_init(&bar_manager->default_item, NULL);
   bar_item_set_name(&bar_manager->default_item, string_copy("defaults"));
   custom_events_init(&bar_manager->custom_events);
+
+  animator_init(&bar_manager->animator);
   
   int shell_refresh_frequency = 1;
 
@@ -158,6 +160,20 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
   bar_item_destroy(bar_item);
 }
 
+bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {
+  if (bar_manager->margin == margin) return false;
+  bar_manager->margin = margin;
+  bar_manager_resize(&g_bar_manager);
+  return true;
+}
+
+bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset) {
+  if (bar_manager->y_offset == y_offset) return false;
+  bar_manager->y_offset = y_offset;
+  bar_manager_resize(&g_bar_manager);
+  return true;
+}
+
 bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
   if (bar_manager->blur_radius == radius) return false;
   bar_manager->blur_radius = radius;
@@ -170,6 +186,7 @@ bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
 bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   if (bar_manager->position == pos) return false;
   bar_manager->position = pos;
+  bar_manager_resize(bar_manager);
   return true;
 }
 
@@ -196,11 +213,8 @@ bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
 
 bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width) {
   if (bar_manager->notch_width == width) return false;
-  bar_manager->notch_width = width;
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
 
-  bar_manager_begin(bar_manager);
+  bar_manager->notch_width = width;
   return true;
 }
 
@@ -237,8 +251,8 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   for (int i = 0; i < bar_manager->bar_count; i++)
     bar_destroy(bar_manager->bars[i]);
 
-  if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevelKey;
-  else bar_manager->window_level = kCGNormalWindowLevelKey;
+  if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevel;
+  else bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager_begin(bar_manager);
   bar_manager->topmost = topmost;
   return true;
@@ -246,10 +260,16 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
 
 void bar_manager_freeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = true;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    window_freeze(&bar_manager->bars[i]->window);
+  }
 }
 
 void bar_manager_unfreeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = false;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    window_unfreeze(&bar_manager->bars[i]->window);
+  }
 }
 
 uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct bar* bar, char side) {
@@ -378,6 +398,15 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
       } 
     }
   }
+}
+
+void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
+  bar_manager_freeze(bar_manager);
+  if (animator_update(&bar_manager->animator)) {
+    bar_manager->frozen = false;
+    bar_manager_refresh(bar_manager, true);
+  }
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {

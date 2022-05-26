@@ -17,7 +17,6 @@ struct bar {
   uint32_t did;
   uint32_t sid;
   uint32_t adid;
-  uint32_t notch_width;
 
   struct window window;
 };

@@ -2,6 +2,8 @@
 #include "image.h"
 #include "misc/helpers.h"
 #include "shadow.h"
+#include "animation.h"
+#include "bar_manager.h"
 
 void background_init(struct background* background) {
   background->enabled = false;
@@ -130,34 +132,67 @@ void background_destroy(struct background* background) {
 }
 
 bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
+  bool needs_refresh = false;
   if (token_equals(property, PROPERTY_DRAWING))
     return background_set_enabled(background,
                                   evaluate_boolean_state(get_token(&message),
                                                          background->enabled));
-  else if (token_equals(property, PROPERTY_HEIGHT))
-    return background_set_height(background,
-                                 token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_CORNER_RADIUS))
-    return background_set_corner_radius(background,
-                                        token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_BORDER_WIDTH))
-    return background_set_border_width(background,
-                                       token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_COLOR))
-    return background_set_color(background,
-                                token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_BORDER_COLOR))
-    return background_set_border_color(background,
-                                       token_to_uint32t(get_token(&message)));
-  else if (token_equals(property, PROPERTY_PADDING_LEFT))
-    return background_set_padding_left(background,
-                                       token_to_int(get_token(&message)));
-  else if (token_equals(property, PROPERTY_PADDING_RIGHT))
-    return background_set_padding_right(background,
-                                        token_to_int(get_token(&message)));
-  else if (token_equals(property, PROPERTY_YOFFSET))
-    return background_set_yoffset(background,
-                                  token_to_int(get_token(&message)));
+  else if (token_equals(property, PROPERTY_HEIGHT)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_height,
+            background,
+            background->bounds.size.height,
+            token_to_int(token)            );
+  }
+  else if (token_equals(property, PROPERTY_CORNER_RADIUS)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_corner_radius,
+            background,
+            background->corner_radius,
+            token_to_int(token)          );
+  }
+  else if (token_equals(property, PROPERTY_BORDER_WIDTH)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_border_width,
+            background,
+            background->border_width,
+            token_to_int(token)         );
+  }
+  else if (token_equals(property, PROPERTY_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(background_set_color,
+                  background,
+                  hex_from_rgba_color(background->color),
+                  token_to_int(token)                    );
+  }
+  else if (token_equals(property, PROPERTY_BORDER_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(background_set_border_color,
+                  background,
+                  hex_from_rgba_color(background->border_color),
+                  token_to_int(token)                           );
+  }
+  else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_padding_left,
+            background,
+            background->padding_left,
+            token_to_int(token)         );
+  }
+  else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_padding_right,
+            background,
+            background->padding_right,
+            token_to_int(token)         );
+  }
+  else if (token_equals(property, PROPERTY_YOFFSET)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_yoffset,
+            background,
+            background->y_offset,
+            token_to_int(token)    );
+  }
   else if (token_equals(property, SUB_DOMAIN_IMAGE))
     return image_load(&background->image,
                       token_to_string(get_token(&message)),
@@ -185,5 +220,5 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
       printf("Unknown property: %s \n", property.text);
     }
   }
-  return false;
+  return needs_refresh;
 }

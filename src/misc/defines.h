@@ -26,6 +26,8 @@
 
 #define DOMAIN_SET                                          "--set"
 
+#define DOMAIN_ANIMATE                                      "--animate"
+
 #define DOMAIN_EXIT                                         "--exit"
 
 #define SUB_DOMAIN_ICON                                     "icon"
