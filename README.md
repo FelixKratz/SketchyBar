@@ -33,8 +33,9 @@ shell scripts.
 * Performance friendly
 * Fully scriptable
 * Fully configurable
-* Supports drawing native macOS menu bar applications
-* Powerful event system
+* Supports drawing native macOS menu bar applications (Aliases)
+* Powerful event and scripting system
+* Animation System
 * Popup Menus
 * Mouse Support
 * Support for graphs
