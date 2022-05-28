@@ -7,11 +7,11 @@ sidebar_position: 1
 ## Features
 
 * Performance friendly
-* No accessibility permissions needed
 * Fully scriptable
 * Fully configurable (Fonts, Backgrounds, Colors, Icons, etc.)
 * Supports drawing native macOS menu bar applications (aliases)
 * Powerful event and scripting system
+* Animation System
 * Popup Menus
 * Mouse Support
 * Support for graphs
