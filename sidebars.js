@@ -13,6 +13,7 @@ module.exports = {
         "config/events",
         "config/querying",
         "config/types",
+        "config/animations",
         "config/tricks"
       ],
     },
