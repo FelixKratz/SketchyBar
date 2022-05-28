@@ -23,12 +23,23 @@ extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 extern int SLSSpaceGetType(int cid, uint64_t sid);
 
+extern CGError SLSAddSurface(int cid, uint32_t wid, uint32_t* outSID);
+extern CGError SLSRemoveSurface(int cid, uint32_t wid, uint32_t sid);
+extern CGError SLSBindSurface(int cid, uint32_t wid, uint32_t sid, int x, int y, CGContextRef ctx);
+extern CGError SLSSetSurfaceBounds(int cid, uint32_t wid, uint32_t sid, CGRect bounds);
+extern CGError SLSSetSurfaceOpacity(int cid, uint32_t wid, uint32_t sid, bool opaque);
+extern CGError SLSOrderSurface(int cid, uint32_t wid, uint32_t surface, uint32_t other_surface, int order);
+extern CGError SLSSetSurfaceResolution(int cid, uint32_t wid, uint32_t sid, CGFloat scale);
+extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int param);
+
 #define kCGSHighQualityResamplingTagBit (1ULL <<  4)
 #define kCGSStickyTagBit                (1ULL << 11)
 #define kCGSSuperStickyTagBit           (1ULL << 45)
 
 struct window {
   uint32_t id;
+  uint32_t surface_id;
+
   CGRect frame;
   CGPoint origin;
   CGContextRef context;
