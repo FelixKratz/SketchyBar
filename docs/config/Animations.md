@@ -11,7 +11,7 @@ regular `--set` or `--bar` command:
 ```bash
 sketchybar --animate <curve> <duration> \
            --bar <property>=<value> ... <property>=<value> \
-           --set <property>=<value> ... <property>=<value>
+           --set <name> <property>=<value> ... <property>=<value>
 ```
 where the `<curve>` is any of the animation curves:
 - `linear`, `tanh`, `sin`, `exp`, `bounce`, `overshoot`
