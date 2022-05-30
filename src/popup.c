@@ -28,7 +28,8 @@ void popup_calculate_bounds(struct popup* popup) {
 
   if (popup->background.enabled
       && popup->background.image.enabled) {
-    width = popup->background.image.bounds.size.width;
+    width = popup->background.image.bounds.size.width
+            + 2*popup->background.border_width;
   }
 
   if (popup->horizontal) {
@@ -83,14 +84,19 @@ void popup_calculate_bounds(struct popup* popup) {
 
   if (popup->horizontal) {
     if (!popup->background.enabled || !popup->background.image.enabled) {
-      width = x;
+      width = x + popup->background.border_width;
     }
     y += height;
   }
+  else if (!popup->background.enabled || !popup->background.image.enabled) {
+    width += popup->background.border_width;
+  }
   y += popup->background.border_width;
 
-  popup->background.bounds.size.width = width;// + popup->background.border_width/2;
+  popup->background.bounds.size.width = width;
   popup->background.bounds.size.height = y;
+  popup->background.image.bounds.origin.x = popup->background.border_width;
+  popup->background.image.bounds.origin.y = popup->background.border_width;
 }
 
 void popup_create_window(struct popup* popup) {
