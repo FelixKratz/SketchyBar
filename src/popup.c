@@ -171,14 +171,13 @@ void popup_draw(struct popup* popup) {
   window_resize(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},
                                          {popup->background.bounds.size.width,
                                           popup->background.bounds.size.height}});
-  draw_rect(popup->window.context,
-            popup->background.bounds,
-            &g_transparent,
-            0,
-            0,
-            &g_transparent,
-            true                     );
+
+  CGContextClearRect(popup->window.context, popup->background.bounds);
+
+  bool shadow = popup->background.shadow.enabled;
+  popup->background.shadow.enabled = false;
   background_draw(&popup->background, popup->window.context);
+  popup->background.shadow.enabled = shadow;
 
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
