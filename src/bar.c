@@ -6,8 +6,6 @@
 #include "misc/helpers.h"
 #include "window.h"
 
-struct rgba_color g_transparent = { 0 };
-
 void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool right_to_left) {
   if (!bar_item->has_graph) return;
 }
@@ -55,16 +53,18 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
 }
 
 void bar_draw(struct bar* bar) {
-  SLSOrderWindow(g_connection, bar->window.id, -1, 0);
   SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
 
-  draw_rect(bar->window.context,
-            bar->window.frame,
-            &g_bar_manager.background.color,
-            g_bar_manager.background.corner_radius,
-            g_bar_manager.background.border_width,
-            &g_bar_manager.background.border_color,
-            true                                   );
+  if (bar->needs_update) {
+    draw_rect(bar->window.context,
+              bar->window.frame,
+              &g_bar_manager.background.color,
+              g_bar_manager.background.corner_radius,
+              g_bar_manager.background.border_width,
+              &g_bar_manager.background.border_color,
+              true                                   );
+    bar->needs_update = false;
+  }
 
   if (g_bar_manager.background.image.enabled) {
     image_draw(&g_bar_manager.background.image, bar->window.context);
@@ -79,9 +79,8 @@ void bar_draw(struct bar* bar) {
     if (!bar_draws_item(bar, bar_item)) {
       if (bar_item->lazy) {
         struct window* window = bar_item_get_window(bar_item, bar->adid);
-        SLSRemoveFromOrderingGroup(g_connection, window->id);
-        SLSOrderWindow(g_connection, window->id, -1, 0);
-        window_set_level(window, 0);
+        // SLSRemoveFromOrderingGroup(g_connection, window->id);
+        SLSOrderWindow(g_connection, window->id, -1, bar->window.id);
       }
 
       continue;
@@ -113,7 +112,6 @@ void bar_draw(struct bar* bar) {
       if (bar_item->needs_update) {
         struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-        SLSOrderWindow(g_connection, window->id, -1, 0);
         draw_rect(window->context, window->frame, &g_transparent,
                                                   0,
                                                   0,
@@ -133,7 +131,6 @@ void bar_draw(struct bar* bar) {
   }
 
   CGContextFlush(bar->window.context);
-  SLSOrderWindow(g_connection, bar->window.id, 1, bar->window.id);
 }
 
 void bar_calculate_bounds(struct bar* bar) {
@@ -204,6 +201,7 @@ void bar_calculate_bounds(struct bar* bar) {
       struct window* window = bar_item_get_window(bar_item, bar->adid);
       window_set_level(window, g_bar_manager.window_level);
       SLSAddWindowToWindowOrderingGroup(g_connection, bar->window.id, window->id, 1);
+      // TODO: Fix for negative background paddings
       window_resize(window, (CGRect){{bar->window.origin.x + *next_position,
                                       bar->window.origin.y                  },
                                      {bar_item_display_length
@@ -256,6 +254,7 @@ void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
   window_resize(&bar->window, bar_get_frame(bar));
   bar_calculate_bounds(bar);
+  bar->needs_update = true;
   bar_draw(bar);
 }
 
@@ -282,6 +281,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->shown = true;
+  bar->needs_update = true;
   bar_create_window(bar);
   return bar;
 }

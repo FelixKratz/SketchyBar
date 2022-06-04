@@ -263,12 +263,23 @@ void bar_manager_freeze(struct bar_manager *bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; i++) {
     window_freeze(&bar_manager->bars[i]->window);
   }
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    if (!bar_manager->bar_items[i]->needs_update) continue;
+    for (int j = 0; j < bar_manager->bar_items[i]->num_windows; j++) {
+      window_freeze(bar_manager->bar_items[i]->windows[j]);
+    }
+  }
 }
 
 void bar_manager_unfreeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = false;
   for (int i = 0; i < bar_manager->bar_count; i++) {
     window_unfreeze(&bar_manager->bars[i]->window);
+  }
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    for (int j = 0; j < bar_manager->bar_items[i]->num_windows; j++) {
+      window_unfreeze(bar_manager->bar_items[i]->windows[j]);
+    }
   }
 }
 

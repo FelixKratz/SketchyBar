@@ -11,6 +11,7 @@
 #define ALIGN_CENTER 5
 
 struct bar {
+  bool needs_update;
   bool shown;
   bool hidden;
 

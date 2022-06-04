@@ -73,7 +73,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
 
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->needs_update = true;
-  bar_item->lazy = false;
+  bar_item->lazy = true;
   bar_item->drawing = true;
   bar_item->updates = true;
   bar_item->updates_only_when_shown = false;
@@ -878,8 +878,9 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {
-    bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
-    needs_refresh = true;
+    printf("lazy property is deprecated.\n");
+    // bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
+    // needs_refresh = true;
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);
