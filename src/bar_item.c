@@ -16,6 +16,8 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->num_rects = 0;
   bar_item->signal_args.env_vars.vars = NULL;
   bar_item->signal_args.env_vars.count = 0;
+  bar_item->windows = NULL;
+  bar_item->num_windows = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
   background_clear_pointers(&bar_item->background);
@@ -509,10 +511,10 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
       content_x += bar_item_length - bar_item_content_length;
   }
 
-  uint32_t icon_position = content_x + bar_item->background.padding_left;
-  if ((int)content_x + bar_item->background.padding_left < 0)
-    icon_position = 0;
-
+  uint32_t icon_position = content_x;
+  // if ((int)content_x + bar_item->background.padding_left < 0)
+  //   icon_position = 0;
+  //
   uint32_t label_position = icon_position + text_get_length(&bar_item->icon,
                                                             false           );
 
@@ -567,7 +569,7 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 
     bar_item->background.bounds.size.width = bar_item_length;
     background_calculate_bounds(&bar_item->background,
-                                x + bar_item->background.padding_left,
+                                x,
                                 content_y + bar_item->y_offset        );
   }
   return bar_item_length;

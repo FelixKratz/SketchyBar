@@ -60,15 +60,20 @@ void window_resize(struct window* window, CGRect frame) {
   SLSGetScreenRectForWindow(g_connection, window->id, &out);
 
   if (CGRectEqualToRect(frame, out)) return;
+  else if (CGSizeEqualToSize(frame.size, out.size)) {
+    window->origin = frame.origin;
+    SLSMoveWindow(g_connection, window->id, &window->origin);
+    return;
+  }
   
   CFTypeRef frame_region = window_create_region(window, frame);
-  SLSOrderWindow(g_connection, window->id, -1, 0);
   SLSSetWindowShape(g_connection,
                     window->id,
-                    window->origin.x,
-                    window->origin.y,
+                    0,
+                    0,
                     frame_region     );
 
+  SLSMoveWindow(g_connection, window->id, &window->origin);
   SLSClearActivationRegion(g_connection, window->id);
   SLSAddActivationRegion(g_connection, window->id, frame_region);
   SLSRemoveAllTrackingAreas(g_connection, window->id);
