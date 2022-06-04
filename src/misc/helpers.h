@@ -27,6 +27,8 @@ struct rgba_color {
     float a;
 };
 
+static struct rgba_color g_transparent = { 0 };
+
 struct token {
     char *text;
     unsigned int length;

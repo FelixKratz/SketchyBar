@@ -22,8 +22,41 @@ void popup_init(struct popup* popup) {
 void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->background.border_width;
   uint32_t x = 0;
+  uint32_t total_item_width = 0;
   uint32_t width = 0;
   uint32_t height = 0;
+
+  if (popup->background.enabled
+      && popup->background.image.enabled) {
+    width = popup->background.image.bounds.size.width
+            + 2*popup->background.border_width;
+  }
+
+  if (popup->horizontal) {
+    for (int j = 0; j < popup->num_items; j++) {
+      struct bar_item* bar_item = popup->items[j];
+      if (!bar_item->drawing) continue;
+      uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size
+                             ? bar_item_get_height(bar_item)
+                             : popup->cell_size;
+
+      total_item_width += bar_item->background.padding_right
+                          + bar_item->background.padding_left
+                          + bar_item_get_length(bar_item, false);
+
+      if (cell_height > height && popup->horizontal) height = cell_height;
+    }
+
+    if (popup->background.enabled
+        && popup->background.image.enabled) {
+      if (popup->background.image.bounds.size.height > height)
+        height = popup->background.image.bounds.size.height;
+      
+      x = (width - total_item_width) / 2;
+    }
+
+  }
+
   for (int j = 0; j < popup->num_items; j++) {
     struct bar_item* bar_item = NULL;
     if (popup->horizontal) bar_item = popup->items[j];
@@ -36,24 +69,34 @@ void popup_calculate_bounds(struct popup* popup) {
     uint32_t item_width = bar_item->background.padding_right
                           + bar_item->background.padding_left
                           + bar_item_calculate_bounds(bar_item,
-                                                      cell_height,
+                                                      popup->horizontal
+                                                       ? height
+                                                       : cell_height,
                                                       x,
-                                                      y + cell_height / 2);
+                                                      y + (popup->horizontal
+                                                           ? height
+                                                           : cell_height) / 2);
 
     if (item_width > width && !popup->horizontal) width = item_width;
-    if (cell_height > height && popup->horizontal) height = cell_height;
     if (popup->horizontal) x += item_width;
     else y += cell_height;
   }
 
   if (popup->horizontal) {
-    width = x;
+    if (!popup->background.enabled || !popup->background.image.enabled) {
+      width = x + popup->background.border_width;
+    }
     y += height;
+  }
+  else if (!popup->background.enabled || !popup->background.image.enabled) {
+    width += popup->background.border_width;
   }
   y += popup->background.border_width;
 
-  popup->background.bounds.size.width = width;// + popup->background.border_width/2;
+  popup->background.bounds.size.width = width;
   popup->background.bounds.size.height = y;
+  popup->background.image.bounds.origin.x = popup->background.border_width;
+  popup->background.image.bounds.origin.y = popup->background.border_width;
 }
 
 void popup_create_window(struct popup* popup) {
@@ -134,13 +177,13 @@ void popup_draw(struct popup* popup) {
   window_resize(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},
                                          {popup->background.bounds.size.width,
                                           popup->background.bounds.size.height}});
-  draw_rect(popup->window.context,
-            popup->background.bounds,
-            &popup->background.color,
-            popup->background.corner_radius,
-            popup->background.border_width,
-            &popup->background.border_color,
-            true                            );
+
+  CGContextClearRect(popup->window.context, popup->background.bounds);
+
+  bool shadow = popup->background.shadow.enabled;
+  popup->background.shadow.enabled = false;
+  background_draw(&popup->background, popup->window.context);
+  popup->background.shadow.enabled = shadow;
 
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];

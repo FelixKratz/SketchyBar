@@ -16,7 +16,7 @@
 #define VERSION_OPT_SHRT        "-v"
 
 #define MAJOR 2
-#define MINOR 5
+#define MINOR 6
 #define PATCH 0
 
 extern int SLSMainConnectionID(void);

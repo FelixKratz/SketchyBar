@@ -26,8 +26,25 @@ void window_create(struct window* window, CGRect frame) {
   SLSSetWindowTags(g_connection, window->id, &set_tags, 64);
   SLSClearWindowTags(g_connection, window->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, window->id, 0);
+
+  // const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
+  // const void* values[] = { kCFBooleanTrue };
+  // CFDictionaryRef dict = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  // CGContextRef context = SLWindowContextCreate(g_connection, window->id, dict);
   window->context = SLWindowContextCreate(g_connection, window->id, 0);
+  // CFRelease(dict);
+
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
+  // CGLayerRef layer = CGLayerCreateWithContext(context, window->frame.size, 0);
+
+  // window->context = CGLayerGetContext(layer);
+
+
+  // SLSAddSurface(g_connection, window->id, &window->surface_id);
+  // SLSSetSurfaceBounds(g_connection, window->id, window->surface_id, window->frame);
+  // SLSBindSurface(g_connection, window->id, window->surface_id, 0, 0, window->context);
+  // SLSOrderSurface(g_connection, window->id, window->surface_id, 0, 1);
+
 }
 
 void window_freeze(struct window* window) {
