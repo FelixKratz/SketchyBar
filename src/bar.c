@@ -73,7 +73,7 @@ void bar_order_item_windows(struct bar* bar, int mode) {
 }
 
 void bar_draw(struct bar* bar) {
-  SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
+  // SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
 
   if (bar->needs_update) {
     draw_rect(bar->window.context,
@@ -113,12 +113,11 @@ void bar_draw(struct bar* bar) {
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      CGRect tracking_rect = cgrect_mirror_y(bar_item_construct_bounding_rect(
-                                                                     bar_item),
-                                             bar->window.frame.size.height / 2.);
+      CGRect tracking_rect = window->frame;
 
-      tracking_rect.origin.y -= tracking_rect.size.height;
-      SLSAddTrackingRect(g_connection, bar->window.id, tracking_rect);
+      // tracking_rect.origin.y -= tracking_rect.size.height;
+      SLSRemoveAllTrackingAreas(g_connection, window->id);
+      SLSAddTrackingRect(g_connection, window->id, tracking_rect);
     }
 
     bar_item_set_bounding_rect_for_display(bar_item,
@@ -304,7 +303,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->shown = true;
-  bar->needs_update = false;
+  bar->needs_update = true;
   bar_create_window(bar);
   return bar;
 }

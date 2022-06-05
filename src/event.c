@@ -117,7 +117,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGEventType type = CGEventGetType(context);
     uint32_t modifier_keys = CGEventGetFlags(context);
     uint32_t adid = display_arrangement(display_active_display_id());
-    debug("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ",
+    printf("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ",
           adid,
           point.x,
           point.y                                               );
@@ -125,7 +125,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
                                                               point,
                                                               adid           );
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    printf("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item, type, modifier_keys);
     CFRelease(context);
     return EVENT_SUCCESS;
@@ -135,7 +135,8 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     debug("%s\n", __FUNCTION__);
     CGPoint point = CGEventGetLocation(context);
     uint32_t adid = display_arrangement(display_active_display_id());
-    debug("EVENT_HANDLER_MOUSE_ENTERED: D#%d (x: %.0f, y: %.0f) -> ",
+
+    printf("EVENT_HANDLER_MOUSE_ENTERED: D#%d (x: %.0f, y: %.0f) -> ",
           adid,
           point.x,
           point.y                                                    );
@@ -143,7 +144,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
                                                               point,
                                                               adid           );
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    printf("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
     CFRelease(context);
     return EVENT_SUCCESS;
@@ -151,7 +152,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_EXITED \n");
+    printf("EVENT_HANDLER_MOUSE_EXITED \n");
     bar_manager_handle_mouse_exited(&g_bar_manager);
     CFRelease(context);
     return EVENT_SUCCESS;

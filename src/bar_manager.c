@@ -80,6 +80,7 @@ void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** orderin
       }
     }
   }
+  bar_manager->needs_ordering = true;
 }
 
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name) {
@@ -124,6 +125,8 @@ void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* ite
   memcpy(bar_manager->bar_items,
          tmp,
          sizeof(struct bar_item*)*bar_manager->bar_item_count);
+
+  bar_manager->needs_ordering = true;
 }
 
 void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* bar_item) {
@@ -490,6 +493,7 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
 
   bar_manager_begin(bar_manager);
   bar_manager_freeze(bar_manager);
+  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
 }
