@@ -1,5 +1,6 @@
 #include "window.h"
 #include "alias.h"
+#include "bar_manager.h"
 
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
   window->frame = (CGRect) {{0, 0},{frame.size.width, frame.size.height}};
@@ -69,14 +70,13 @@ void window_resize(struct window* window, CGRect frame) {
   CFTypeRef frame_region = window_create_region(window, frame);
   SLSSetWindowShape(g_connection,
                     window->id,
-                    0,
-                    0,
+                    window->origin.x,
+                    window->origin.y,
                     frame_region     );
 
-  SLSMoveWindow(g_connection, window->id, &window->origin);
-  SLSClearActivationRegion(g_connection, window->id);
-  SLSAddActivationRegion(g_connection, window->id, frame_region);
-  SLSRemoveAllTrackingAreas(g_connection, window->id);
+  // SLSClearActivationRegion(g_connection, window->id);
+  // SLSAddActivationRegion(g_connection, window->id, frame_region);
+  // SLSRemoveAllTrackingAreas(g_connection, window->id);
 
   CFRelease(frame_region);
 }

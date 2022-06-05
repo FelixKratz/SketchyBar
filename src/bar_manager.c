@@ -414,7 +414,9 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
                                      forced,
                                      NULL                      );
   }
+  bar_manager_freeze(bar_manager);
   if (needs_refresh) bar_manager_refresh(bar_manager, false);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_begin(struct bar_manager *bar_manager) {
@@ -477,7 +479,9 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
     bar_destroy(bar_manager->bars[i]);
 
   bar_manager_begin(bar_manager);
+  bar_manager_freeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
@@ -534,7 +538,9 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                                     &env_vars                      );
 
   env_vars_destroy(&env_vars);
+  bar_manager_freeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
@@ -558,7 +564,9 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                     NULL                          );
 
+  bar_manager_freeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
+  bar_manager_unfreeze(bar_manager);
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {

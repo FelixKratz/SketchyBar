@@ -52,6 +52,26 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
 }
 
+void bar_order_item_windows(struct bar* bar, int mode) {
+  struct window* previous_window = NULL;
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+    if (!bar_draws_item(bar, bar_item)) continue;
+
+    struct window* window = bar_item_get_window(bar_item, bar->adid);
+    window_set_level(window, g_bar_manager.window_level);
+
+    if (previous_window) {
+      SLSOrderWindow(g_connection, window->id, mode, previous_window->id);
+    }
+    else {
+      SLSOrderWindow(g_connection, window->id, mode, bar->window.id);
+    }
+    previous_window = window;
+  }
+}
+
 void bar_draw(struct bar* bar) {
   SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
 
@@ -63,7 +83,9 @@ void bar_draw(struct bar* bar) {
               g_bar_manager.background.border_width,
               &g_bar_manager.background.border_color,
               true                                   );
+
     bar->needs_update = false;
+    CGContextFlush(bar->window.context);
   }
 
   if (g_bar_manager.background.image.enabled) {
@@ -107,6 +129,11 @@ void bar_draw(struct bar* bar) {
 
 
     if (bar_item->needs_update) {
+      window_resize(window, (CGRect){{window->origin.x,
+                                      window->origin.y },
+                                     {window->frame.size.width,
+                                      window->frame.size.height}});
+
       draw_rect(window->context, window->frame, &g_transparent,
                                                 0,
                                                 0,
@@ -115,14 +142,13 @@ void bar_draw(struct bar* bar) {
 
       bar_item_draw(bar_item, window->context);
       CGContextFlush(window->context);
-      // SLSOrderWindow(g_connection, window->id, 1, bar->window.id);
     }
 
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
   }
 
-  CGContextFlush(bar->window.context);
+  bar_order_item_windows(bar, 1);
 }
 
 void bar_calculate_bounds(struct bar* bar) {
@@ -153,7 +179,6 @@ void bar_calculate_bounds(struct bar* bar) {
   uint32_t* next_position = NULL;
   uint32_t y = bar->window.frame.size.height / 2;
 
-  struct window* previous_window = NULL;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
@@ -186,43 +211,31 @@ void bar_calculate_bounds(struct bar* bar) {
       *next_position += bar_item->background.padding_left;
     }
 
+    uint32_t group_length = 0;
+    uint32_t group_offset = 0;
+    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+      group_length = group_get_length(bar_item->group);
+      group_offset = (bar_item->position == POSITION_RIGHT
+                      || bar_item->position == POSITION_CENTER_LEFT)
+                     ? group_length - bar_item_get_length(bar_item, false)
+                     : 0;
+    }
+
     bar_item->graph.rtl = rtl;
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
                                  bar->window.frame.size.height
                                  - (g_bar_manager.background.border_width + 1),
-                                 *next_position,
+                                 group_offset,
                                  y                                           );
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
-    window_set_level(window, g_bar_manager.window_level);
-    // SLSRemoveFromOrderingGroup(g_connection, window->id);
-    if (previous_window) {
-      SLSOrderWindow(g_connection, window->id, 1, previous_window->id);
-      SLSAddWindowToWindowOrderingGroup(g_connection,
-                                        previous_window->id,
-                                        window->id,
-                                        1                   );
-    }
-    else {
-      SLSOrderWindow(g_connection, window->id, 1, bar->window.id);
-      SLSAddWindowToWindowOrderingGroup(g_connection,
-                                        bar->window.id,
-                                        window->id,
-                                        1              );
-    }
-
-    uint32_t group_length = 0;
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-      group_length = group_get_length(bar_item->group);
-    }
-
-    window_resize(window, (CGRect){{bar->window.origin.x + *next_position,
-                                    bar->window.origin.y                  },
-                                   {bar_item_display_length
-                                    + group_length
-                                    + abs(bar_item->background.padding_left)
-                                    + abs(bar_item->background.padding_right),
-                                    bar->window.frame.size.height}});
+    window->origin.x = bar->window.origin.x + *next_position - group_offset;
+    window->origin.y = bar->window.origin.y;
+    window->frame.size.width = bar_item_display_length
+                                + group_length
+                                + abs(bar_item->background.padding_left)
+                                + abs(bar_item->background.padding_right);
+    window->frame.size.height = bar->window.frame.size.height;
 
     if (bar_item->popup.drawing)
       bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
@@ -241,7 +254,6 @@ void bar_calculate_bounds(struct bar* bar) {
                         : (bar_item_length
                            + bar_item->background.padding_right);
     }
-    previous_window = window;
   }
 }
 
@@ -298,7 +310,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->shown = true;
-  bar->needs_update = true;
+  bar->needs_update = false;
   bar_create_window(bar);
   return bar;
 }

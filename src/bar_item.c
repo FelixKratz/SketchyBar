@@ -216,6 +216,12 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
 }
 
 void bar_item_needs_update(struct bar_item* bar_item) {
+  if (bar_item->group) {
+    struct bar_item* first_member = group_get_first_member(bar_item->group);
+    if (first_member && first_member != bar_item)
+      bar_item_needs_update(first_member);
+  }
+    
   bar_item->needs_update = true;
 }
 
@@ -495,8 +501,7 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
 }
 
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
-  x = 0;
-  uint32_t content_x = 0;
+  uint32_t content_x = x;
   uint32_t content_y = y;
 
   uint32_t bar_item_length = bar_item_get_length(bar_item, false);

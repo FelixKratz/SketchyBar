@@ -462,7 +462,9 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   }
 
   bar_manager_sort(&g_bar_manager, ordering, count);
+  bar_manager_freeze(&g_bar_manager);
   bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_unfreeze(&g_bar_manager);
 }
 
 void handle_message_mach(struct mach_buffer* buffer) {

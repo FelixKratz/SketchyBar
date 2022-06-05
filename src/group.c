@@ -32,6 +32,11 @@ void group_add_member(struct group* group, struct bar_item* item) {
   }
 }
 
+struct bar_item* group_get_first_member(struct group* group) {
+  if (group->num_members > 1) return group->members[1];
+  return NULL;
+}
+
 bool group_is_first_member(struct group* group, struct bar_item* item) {
   if (!group_is_item_member(group, item)) return false;
   if (group->num_members > 1) {return group->members[1] == item; }
