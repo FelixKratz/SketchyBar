@@ -94,6 +94,8 @@ void bar_draw(struct bar* bar) {
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
     if (!(bar_item->position == POSITION_POPUP))
@@ -107,10 +109,7 @@ void bar_draw(struct bar* bar) {
     }
 
     bar_item_append_associated_bar(bar_item, bar->adid);
-
-    if (!bar_item->needs_update)
-      continue;
-
+    if (!bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
@@ -127,28 +126,23 @@ void bar_draw(struct bar* bar) {
                                            bar->window.origin,
                                            bar->window.frame.size.height);
 
+    window_resize(window, (CGRect){{window->origin.x,
+                                    window->origin.y },
+                                   {window->frame.size.width,
+                                    window->frame.size.height}});
 
-    if (bar_item->needs_update) {
-      window_resize(window, (CGRect){{window->origin.x,
-                                      window->origin.y },
-                                     {window->frame.size.width,
-                                      window->frame.size.height}});
+    draw_rect(window->context, window->frame, &g_transparent,
+                                              0,
+                                              0,
+                                              &g_transparent,
+                                              true           );
 
-      draw_rect(window->context, window->frame, &g_transparent,
-                                                0,
-                                                0,
-                                                &g_transparent,
-                                                true           );
-
-      bar_item_draw(bar_item, window->context);
-      CGContextFlush(window->context);
-    }
+    bar_item_draw(bar_item, window->context);
+    CGContextFlush(window->context);
 
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
   }
-
-  bar_order_item_windows(bar, 1);
 }
 
 void bar_calculate_bounds(struct bar* bar) {

@@ -15,6 +15,7 @@ static CLOCK_CALLBACK(clock_handler) {
 void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->font_smoothing = false;
   bar_manager->any_bar_hidden = false;
+  bar_manager->needs_ordering = false;
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
@@ -327,9 +328,13 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
         || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
       bar_calculate_bounds(bar_manager->bars[i]);
       bar_draw(bar_manager->bars[i]);
+      if (forced || bar_manager->needs_ordering) {
+        bar_order_item_windows(bar_manager->bars[i], 1);
+      }
     }
   }
   bar_manager_clear_needs_update(bar_manager);
+  bar_manager->needs_ordering = false;
 }
 
 void bar_manager_resize(struct bar_manager* bar_manager) {
@@ -346,6 +351,7 @@ struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager) {
   struct bar_item* bar_item = bar_item_create();
   bar_item_init(bar_item, &bar_manager->default_item);
   bar_manager->bar_items[bar_manager->bar_item_count - 1] = bar_item;
+  bar_manager->needs_ordering = true;
   return bar_item;
 }
 
@@ -398,9 +404,10 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 
 void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
   bar_manager_freeze(bar_manager);
-  if (animator_update(&bar_manager->animator)) {
+  if (animator_update(&bar_manager->animator)
+      || bar_manager->animator.force_refresh) {
     bar_manager->frozen = false;
-    bar_manager_refresh(bar_manager, true);
+    bar_manager_refresh(bar_manager, bar_manager->animator.force_refresh);
   }
   bar_manager_unfreeze(bar_manager);
 }
@@ -415,6 +422,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
                                      NULL                      );
   }
   bar_manager_freeze(bar_manager);
+  bar_manager->frozen = false;
   if (needs_refresh) bar_manager_refresh(bar_manager, false);
   bar_manager_unfreeze(bar_manager);
 }
@@ -444,6 +452,8 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
       bar_manager->bars[index - 1]->adid = index;
     }
   }
+
+  bar_manager->needs_ordering = true;
 }
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
@@ -537,10 +547,11 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_SPACE_CHANGE,
                                     &env_vars                      );
 
-  env_vars_destroy(&env_vars);
   bar_manager_freeze(bar_manager);
+  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
+  env_vars_destroy(&env_vars);
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
@@ -565,6 +576,7 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
                                     NULL                          );
 
   bar_manager_freeze(bar_manager);
+  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
 }

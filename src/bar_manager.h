@@ -16,6 +16,7 @@ struct bar_manager {
   bool picky_redraw;
   bool font_smoothing;
   bool any_bar_hidden;
+  bool needs_ordering;
 
   char display;
   char position;

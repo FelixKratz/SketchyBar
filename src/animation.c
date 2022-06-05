@@ -25,7 +25,8 @@ double function_bounce(double x) {
     return alpha*alpha * x * x;
   }
   else {
-    return beta * beta * (x - 1./2. + 1./alpha/2.) + 1. - beta*beta*(1./2. + 1./alpha/2.);
+    return beta * beta * (x - 1./2. + 1./alpha/2.)
+           + 1. - beta*beta*(1./2. + 1./alpha/2.);
   }
 }
 
@@ -99,7 +100,23 @@ bool animation_update(struct animation* animation) {
   }
 
   animation->counter++;
-  return animation->update_function(animation->target, value);
+  bool needs_update = animation->update_function(animation->target, value);
+
+  bool found_item = false;
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    if (needs_update
+        && (animation->target >= (void*)g_bar_manager.bar_items[i])
+        && (animation->target < ((void*)g_bar_manager.bar_items[i]
+                                 + sizeof(struct bar_item)         ))) {
+      bar_item_needs_update(g_bar_manager.bar_items[i]);
+      found_item = true;
+    }
+  }
+
+  animation->needs_force_refresh = false;
+  if (!found_item && needs_update) animation->needs_force_refresh = true;
+
+  return needs_update;
 }
 
 void animator_init(struct animator* animator) {
@@ -166,10 +183,12 @@ void animator_remove(struct animator* animator, struct animation* animation) {
 bool animator_update(struct animator* animator) {
   bool removed = false;
   bool needs_refresh = false;
+  animator->force_refresh = false;
   for (uint32_t i = 0; i < animator->animation_count; i++) {
     if (removed) i--;
     removed = false;
     needs_refresh |= animation_update(animator->animations[i]);
+    animator->force_refresh |= animator->animations[i]->needs_force_refresh;
     if (animator->animations[i]->counter > animator->animations[i]->duration) {
       animator_remove(animator, animator->animations[i]);
       removed = true;
