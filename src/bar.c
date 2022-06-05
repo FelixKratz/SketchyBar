@@ -178,9 +178,10 @@ void bar_calculate_bounds(struct bar* bar) {
       continue;
 
     if (bar_item->position == POSITION_RIGHT
-        || bar_item->position == POSITION_CENTER_LEFT)
+        || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position -= bar_item_display_length
                         + bar_item->background.padding_right;
+    }
     else {
       *next_position += bar_item->background.padding_left;
     }
@@ -230,12 +231,13 @@ void bar_calculate_bounds(struct bar* bar) {
         || bar_item->position == POSITION_CENTER_LEFT) {
       *next_position += bar_item->has_const_width
                         ? bar_item_display_length
-                          + bar_item->background.padding_left
+                          + bar_item->background.padding_right
                           - bar_item->custom_width
-                        : bar_item->background.padding_right;
+                        : - bar_item->background.padding_left;
     } else {
       *next_position += bar_item->has_const_width
-                        ? bar_item->custom_width - bar_item->background.padding_left
+                        ? bar_item->custom_width
+                          - bar_item->background.padding_left
                         : (bar_item_length
                            + bar_item->background.padding_right);
     }

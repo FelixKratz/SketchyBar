@@ -47,11 +47,11 @@ void window_create(struct window* window, CGRect frame) {
 
 }
 
-void window_freeze(struct window* window) {
+void windows_freeze() {
   SLSDisableUpdate(g_connection);
 }
 
-void window_unfreeze(struct window* window) {
+void windows_unfreeze() {
   SLSReenableUpdate(g_connection);
 }
 

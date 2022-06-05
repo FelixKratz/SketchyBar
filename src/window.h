@@ -50,11 +50,12 @@ struct window {
 void window_create(struct window* window, CGRect frame);
 void window_close(struct window* window);
 void window_resize(struct window* window, CGRect frame);
-void window_freeze(struct window* window);
-void window_unfreeze(struct window* window);
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius);
 void window_disable_shadow(struct window* window);
 void window_set_level(struct window* window, uint32_t level);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
+
+void windows_freeze();
+void windows_unfreeze();

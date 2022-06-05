@@ -495,11 +495,8 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
 }
 
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
-  if (bar_item->lazy) {
-    x = 0;
-  }
-
-  uint32_t content_x = x;
+  x = 0;
+  uint32_t content_x = 0;
   uint32_t content_y = y;
 
   uint32_t bar_item_length = bar_item_get_length(bar_item, false);
@@ -512,9 +509,6 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   uint32_t icon_position = content_x;
-  // if ((int)content_x + bar_item->background.padding_left < 0)
-  //   icon_position = 0;
-  //
   uint32_t label_position = icon_position + text_get_length(&bar_item->icon,
                                                             false           );
 
