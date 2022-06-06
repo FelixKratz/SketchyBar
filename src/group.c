@@ -26,7 +26,8 @@ void group_add_member(struct group* group, struct bar_item* item) {
     }
   } else {
     group->num_members++;
-    group->members = realloc(group->members, sizeof(struct bar_item*)*group->num_members);
+    group->members = realloc(group->members,
+                             sizeof(struct bar_item*)*group->num_members);
     group->members[group->num_members - 1] = item;
     item->group = group;
   }
@@ -86,7 +87,8 @@ void group_remove_member(struct group* group, struct bar_item* bar_item) {
     tmp[count++] = group->members[i];
   }
   group->num_members--;
-  group->members = realloc(group->members, sizeof(struct bar_item*)*group->num_members);
+  group->members = realloc(group->members,
+                           sizeof(struct bar_item*)*group->num_members);
   memcpy(group->members, tmp, sizeof(struct bar_item*)*group->num_members);
 }
 
@@ -101,13 +103,14 @@ void group_destroy(struct group* group) {
 void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y, bool rtl) {
   background_calculate_bounds(&group->members[0]->background, x, y);
   group->members[0]->background.bounds.size.width = group_get_length(group)
-                                                    - (rtl
-                                                       ? group_count_members_drawn(group)
-                                                       : 0                               );
+                                        - (rtl
+                                           ? group_count_members_drawn(group)
+                                           : 0                               );
 
   group->members[0]->background.bounds.origin.x = x;
-  group->members[0]->background.bounds.origin.y = y - group->members[0]->background.bounds.size.height / 2
-                                                  + group->members[0]->y_offset;
+  group->members[0]->background.bounds.origin.y = y
+                         - group->members[0]->background.bounds.size.height / 2
+                         + group->members[0]->y_offset;
 }
 
 void group_draw(struct group* group, CGContextRef context) {

@@ -77,6 +77,14 @@ void popup_calculate_bounds(struct popup* popup) {
                                                            ? height
                                                            : cell_height) / 2);
 
+    if (popup->adid > 0) {
+      struct window* window = bar_item_get_window(bar_item, popup->adid);
+      window->origin.x = x + popup->anchor.x;
+      window->origin.y = y + popup->anchor.y;
+      window->frame.size.height = popup->horizontal ? height : cell_height;
+      window->frame.size.width = item_width;
+    }
+
     if (item_width > width && !popup->horizontal) width = item_width;
     if (popup->horizontal) x += item_width;
     else y += cell_height;
@@ -171,7 +179,7 @@ void popup_set_drawing(struct popup* popup, bool drawing) {
 }
 
 void popup_draw(struct popup* popup) {
-  if (!popup->drawing) return;
+  if (!popup->drawing || popup->adid <= 0) return;
 
   SLSOrderWindow(g_connection, popup->window.id, -1, 0);
   window_resize(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},

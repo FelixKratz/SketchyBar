@@ -31,7 +31,10 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   struct window* window = bar_item_get_window(bar_item, bar->adid);
   if (!bar_item->popup.overrides_cell_size)
     bar_item->popup.cell_size = window->frame.size.height;
+
+  bool needs_recalculation = bar_item->popup.adid != bar->adid;
   popup_calculate_bounds(&bar_item->popup);
+
   CGPoint anchor = window->origin;
   if (bar_item->popup.align == POSITION_CENTER) {
     anchor.x += (window->frame.size.width
@@ -46,7 +49,11 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
               ? (-window->frame.size.height
                  - bar_item->popup.background.bounds.size.height)
               : window->frame.size.height);
+
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
+  if (needs_recalculation) {
+    popup_calculate_bounds(&bar_item->popup);
+  }
 }
 
 void bar_order_item_windows(struct bar* bar, int mode) {
@@ -113,6 +120,10 @@ void bar_draw(struct bar* bar) {
 
     bar_item_append_associated_bar(bar_item, bar->adid);
     SLSMoveWindow(g_connection, window->id, &window->origin);
+
+    if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
+      popup_draw(&bar_item->popup);
+
     if (!bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
@@ -144,8 +155,6 @@ void bar_draw(struct bar* bar) {
     bar_item_draw(bar_item, window->context);
     CGContextFlush(window->context);
 
-    if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
-      popup_draw(&bar_item->popup);
   }
 }
 
