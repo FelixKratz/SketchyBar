@@ -461,6 +461,14 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   return bounding_rect;
 }
 
+void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height) {
+  if (adid <= 0) return;
+  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1,-1);
+  struct window* window = bar_item_get_window(bar_item, adid);
+  window->origin.x = rect.origin.x + bar_origin.x;
+  window->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
+  window->frame.size = rect.size;
+}
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
   uint32_t content_x = x;
   uint32_t content_y = y;

@@ -78,11 +78,10 @@ void popup_calculate_bounds(struct popup* popup) {
                                                            : cell_height) / 2);
 
     if (popup->adid > 0) {
-      struct window* window = bar_item_get_window(bar_item, popup->adid);
-      window->origin.x = x + popup->anchor.x;
-      window->origin.y = y + popup->anchor.y;
-      window->frame.size.height = popup->horizontal ? height : cell_height;
-      window->frame.size.width = item_width;
+      bar_item_set_bounding_rect_for_display(bar_item,
+                                             popup->adid,
+                                             popup->anchor,
+                                             popup->background.bounds.size.height);
     }
 
     if (item_width > width && !popup->horizontal) width = item_width;
