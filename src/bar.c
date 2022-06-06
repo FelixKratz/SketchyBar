@@ -60,6 +60,7 @@ void bar_order_item_windows(struct bar* bar, int mode) {
     if (!bar_draws_item(bar, bar_item)) continue;
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
+    SLSRemoveFromOrderingGroup(g_connection, window->id);
     window_set_level(window, g_bar_manager.window_level);
 
     if (previous_window) {
