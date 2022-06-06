@@ -73,8 +73,6 @@ void bar_order_item_windows(struct bar* bar, int mode) {
 }
 
 void bar_draw(struct bar* bar) {
-  // SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
-
   if (bar->needs_update) {
     draw_rect(bar->window.context,
               bar->window.frame,

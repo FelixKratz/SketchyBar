@@ -1,6 +1,4 @@
 #include "window.h"
-#include "alias.h"
-#include "bar_manager.h"
 
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
   window->frame = (CGRect) {{0, 0},{frame.size.width, frame.size.height}};
@@ -28,18 +26,19 @@ void window_create(struct window* window, CGRect frame) {
   SLSClearWindowTags(g_connection, window->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, window->id, 0);
 
-  // const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
-  // const void* values[] = { kCFBooleanTrue };
-  // CFDictionaryRef dict = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  // CGContextRef context = SLWindowContextCreate(g_connection, window->id, dict);
-  window->context = SLWindowContextCreate(g_connection, window->id, 0);
-  // CFRelease(dict);
+  const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
+  const void* values[] = { kCFBooleanTrue };
+  CFDictionaryRef dict = CFDictionaryCreate(NULL,
+                                            keys,
+                                            values,
+                                            1,
+                                            &kCFTypeDictionaryKeyCallBacks,
+                                            &kCFTypeDictionaryValueCallBacks);
+
+  window->context = SLWindowContextCreate(g_connection, window->id, dict);
+  CFRelease(dict);
 
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
-  // CGLayerRef layer = CGLayerCreateWithContext(context, window->frame.size, 0);
-
-  // window->context = CGLayerGetContext(layer);
-
 
   // SLSAddSurface(g_connection, window->id, &window->surface_id);
   // SLSSetSurfaceBounds(g_connection, window->id, window->surface_id, window->frame);
@@ -74,9 +73,9 @@ void window_resize(struct window* window, CGRect frame) {
                     window->origin.y,
                     frame_region     );
 
-  // SLSClearActivationRegion(g_connection, window->id);
-  // SLSAddActivationRegion(g_connection, window->id, frame_region);
-  // SLSRemoveAllTrackingAreas(g_connection, window->id);
+  SLSClearActivationRegion(g_connection, window->id);
+  SLSAddActivationRegion(g_connection, window->id, frame_region);
+  SLSRemoveAllTrackingAreas(g_connection, window->id);
 
   CFRelease(frame_region);
 }
