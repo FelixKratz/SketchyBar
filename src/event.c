@@ -117,6 +117,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGEventType type = CGEventGetType(context);
     uint32_t modifier_keys = CGEventGetFlags(context);
     uint32_t adid = display_arrangement(display_active_display_id());
+
     printf("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ",
           adid,
           point.x,

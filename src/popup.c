@@ -197,10 +197,10 @@ void popup_draw(struct popup* popup) {
       SLSAddTrackingRect(g_connection, popup->window.id, tracking_rect);
     }
 
-    bar_item_set_bounding_rect_for_display(bar_item,
-                                           popup->adid,
-                                           popup->anchor,
-                                           popup->background.bounds.size.height);
+    // bar_item_set_bounding_rect_for_display(bar_item,
+    //                                        popup->adid,
+    //                                        popup->anchor,
+    //                                        popup->background.bounds.size.height);
 
     bool state = bar_item->popup.drawing;
     bar_item->popup.drawing = false;

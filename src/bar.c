@@ -28,27 +28,24 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
 
 void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
   if (bar->adid != g_bar_manager.active_adid) return;
+  struct window* window = bar_item_get_window(bar_item, bar->adid);
   if (!bar_item->popup.overrides_cell_size)
-    bar_item->popup.cell_size = bar->window.frame.size.height;
+    bar_item->popup.cell_size = window->frame.size.height;
   popup_calculate_bounds(&bar_item->popup);
-  CGPoint anchor = bar->window.origin;
+  CGPoint anchor = window->origin;
   if (bar_item->popup.align == POSITION_CENTER) {
-    anchor.x += bar_item->icon.bounds.origin.x
-                + bar_item->background.padding_left / 2
-                + (bar_item_get_length(bar_item, false)
-                - bar_item->popup.background.bounds.size.width) / 2;
+    anchor.x += (window->frame.size.width
+                 - bar_item->popup.background.bounds.size.width) / 2;
   } else if (bar_item->popup.align == POSITION_LEFT) {
-    anchor.x += bar_item->icon.bounds.origin.x
-                - bar_item->background.padding_left;
+    anchor.x -= bar_item->background.padding_left;
   } else {
-    anchor.x += bar_item->icon.bounds.origin.x
-                + bar_item_get_length(bar_item, false)
+    anchor.x += window->frame.size.width
                 - bar_item->popup.background.bounds.size.width;
   }
   anchor.y += (g_bar_manager.position == POSITION_BOTTOM
-              ? (-bar->window.frame.size.height
+              ? (-window->frame.size.height
                  - bar_item->popup.background.bounds.size.height)
-              : bar->window.frame.size.height);
+              : window->frame.size.height);
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
 }
 
@@ -109,13 +106,13 @@ void bar_draw(struct bar* bar) {
       bar_item_remove_associated_bar(bar_item, bar->adid);
 
     if (!bar_draws_item(bar, bar_item)) {
-      CGPoint nirvana = {-9999, -9999};
-      SLSMoveWindow(g_connection, window->id, &nirvana);
+      SLSMoveWindow(g_connection, window->id, &g_nirvana);
 
       continue;
     }
 
     bar_item_append_associated_bar(bar_item, bar->adid);
+    SLSMoveWindow(g_connection, window->id, &window->origin);
     if (!bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
@@ -127,11 +124,6 @@ void bar_draw(struct bar* bar) {
       // SLSAddTrackingRect(g_connection, window->id, tracking_rect);
     }
 
-    bar_item_set_bounding_rect_for_display(bar_item,
-                                           bar->adid,
-                                           bar->window.origin,
-                                           bar->window.frame.size.height);
-
     window_resize(window, (CGRect){{window->origin.x,
                                     window->origin.y },
                                    {window->frame.size.width,
@@ -142,6 +134,12 @@ void bar_draw(struct bar* bar) {
                                               0,
                                               &g_transparent,
                                               true           );
+
+    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+      group_draw(bar_item->group,
+                 bar_item_get_window(bar_item->group->members[0],
+                                     bar->adid                   )->context);
+    }
 
     bar_item_draw(bar_item, window->context);
     CGContextFlush(window->context);
@@ -211,31 +209,36 @@ void bar_calculate_bounds(struct bar* bar) {
       *next_position += bar_item->background.padding_left;
     }
 
-    uint32_t group_length = 0;
-    uint32_t group_offset = 0;
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-      group_length = group_get_length(bar_item->group);
-      group_offset = (bar_item->position == POSITION_RIGHT
-                      || bar_item->position == POSITION_CENTER_LEFT)
-                     ? group_length - bar_item_get_length(bar_item, false)
-                     : 0;
-    }
-
     bar_item->graph.rtl = rtl;
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
                                  bar->window.frame.size.height
                                  - (g_bar_manager.background.border_width + 1),
-                                 group_offset,
+                                 0,
                                  y                                           );
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
-    window->origin.x = bar->window.origin.x + *next_position - group_offset;
+    window->origin.x = bar->window.origin.x + *next_position;
     window->origin.y = bar->window.origin.y;
-    window->frame.size.width = bar_item_display_length
-                                + group_length
-                                + abs(bar_item->background.padding_left)
-                                + abs(bar_item->background.padding_right);
+    window->frame.size.width = bar_item_display_length;
     window->frame.size.height = bar->window.frame.size.height;
+
+    // if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+    //   uint32_t group_length = group_get_length(bar_item->group);
+    //   uint32_t group_offset = (bar_item->position == POSITION_RIGHT
+    //                            || bar_item->position == POSITION_CENTER_LEFT)
+    //                           ? group_length
+    //                             - bar_item_get_length(bar_item, false)
+    //                           : 0;
+    //
+    //    struct window* group_window = bar_item_get_window(
+    //                                              bar_item->group->members[0],
+    //                                              bar->adid                   );
+    //
+    //    group_window->origin = window->origin;
+    //    group_window->origin.x -= group_offset; 
+    //    group_window->frame.size = window->frame.size;
+    //    group_window->frame.size.width = group_length;
+    // }
 
     if (bar_item->popup.drawing)
       bar_calculate_popup_anchor_for_bar_item(bar, bar_item);

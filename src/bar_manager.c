@@ -462,12 +462,15 @@ void bar_manager_begin(struct bar_manager *bar_manager) {
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (!bar_item->drawing || bar_item->num_rects < adid
-        || bar_item->bounding_rects[adid - 1] == NULL) {
+    if (!bar_item->drawing || bar_item->num_windows < adid
+        || bar_item->windows[adid - 1] == NULL) {
       continue;
     }
 
-    if (cgrect_contains_point(bar_item->bounding_rects[adid - 1], &point)) {
+    struct window* window = bar_item_get_window(bar_item, adid);
+    CGRect frame = window->frame;
+    frame.origin = window->origin;
+    if (cgrect_contains_point(&frame, &point)) {
       return bar_item;
     }
   }

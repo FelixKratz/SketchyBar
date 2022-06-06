@@ -28,6 +28,7 @@ struct rgba_color {
 };
 
 static struct rgba_color g_transparent = { 0 };
+static CGPoint g_nirvana = {-9999, -9999};
 
 struct token {
     char *text;

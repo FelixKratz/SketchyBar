@@ -11,9 +11,7 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->name = NULL;
   bar_item->script = NULL;
   bar_item->click_script = NULL;
-  bar_item->bounding_rects = NULL;
   bar_item->group = NULL;
-  bar_item->num_rects = 0;
   bar_item->signal_args.env_vars.vars = NULL;
   bar_item->signal_args.env_vars.count = 0;
   bar_item->windows = NULL;
@@ -95,8 +93,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->custom_width = 0;
 
   bar_item->y_offset = 0;
-  bar_item->num_rects = 0;
-  bar_item->bounding_rects = NULL;
   bar_item->group = NULL;
 
   
@@ -155,13 +151,10 @@ void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t adid) {
 
 void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid) {
   bar_item->associated_bar &= ~(1 << (adid - 1)); 
-  bar_item_remove_bounding_rect(bar_item, adid);
 }
 
 void bar_item_reset_associated_bar(struct bar_item* bar_item) {
   bar_item->associated_bar = 0;
-  for (uint32_t adid = 1; adid <= bar_item->num_rects; adid++)
-    bar_item_remove_bounding_rect(bar_item, adid);
 }
 
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars) {
@@ -449,13 +442,6 @@ void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
   }
 }
 
-void bar_item_remove_bounding_rect(struct bar_item* bar_item, uint32_t adid) {
-  if (bar_item->num_rects >= adid && bar_item->bounding_rects[adid - 1]) {
-    free(bar_item->bounding_rects[adid - 1]);
-    bar_item->bounding_rects[adid - 1] = NULL;
-  }
-}
-
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
@@ -473,31 +459,6 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   bounding_rect.size.height = bar_item_get_height(bar_item);
   
   return bounding_rect;
-}
-
-void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height) {
-  if (adid <= 0) return;
-  if (bar_item->num_rects < adid) {
-    bar_item->bounding_rects = (CGRect**) realloc(bar_item->bounding_rects,
-                                                  sizeof(CGRect*) * adid   );
-    memset(bar_item->bounding_rects + bar_item->num_rects,
-           0,
-           sizeof(CGRect*) * (adid - bar_item->num_rects) );
-
-    bar_item->num_rects = adid;
-  }
-  if (!bar_item->bounding_rects[adid - 1]) {
-    bar_item->bounding_rects[adid - 1] = malloc(sizeof(CGRect));
-    memset(bar_item->bounding_rects[adid - 1], 0, sizeof(CGRect));
-  }
-  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1,-1);
-  bar_item->bounding_rects[adid - 1]->origin.x = rect.origin.x + bar_origin.x;
-  bar_item->bounding_rects[adid - 1]->origin.y = -rect.origin.y
-                                                 - rect.size.height
-                                                 + bar_origin.y
-                                                 + height;
-
-  bar_item->bounding_rects[adid - 1]->size = rect.size;
 }
 
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
@@ -528,9 +489,8 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     group_calculate_bounds(bar_item->group,
                            (bar_item->position == POSITION_RIGHT
                             || bar_item->position == POSITION_CENTER_LEFT)
-                            ? (icon_position
-                              - group_get_length(bar_item->group)
-                              + bar_item_length                  )
+                            ? (x - group_get_length(bar_item->group)
+                               + bar_item_length                    )
                             : icon_position,
                            content_y,
                            bar_item->position == POSITION_RIGHT
@@ -575,9 +535,6 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 }
 
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
-  if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-    group_draw(bar_item->group, context);
-
   background_draw(&bar_item->background, context);
   text_draw(&bar_item->icon, context);
   text_draw(&bar_item->label, context);
@@ -595,14 +552,6 @@ void bar_item_destroy(struct bar_item* bar_item) {
 
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
-
-  if (bar_item->bounding_rects) {  
-    for (int adid = 1; adid <= bar_item->num_rects; adid++) {
-      bar_item_remove_bounding_rect(bar_item, adid);
-    }
-    free(bar_item->bounding_rects);
-  }
-  if (bar_item->bounding_rects) free(bar_item->bounding_rects);
 
   if (bar_item->has_graph) {
     graph_destroy(&bar_item->graph);
@@ -704,17 +653,17 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->update_mask);
 
   int counter = 0;
-  for (int i = 0; i < bar_item->num_rects; i++) {
-    if (!bar_item->bounding_rects[i]) continue;
+  for (int i = 0; i < bar_item->num_windows; i++) {
+    if (!bar_item->windows[i]) continue;
     if (counter++ > 0) fprintf(rsp, ",\n");
     fprintf(rsp, "\t\t\"display-%d\": {\n"
             "\t\t\t\"origin\": [ %f, %f ],\n"
             "\t\t\t\"size\": [ %f, %f ]\n\t\t}",
             i + 1,
-            bar_item->bounding_rects[i]->origin.x,
-            bar_item->bounding_rects[i]->origin.y,
-            bar_item->bounding_rects[i]->size.width,
-            bar_item->bounding_rects[i]->size.height);
+            bar_item->windows[i]->origin.x,
+            bar_item->windows[i]->origin.y,
+            bar_item->windows[i]->frame.size.width,
+            bar_item->windows[i]->frame.size.height);
   } 
   fprintf(rsp, "\n\t}");
 
