@@ -64,9 +64,17 @@ void bar_order_item_windows(struct bar* bar, int mode) {
 
     if (previous_window) {
       SLSOrderWindow(g_connection, window->id, mode, previous_window->id);
+      SLSAddWindowToWindowOrderingGroup(g_connection,
+                                        previous_window->id,
+                                        window->id,
+                                        1                   );
     }
     else {
       SLSOrderWindow(g_connection, window->id, mode, bar->window.id);
+      SLSAddWindowToWindowOrderingGroup(g_connection,
+                                        bar->window.id,
+                                        window->id,
+                                        1              );
     }
     previous_window = window;
   }
@@ -111,11 +119,11 @@ void bar_draw(struct bar* bar) {
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      CGRect tracking_rect = window->frame;
-
-      // tracking_rect.origin.y -= tracking_rect.size.height;
-      SLSRemoveAllTrackingAreas(g_connection, window->id);
-      SLSAddTrackingRect(g_connection, window->id, tracking_rect);
+      // CGRect tracking_rect = window->frame;
+      // tracking_rect.origin = window->origin;
+      //
+      // SLSRemoveAllTrackingAreas(g_connection, window->id);
+      // SLSAddTrackingRect(g_connection, window->id, tracking_rect);
     }
 
     bar_item_set_bounding_rect_for_display(bar_item,

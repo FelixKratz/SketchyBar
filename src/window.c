@@ -44,7 +44,6 @@ void window_create(struct window* window, CGRect frame) {
   // SLSSetSurfaceBounds(g_connection, window->id, window->surface_id, window->frame);
   // SLSBindSurface(g_connection, window->id, window->surface_id, 0, 0, window->context);
   // SLSOrderSurface(g_connection, window->id, window->surface_id, 0, 1);
-
 }
 
 void windows_freeze() {
