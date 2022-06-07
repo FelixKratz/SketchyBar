@@ -46,8 +46,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
                 - bar_item->popup.background.bounds.size.width;
   }
   anchor.y += (g_bar_manager.position == POSITION_BOTTOM
-              ? (-window->frame.size.height
-                 - bar_item->popup.background.bounds.size.height)
+              ? (- bar_item->popup.background.bounds.size.height)
               : window->frame.size.height);
 
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
