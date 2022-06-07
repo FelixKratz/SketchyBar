@@ -198,20 +198,14 @@ bool bar_manager_set_display(struct bar_manager* bar_manager, char display) {
   if (bar_manager->display == display) return false;
   bar_manager->display = display;
 
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
-
-  bar_manager_begin(bar_manager);
+  bar_manager_reset(bar_manager);
   return true;
 }
 
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow) {
   if (bar_manager->shadow == shadow) return false;
   bar_manager->shadow = shadow;
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
-
-  bar_manager_begin(bar_manager);
+  bar_manager_reset(bar_manager);
   return true;
 }
 
@@ -252,12 +246,9 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
 }
 
 bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
-  for (int i = 0; i < bar_manager->bar_count; i++)
-    bar_destroy(bar_manager->bars[i]);
-
   if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevel;
   else bar_manager->window_level = kCGNormalWindowLevel;
-  bar_manager_begin(bar_manager);
+  bar_manager_reset(bar_manager);
   bar_manager->topmost = topmost;
   return true;
 }
@@ -331,7 +322,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
         || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
       bar_calculate_bounds(bar_manager->bars[i]);
       bar_draw(bar_manager->bars[i]);
-      if (forced || bar_manager->needs_ordering) {
+      if (bar_manager->needs_ordering) {
         bar_order_item_windows(bar_manager->bars[i], 1);
       }
     }
@@ -430,7 +421,22 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   bar_manager_unfreeze(bar_manager);
 }
 
-void bar_manager_begin(struct bar_manager *bar_manager) {
+void bar_manager_reset(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    for (int j = 0; j < bar_manager->bar_item_count; j++) {
+      struct bar_item* bar_item = bar_manager->bar_items[j];
+      bar_item_remove_window(bar_item, bar_manager->bars[i]->adid);
+    }
+
+    bar_destroy(bar_manager->bars[i]);
+    bar_manager->bars[i] = NULL;
+  }
+  bar_manager->bar_count = 0;
+
+  bar_manager_begin(bar_manager);
+}
+
+void bar_manager_begin(struct bar_manager* bar_manager) {
   if (bar_manager->display == DISPLAY_MAIN) {
     uint32_t did = display_main_display_id();
     bar_manager->bar_count = 1;
@@ -491,10 +497,7 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_arrangement(display_active_display_id());
 
-  for (int i = 0; i < bar_manager->bar_count; ++i)
-    bar_destroy(bar_manager->bars[i]);
-
-  bar_manager_begin(bar_manager);
+  bar_manager_reset(bar_manager);
   bar_manager_freeze(bar_manager);
   bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
@@ -532,6 +535,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[1] = '\n';
   uint32_t cursor = 2;
   for (int i = 0; i < bar_manager->bar_count; i++) {
+    // uint32_t previous_sid = bar_manager->bars[i]->sid;
     bar_manager->bars[i]->sid = mission_control_index(
                                   display_space_id(bar_manager->bars[i]->did));
 
@@ -544,6 +548,17 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                             bar_manager->bars[i]->adid,
                             bar_manager->bars[i]->sid                );
     cursor = strlen(info);
+
+    // if (bar_manager->bars[i]->shown) {
+    //   for (int j = 0; j < bar_manager->bar_item_count; j++) {
+    //     struct bar_item* bar_item = bar_manager->bar_items[j];
+    //     if ((bar_item->associated_space & (1 << previous_sid))
+    //         || (bar_item->associated_space & (1 << bar_manager->bars[i]->sid)))
+    //     {
+    //       bar_item_needs_update(bar_item);
+    //     }
+    //   }
+    // }
   }
   info[cursor] = '}';
   info[cursor + 1] = '\0';
@@ -554,9 +569,10 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_SPACE_CHANGE,
                                     &env_vars                      );
 
+
   bar_manager_freeze(bar_manager);
   bar_manager->frozen = false;
-  bar_manager_refresh(bar_manager, true);
+  bar_manager_refresh(bar_manager, false);
   bar_manager_unfreeze(bar_manager);
   env_vars_destroy(&env_vars);
 }

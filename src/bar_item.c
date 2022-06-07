@@ -269,7 +269,6 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
     bar_item->has_graph = true;
   }
   else if (type == BAR_COMPONENT_GROUP) {
-    bar_item->drawing = false;
     bar_item->group = group_create();
     group_init(bar_item->group);
     group_add_member(bar_item->group, bar_item);
@@ -369,7 +368,7 @@ uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
          + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
  
-  return length > 0 ? length : 0;
+  return max(length, 0);
 }
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
@@ -393,13 +392,9 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t icon_height = text_get_height(&bar_item->icon);
   uint32_t alias_height = alias_get_height(&bar_item->alias);
   
-  uint32_t text_height = label_height > icon_height
-                          ? label_height
-                          : icon_height;
+  uint32_t text_height = max(label_height, icon_height);
 
-  uint32_t item_height = text_height > alias_height
-                         ? text_height
-                         : alias_height;
+  uint32_t item_height = max(text_height, alias_height);
 
   if (bar_item->background.enabled && bar_item->background.image.enabled
       && bar_item->background.image.bounds.size.height > item_height    ) {
@@ -428,7 +423,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
                                g_bar_manager.font_smoothing         );
 
     window_set_level(bar_item->windows[adid - 1],
-                     g_bar_manager.window_level + 1);
+                     g_bar_manager.window_level);
   }
 
   return bar_item->windows[adid - 1];
@@ -445,10 +440,7 @@ void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
-  bounding_rect.origin.y = bar_item->icon.bounds.origin.y
-                           < bar_item->label.bounds.origin.y
-                           ? bar_item->icon.bounds.origin.y
-                           : bar_item->label.bounds.origin.y;
+  bounding_rect.origin.y = min(bar_item->icon.bounds.origin.y, bar_item->label.bounds.origin.y);
 
   if (bar_item->has_alias
       && bounding_rect.origin.y > bar_item->alias.image.bounds.origin.y) {
@@ -469,6 +461,7 @@ void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t 
   window->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
   window->frame.size = rect.size;
 }
+
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
   uint32_t content_x = x;
   uint32_t content_y = y;
@@ -495,12 +488,8 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 
   if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
     group_calculate_bounds(bar_item->group,
-                           (bar_item->position == POSITION_RIGHT
-                            || bar_item->position == POSITION_CENTER_LEFT)
-                            ? (x - group_get_length(bar_item->group)
-                               + bar_item_length                    )
-                            : icon_position,
-                           content_y,
+                           x,
+                           y,
                            bar_item->position == POSITION_RIGHT
                            || bar_item->position == POSITION_CENTER_LEFT);
 
@@ -539,6 +528,7 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
                                 x,
                                 content_y + bar_item->y_offset        );
   }
+
   return bar_item_length;
 }
 

@@ -56,15 +56,24 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
 }
 
 void bar_order_item_windows(struct bar* bar, int mode) {
+  SLSOrderWindow(g_connection, bar->window.id, 1, 0);
+
   struct window* previous_window = NULL;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!bar_draws_item(bar, bar_item)) continue;
-
     struct window* window = bar_item_get_window(bar_item, bar->adid);
     SLSRemoveFromOrderingGroup(g_connection, window->id);
     window_set_level(window, g_bar_manager.window_level);
+
+    if (bar_item->type == BAR_COMPONENT_GROUP) {
+      SLSOrderWindow(g_connection, window->id, mode, bar->window.id);
+      SLSAddWindowToWindowOrderingGroup(g_connection,
+                                        bar->window.id,
+                                        window->id,
+                                        1              );
+      continue;
+    }
 
     if (previous_window) {
       SLSOrderWindow(g_connection, window->id, mode, previous_window->id);
@@ -111,19 +120,25 @@ void bar_draw(struct bar* bar) {
     if (!(bar_item->position == POSITION_POPUP))
       bar_item_remove_associated_bar(bar_item, bar->adid);
 
-    if (!bar_draws_item(bar, bar_item)) {
-      SLSMoveWindow(g_connection, window->id, &g_nirvana);
+    if (!bar_draws_item(bar, bar_item)
+        || (bar_item->type == BAR_COMPONENT_GROUP
+            && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
+
+      if (!CGPointEqualToPoint(window->origin, g_nirvana)) {
+        window->origin = g_nirvana;
+        SLSMoveWindow(g_connection, window->id, &g_nirvana);
+      }
 
       continue;
     }
 
     bar_item_append_associated_bar(bar_item, bar->adid);
-    SLSMoveWindow(g_connection, window->id, &window->origin);
 
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
 
-    if (!bar_item->needs_update) continue;
+    // SLSMoveWindow(g_connection, window->id, &window->origin);
+    if (!window_apply_frame(window) && !bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
@@ -134,26 +149,10 @@ void bar_draw(struct bar* bar) {
       // SLSAddTrackingRect(g_connection, window->id, tracking_rect);
     }
 
-    window_resize(window, (CGRect){{window->origin.x,
-                                    window->origin.y },
-                                   {window->frame.size.width,
-                                    window->frame.size.height}});
-
-    draw_rect(window->context, window->frame, &g_transparent,
-                                              0,
-                                              0,
-                                              &g_transparent,
-                                              true           );
-
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-      group_draw(bar_item->group,
-                 bar_item_get_window(bar_item->group->members[0],
-                                     bar->adid                   )->context);
-    }
+    CGContextClearRect(window->context, window->frame);
 
     bar_item_draw(bar_item, window->context);
     CGContextFlush(window->context);
-
   }
 }
 
@@ -188,7 +187,8 @@ void bar_calculate_bounds(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!bar_draws_item(bar, bar_item)) {
+    if (!bar_draws_item(bar, bar_item)
+        || bar_item->type == BAR_COMPONENT_GROUP) {
       continue;
     } 
 
@@ -224,29 +224,31 @@ void bar_calculate_bounds(struct bar* bar) {
                                  0,
                                  y                                           );
 
-    struct window* window = bar_item_get_window(bar_item, bar->adid);
-    window->origin.x = bar->window.origin.x + *next_position;
-    window->origin.y = bar->window.origin.y;
-    window->frame.size.width = bar_item_display_length;
-    window->frame.size.height = bar->window.frame.size.height;
+    CGRect frame = {{bar->window.origin.x + *next_position,
+                     bar->window.origin.y                  },
+                    {bar_item_display_length,
+                     bar->window.frame.size.height}          };
 
-    // if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-    //   uint32_t group_length = group_get_length(bar_item->group);
-    //   uint32_t group_offset = (bar_item->position == POSITION_RIGHT
-    //                            || bar_item->position == POSITION_CENTER_LEFT)
-    //                           ? group_length
-    //                             - bar_item_get_length(bar_item, false)
-    //                           : 0;
-    //
-    //    struct window* group_window = bar_item_get_window(
-    //                                              bar_item->group->members[0],
-    //                                              bar->adid                   );
-    //
-    //    group_window->origin = window->origin;
-    //    group_window->origin.x -= group_offset; 
-    //    group_window->frame.size = window->frame.size;
-    //    group_window->frame.size.width = group_length;
-    // }
+    window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
+
+    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+      uint32_t group_length = group_get_length(bar_item->group);
+      uint32_t group_offset = (bar_item->position == POSITION_RIGHT
+                               || bar_item->position == POSITION_CENTER_LEFT)
+                              ? group_length
+                                - bar_item_get_length(bar_item, false)
+                                - group_count_members_drawn(bar_item->group)
+                              : 0;
+
+      CGRect group_frame = {{frame.origin.x - group_offset,
+                             frame.origin.y                        },
+                            {group_length,
+                             frame.size.height}                      };
+      
+      window_set_frame(bar_item_get_window(bar_item->group->members[0],
+                                           bar->adid                   ),
+                       group_frame                                       );
+    }
 
     if (bar_item->popup.drawing)
       bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
@@ -291,7 +293,8 @@ CGRect bar_get_frame(struct bar *bar) {
 
 void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
-  window_resize(&bar->window, bar_get_frame(bar));
+  window_set_frame(&bar->window, bar_get_frame(bar));
+  window_apply_frame(&bar->window);
   bar_calculate_bounds(bar);
   bar->needs_update = true;
   bar_draw(bar);
@@ -306,14 +309,11 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
 
 void bar_create_window(struct bar* bar) {
   window_create(&bar->window, bar_get_frame(bar));
+  window_set_level(&bar->window, g_bar_manager.window_level);
   window_set_blur_radius(&bar->window, g_bar_manager.blur_radius);
   if (!g_bar_manager.shadow) window_disable_shadow(&bar->window);
 
-  window_set_level(&bar->window, g_bar_manager.window_level);
-  SLSOrderWindow(g_connection, bar->window.id, 1, 0);
   context_set_font_smoothing(bar->window.context, g_bar_manager.font_smoothing);
-  CGContextClearRect(bar->window.context, bar->window.frame);
-  CGContextFlush(bar->window.context);
 }
 
 struct bar *bar_create(uint32_t did) {

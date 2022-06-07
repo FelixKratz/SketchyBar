@@ -1,11 +1,8 @@
 #include "window.h"
 
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
-  window->frame = (CGRect) {{0, 0},{frame.size.width, frame.size.height}};
-  window->origin = frame.origin;
-
   CFTypeRef frame_region;
-  CGSNewRegionWithRect(&window->frame, &frame_region);
+  CGSNewRegionWithRect(&frame, &frame_region);
   return frame_region;
 }
 
@@ -13,12 +10,17 @@ void window_create(struct window* window, CGRect frame) {
   uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
   uint64_t clear_tags = kCGSSuperStickyTagBit;
 
+  window->origin = frame.origin;
+  window->frame.origin = (CGPoint){0, 0};
+  window->frame.size = frame.size;
+
+  frame.origin = (CGPoint){0, 0};
   CFTypeRef frame_region = window_create_region(window, frame);
   SLSNewWindow(g_connection, 2, window->origin.x, window->origin.y,
                                                   frame_region,
                                                   &window->id      );
 
-  SLSAddActivationRegion(g_connection, window->id, frame_region);
+  // SLSAddActivationRegion(g_connection, window->id, frame_region);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
@@ -39,11 +41,8 @@ void window_create(struct window* window, CGRect frame) {
   CFRelease(dict);
 
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
-
-  // SLSAddSurface(g_connection, window->id, &window->surface_id);
-  // SLSSetSurfaceBounds(g_connection, window->id, window->surface_id, window->frame);
-  // SLSBindSurface(g_connection, window->id, window->surface_id, 0, 0, window->context);
-  // SLSOrderSurface(g_connection, window->id, window->surface_id, 0, 1);
+  window->needs_move = false;
+  window->needs_resize = false;
 }
 
 void windows_freeze() {
@@ -54,29 +53,42 @@ void windows_unfreeze() {
   SLSReenableUpdate(g_connection);
 }
 
-void window_resize(struct window* window, CGRect frame) {
-  CGRect out;
-  SLSGetScreenRectForWindow(g_connection, window->id, &out);
-
-  if (CGRectEqualToRect(frame, out)) return;
-  else if (CGSizeEqualToSize(frame.size, out.size)) {
+void window_set_frame(struct window* window, CGRect frame) {
+  if (!CGPointEqualToPoint(window->origin, frame.origin)) {
+    window->needs_move = true;
     window->origin = frame.origin;
-    SLSMoveWindow(g_connection, window->id, &window->origin);
-    return;
   }
-  
-  CFTypeRef frame_region = window_create_region(window, frame);
-  SLSSetWindowShape(g_connection,
-                    window->id,
-                    window->origin.x,
-                    window->origin.y,
-                    frame_region     );
 
-  SLSClearActivationRegion(g_connection, window->id);
-  SLSAddActivationRegion(g_connection, window->id, frame_region);
-  SLSRemoveAllTrackingAreas(g_connection, window->id);
+  if (!CGSizeEqualToSize(window->frame.size, frame.size)) {
+    window->needs_resize = true;
+    window->frame.size = frame.size;
+  }
+}
 
-  CFRelease(frame_region);
+bool window_apply_frame(struct window* window) {
+  if (window->needs_resize) {
+    CFTypeRef frame_region = window_create_region(window, window->frame);
+    SLSSetWindowShape(g_connection,
+                      window->id,
+                      window->origin.x,
+                      window->origin.y,
+                      frame_region     );
+
+    // SLSClearActivationRegion(g_connection, window->id);
+    // SLSAddActivationRegion(g_connection, window->id, frame_region);
+    SLSRemoveAllTrackingAreas(g_connection, window->id);
+
+    CFRelease(frame_region);
+    window->needs_move = false;
+    window->needs_resize = false;
+    return true;
+  } else if (window->needs_move) {
+    CGPoint origin = window->origin;
+    SLSMoveWindow(g_connection, window->id, &origin);
+    window->needs_move = false;
+    return false;
+  }
+  return false;
 }
 
 void window_close(struct window* window) {
@@ -85,6 +97,10 @@ void window_close(struct window* window) {
 
   window->context = NULL;
   window->id = 0;
+  window->origin = CGPointZero;
+  window->frame = CGRectNull;
+  window->needs_move = false;
+  window->needs_resize = false;
 }
 
 void window_set_level(struct window* window, uint32_t level) {

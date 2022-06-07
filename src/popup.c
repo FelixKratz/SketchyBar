@@ -19,6 +19,12 @@ void popup_init(struct popup* popup) {
   popup->background.color = rgba_color_from_hex(0x44000000);
 }
 
+CGRect popup_get_frame(struct popup* popup) {
+  return (CGRect){{popup->anchor.x, popup->anchor.y},
+                  {popup->background.bounds.size.width,
+                   popup->background.bounds.size.height}};
+}
+
 void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->background.border_width;
   uint32_t x = 0;
@@ -36,9 +42,8 @@ void popup_calculate_bounds(struct popup* popup) {
     for (int j = 0; j < popup->num_items; j++) {
       struct bar_item* bar_item = popup->items[j];
       if (!bar_item->drawing) continue;
-      uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size
-                             ? bar_item_get_height(bar_item)
-                             : popup->cell_size;
+      uint32_t cell_height = max(bar_item_get_height(bar_item),
+                                 popup->cell_size              );
 
       total_item_width += bar_item->background.padding_right
                           + bar_item->background.padding_left
@@ -54,7 +59,6 @@ void popup_calculate_bounds(struct popup* popup) {
       
       x = (width - total_item_width) / 2;
     }
-
   }
 
   for (int j = 0; j < popup->num_items; j++) {
@@ -62,27 +66,20 @@ void popup_calculate_bounds(struct popup* popup) {
     if (popup->horizontal) bar_item = popup->items[j];
     else bar_item = popup->items[popup->num_items - 1 - j];
     if (!bar_item->drawing) continue;
-    uint32_t cell_height = bar_item_get_height(bar_item) > popup->cell_size
-                           ? bar_item_get_height(bar_item)
-                           : popup->cell_size;
+
+    uint32_t cell_height = max(bar_item_get_height(bar_item),
+                               popup->cell_size              );
+
+    uint32_t item_x = x + bar_item->background.padding_left;
+    uint32_t item_y = y + y + (popup->horizontal ? height : cell_height) / 2;
+    uint32_t item_height = popup->horizontal ? height : cell_height;
 
     uint32_t item_width = bar_item->background.padding_right
                           + bar_item->background.padding_left
                           + bar_item_calculate_bounds(bar_item,
-                                                      popup->horizontal
-                                                       ? height
-                                                       : cell_height,
-                                                      x,
-                                                      y + (popup->horizontal
-                                                           ? height
-                                                           : cell_height) / 2);
-
-    if (popup->adid > 0) {
-      bar_item_set_bounding_rect_for_display(bar_item,
-                                             popup->adid,
-                                             popup->anchor,
-                                             popup->background.bounds.size.height);
-    }
+                                                      item_height,
+                                                      item_x,
+                                                      item_y      );
 
     if (item_width > width && !popup->horizontal) width = item_width;
     if (popup->horizontal) x += item_width;
@@ -181,9 +178,8 @@ void popup_draw(struct popup* popup) {
   if (!popup->drawing || popup->adid <= 0) return;
 
   SLSOrderWindow(g_connection, popup->window.id, -1, 0);
-  window_resize(&popup->window, (CGRect){{popup->anchor.x, popup->anchor.y},
-                                         {popup->background.bounds.size.width,
-                                          popup->background.bounds.size.height}});
+  window_set_frame(&popup->window, popup_get_frame(popup));
+  window_apply_frame(&popup->window);
 
   CGContextClearRect(popup->window.context, popup->background.bounds);
 
@@ -204,10 +200,10 @@ void popup_draw(struct popup* popup) {
       SLSAddTrackingRect(g_connection, popup->window.id, tracking_rect);
     }
 
-    // bar_item_set_bounding_rect_for_display(bar_item,
-    //                                        popup->adid,
-    //                                        popup->anchor,
-    //                                        popup->background.bounds.size.height);
+    bar_item_set_bounding_rect_for_display(bar_item,
+                                           popup->adid,
+                                           popup->anchor,
+                                           popup->background.bounds.size.height);
 
     bool state = bar_item->popup.drawing;
     bar_item->popup.drawing = false;
