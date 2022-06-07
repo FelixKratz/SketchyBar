@@ -172,7 +172,10 @@ int main(int argc, char **argv) {
   mouse_begin();
   display_begin();
   workspace_event_handler_begin(&g_workspace_context);
+
+  windows_freeze();
   bar_manager_begin(&g_bar_manager);
+  windows_unfreeze();
 
   if (!mach_server_begin(&g_mach_server, mach_message_handler))
     error("sketchybar: could not initialize daemon! abort..\n");

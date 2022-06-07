@@ -313,6 +313,8 @@ void bar_create_window(struct bar* bar) {
   window_set_level(&bar->window, g_bar_manager.window_level);
   SLSOrderWindow(g_connection, bar->window.id, 1, 0);
   context_set_font_smoothing(bar->window.context, g_bar_manager.font_smoothing);
+  CGContextClearRect(bar->window.context, bar->window.frame);
+  CGContextFlush(bar->window.context);
 }
 
 struct bar *bar_create(uint32_t did) {
