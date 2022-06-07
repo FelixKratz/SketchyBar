@@ -628,9 +628,17 @@ void handle_message_mach(struct mach_buffer* buffer) {
     }
     command = get_token(&message);
   }
-  if (bar_needs_refresh) bar_manager_resize(&g_bar_manager);
+
   g_bar_manager.frozen = false;
-  bar_manager_refresh(&g_bar_manager, bar_needs_refresh);
+  if (bar_needs_refresh) bar_manager_resize(&g_bar_manager);
+
+  if (bar_needs_refresh) {
+    for (int i = 0; i < g_bar_manager.bar_count; i++) {
+      g_bar_manager.bars[i]->needs_update = true;
+    }
+  }
+
+  bar_manager_refresh(&g_bar_manager, false);
   bar_manager_unfreeze(&g_bar_manager);
 
   if (rsp) fclose(rsp);
