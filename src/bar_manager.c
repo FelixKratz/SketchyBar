@@ -483,6 +483,32 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
   return NULL;
 }
 
+struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, uint32_t wid, uint32_t adid) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (!bar_item->drawing || bar_item->num_windows < adid
+        || bar_item->windows[adid - 1] == NULL) {
+      continue;
+    }
+
+    struct window* window = bar_item_get_window(bar_item, adid);
+
+    if (window->id == wid) {
+      return bar_item;
+    }
+  }
+  return NULL;
+}
+
+struct bar* bar_manager_get_bar_by_wid(struct bar_manager* bar_manager, uint32_t wid) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    if (bar_manager->bars[i]->window.id == wid) {
+      return bar_manager->bars[i];
+    }
+  }
+  return NULL;
+}
+
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name, struct env_vars* env_vars) {
   uint64_t flag = custom_events_get_flag_for_name(&bar_manager->custom_events,
                                                   name                       );
@@ -512,9 +538,13 @@ void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct ba
   bar_item_mouse_entered(bar_item);
 }
 
-void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++)
-    bar_item_mouse_exited(bar_manager->bar_items[i]);
+void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+  if (!bar_item) {
+    for (int i = 0; i < bar_manager->bar_item_count; i++)
+      bar_item_mouse_exited(bar_manager->bar_items[i]);
+  } else {
+    bar_item_mouse_exited(bar_item);
+  }
 }
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {

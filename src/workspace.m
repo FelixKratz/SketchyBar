@@ -23,6 +23,11 @@ void workspace_create_custom_observer (void **context, char* notification) {
     [ws_context addCustomObserver:@(notification)];
 }
 
+uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
+  NSEvent *nsEvent = [NSEvent eventWithCGEvent:cgevent];
+  return [nsEvent windowNumber];
+}
+
 @implementation workspace_context
 - (id)init {
     if ((self = [super init])) {

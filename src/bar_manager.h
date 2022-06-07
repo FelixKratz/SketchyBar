@@ -69,6 +69,8 @@ bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width
 void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);
+struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, uint32_t wid, uint32_t adid);
+struct bar* bar_manager_get_bar_by_wid(struct bar_manager* bar_manager, uint32_t wid);
 int bar_manager_get_item_index_for_name(struct bar_manager* bar_manager, char* name);
 uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct bar* bar, char side);
 
@@ -80,7 +82,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced);
 void bar_manager_resize(struct bar_manager* bar_manager);
 
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item);
-void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager);
+void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);

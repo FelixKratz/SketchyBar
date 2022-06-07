@@ -114,11 +114,13 @@ void bar_draw(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
+    if (bar_item->position == POSITION_POPUP) {
+      continue;
+    }
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-    if (!(bar_item->position == POSITION_POPUP))
-      bar_item_remove_associated_bar(bar_item, bar->adid);
+    bar_item_remove_associated_bar(bar_item, bar->adid);
 
     if (!bar_draws_item(bar, bar_item)
         || (bar_item->type == BAR_COMPONENT_GROUP
@@ -137,16 +139,14 @@ void bar_draw(struct bar* bar) {
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
 
-    // SLSMoveWindow(g_connection, window->id, &window->origin);
     if (!window_apply_frame(window) && !bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      // CGRect tracking_rect = window->frame;
-      // tracking_rect.origin = window->origin;
-      //
-      // SLSRemoveAllTrackingAreas(g_connection, window->id);
-      // SLSAddTrackingRect(g_connection, window->id, tracking_rect);
+      CGRect tracking_rect = window->frame;
+
+      SLSRemoveAllTrackingAreas(g_connection, window->id);
+      SLSAddTrackingRect(g_connection, window->id, tracking_rect);
     }
 
     CGContextClearRect(window->context, window->frame);
@@ -295,6 +295,8 @@ void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
   window_set_frame(&bar->window, bar_get_frame(bar));
   window_apply_frame(&bar->window);
+  SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
+  SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
   bar_calculate_bounds(bar);
   bar->needs_update = true;
   bar_draw(bar);
@@ -309,6 +311,8 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
 
 void bar_create_window(struct bar* bar) {
   window_create(&bar->window, bar_get_frame(bar));
+  SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
+  SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
   window_set_level(&bar->window, g_bar_manager.window_level);
   window_set_blur_radius(&bar->window, g_bar_manager.blur_radius);
   if (!g_bar_manager.shadow) window_disable_shadow(&bar->window);
