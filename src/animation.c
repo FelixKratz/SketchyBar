@@ -26,7 +26,7 @@ double function_bounce(double x) {
   }
   else {
     return beta * beta * (x - 1./2. + 1./alpha/2.)
-           + 1. - beta*beta*(1./2. + 1./alpha/2.);
+           + 1. - beta*beta* (1./2. + 1./alpha/2.);
   }
 }
 
@@ -96,7 +96,7 @@ bool animation_update(struct animation* animation) {
   }
   else {
     value = (1. - slider) * animation->initial_value
-                + slider * animation->final_value;
+            + slider * animation->final_value;
   }
 
   animation->counter++;
@@ -108,6 +108,7 @@ bool animation_update(struct animation* animation) {
         && (animation->target >= (void*)g_bar_manager.bar_items[i])
         && (animation->target < ((void*)g_bar_manager.bar_items[i]
                                  + sizeof(struct bar_item)         ))) {
+
       bar_item_needs_update(g_bar_manager.bar_items[i]);
       found_item = true;
     }
@@ -132,7 +133,6 @@ void animator_add(struct animator* animator, struct animation* animation) {
   animator->animations[animator->animation_count - 1] = animation;
 
   if (animator->animation_count == 1) {
-
     animator->clock = CFRunLoopTimerCreate(NULL,
                                            CFAbsoluteTimeGetCurrent()+1./60.,
                                            1./60.,

@@ -5,7 +5,6 @@ extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 extern bool g_verbose;
 
-// Syntax: sketchybar -m --subscribe <name> <event>
 static void handle_domain_subscribe(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
 
@@ -17,7 +16,6 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   bar_item_parse_subscribe_message(bar_item, message); 
 }
 
-// Syntax: sketchybar -m --trigger <event> 
 static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
   struct token event = get_token(&message);
   struct env_vars env_vars;
@@ -38,7 +36,6 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
   env_vars_destroy(&env_vars);
 }
 
-// Syntax: sketchybar -m --push <name> <y>
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token y = get_token(&message);
@@ -51,7 +48,6 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   bar_item_needs_update(bar_item);
 }
 
-// Syntax sketchybar -m --rename <old name> <new name>
 static void handle_domain_rename(FILE* rsp, struct token domain, char* message) {
   struct token old_name  = get_token(&message);
   struct token new_name  = get_token(&message);
@@ -71,7 +67,6 @@ static void handle_domain_rename(FILE* rsp, struct token domain, char* message) 
                     token_to_string(new_name)                        );
 }
 
-// Syntax: sketchybar -m --clone <name> <parent name>
 static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token parent = get_token(&message);
@@ -103,7 +98,6 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   bar_item_needs_update(bar_item);
 }
 
-// Syntax: sketchybar -m --add <item|component identifer> <name>[:parent] [<position>]
 static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token command  = get_token(&message);
 
@@ -192,13 +186,10 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   bar_item_needs_update(bar_item);
 }
 
-// Syntax: sketchybar -m --set <name> <property>=<value> ... <property>=<value>
-// Syntax: sketchybar -m --default <property>=<value> ... <property>=<value>
 static void handle_domain_default(FILE* rsp, struct token domain, char* message) {
   bar_item_parse_set_message(&g_bar_manager.default_item, message, rsp);
 }
 
-// Syntax: sketchybar -m --bar <property>=<value> ... <property>=<value>
 static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
   struct token command  = get_token(&message);
   bool needs_refresh = false;
@@ -320,10 +311,6 @@ static char* get_batch_line(char** message) {
   return rbr_msg;
 }
 
-// Syntax: sketchybar -m --query bar
-// Syntax: sketchybar -m --query item <name>
-// Syntax: sketchybar -m --query defaults
-// Syntax: sketchybar -m --query events
 static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   struct token token = get_token(&message);
 
@@ -358,7 +345,6 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   }
 }
 
-// Syntax: sketchybar -m --remove <name>
 static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   uint32_t count = 0;
@@ -419,7 +405,6 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
   if (bar_items) free(bar_items);
 }
 
-// Syntax: sketchybar -m --move <name> </> <reference>
 static void handle_domain_move(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
   struct token direction = get_token(&message);

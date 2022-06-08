@@ -571,7 +571,6 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[1] = '\n';
   uint32_t cursor = 2;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    // uint32_t previous_sid = bar_manager->bars[i]->sid;
     bar_manager->bars[i]->sid = mission_control_index(
                                   display_space_id(bar_manager->bars[i]->did));
 
@@ -584,18 +583,8 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                             bar_manager->bars[i]->adid,
                             bar_manager->bars[i]->sid                );
     cursor = strlen(info);
-
-    // if (bar_manager->bars[i]->shown) {
-    //   for (int j = 0; j < bar_manager->bar_item_count; j++) {
-    //     struct bar_item* bar_item = bar_manager->bar_items[j];
-    //     if ((bar_item->associated_space & (1 << previous_sid))
-    //         || (bar_item->associated_space & (1 << bar_manager->bars[i]->sid)))
-    //     {
-    //       bar_item_needs_update(bar_item);
-    //     }
-    //   }
-    // }
   }
+
   info[cursor] = '}';
   info[cursor + 1] = '\0';
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(info));

@@ -828,8 +828,6 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     printf("cache_scripts property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_LAZY)) {
     printf("lazy property is deprecated.\n");
-    // bar_item->lazy = evaluate_boolean_state(get_token(&message), bar_item->lazy);
-    // needs_refresh = true;
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);

@@ -20,7 +20,6 @@ void window_create(struct window* window, CGRect frame) {
                                                   frame_region,
                                                   &window->id      );
 
-  // SLSAddActivationRegion(g_connection, window->id, frame_region);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
@@ -74,8 +73,6 @@ bool window_apply_frame(struct window* window) {
                       window->origin.y,
                       frame_region     );
 
-    // SLSClearActivationRegion(g_connection, window->id);
-    // SLSAddActivationRegion(g_connection, window->id, frame_region);
     SLSRemoveAllTrackingAreas(g_connection, window->id);
 
     CFRelease(frame_region);
@@ -120,6 +117,7 @@ void window_disable_shadow(struct window* window) {
   CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault,
                                                  kCFNumberCFIndexType,
                                                  &shadow_density      );
+
   const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
   const void *values[1] = { shadow_density_cf };
   CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL,
