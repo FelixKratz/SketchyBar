@@ -113,8 +113,7 @@ bool animation_update(struct animation* animation) {
     }
   }
 
-  animation->needs_force_refresh = false;
-  if (!found_item && needs_update) animation->needs_force_refresh = true;
+  if (!found_item && needs_update) g_bar_manager.bar_needs_update = true;
 
   return needs_update;
 }
@@ -183,12 +182,10 @@ void animator_remove(struct animator* animator, struct animation* animation) {
 bool animator_update(struct animator* animator) {
   bool removed = false;
   bool needs_refresh = false;
-  animator->force_refresh = false;
   for (uint32_t i = 0; i < animator->animation_count; i++) {
     if (removed) i--;
     removed = false;
     needs_refresh |= animation_update(animator->animations[i]);
-    animator->force_refresh |= animator->animations[i]->needs_force_refresh;
     if (animator->animations[i]->counter > animator->animations[i]->duration) {
       animator_remove(animator, animator->animations[i]);
       removed = true;

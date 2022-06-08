@@ -60,7 +60,6 @@ struct animation {
   int final_value;
   animation_function* interp_function;
 
-  bool needs_force_refresh;
   void* target;
   animator_function* update_function;
 };
@@ -79,7 +78,6 @@ typedef ANIMATOR_CALLBACK(animator_callback);
 struct animator {
   CFRunLoopTimerRef clock;
 
-  bool force_refresh;
   uint32_t interp_function;
   uint32_t duration;
   struct animation** animations;

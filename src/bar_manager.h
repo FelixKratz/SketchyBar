@@ -17,6 +17,7 @@ struct bar_manager {
   bool font_smoothing;
   bool any_bar_hidden;
   bool needs_ordering;
+  bool bar_needs_update;
 
   char display;
   char position;

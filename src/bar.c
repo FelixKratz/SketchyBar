@@ -94,7 +94,7 @@ void bar_order_item_windows(struct bar* bar, int mode) {
 }
 
 void bar_draw(struct bar* bar) {
-  if (bar->needs_update) {
+  if (g_bar_manager.bar_needs_update) {
     draw_rect(bar->window.context,
               bar->window.frame,
               &g_bar_manager.background.color,
@@ -103,12 +103,11 @@ void bar_draw(struct bar* bar) {
               &g_bar_manager.background.border_color,
               true                                   );
 
-    bar->needs_update = false;
-    CGContextFlush(bar->window.context);
-  }
+    if (g_bar_manager.background.image.enabled) {
+      image_draw(&g_bar_manager.background.image, bar->window.context);
+    }
 
-  if (g_bar_manager.background.image.enabled) {
-    image_draw(&g_bar_manager.background.image, bar->window.context);
+    CGContextFlush(bar->window.context);
   }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -294,12 +293,11 @@ CGRect bar_get_frame(struct bar *bar) {
 void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
   window_set_frame(&bar->window, bar_get_frame(bar));
-  window_apply_frame(&bar->window);
-  SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
-  SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
-  bar_calculate_bounds(bar);
-  bar->needs_update = true;
-  bar_draw(bar);
+  if (window_apply_frame(&bar->window)) {
+    SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
+    SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
+    g_bar_manager.bar_needs_update = true;
+  }
 }
 
 void bar_set_hidden(struct bar* bar, bool hidden) {
@@ -327,7 +325,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->shown = true;
-  bar->needs_update = true;
+  g_bar_manager.bar_needs_update = true;
   bar_create_window(bar);
   return bar;
 }
