@@ -298,7 +298,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
 
 void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) 
-    bar_item_clear_needs_update(bar_manager->bar_items[i]);
+    bar_manager->bar_items[i]->needs_update = false;
 
   bar_manager->needs_ordering = false;
   bar_manager->bar_needs_update = false;

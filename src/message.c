@@ -124,24 +124,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
 
   bar_item_set_type(bar_item, command.text[0]);
   bar_item_set_position(bar_item, position.text[0]);
-  if (position.text[0] == POSITION_POPUP) {
-    char* pair = string_copy(position.text);
-    struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
-    if (key_value_pair.key && key_value_pair.value) {
-      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
-                                                                    key_value_pair.value);
-      if (item_index_for_name < 0) {
-        fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
-        printf("Name: %s not found in bar items \n", key_value_pair.value);
-        free(pair);
-        return;
-      }
-      struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
-      popup_add_item(&target_item->popup, bar_item);
-    } 
-    free(pair);
-  }
-
   bar_item_set_name(bar_item, token_to_string(name));
 
   if (token_equals(command, COMMAND_ADD_ITEM)) {
@@ -181,6 +163,31 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     printf("Command: %s not found \n", command.text);
     fprintf(rsp, "Command: %s not found \n", command.text);
     return;
+  }
+
+  if (position.text[0] == POSITION_POPUP) {
+    char* pair = string_copy(position.text);
+    struct key_value_pair key_value_pair = get_key_value_pair(pair, '.');
+    if (key_value_pair.key && key_value_pair.value) {
+      int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                                    key_value_pair.value);
+      if (item_index_for_name < 0) {
+        fprintf(rsp,
+                "Parent Name: %s for %s not found in bar items. Placing left instead\n",
+                key_value_pair.value,
+                bar_item->name                                                          );
+        printf("Parent Name: %s for %s not found in bar items. Placing left instead\n",
+                key_value_pair.value,
+                bar_item->name                                                         );
+
+        free(pair);
+        bar_item_set_position(bar_item, POSITION_LEFT);
+        return;
+      }
+      struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
+      popup_add_item(&target_item->popup, bar_item);
+    }
+    free(pair);
   }
 
   bar_item_needs_update(bar_item);

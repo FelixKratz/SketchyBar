@@ -218,10 +218,6 @@ void bar_item_needs_update(struct bar_item* bar_item) {
   bar_item->needs_update = true;
 }
 
-void bar_item_clear_needs_update(struct bar_item* bar_item) {
-  bar_item->needs_update = false;
-}
-
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (!name) return;
 
