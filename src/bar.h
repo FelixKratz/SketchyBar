@@ -13,6 +13,7 @@
 struct bar {
   bool shown;
   bool hidden;
+  bool mouse_over;
 
   uint32_t did;
   uint32_t sid;

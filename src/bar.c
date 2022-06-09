@@ -322,6 +322,7 @@ struct bar *bar_create(uint32_t did) {
   struct bar *bar = malloc(sizeof(struct bar));
   memset(bar, 0, sizeof(struct bar));
   bar->hidden = false;
+  bar->mouse_over = false;
   bar->did = did;
   bar->sid = mission_control_index(display_space_id(did));
   bar->shown = true;

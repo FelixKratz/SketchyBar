@@ -82,6 +82,8 @@ void bar_manager_display_changed(struct bar_manager* bar_manager);
 void bar_manager_refresh(struct bar_manager* bar_manager, bool forced);
 void bar_manager_resize(struct bar_manager* bar_manager);
 
+void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager);
+void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info);

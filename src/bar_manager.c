@@ -536,6 +536,18 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager_unfreeze(bar_manager);
 }
 
+void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager) {
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL,
+                                    NULL                                   );
+}
+
+void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL,
+                                    NULL                                  );
+}
+
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
   if (!bar_item || bar_item->mouse_over) return;
   for (int i = 0; i < bar_manager->bar_item_count; i++)

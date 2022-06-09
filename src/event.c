@@ -145,6 +145,10 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
     if (bar) {
       // Handle global mouse entered event
+      if (!bar->mouse_over) {
+        bar->mouse_over = true;
+        bar_manager_handle_mouse_entered_global(&g_bar_manager);
+      }
       
       CFRelease(context);
       return EVENT_SUCCESS;
@@ -173,6 +177,13 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
     if (bar) {
       // Handle global mouse exited event
+      CGPoint point = CGEventGetLocation(context);
+      CGRect frame = bar->window.frame;
+      frame.origin = bar->window.origin;
+      if (!CGRectContainsPoint(frame, point)) {
+        bar->mouse_over = false;
+        bar_manager_handle_mouse_exited_global(&g_bar_manager);
+      }
       
       CFRelease(context);
       return EVENT_SUCCESS;
