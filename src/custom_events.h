@@ -1,6 +1,15 @@
 #pragma once
 #include "misc/helpers.h"
 
+#define UPDATE_FRONT_APP_SWITCHED 1ULL
+#define UPDATE_SPACE_CHANGE       1ULL << 1
+#define UPDATE_DISPLAY_CHANGE     1ULL << 2
+#define UPDATE_SYSTEM_WOKE        1ULL << 3
+#define UPDATE_MOUSE_ENTERED      1ULL << 4
+#define UPDATE_MOUSE_EXITED       1ULL << 5
+#define UPDATE_MOUSE_CLICKED      1ULL << 6
+#define UPDATE_SYSTEM_WILL_SLEEP  1ULL << 7
+
 extern void* g_workspace_context;
 extern void workspace_create_custom_observer(void** context, char* name);
 
