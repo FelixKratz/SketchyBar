@@ -113,17 +113,21 @@ EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     debug("%s\n", __FUNCTION__);
-    CGPoint point = CGEventGetLocation(context);
+    debug("EVENT_HANDLER_MOUSE_UP\n");
+
+    uint32_t wid = get_window_id_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
     uint32_t modifier_keys = CGEventGetFlags(context);
     uint32_t adid = display_arrangement(display_active_display_id());
-    debug("EVENT_HANDLER_MOUSE_UP: D#%d (x: %.0f, y: %.0f) -> ",
-          adid,
-          point.x,
-          point.y                                               );
-    struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager,
-                                                              point,
-                                                              adid           );
+
+    struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
+                                                            wid,
+                                                            adid           );
+    if (!bar_item) {
+      CGPoint point = CGEventGetLocation(context);
+      bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    }
+
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item, type, modifier_keys);
@@ -133,15 +137,30 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     debug("%s\n", __FUNCTION__);
-    CGPoint point = CGEventGetLocation(context);
+    debug("EVENT_HANDLER_MOUSE_ENTERED\n");
+    uint32_t wid = get_window_id_from_cg_event(context);
+    
     uint32_t adid = display_arrangement(display_active_display_id());
-    debug("EVENT_HANDLER_MOUSE_ENTERED: D#%d (x: %.0f, y: %.0f) -> ",
-          adid,
-          point.x,
-          point.y                                                    );
-    struct bar_item* bar_item = bar_manager_get_item_by_point(&g_bar_manager,
-                                                              point,
-                                                              adid           );
+
+    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    if (bar) {
+      // Handle global mouse entered event
+      if (!bar->mouse_over) {
+        bar->mouse_over = true;
+        bar_manager_handle_mouse_entered_global(&g_bar_manager);
+      }
+      
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
+
+    struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
+                                                            wid,
+                                                            adid           );
+    if (!bar_item) {
+      CGPoint point = CGEventGetLocation(context);
+      bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    }
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
@@ -151,8 +170,31 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_EXITED \n");
-    bar_manager_handle_mouse_exited(&g_bar_manager);
+    debug("EVENT_HANDLER_MOUSE_EXITED\n");
+    uint32_t adid = display_arrangement(display_active_display_id());
+    uint32_t wid = get_window_id_from_cg_event(context);
+
+    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    if (bar) {
+      // Handle global mouse exited event
+      CGPoint point = CGEventGetLocation(context);
+      CGRect frame = bar->window.frame;
+      frame.origin = bar->window.origin;
+      if (!CGRectContainsPoint(frame, point)) {
+        bar->mouse_over = false;
+        bar_manager_handle_mouse_exited_global(&g_bar_manager);
+      }
+      
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
+
+    struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
+                                                            wid,
+                                                            adid           );
+
+    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
     CFRelease(context);
     return EVENT_SUCCESS;
 }

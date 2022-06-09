@@ -8,7 +8,7 @@
 
 struct event_loop;
 
-extern OSStatus SLSFindWindowByGeometry(int cid, int zero, int one, int zero_again, CGPoint *screen_point, CGPoint *window_point, uint32_t *wid, int *wcid);
+extern uint32_t get_window_id_from_cg_event(CGEventRef cgevent);
 
 #define EVENT_CALLBACK(name) uint32_t name(void *context)
 typedef EVENT_CALLBACK(event_callback);

@@ -1,11 +1,8 @@
 #include "window.h"
 
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
-  window->frame = (CGRect) {{0, 0},{frame.size.width, frame.size.height}};
-  window->origin = frame.origin;
-
   CFTypeRef frame_region;
-  CGSNewRegionWithRect(&window->frame, &frame_region);
+  CGSNewRegionWithRect(&frame, &frame_region);
   return frame_region;
 }
 
@@ -13,12 +10,16 @@ void window_create(struct window* window, CGRect frame) {
   uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
   uint64_t clear_tags = kCGSSuperStickyTagBit;
 
+  window->origin = frame.origin;
+  window->frame.origin = (CGPoint){0, 0};
+  window->frame.size = frame.size;
+
+  frame.origin = (CGPoint){0, 0};
   CFTypeRef frame_region = window_create_region(window, frame);
   SLSNewWindow(g_connection, 2, window->origin.x, window->origin.y,
                                                   frame_region,
                                                   &window->id      );
 
-  SLSAddActivationRegion(g_connection, window->id, frame_region);
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
@@ -26,49 +27,65 @@ void window_create(struct window* window, CGRect frame) {
   SLSClearWindowTags(g_connection, window->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, window->id, 0);
 
-  // const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
-  // const void* values[] = { kCFBooleanTrue };
-  // CFDictionaryRef dict = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  // CGContextRef context = SLWindowContextCreate(g_connection, window->id, dict);
-  window->context = SLWindowContextCreate(g_connection, window->id, 0);
-  // CFRelease(dict);
+  const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
+  const void* values[] = { kCFBooleanTrue };
+  CFDictionaryRef dict = CFDictionaryCreate(NULL,
+                                            keys,
+                                            values,
+                                            1,
+                                            &kCFTypeDictionaryKeyCallBacks,
+                                            &kCFTypeDictionaryValueCallBacks);
+
+  window->context = SLWindowContextCreate(g_connection, window->id, dict);
+  CFRelease(dict);
 
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
-  // CGLayerRef layer = CGLayerCreateWithContext(context, window->frame.size, 0);
-
-  // window->context = CGLayerGetContext(layer);
-
-
-  // SLSAddSurface(g_connection, window->id, &window->surface_id);
-  // SLSSetSurfaceBounds(g_connection, window->id, window->surface_id, window->frame);
-  // SLSBindSurface(g_connection, window->id, window->surface_id, 0, 0, window->context);
-  // SLSOrderSurface(g_connection, window->id, window->surface_id, 0, 1);
-
+  window->needs_move = false;
+  window->needs_resize = false;
 }
 
-void window_freeze(struct window* window) {
+void windows_freeze() {
   SLSDisableUpdate(g_connection);
 }
 
-void window_unfreeze(struct window* window) {
+void windows_unfreeze() {
   SLSReenableUpdate(g_connection);
 }
 
-void window_resize(struct window* window, CGRect frame) {
-  CFTypeRef frame_region = window_create_region(window, frame);
-  SLSOrderWindow(g_connection, window->id, -1, 0);
-  SLSSetWindowShape(g_connection,
-                    window->id,
-                    window->origin.x,
-                    window->origin.y,
-                    frame_region     );
+void window_set_frame(struct window* window, CGRect frame) {
+  if (!CGPointEqualToPoint(window->origin, frame.origin)) {
+    window->needs_move = true;
+    window->origin = frame.origin;
+  }
 
-  SLSClearActivationRegion(g_connection, window->id);
-  SLSAddActivationRegion(g_connection, window->id, frame_region);
-  SLSRemoveAllTrackingAreas(g_connection, window->id);
+  if (!CGSizeEqualToSize(window->frame.size, frame.size)) {
+    window->needs_resize = true;
+    window->frame.size = frame.size;
+  }
+}
 
-  SLSOrderWindow(g_connection, window->id, 1, 0);
-  CFRelease(frame_region);
+bool window_apply_frame(struct window* window) {
+  if (window->needs_resize) {
+    CFTypeRef frame_region = window_create_region(window, window->frame);
+    SLSSetWindowShape(g_connection,
+                      window->id,
+                      window->origin.x,
+                      window->origin.y,
+                      frame_region     );
+
+    SLSRemoveAllTrackingAreas(g_connection, window->id);
+
+    CFRelease(frame_region);
+    window->needs_move = false;
+    window->needs_resize = false;
+    return true;
+  } else if (window->needs_move) {
+    CGPoint origin = window->origin;
+    SLSMoveWindow(g_connection, window->id, &origin);
+    window->needs_move = false;
+    return false;
+  }
+  return false;
 }
 
 void window_close(struct window* window) {
@@ -77,6 +94,10 @@ void window_close(struct window* window) {
 
   window->context = NULL;
   window->id = 0;
+  window->origin = CGPointZero;
+  window->frame = CGRectNull;
+  window->needs_move = false;
+  window->needs_resize = false;
 }
 
 void window_set_level(struct window* window, uint32_t level) {
@@ -96,6 +117,7 @@ void window_disable_shadow(struct window* window) {
   CFNumberRef shadow_density_cf = CFNumberCreate(kCFAllocatorDefault,
                                                  kCFNumberCFIndexType,
                                                  &shadow_density      );
+
   const void *keys[1] = { CFSTR("com.apple.WindowShadowDensity") };
   const void *values[1] = { shadow_density_cf };
   CFDictionaryRef shadow_props_cf = CFDictionaryCreate(NULL,

@@ -14,3 +14,5 @@ void workspace_create_custom_observer (void **context, char* notification);
 void workspace_event_handler_init(void **context);
 void workspace_event_handler_begin(void **context);
 void workspace_event_handler_end(void *context);
+
+uint32_t get_window_id_from_cg_event(CGEventRef cgevent);

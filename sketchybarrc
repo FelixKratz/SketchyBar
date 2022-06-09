@@ -31,7 +31,7 @@ sketchybar --default updates=when_shown                    \
                      label.padding_left=4                  \
                      label.padding_right=4                 \
                      icon.padding_left=8                   \
-                     label.padding_right=8
+                     icon.padding_right=8
 
 ##### Adding Mission Control Space Indicators #####
 # Now we add some space components:

@@ -3,13 +3,14 @@
 
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
-extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint32_t *wid);
+extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint64_t *wid);
 extern CGError SLSReleaseWindow(int cid, uint32_t wid);
 extern CGError SLSSetWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
 extern CGError SLSClearWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
 extern CGError SLSSetWindowShape(int cid, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
 extern CGError SLSSetWindowResolution(int cid, uint32_t wid, double res);
 extern CGError SLSSetWindowOpacity(int cid, uint32_t wid, bool isOpaque);
+extern CGError SLSSetWindowAlpha(int cid, uint32_t wid, float alpha);
 extern CGError SLSSetWindowBackgroundBlurRadius(int cid, uint32_t wid, uint32_t radius);
 extern CGError SLSOrderWindow(int cid, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSSetWindowLevel(int cid, uint32_t wid, int level);
@@ -21,7 +22,12 @@ extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
 extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
+extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, uint32_t child_wid, int order);
+extern CGError SLSRemoveFromOrderingGroup(int cid, uint32_t wid);
 extern int SLSSpaceGetType(int cid, uint64_t sid);
+
+extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
+extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
 
 extern CGError SLSAddSurface(int cid, uint32_t wid, uint32_t* outSID);
 extern CGError SLSRemoveSurface(int cid, uint32_t wid, uint32_t sid);
@@ -37,7 +43,10 @@ extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int para
 #define kCGSSuperStickyTagBit           (1ULL << 45)
 
 struct window {
-  uint32_t id;
+  bool needs_move;
+  bool needs_resize;
+
+  uint64_t id;
   uint32_t surface_id;
 
   CGRect frame;
@@ -47,12 +56,16 @@ struct window {
 
 void window_create(struct window* window, CGRect frame);
 void window_close(struct window* window);
-void window_resize(struct window* window, CGRect frame);
-void window_freeze(struct window* window);
-void window_unfreeze(struct window* window);
+
+
+void window_set_frame(struct window* window, CGRect frame);
+bool window_apply_frame(struct window* window);
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius);
 void window_disable_shadow(struct window* window);
 void window_set_level(struct window* window, uint32_t level);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
+
+void windows_freeze();
+void windows_unfreeze();

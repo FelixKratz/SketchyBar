@@ -193,10 +193,11 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
             background->y_offset,
             token_to_int(token)    );
   }
-  else if (token_equals(property, SUB_DOMAIN_IMAGE))
+  else if (token_equals(property, SUB_DOMAIN_IMAGE)) {
     return image_load(&background->image,
                       token_to_string(get_token(&message)),
                       rsp                                  );
+  }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text,
                                                               '.'           );
@@ -211,13 +212,11 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
       else if (token_equals(subdom, SUB_DOMAIN_IMAGE))
         return image_parse_sub_domain(&background->image, rsp, entry, message);
       else {
-        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
-        printf("Invalid subdomain: %s \n", subdom.text);
+        respond(rsp, "[!] Background: Invalid subdomain '%s'\n", subdom.text);
       }
     }
     else {
-      fprintf(rsp, "Unknown property: %s \n", property.text);
-      printf("Unknown property: %s \n", property.text);
+      respond(rsp, "[!] Background: Invalid property '%s'\n", property.text);
     }
   }
   return needs_refresh;

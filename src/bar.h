@@ -13,6 +13,7 @@
 struct bar {
   bool shown;
   bool hidden;
+  bool mouse_over;
 
   uint32_t did;
   uint32_t sid;
@@ -29,6 +30,7 @@ void bar_set_hidden(struct bar* bar, bool hidden);
 void bar_calculate_bounds(struct bar* bar);
 void bar_resize(struct bar* bar);
 void bar_draw(struct bar* bar);
+void bar_order_item_windows(struct bar* bar, int mode);
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
 

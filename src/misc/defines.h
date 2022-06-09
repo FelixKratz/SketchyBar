@@ -93,6 +93,8 @@
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED                     "mouse.entered"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED                      "mouse.exited"
 #define COMMAND_SUBSCRIBE_MOUSE_CLICKED                     "mouse.clicked"
+#define COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL              "mouse.entered.global"
+#define COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL               "mouse.exited.global"
 
 #define DOMAIN_QUERY                                        "--query"
 #define COMMAND_QUERY_DEFAULT_ITEMS                         "default_menu_items"

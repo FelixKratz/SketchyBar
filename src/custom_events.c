@@ -27,6 +27,8 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_EXITED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_CLICKED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SYSTEM_WILL_SLEEP), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL), NULL);
 }
 
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification) {
