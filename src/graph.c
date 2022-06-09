@@ -143,8 +143,7 @@ bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token propert
     return true;
   } 
   else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+    respond(rsp, "[!] Graph: Invalid property '%s'\n", property.text);
   }
   return false;
 }

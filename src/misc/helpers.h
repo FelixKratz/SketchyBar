@@ -3,6 +3,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <time.h>
 #include "env_vars.h"
 #include "defines.h"
 
@@ -52,6 +53,23 @@ static inline void notification_destroy(struct notification* notification) {
   if (notification->name) free(notification->name);
   if (notification->info) free(notification->info);
   free(notification);
+}
+
+static inline void respond(FILE* rsp, char* response, ...) {
+  time_t t = time(NULL);
+  struct tm ltime = *localtime(&t);
+  printf("[%d-%02d-%02d %02d:%02d:%02d] ", ltime.tm_year + 1900,
+                                         ltime.tm_mon + 1,
+                                         ltime.tm_mday,
+                                         ltime.tm_hour,
+                                         ltime.tm_min,
+                                         ltime.tm_sec            );
+
+  va_list args;
+  va_start(args, response);
+  vfprintf(rsp, response, args);
+  vfprintf(stdout, response, args);
+  va_end(args);
 }
 
 static inline uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {

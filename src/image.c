@@ -22,8 +22,7 @@ bool image_set_enabled(struct image* image, bool enabled) {
 bool image_load(struct image* image, char* path, FILE* rsp) {
   char* res_path = resolve_path(path);
   if (!file_exists(res_path)) {
-    printf("File %s not found!\n", res_path);
-    fprintf(rsp, "File %s not found!\n", res_path);
+    respond(rsp, "[!] Image: File '%s' not found\n", res_path);
     free(res_path);
     return false;
   }

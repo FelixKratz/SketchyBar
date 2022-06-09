@@ -715,8 +715,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                              message          );
 
     else {
-      fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
-      printf("Invalid subdomain: %s \n", subdom.text);
+      respond(rsp, "[!] Item (%s): Invalid subdomain '%s'\n", bar_item->name, subdom.text);
     }
   }
   else if (token_equals(property, PROPERTY_ICON)) {
@@ -772,8 +771,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
         int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                       key_value_pair.value);
         if (item_index_for_name < 0) {
-          fprintf(rsp, "Name: %s not found in bar items \n", key_value_pair.value);
-          printf("Name: %s not found in bar items \n", key_value_pair.value);
+          respond(rsp, "[!] Item Position (%s): Item '%s' is not a valid popup host\n", bar_item->name, key_value_pair.value);
           return;
         }
         struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
@@ -831,8 +829,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
   } else {
-    fprintf(rsp, "Invalid propery: %s \n", property.text);
-    printf("Invalid propery: %s \n", property.text);
+    respond(rsp, "[!] Item (%s): Invalid property '%s' \n", bar_item->name, property.text);
   }
 
   if (needs_refresh) bar_item_needs_update(bar_item);

@@ -76,8 +76,7 @@ bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token prop
                   token_to_int(token)                );
   }
   else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+    respond(rsp, "[!] Shadow: Invalid property '%s'\n", property.text);
   }
 
   return needs_refresh;

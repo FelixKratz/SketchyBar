@@ -10,7 +10,10 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
 
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                 name.text    );
-  if (item_index_for_name < 0) return;
+  if (item_index_for_name < 0) {
+    respond(rsp, "[!] Subscribe: Item not found '%s'\n", name.text);
+    return;
+  }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
   bar_item_parse_subscribe_message(bar_item, message); 
@@ -42,7 +45,11 @@ static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                 name.text    );
-  if (item_index_for_name < 0) return;
+
+  if (item_index_for_name < 0) {
+    respond(rsp, "[!] Push: Item '%s' not found", name.text);
+    return;
+  }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
   graph_push_back(&bar_item->graph, token_to_float(y));
   bar_item_needs_update(bar_item);
@@ -56,11 +63,8 @@ static void handle_domain_rename(FILE* rsp, struct token domain, char* message) 
   int item_index_for_new_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                     new_name.text);
   if (item_index_for_old_name < 0 || item_index_for_new_name >= 0) {
-    fprintf(rsp, "Could not rename item: %s -> %s \n", old_name.text,
-                                                       new_name.text);
-
-    printf("Could not rename item: %s -> %s \n", old_name.text,
-                                                 new_name.text);
+    respond(rsp, "[!] Rename: Failed to rename item: %s -> %s\n", old_name.text,
+                                                                  new_name.text);
     return;
   }
   bar_item_set_name(g_bar_manager.bar_items[item_index_for_old_name],
@@ -79,13 +83,12 @@ static void handle_domain_clone(FILE* rsp, struct token domain, char* message) {
   if (parent_index >= 0)
     parent_item = g_bar_manager.bar_items[parent_index];
   else {
-    printf("Parent Item: %s does not exist \n", parent.text);
-    fprintf(rsp, "Parent Item: %s does not exist \n", parent.text);
+    respond(rsp, "[!] Clone: Parent Item '%s' not found\n", parent.text);
     return;
   }
 
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
-    fprintf(rsp, "Item %s already exists \n", name.text);
+    respond(rsp, "[?] Clone: Item '%s' already exists\n", name.text);
     return;
   }
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
@@ -117,7 +120,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   struct token position = get_token(&message);
 
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
-    fprintf(rsp, "Item %s already exists \n", name.text);
+    respond(rsp, "[?] Add: Item '%s' already exists\n", name.text);
     return;
   } 
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
@@ -153,15 +156,13 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
         if (index >= 0)
           group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
         else {
-          printf("Item %s not found! \n", member.text);
-          fprintf(rsp, "Item %s not found! \n", member.text);
+          respond(rsp, "[?] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
         }
         member = get_token(&message);
       }
     }
   } else {
-    printf("Command: %s not found \n", command.text);
-    fprintf(rsp, "Command: %s not found \n", command.text);
+    respond(rsp, "[!] Add %s: Invalid item type '%s'\n", bar_item->name, command.text);
     return;
   }
 
@@ -172,13 +173,11 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                     key_value_pair.value);
       if (item_index_for_name < 0) {
-        fprintf(rsp,
-                "Parent Name: %s for %s not found in bar items. Placing left instead\n",
+        respond(rsp,
+                "[!] Add (Popup) %s: Item '%s' is not a valid popup host\n",
+                bar_item->name,
                 key_value_pair.value,
                 bar_item->name                                                          );
-        printf("Parent Name: %s for %s not found in bar items. Placing left instead\n",
-                key_value_pair.value,
-                bar_item->name                                                         );
 
         free(pair);
         bar_item_set_position(bar_item, POSITION_LEFT);
@@ -265,18 +264,10 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     if (position.length > 0)
       needs_refresh = bar_manager_set_display(&g_bar_manager,
                                               position.text[0]);
-    else {
-      printf("value for %s must be either 'main' or 'all'.\n", command.text);
-      fprintf(rsp, "value for %s must be either 'main' or 'all'.\n", command.text);
-    }
   } else if (token_equals(command, PROPERTY_POSITION)) {
     struct token position = get_token(&message);
     if (position.length > 0)
       needs_refresh = bar_manager_set_position(&g_bar_manager, position.text[0]);
-    else {
-      printf("value for %s must be either 'top' or 'bottom'.\n", command.text);
-      fprintf(rsp, "value for %s must be either 'top' or 'bottom'.\n", command.text);
-    }
   }
   else
     needs_refresh = background_parse_sub_domain(&g_bar_manager.background, rsp, command, message);
@@ -328,8 +319,7 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                   name.text      );
     if (item_index_for_name < 0) {
-      fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-      printf("Name: %s not found in bar items \n", name.text);
+      respond(rsp, "[!] Query: Item '%s' not found\n", name.text);
       return;
     }
     bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
@@ -344,8 +334,7 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                   name.text      );
     if (item_index_for_name < 0) {
-      fprintf(rsp, "Not a valid query, or item: %s not found \n", name.text);
-      printf("Not a valid query, or item: %s not found \n", name.text);
+      respond(rsp, "[!] Query: Invalid query, or item '%s' not found \n", name.text);
       return;
     }
     bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
@@ -367,8 +356,7 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
     reti = regcomp(&regex, regstring, 0);
     free(regstring);
     if (reti) {
-      fprintf(rsp, "Could not compile regex: %s \n", name.text);
-      printf("Could not compile regex: %s \n", name.text);
+      respond(rsp, "[!] Remove: Could not compile regex '%s'\n", name.text);
       return;
     }
 
@@ -384,8 +372,7 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
       else if (reti != REG_NOMATCH) {
         char buf[100];
         regerror(reti, &regex, buf, sizeof(buf));
-        fprintf(rsp, "Regex match failed: %s\n", buf);
-        printf("Regex match failed: %s\n", buf);
+        respond(rsp, "[!] Remove: Regex match failed '%s'\n", buf);
         return;
       }
     }
@@ -395,8 +382,7 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
     int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                   name.text      );
     if (item_index_for_name < 0) {
-      fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-      printf("Name: %s not found in bar items \n", name.text);
+      respond(rsp, "[!] Remove: Item '%s' not found\n", name.text);
       return;
     }
     bar_items = realloc(bar_items, sizeof(struct bar_item*));
@@ -420,8 +406,7 @@ static void handle_domain_move(FILE* rsp, struct token domain, char* message) {
   int item_index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
   int reference_item_index = bar_manager_get_item_index_for_name(&g_bar_manager, reference.text);
   if (item_index < 0 || reference_item_index < 0) {
-      fprintf(rsp, "Name: %s or %s not found in bar items \n", name.text, reference.text);
-      printf("Name: %s or %s not found in bar items \n", name.text, reference.text);
+      respond(rsp, "[!] Move: Item '%s' or '%s' not found\n", name.text, reference.text);
       return;
   }
 
@@ -442,8 +427,7 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   while (name.text && name.length > 0) {
     int index = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
     if (index < 0) {
-      fprintf(rsp, "Item: %s does not exist in bar items.\n", name.text);
-      printf("Item: %s does not exist in bar items.\n", name.text);
+      respond(rsp, "[!] Order: Item '%s' not found\n", name.text);
       name = get_token(&message);
       continue;
     }
@@ -490,8 +474,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
         reti = regcomp(&regex, regstring, 0);
         free(regstring);
         if (reti) {
-          fprintf(rsp, "Could not compile regex: %s \n", name.text);
-          printf("Could not compile regex: %s \n", name.text);
+          respond(rsp, "[!] Set: Could not compile regex '%s'\n", name.text);
           break;
         }
 
@@ -505,10 +488,9 @@ void handle_message_mach(struct mach_buffer* buffer) {
             bar_items[count - 1] = bar_item;
           }
           else if (reti != REG_NOMATCH) {
-            char buf[100];
-            regerror(reti, &regex, buf, sizeof(buf));
-            fprintf(rsp, "Regex match failed: %s\n", buf);
-            printf("Regex match failed: %s\n", buf);
+            char buf[1024];
+            regerror(reti, &regex, buf, sizeof(char)*1024);
+            respond(rsp, "[?] Set: No match found for regex '%s'\n", name.text);
             break;
           }
         }
@@ -517,8 +499,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
       else {
         int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
         if (item_index_for_name < 0) {
-          fprintf(rsp, "Name: %s not found in bar items \n", name.text);
-          printf("Name: %s not found in bar items \n", name.text);
+          respond(rsp, "[!] Set: Item not found '%s'\n", name.text);
           break;
         }
         bar_items = realloc(bar_items, sizeof(struct bar_item*));
@@ -533,7 +514,10 @@ void handle_message_mach(struct mach_buffer* buffer) {
           struct token tmp = {string_copy(token.text), token.length};
           char* rbr_msg = reformat_batch_key_value_pair(tmp);
           free(tmp.text);
-          if (!rbr_msg) break;
+          if (!rbr_msg) {
+            respond(rsp, "[!] Set (%s): Expected <key>=<value> pair, but got: '%s'\n", bar_items[i]->name, token.text);
+            break;
+          }
           bar_item_parse_set_message(bar_items[i], rbr_msg, rsp);
           free(rbr_msg);
         }
@@ -545,7 +529,10 @@ void handle_message_mach(struct mach_buffer* buffer) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
+          if (!rbr_msg) {
+            respond(rsp, "[!] Set (default): Expected <key>=<value> pair, but got: '%s'\n", token.text);
+            break;
+          }
         handle_domain_default(rsp, command, rbr_msg);
         free(rbr_msg);
         if (message && message[0] == '-') break;
@@ -558,7 +545,10 @@ void handle_message_mach(struct mach_buffer* buffer) {
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
         char* rbr_msg = reformat_batch_key_value_pair(token);
-        if (!rbr_msg) break;
+        if (!rbr_msg) {
+          respond(rsp, "[!] Bar: Expected <key>=<value> pair, but got: '%s'\n", token.text);
+          break;
+        }
         bar_needs_refresh |= handle_domain_bar(rsp, command, rbr_msg);
         free(rbr_msg);
         if (message && message[0] == '-') break;
@@ -614,8 +604,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
       exit(0);
     } else {
       char* rbr_msg = get_batch_line(&message);
-      fprintf(rsp, "unknown domain %s\n", command.text);
-      printf("unknown domain %s\n", command.text);
+      respond(rsp, "[!] Unknown domain '%s'\n", command.text);
       free(rbr_msg);
     }
     command = get_token(&message);

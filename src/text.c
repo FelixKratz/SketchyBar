@@ -383,13 +383,11 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
       else if (token_equals(subdom, SUB_DOMAIN_SHADOW))
         return shadow_parse_sub_domain(&text->shadow, rsp, entry, message);
       else {
-        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
-        printf("Invalid subdomain: %s \n", subdom.text);
+        respond(rsp, "[!] Text: Invalid subdomain '%s' \n", subdom.text);
       }
     }
     else {
-      fprintf(rsp, "Unknown property: %s \n", property.text);
-      printf("Unknown property: %s \n", property.text);
+      respond(rsp, "[!] Text: Invalid property '%s'\n", property.text);
     }
   }
 

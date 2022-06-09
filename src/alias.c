@@ -8,8 +8,7 @@ void print_all_menu_items(FILE* rsp) {
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
-  printf("[\n");
-  fprintf(rsp, "[\n");
+  respond(rsp, "[\n");
   int counter = 0;
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
@@ -42,17 +41,14 @@ void print_all_menu_items(FILE* rsp) {
 
     if (strcmp(name, "") == 0) continue;
     if (counter++ > 0) {
-      fprintf(rsp, ", \n");
-      printf(", \n");
+      respond(rsp, ", \n");
     }
-    fprintf(rsp, "\t\"%s,%s\"", owner, name);
-    printf("\t\"%s,%s\"", owner, name);
+    respond(rsp, "\t\"%s,%s\"", owner, name);
 
     free(owner);
     free(name);
   }
-  printf("\n]\n");
-  fprintf(rsp, "\n]\n");
+  respond(rsp, "\n]\n");
   CFRelease(window_list);
 }
 
@@ -217,8 +213,7 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
                                      entry,
                                      message              );
     else {
-      fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
-      printf("Invalid subdomain: %s \n", subdom.text);
+      respond(rsp, "[!] Alias: Invalid subdomain '%s'\n", subdom.text);
     }
   }
   else if (token_equals(property, PROPERTY_COLOR)) {
@@ -226,8 +221,7 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
     alias->color_override = true;
     return true;
   } else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+    respond(rsp, "[!] Alias: Invalid property '%s' \n", property.text);
   }
   return false;
 }

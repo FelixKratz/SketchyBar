@@ -255,13 +255,11 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
                                            entry,
                                            message            );
       else {
-        fprintf(rsp, "Invalid subdomain: %s \n", subdom.text);
-        printf("Invalid subdomain: %s \n", subdom.text);
+        respond(rsp, "[!] Popup: Invalid subdomain '%s'\n", subdom.text);
       }
     }
     else {
-      fprintf(rsp, "Unknown property: %s \n", property.text);
-      printf("Unknown property: %s \n", property.text);
+      respond(rsp, "[!] Popup: Invalid property '%s'\n", property.text);
     }
   }
   return false;
