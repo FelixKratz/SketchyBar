@@ -1,6 +1,8 @@
 #pragma once
 #include "misc/helpers.h"
 
+extern struct bar_manager g_bar_manager;
+
 #define ANIMATE(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \

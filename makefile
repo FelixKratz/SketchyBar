@@ -1,4 +1,4 @@
-CFLAGS   = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden
+CFLAGS   = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden -fno-common
 LIBS     = -framework Carbon -framework Cocoa -F/System/Library/PrivateFrameworks -framework SkyLight
 ODIR     = bin
 SRC      = src

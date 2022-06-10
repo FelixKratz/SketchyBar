@@ -36,7 +36,6 @@ struct event_loop {
 #endif
 };
 
-struct event_loop g_event_loop;
 bool event_loop_init(struct event_loop *event_loop);
 bool event_loop_begin(struct event_loop *event_loop);
 bool event_loop_end(struct event_loop *event_loop);

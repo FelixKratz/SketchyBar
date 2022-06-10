@@ -24,6 +24,11 @@ extern int RunApplicationEventLoop(void);
 
 int g_connection;
 
+struct bar_manager g_bar_manager;
+struct event_loop g_event_loop;
+struct mach_server g_mach_server;
+void *g_workspace_context;
+
 char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_verbose;

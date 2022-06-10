@@ -42,7 +42,6 @@ struct bar_manager {
   struct animator animator;
 };
 
-struct bar_manager g_bar_manager;
 void bar_manager_init(struct bar_manager* bar_manager);
 void bar_manager_begin(struct bar_manager* bar_manager);
 void bar_manager_reset(struct bar_manager* bar_manager);
