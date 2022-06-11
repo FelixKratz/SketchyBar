@@ -835,12 +835,19 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   if (needs_refresh) bar_item_needs_update(bar_item);
 }
 
-void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message) {
+void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message, FILE* rsp) {
   struct token event = get_token(&message);
 
   while (event.text && event.length > 0) {
-    bar_item->update_mask |= custom_events_get_flag_for_name(&g_bar_manager.custom_events,
-                                                             event.text                   );
+    uint64_t event_flag = custom_events_get_flag_for_name(&g_bar_manager.custom_events,
+                                                          event.text                   );
+    bar_item->update_mask |= event_flag;
+
+    if (!event_flag) {
+      respond(rsp, "[?] Event: '%s' not found\n", event.text);
+    }
+
     event = get_token(&message);
+
   }
 }

@@ -16,7 +16,7 @@ static void handle_domain_subscribe(FILE* rsp, struct token domain, char* messag
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
 
-  bar_item_parse_subscribe_message(bar_item, message); 
+  bar_item_parse_subscribe_message(bar_item, message, rsp);
 }
 
 static void handle_domain_trigger(FILE* rsp, struct token domain, char* message) {
