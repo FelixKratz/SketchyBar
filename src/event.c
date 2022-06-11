@@ -145,7 +145,8 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
     if (bar) {
       // Handle global mouse entered event
-      if (!bar->mouse_over) {
+      if (!bar->mouse_over
+          && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
         bar->mouse_over = true;
         bar_manager_handle_mouse_entered_global(&g_bar_manager);
       }
@@ -154,9 +155,22 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
       return EVENT_SUCCESS;
     }
 
+    struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+    if (popup) {
+      // Handle global mouse entered event
+      if (!popup->mouse_over
+          && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
+        popup->mouse_over = true;
+        bar_manager_handle_mouse_entered_global(&g_bar_manager);
+      }
+      
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
     struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                             wid,
                                                             adid           );
+
     if (!bar_item) {
       CGPoint point = CGEventGetLocation(context);
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
@@ -174,15 +188,44 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     uint32_t adid = display_arrangement(display_active_display_id());
     uint32_t wid = get_window_id_from_cg_event(context);
 
-    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
-    if (bar) {
+    struct bar* bar,* bar_target;
+    struct popup* popup,* popup_target;
+    struct window* origin_window;
+    bool over_target = false;
+
+    CGPoint point = CGEventGetLocation(context);
+    if ((bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid))) {
+      origin_window = &bar->window;
+      popup_target = bar_manager_get_popup_by_point(&g_bar_manager,
+                                                           point          );
+      over_target = (popup_target != NULL);
+    }
+    else if ((popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid))) {
+      origin_window = &popup->window;
+      bar_target = bar_manager_get_bar_by_point(&g_bar_manager, point);
+      over_target = (bar_target != NULL);
+    }
+
+    if (bar || popup) {
       // Handle global mouse exited event
-      CGPoint point = CGEventGetLocation(context);
-      CGRect frame = bar->window.frame;
-      frame.origin = bar->window.origin;
-      if (!CGRectContainsPoint(frame, point)) {
-        bar->mouse_over = false;
+      CGRect frame = origin_window->frame;
+      frame.origin = origin_window->origin;
+
+      bool over_origin = CGRectContainsPoint(frame, point);
+
+      if (!over_origin && !over_target) {
+        if (bar) bar->mouse_over = false;
+        else popup->mouse_over = false;
         bar_manager_handle_mouse_exited_global(&g_bar_manager);
+      } else if (!over_origin && over_target) {
+        if (bar) {
+          bar->mouse_over = false;
+          popup_target->mouse_over = true;
+        }
+        else {
+          popup->mouse_over = false;
+          bar_target->mouse_over = true;
+        }
       }
       
       CFRelease(context);
@@ -193,8 +236,14 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
                                                             wid,
                                                             adid           );
 
+    if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
+        || bar_manager_get_bar_by_point(&g_bar_manager, point)) {
+      bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
+    } else if (bar_item) {
+      bar_item->mouse_over = false;
+    }
+
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
-    bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
     CFRelease(context);
     return EVENT_SUCCESS;
 }

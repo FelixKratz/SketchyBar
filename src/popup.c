@@ -5,6 +5,7 @@
 void popup_init(struct popup* popup) {
   popup->drawing = false;
   popup->horizontal = false;
+  popup->mouse_over = false;
   popup->overrides_cell_size = false;
   popup->anchor = (CGPoint){0, 0};
   popup->y_offset = 0;
@@ -180,6 +181,8 @@ void popup_draw(struct popup* popup) {
   SLSOrderWindow(g_connection, popup->window.id, -1, 0);
   window_set_frame(&popup->window, popup_get_frame(popup));
   window_apply_frame(&popup->window);
+  SLSRemoveAllTrackingAreas(g_connection, popup->window.id);
+  SLSAddTrackingRect(g_connection, popup->window.id, popup->window.frame);
 
   CGContextClearRect(popup->window.context, popup->background.bounds);
 
@@ -197,7 +200,8 @@ void popup_draw(struct popup* popup) {
                                              popup->background.bounds.size.height / 2.  );
 
       tracking_rect.origin.y -= tracking_rect.size.height;
-      SLSAddTrackingRect(g_connection, popup->window.id, tracking_rect);
+      // TODO: Fix tracking rects in popups
+      // SLSAddTrackingRect(g_connection, popup->window.id, tracking_rect);
     }
 
     bar_item_set_bounding_rect_for_display(bar_item,

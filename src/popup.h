@@ -9,6 +9,7 @@ struct popup {
   bool drawing;
   bool horizontal;
   bool overrides_cell_size;
+  bool mouse_over;
 
   char align;
 

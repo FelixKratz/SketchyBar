@@ -493,7 +493,7 @@ struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, ui
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (!bar_item->drawing || bar_item->num_windows < adid
-        || bar_item->windows[adid - 1] == NULL) {
+        || !bar_item->windows[adid - 1]) {
       continue;
     }
 
@@ -513,6 +513,70 @@ struct bar* bar_manager_get_bar_by_wid(struct bar_manager* bar_manager, uint32_t
     }
   }
   return NULL;
+}
+
+bool bar_manager_mouse_over_any_bar(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    if (bar_manager->bars[i]->mouse_over) return true;
+  }
+  return false;
+}
+
+struct popup* bar_manager_get_popup_by_wid(struct bar_manager* bar_manager, uint32_t wid) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (!bar_item->drawing || !bar_item->popup.drawing) {
+      continue;
+    }
+
+    struct window* window = &bar_item->popup.window;
+
+    if (window->id == wid) {
+      return &bar_item->popup;
+    }
+  }
+  return NULL;
+}
+
+struct popup* bar_manager_get_popup_by_point(struct bar_manager* bar_manager, CGPoint point) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (!bar_item->drawing || !bar_item->popup.drawing) {
+      continue;
+    }
+
+    struct window* window = &bar_item->popup.window;
+
+    CGRect frame = window->frame;
+    frame.origin = window->origin;
+
+    if (CGRectContainsPoint(frame, point)) return &bar_item->popup;
+  }
+  return NULL;
+
+}
+
+struct bar* bar_manager_get_bar_by_point(struct bar_manager* bar_manager, CGPoint point) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    struct window* window = &bar_manager->bars[i]->window;
+
+    CGRect frame = window->frame;
+    frame.origin = window->origin;
+
+    if (CGRectContainsPoint(frame, point)) return bar_manager->bars[i];
+  }
+  return NULL;
+}
+
+bool bar_manager_mouse_over_any_popup(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    if (!bar_item->drawing || !bar_item->popup.drawing) {
+      continue;
+    }
+    if (bar_item->popup.mouse_over) return true;
+  }
+  return false;
 }
 
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name, struct env_vars* env_vars) {

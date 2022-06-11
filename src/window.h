@@ -46,7 +46,7 @@ struct window {
   bool needs_move;
   bool needs_resize;
 
-  uint64_t id;
+  uint32_t id;
   uint32_t surface_id;
 
   CGRect frame;
