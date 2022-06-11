@@ -81,6 +81,11 @@ bool animation_update(struct animation* animation) {
     return false;
   }
 
+  if (animation->offset > 0) {
+    animation->offset--;
+    return false;
+  } 
+
   double slider = animation->interp_function((double)animation->counter
                              / (double)animation->duration);
 
@@ -126,7 +131,25 @@ void animator_init(struct animator* animator) {
   animator->duration = 0;
 }
 
+void animator_calculate_offset_for_animation(struct animator* animator, struct animation* animation) {
+  if (animator->animation_count < 1) return;
+
+  uint32_t offset = 0;
+  struct animation* previous = NULL;
+  for (uint32_t i = 0; i < animator->animation_count; i++) {
+    struct animation* current = animator->animations[i];
+    if (current->target == animation->target
+        && current->update_function == animation->update_function) {
+      offset += current->duration - current->counter;
+      previous = current;
+    }
+  }
+  animation->offset = offset;
+  if (previous) animation->initial_value = previous->final_value;
+}
+
 void animator_add(struct animator* animator, struct animation* animation) {
+  animator_calculate_offset_for_animation(animator, animation);
   animator->animations = realloc(animator->animations,
                                  sizeof(struct animaton*)
                                         * ++animator->animation_count);

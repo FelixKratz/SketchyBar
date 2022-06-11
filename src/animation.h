@@ -57,6 +57,7 @@ struct animation {
 
   uint32_t duration;
   uint32_t counter;
+  uint32_t offset;
 
   int initial_value;
   int final_value;
