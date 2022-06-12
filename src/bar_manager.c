@@ -32,6 +32,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->topmost = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
+  bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_arrangement(display_active_display_id());
 
   background_init(&bar_manager->background);
@@ -214,6 +215,13 @@ bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width
   if (bar_manager->notch_width == width) return false;
 
   bar_manager->notch_width = width;
+  return true;
+}
+
+bool bar_manager_set_notch_offset(struct bar_manager* bar_manager, uint32_t offset) {
+  if (bar_manager->notch_offset == offset) return false;
+
+  bar_manager->notch_offset = offset;
   return true;
 }
 

@@ -158,9 +158,9 @@ void bar_draw(struct bar* bar) {
 void bar_calculate_bounds(struct bar* bar) {
   if (bar->hidden) return;
   if (bar->sid == 0) return;
-  uint32_t notch_width = CGDisplayIsBuiltin(bar->did)
-                         ? g_bar_manager.notch_width
-                         : 0;
+
+  bool is_builtin = CGDisplayIsBuiltin(bar->did);
+  uint32_t notch_width = is_builtin ? g_bar_manager.notch_width : 0;
 
   uint32_t center_length = bar_manager_length_for_bar_side(&g_bar_manager,
                                                            bar,
@@ -270,17 +270,21 @@ void bar_calculate_bounds(struct bar* bar) {
 }
 
 CGRect bar_get_frame(struct bar *bar) {
+  bool is_builtin = CGDisplayIsBuiltin(bar->did);
+  int notch_offset = is_builtin ? g_bar_manager.notch_offset : 0;
+
+
   CGRect bounds = display_bounds(bar->did);
   bounds.size.width -= 2*g_bar_manager.margin;
   CGPoint origin = bounds.origin;
   origin.x += g_bar_manager.margin;
-  origin.y += g_bar_manager.y_offset;
+  origin.y += g_bar_manager.y_offset + notch_offset;
 
 
   if (g_bar_manager.position == POSITION_BOTTOM) {
     origin.y = CGRectGetMaxY(bounds)
                - g_bar_manager.background.bounds.size.height
-               - 2*g_bar_manager.y_offset;
+               - 2*(g_bar_manager.y_offset + notch_offset);
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
     origin.y += menu.size.height;

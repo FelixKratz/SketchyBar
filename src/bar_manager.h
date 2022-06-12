@@ -26,6 +26,7 @@ struct bar_manager {
   int margin;
   uint32_t blur_radius;
   uint32_t notch_width;
+  uint32_t notch_offset;
   uint32_t active_adid;
   uint32_t window_level;
 
@@ -66,6 +67,7 @@ bool bar_manager_set_topmost(struct bar_manager* bar_manager, bool topmost);
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow);
 bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
 bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width);
+bool bar_manager_set_notch_offset(struct bar_manager* bar_manager, uint32_t offset);
 void bar_manager_sort(struct bar_manager* bar_manager, struct bar_item** ordering, uint32_t count);
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid);

@@ -82,6 +82,7 @@
 #define PROPERTY_SHADOW                                     "shadow"
 #define PROPERTY_ALIGN                                      "align"
 #define PROPERTY_NOTCH_WIDTH                                "notch_width"
+#define PROPERTY_NOTCH_OFFSET                               "notch_offset"
 #define PROPERTY_HORIZONTAL                                 "horizontal"
 
 #define DOMAIN_SUBSCRIBE                                    "--subscribe"
