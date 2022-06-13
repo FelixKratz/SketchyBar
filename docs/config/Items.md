@@ -154,7 +154,7 @@ sketchybar --move <name> after <reference name>
 ### Item Cloning
 It is possible to clone another item instead of adding a completely blank item
 ```bash 
-sketchybar --clone <name> <parent name> [optional: before/after]
+sketchybar --clone <parent name> <name> [optional: before/after]
 ```
 the new item will inherit *all* properties of the parent item. The optional *before* and *after* modifiers can be used
 to move the item *before*, or *after* the parent, equivalently to a --move command.

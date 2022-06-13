@@ -27,3 +27,9 @@ Information about the events.
 ```bash
 sketchybar --query events
 ```
+
+### macOS Menu Bar Item Names (for use with aliases)
+The names of the menu bar items in the default macOS bar:
+```bash
+sketchybar --query default_menu_items
+```

@@ -36,6 +36,8 @@ where possible settings are:
 | `blur_radius`    | `<positive_integer>`   | `0`          | Blur radius applied to the background of the bar            |
 | `padding_left`   | `<positive_integer>`   | `0`          | Padding between the left bar border and the leftmost item   |
 | `padding_right`  | `<positive_integer>`   | `0`          | Padding between the right bar border and the rightmost item |
+| `notch_width`    | `<positive_integer>`   | `200`        | The width of the notch to be accounted for on the internal display |
+| `notch_offset`   | `<positive_integer>`   | `0`          | Additional `y_offset` exclusively applied to notched screens (Only on HEAD) |
 | `display`        | `main`, `all`          | `all`        | Display to show the bar on                                  |
 | `hidden`         | `<boolean>`, `current` | `off`        | If all / the current bar is hidden                          |
 | `topmost`        | `<boolean>`            | `off`        | If the bar should be drawn on top of `everything`           |
