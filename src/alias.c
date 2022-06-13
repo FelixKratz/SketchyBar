@@ -54,8 +54,18 @@ void print_all_menu_items(FILE* rsp) {
 
 void alias_get_permission(struct alias* alias) { 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 
-  if (__builtin_available(macOS 11.0, *))
+  if (__builtin_available(macOS 11.0, *)) {
     alias->permission = CGRequestScreenCaptureAccess();
+  }
+#else
+  if(__builtin_available(macos 10.15, *)) {
+    CGImageRef img = CGWindowListCreateImage(CGRectMake(0, 0, 1, 1),
+                                             kCGWindowListOptionOnScreenOnly,
+                                             kCGNullWindowID,
+                                             kCGWindowImageDefault           );
+
+    CFRelease(img);
+  }
 #endif
 }
 
