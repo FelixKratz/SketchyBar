@@ -65,11 +65,14 @@ static inline void respond(FILE* rsp, char* response, ...) {
                                          ltime.tm_min,
                                          ltime.tm_sec            );
 
-  va_list args;
-  va_start(args, response);
-  vfprintf(rsp, response, args);
-  vfprintf(stdout, response, args);
-  va_end(args);
+  va_list args_rsp;
+  va_list args_stdout;
+  va_start(args_rsp, response);
+  va_copy(args_stdout, args_rsp);
+  vfprintf(rsp, response, args_rsp);
+  vfprintf(stdout, response, args_stdout);
+  va_end(args_rsp);
+  va_end(args_stdout);
 }
 
 static inline uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
