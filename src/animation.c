@@ -5,6 +5,10 @@ double function_linear(double x) {
   return x;
 }
 
+double function_square(double x) {
+  return x*x;
+}
+
 double function_tanh(double x) {
   double result = tanh(2.647 * x);
   return result >= 0.99 ? 1. : result;
@@ -63,6 +67,8 @@ void animation_setup(struct animation* animation, void* target, animator_functio
     animation->interp_function = &function_tanh;
   } else if (interp_function == INTERP_FUNCTION_SIN) {
     animation->interp_function = &function_sin;
+  } else if (interp_function == INTERP_FUNCTION_QUADRATIC) {
+    animation->interp_function = &function_square;
   } else if (interp_function == INTERP_FUNCTION_BOUNCE) {
     animation->interp_function = &function_bounce;
   } else if (interp_function == INTERP_FUNCTION_EXP) {

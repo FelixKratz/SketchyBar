@@ -45,6 +45,7 @@ typedef ANIMATOR_FUNCTION(animator_function);
 typedef ANIMATION_FUNCTION(animation_function);
 
 #define INTERP_FUNCTION_LINEAR       'l'
+#define INTERP_FUNCTION_QUADRATIC    'q'
 #define INTERP_FUNCTION_SIN          's'
 #define INTERP_FUNCTION_TANH         't'
 #define INTERP_FUNCTION_BOUNCE       'b'
