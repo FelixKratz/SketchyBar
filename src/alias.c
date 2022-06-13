@@ -8,7 +8,7 @@ void print_all_menu_items(FILE* rsp) {
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
-  respond(rsp, "[\n");
+  fprintf(rsp, "[\n");
   int counter = 0;
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
@@ -21,12 +21,8 @@ void print_all_menu_items(FILE* rsp) {
                                                      kCGWindowOwnerPID);
 
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
-    if (!name_ref) continue;
-    if (!owner_ref) continue;
-    if (!owner_pid_ref) continue;
-
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
-    if (!layer_ref) continue;
+    if (!name_ref || !owner_ref || !owner_pid_ref || !layer_ref) continue;
 
     long long int layer = 0;
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
@@ -39,16 +35,17 @@ void print_all_menu_items(FILE* rsp) {
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    if (strcmp(name, "") == 0) continue;
-    if (counter++ > 0) {
-      respond(rsp, ", \n");
+    if (strcmp(name, "") != 0) {
+      if (counter++ > 0) {
+        fprintf(rsp, ", \n");
+      }
+      fprintf(rsp, "\t\"%s,%s\"", owner, name);
     }
-    respond(rsp, "\t\"%s,%s\"", owner, name);
 
     free(owner);
     free(name);
   }
-  respond(rsp, "\n]\n");
+  fprintf(rsp, "\n]\n");
   CFRelease(window_list);
 }
 
