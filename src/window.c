@@ -56,12 +56,16 @@ void windows_unfreeze() {
 }
 
 void window_set_frame(struct window* window, CGRect frame) {
-  if (!CGPointEqualToPoint(window->origin, frame.origin)) {
+  if (window->needs_move
+      || !CGPointEqualToPoint(window->origin, frame.origin)) {
+
     window->needs_move = true;
     window->origin = frame.origin;
   }
 
-  if (!CGSizeEqualToSize(window->frame.size, frame.size)) {
+  if (window->needs_resize
+      || !CGSizeEqualToSize(window->frame.size, frame.size)) {
+
     window->needs_resize = true;
     window->frame.size = frame.size;
   }
@@ -75,8 +79,6 @@ bool window_apply_frame(struct window* window) {
                       window->origin.x,
                       window->origin.y,
                       frame_region     );
-
-    SLSRemoveAllTrackingAreas(g_connection, window->id);
 
     CFRelease(frame_region);
     window->needs_move = false;

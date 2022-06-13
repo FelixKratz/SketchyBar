@@ -149,6 +149,23 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
       struct token member = position;
+
+      int index = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                      member.text    );
+
+      if (index > 0
+          && g_bar_manager.bar_items[index]->position == POSITION_POPUP) {
+
+        popup_add_item(&g_bar_manager.bar_items[index]->parent->popup,
+                       bar_item                                       );
+        bar_item->position = POSITION_POPUP;
+      }
+      if (index >= 0)
+        group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
+      else {
+        respond(rsp, "[?] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
+      }
+      member = get_token(&message);
       while (member.text && member.length > 0) {
         
         int index = bar_manager_get_item_index_for_name(&g_bar_manager,

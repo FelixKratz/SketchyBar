@@ -15,6 +15,7 @@ void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->signal_args.env_vars.vars = NULL;
   bar_item->signal_args.env_vars.count = 0;
   bar_item->windows = NULL;
+  bar_item->popup.host = bar_item;
   bar_item->num_windows = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
@@ -93,8 +94,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->custom_width = 0;
 
   bar_item->y_offset = 0;
-  bar_item->group = NULL;
-
   
   bar_item->has_alias = false;
   bar_item->has_graph = false;
@@ -103,11 +102,14 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->script = NULL;
   bar_item->click_script = NULL;
 
+  bar_item->group = NULL;
+  bar_item->parent = NULL;
+
   text_init(&bar_item->icon);
   text_init(&bar_item->label);
   background_init(&bar_item->background);
   env_vars_init(&bar_item->signal_args.env_vars);
-  popup_init(&bar_item->popup);
+  popup_init(&bar_item->popup, bar_item);
   graph_init(&bar_item->graph);
   alias_init(&bar_item->alias);
   
@@ -450,15 +452,6 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   return bounding_rect;
 }
 
-void bar_item_set_bounding_rect_for_display(struct bar_item* bar_item, uint32_t adid, CGPoint bar_origin, uint32_t height) {
-  if (adid <= 0) return;
-  CGRect rect = CGRectInset(bar_item_construct_bounding_rect(bar_item), -1,-1);
-  struct window* window = bar_item_get_window(bar_item, adid);
-  window->origin.x = rect.origin.x + bar_origin.x;
-  window->origin.y = -rect.origin.y - rect.size.height + bar_origin.y + height;
-  window->frame.size = rect.size;
-}
-
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
   uint32_t content_x = x;
   uint32_t content_y = y;
@@ -776,7 +769,9 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
         }
         struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];
         popup_add_item(&target_item->popup, bar_item);
-      } 
+      } else {
+        bar_item->parent = NULL;
+      }
     }
     needs_refresh = true;
   } else if (token_equals(property, PROPERTY_ALIGN)) {

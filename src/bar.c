@@ -12,17 +12,24 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
+
     if (bar_item->associated_display > 0
         && (!(bar_item->associated_display & (1 << bar->adid)))
             && !bar_item->ignore_association)
       return false;
+
     if (bar_item->associated_space > 0
         && (!(bar_item->associated_space & (1 << bar->sid))
             && !bar_item->ignore_association)
         && (bar_item->type != BAR_COMPONENT_SPACE)        )
       return false;
-    if (bar_item->position == POSITION_POPUP)
+
+    if (bar_item->position == POSITION_POPUP
+        && (!bar_item->parent
+            || !bar_item->parent->popup.drawing
+            || (bar->adid != g_bar_manager.active_adid)))
       return false;
+
     return true;
 }
 
@@ -32,7 +39,6 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   if (!bar_item->popup.overrides_cell_size)
     bar_item->popup.cell_size = window->frame.size.height;
 
-  bool needs_recalculation = bar_item->popup.adid != bar->adid;
   popup_calculate_bounds(&bar_item->popup);
 
   CGPoint anchor = window->origin;
@@ -50,9 +56,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
               : window->frame.size.height);
 
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
-  if (needs_recalculation) {
-    popup_calculate_bounds(&bar_item->popup);
-  }
+  popup_calculate_bounds(&bar_item->popup);
 }
 
 void bar_order_item_windows(struct bar* bar, int mode) {
@@ -61,9 +65,11 @@ void bar_order_item_windows(struct bar* bar, int mode) {
   struct window* previous_window = NULL;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    if (bar_item->position == POSITION_POPUP) continue;
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
     SLSRemoveFromOrderingGroup(g_connection, window->id);
+
     window_set_level(window, g_bar_manager.window_level);
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
@@ -112,11 +118,6 @@ void bar_draw(struct bar* bar) {
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
-
-    if (bar_item->position == POSITION_POPUP) {
-      continue;
-    }
-
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
     bar_item_remove_associated_bar(bar_item, bar->adid);
@@ -186,7 +187,8 @@ void bar_calculate_bounds(struct bar* bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
     if (!bar_draws_item(bar, bar_item)
-        || bar_item->type == BAR_COMPONENT_GROUP) {
+        || bar_item->type == BAR_COMPONENT_GROUP
+        || bar_item->position == POSITION_POPUP ) {
       continue;
     } 
 
@@ -203,8 +205,7 @@ void bar_calculate_bounds(struct bar* bar) {
       next_position = &bar_center_right_first_item_x;
     else if (bar_item->position == POSITION_CENTER_LEFT)
       next_position = &bar_center_left_first_item_x, rtl = true;
-    else
-      continue;
+    else continue;
 
     if (bar_item->position == POSITION_RIGHT
         || bar_item->position == POSITION_CENTER_LEFT) {
