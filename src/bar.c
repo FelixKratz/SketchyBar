@@ -11,7 +11,7 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 }
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
-    if (!bar_item->drawing || !bar->shown) return false;
+    if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
     if (bar_item->associated_display > 0
         && (!(bar_item->associated_display & (1 << bar->adid)))
             && !bar_item->ignore_association)
@@ -156,7 +156,6 @@ void bar_draw(struct bar* bar) {
 }
 
 void bar_calculate_bounds(struct bar* bar) {
-  if (bar->hidden) return;
   if (bar->sid == 0) return;
 
   bool is_builtin = CGDisplayIsBuiltin(bar->did);
@@ -306,9 +305,13 @@ void bar_resize(struct bar* bar) {
 
 void bar_set_hidden(struct bar* bar, bool hidden) {
   if (bar->hidden == hidden) return;
-  if (hidden) window_close(&bar->window);
-  else bar_create_window(bar);
   bar->hidden = hidden;
+  
+  if (hidden) {
+    SLSMoveWindow(g_connection, bar->window.id, &g_nirvana);
+    bar->window.origin = g_nirvana;
+  }
+  else bar_resize(bar);
 }
 
 void bar_create_window(struct bar* bar) {

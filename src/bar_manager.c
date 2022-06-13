@@ -251,6 +251,8 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
       popup_set_drawing(&bar_manager->bar_items[i]->popup, false);
     }
   }
+
+  bar_manager->bar_needs_update = true;
   return true;
 }
 
