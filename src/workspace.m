@@ -77,7 +77,7 @@ uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
 - (void) allDistributedNotifications:(NSNotification *)note {
     struct notification* notification = notification_create();
     notification->name = string_copy((char*)[[note name] UTF8String]);
-    if (note.userInfo) {
+    if (note.userInfo && [NSJSONSerialization isValidJSONObject:note.userInfo]) {
       NSData* data = [NSJSONSerialization dataWithJSONObject:note.userInfo options:NSJSONWritingPrettyPrinted error:NULL];
       if (data) notification->info = string_copy((char*)[data bytes]);
     }
