@@ -33,6 +33,8 @@ struct rgba_color {
 static struct rgba_color g_transparent = { 0 };
 static CGPoint g_nirvana = {-9999, -9999};
 
+static double deg_to_rad = 2.* M_PI / 360.;
+
 struct token {
     char *text;
     unsigned int length;

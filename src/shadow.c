@@ -5,6 +5,10 @@ void shadow_init(struct shadow* shadow) {
   shadow->enabled = false;
   shadow->angle = 30;
   shadow->distance = 5;
+  shadow->offset.x = ((float)shadow->distance)
+                      *cos(((double)shadow->angle)*deg_to_rad);
+  shadow->offset.y = -((float)shadow->distance)
+                       *sin(((double)shadow->angle)*deg_to_rad);
   shadow->color = rgba_color_from_hex(0xff000000);
 }
 
@@ -17,12 +21,18 @@ bool shadow_set_enabled(struct shadow* shadow, bool enabled) {
 bool shadow_set_angle(struct shadow* shadow, uint32_t angle) {
   if (shadow->angle == angle) return false;
   shadow->angle = angle;
+  shadow->offset.x = ((float)shadow->distance)*cos(((double)shadow->angle)*deg_to_rad);
+  shadow->offset.y = -((float)shadow->distance)*sin(((double)shadow->angle)*deg_to_rad);
   return true;
 }
 
 bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
   if (shadow->distance == distance) return false;
   shadow->distance = distance;
+  shadow->offset.x = ((float)shadow->distance)
+                      *cos(((double)shadow->angle)*deg_to_rad);
+  shadow->offset.y = -((float)shadow->distance)
+                      *sin(((double)shadow->angle)*deg_to_rad);
   return true;
 }
 
@@ -38,13 +48,9 @@ bool shadow_set_color(struct shadow* shadow, uint32_t color) {
 }
 
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
-  return (CGRect){{reference_bounds.origin.x
-                    + shadow->distance*cos(((double)shadow->angle)/360.
-                    * 2.* M_PI                                         ),
-                   reference_bounds.origin.y
-                    - shadow->distance* sin(((double)shadow->angle)/360.
-                    * 2.* M_PI                                          )},
-                   reference_bounds.size                                   };
+  return (CGRect){{reference_bounds.origin.x + shadow->offset.x,
+                   reference_bounds.origin.y + shadow->offset.y },
+                   reference_bounds.size                          };
 }
 
 bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {

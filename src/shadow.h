@@ -6,6 +6,7 @@ struct shadow {
 
   uint32_t angle;
   uint32_t distance;
+  CGPoint offset;   
 
   struct rgba_color color;
 };

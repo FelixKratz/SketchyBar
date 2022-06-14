@@ -234,11 +234,11 @@ void text_destroy(struct text* text) {
 
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   if (text->align == POSITION_CENTER && text->has_const_width)
-    text->bounds.origin.x = x + (text->custom_width
-                                 - text_get_length(text, true)) / 2;
+    text->bounds.origin.x = (int)x + ((int)text->custom_width
+                                 - (int)text_get_length(text, true)) / 2;
   else if (text->align == POSITION_RIGHT && text->has_const_width)
-    text->bounds.origin.x = x + text->custom_width
-                            - text_get_length(text, true);
+    text->bounds.origin.x = (int)x + (int)text->custom_width
+                            - (int)text_get_length(text, true);
   else
     text->bounds.origin.x = x;
 
