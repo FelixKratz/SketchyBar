@@ -46,7 +46,7 @@ void popup_order_windows(struct popup* popup, int mode) {
       SLSAddWindowToWindowOrderingGroup(g_connection,
                                         popup->window.id,
                                         window->id,
-                                        1              );
+                                        1                );
       continue;
     }
 
@@ -239,6 +239,9 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
 
   if (adid > 0 && (popup->adid != adid)) {
     popup->needs_ordering = true;
+    for (int i = 0; i < popup->num_items; i++) {
+      bar_item_needs_update(popup->items[i]);
+    }
   }
 
   popup->adid = adid;
@@ -255,13 +258,7 @@ bool popup_set_drawing(struct popup* popup, bool drawing) {
 void popup_draw(struct popup* popup) {
   if (!popup->drawing || popup->adid <= 0) return;
 
-  if (popup->needs_ordering) {
-    popup_order_windows(popup, 1);
-    popup->needs_ordering = false;
-  }
-
   window_apply_frame(&popup->window);
-
   CGContextClearRect(popup->window.context, popup->background.bounds);
 
   SLSRemoveAllTrackingAreas(g_connection, popup->window.id);
@@ -273,6 +270,11 @@ void popup_draw(struct popup* popup) {
   popup->background.shadow.enabled = shadow;
 
   CGContextFlush(popup->window.context);
+
+  if (popup->needs_ordering) {
+    popup_order_windows(popup, 1);
+    popup->needs_ordering = false;
+  }
 }
 
 void popup_destroy(struct popup* popup) {

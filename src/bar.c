@@ -36,6 +36,7 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
 void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
   if (bar->adid != g_bar_manager.active_adid) return;
   struct window* window = bar_item_get_window(bar_item, bar->adid);
+
   if (!bar_item->popup.overrides_cell_size)
     bar_item->popup.cell_size = window->frame.size.height;
 

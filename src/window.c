@@ -14,7 +14,7 @@ void window_create(struct window* window, CGRect frame) {
   window->frame.origin = (CGPoint){0, 0};
   window->frame.size = frame.size;
 
-  frame.origin = (CGPoint){0, 0};
+  frame.origin = CGPointZero;
   CFTypeRef frame_region = window_create_region(window, frame);
   uint64_t id;
   SLSNewWindow(g_connection, 2, window->origin.x, window->origin.y,

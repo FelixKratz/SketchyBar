@@ -153,7 +153,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       int index = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                       member.text    );
 
-      if (index > 0
+      if (index >= 0
           && g_bar_manager.bar_items[index]->position == POSITION_POPUP) {
 
         popup_add_item(&g_bar_manager.bar_items[index]->parent->popup,

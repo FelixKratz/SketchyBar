@@ -433,6 +433,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
 }
 
 void bar_manager_reset(struct bar_manager* bar_manager) {
+  bar_manager_reset_bar_association(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; i++) {
     for (int j = 0; j < bar_manager->bar_item_count; j++) {
       struct bar_item* bar_item = bar_manager->bar_items[j];
