@@ -237,6 +237,9 @@ void bar_calculate_bounds(struct bar* bar) {
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
 
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+      CGPoint shadow_offsets =
+                bar_item_calculate_shadow_offsets(bar_item->group->members[0]);
+
       uint32_t group_length = group_get_length(bar_item->group);
       uint32_t group_offset = (bar_item->position == POSITION_RIGHT
                                || bar_item->position == POSITION_CENTER_LEFT)
@@ -246,9 +249,11 @@ void bar_calculate_bounds(struct bar* bar) {
                               : 0;
 
       CGRect group_frame = {{frame.origin.x - group_offset,
-                             frame.origin.y                        },
-                            {group_length,
-                             frame.size.height}                      };
+                             frame.origin.y},
+                            {group_length
+                              + shadow_offsets.x
+                              + shadow_offsets.y,
+                             frame.size.height}            };
       
       window_set_frame(bar_item_get_window(bar_item->group->members[0],
                                            bar->adid                   ),
