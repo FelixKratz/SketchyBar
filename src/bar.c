@@ -219,20 +219,19 @@ void bar_calculate_bounds(struct bar* bar) {
 
     bar_item->graph.rtl = rtl;
 
-    int shadow_offset = (bar_item->background.shadow.enabled
-                         ? -bar_item->background.shadow.offset.x
-                         : 0);
-
+    CGPoint shadow_offsets = bar_item_calculate_shadow_offsets(bar_item);
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
                                  bar->window.frame.size.height
                                  - (g_bar_manager.background.border_width + 1),
-                                 shadow_offset > 0 ? shadow_offset : 0,
+                                 (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
                                  y                                           );
 
     CGRect frame = {{bar->window.origin.x + *next_position
-                    - (shadow_offset > 0 ? shadow_offset : 0),
+                    - (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
                      bar->window.origin.y                         },
-                    {bar_item_display_length + abs(shadow_offset),
+                    {bar_item_display_length
+                      + shadow_offsets.x
+                      + shadow_offsets.y,
                      bar->window.frame.size.height}                 };
 
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);

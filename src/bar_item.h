@@ -110,6 +110,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid);
 void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid);
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
 
+CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 

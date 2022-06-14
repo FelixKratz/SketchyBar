@@ -436,6 +436,42 @@ void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
   }
 }
 
+CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item) {
+  CGPoint offset; 
+  offset.x = (int)((bar_item->background.shadow.enabled
+                ? max(-bar_item->background.shadow.offset.x, 0)
+                : 0)
+             + (bar_item->icon.shadow.enabled
+                ? max(-bar_item->icon.shadow.offset.x, 0)
+                : 0)
+             + (bar_item->icon.background.shadow.enabled
+                ? max(-bar_item->icon.background.shadow.offset.x, 0)
+                : 0)
+             + (bar_item->label.background.shadow.enabled
+                ? max(-bar_item->label.background.shadow.offset.x, 0)
+                : 0)
+             + (bar_item->label.shadow.enabled
+                ? max(-bar_item->label.shadow.offset.x, 0)
+                : 0));
+
+  offset.y = (int)((bar_item->background.shadow.enabled
+                 ? max(bar_item->background.shadow.offset.x,0)
+                 : 0)
+              + (bar_item->icon.shadow.enabled
+                 ? max(bar_item->icon.shadow.offset.x, 0)
+                 : 0)
+              + (bar_item->icon.background.shadow.enabled
+                 ? max(bar_item->icon.background.shadow.offset.x, 0)
+                 : 0)
+              + (bar_item->label.background.shadow.enabled
+                 ? max(bar_item->label.background.shadow.offset.x, 0)
+                 : 0)
+              + (bar_item->label.shadow.enabled
+                 ? max(bar_item->label.shadow.offset.x, 0)
+                 : 0));
+  return offset;
+}
+
 CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
   CGRect bounding_rect;
   bounding_rect.origin = bar_item->icon.bounds.origin;
