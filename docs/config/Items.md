@@ -13,7 +13,7 @@ Items are the main building blocks of *SketchyBar* and can be configured in a nu
 sketchybar --add item <name> <position>
 ```
 where the `<name>` should not contain whitespaces (or must be quoted), it is later used to refer to this item in the configuration.
-The `<position>` is the placement in the bar and can be either `left`, `right`, `center``or `q` (which is left of the notch) and `e` (which is right of the notch).
+The `<position>` is the placement in the bar and can be either `left`, `right`, `center` or `q` (which is left of the notch) and `e` (which is right of the notch).
 The items will appear in the bar in the order in which they are added, but can be moved later on.
 
 | `<name>`     | `<string>`                                                                                        |
