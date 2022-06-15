@@ -334,7 +334,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
       bar_calculate_bounds(bar_manager->bars[i]);
       bar_draw(bar_manager->bars[i]);
       if (bar_manager->needs_ordering) {
-        bar_order_item_windows(bar_manager->bars[i], 1);
+        bar_order_item_windows(bar_manager->bars[i]);
       }
     }
   }

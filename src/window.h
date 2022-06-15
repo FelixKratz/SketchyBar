@@ -42,6 +42,9 @@ extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int para
 #define kCGSStickyTagBit                (1ULL << 11)
 #define kCGSSuperStickyTagBit           (1ULL << 45)
 
+#define W_ABOVE 1
+#define W_BELOW -1
+
 struct window {
   bool needs_move;
   bool needs_resize;
@@ -54,16 +57,21 @@ struct window {
   CGContextRef context;
 };
 
+void window_init(struct window* window);
 void window_create(struct window* window, CGRect frame);
 void window_close(struct window* window);
 
-
+void window_move(struct window* window, CGPoint point);
 void window_set_frame(struct window* window, CGRect frame);
 bool window_apply_frame(struct window* window);
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius);
 void window_disable_shadow(struct window* window);
 void window_set_level(struct window* window, uint32_t level);
+void window_order(struct window* window, struct window* parent, int mode);
+void window_assign_mouse_tracking_area(struct window* window, CGRect rect);
+
+CGImageRef window_capture(struct window* window);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
 

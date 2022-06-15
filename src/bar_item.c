@@ -413,6 +413,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
 
     bar_item->num_windows = adid;
   }
+
   if (!bar_item->windows[adid - 1]) {
     bar_item->windows[adid - 1] = malloc(sizeof(struct window));
     window_create(bar_item->windows[adid - 1],
@@ -420,9 +421,6 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
     window_disable_shadow(bar_item->windows[adid - 1]);
     context_set_font_smoothing(bar_item->windows[adid - 1]->context,
                                g_bar_manager.font_smoothing         );
-
-    window_set_level(bar_item->windows[adid - 1],
-                     g_bar_manager.window_level);
   }
 
   return bar_item->windows[adid - 1];

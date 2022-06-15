@@ -13,7 +13,8 @@ struct alias {
   char* owner;
 
   pid_t pid;
-  uint64_t wid;
+
+  struct window window;
 
   bool color_override;
   struct rgba_color color;

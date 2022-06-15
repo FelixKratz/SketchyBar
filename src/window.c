@@ -1,5 +1,15 @@
 #include "window.h"
 
+void window_init(struct window* window) {
+  window->context = NULL;
+  window->frame = CGRectNull;
+  window->id = 0;
+  window->origin = CGPointZero;
+  window->surface_id = 0;
+  window->needs_move = false;
+  window->needs_resize = false;
+}
+
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
   CFTypeRef frame_region;
   CGSNewRegionWithRect(&frame, &frame_region);
@@ -11,7 +21,7 @@ void window_create(struct window* window, CGRect frame) {
   uint64_t clear_tags = kCGSSuperStickyTagBit;
 
   window->origin = frame.origin;
-  window->frame.origin = (CGPoint){0, 0};
+  window->frame.origin = CGPointZero;
   window->frame.size = frame.size;
 
   frame.origin = CGPointZero;
@@ -71,6 +81,11 @@ void window_set_frame(struct window* window, CGRect frame) {
   }
 }
 
+void window_move(struct window* window, CGPoint point) {
+  window->origin = point;
+  SLSMoveWindow(g_connection, window->id, &point);
+}
+
 bool window_apply_frame(struct window* window) {
   if (window->needs_resize) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
@@ -85,8 +100,7 @@ bool window_apply_frame(struct window* window) {
     window->needs_resize = false;
     return true;
   } else if (window->needs_move) {
-    CGPoint origin = window->origin;
-    SLSMoveWindow(g_connection, window->id, &origin);
+    window_move(window, window->origin);
     window->needs_move = false;
     return false;
   }
@@ -107,6 +121,24 @@ void window_close(struct window* window) {
 
 void window_set_level(struct window* window, uint32_t level) {
   SLSSetWindowLevel(g_connection, window->id, level);
+}
+
+void window_order(struct window* window, struct window* parent, int mode) {
+  SLSRemoveFromOrderingGroup(g_connection, window->id);
+  if (parent) {
+    SLSOrderWindow(g_connection, window->id, mode, parent->id);
+    SLSAddWindowToWindowOrderingGroup(g_connection,
+                                      parent->id,
+                                      window->id,
+                                      mode         );
+  } else {
+    SLSOrderWindow(g_connection, window->id, mode, 0);
+  }
+}
+
+void window_assign_mouse_tracking_area(struct window* window, CGRect rect) {
+  SLSRemoveAllTrackingAreas(g_connection, window->id);
+  SLSAddTrackingRect(g_connection, window->id, rect);
 }
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius) {
@@ -135,4 +167,23 @@ void window_disable_shadow(struct window* window) {
   SLSWindowSetShadowProperties(window->id, shadow_props_cf);
   CFRelease(shadow_density_cf);
   CFRelease(shadow_props_cf);
+}
+
+CGImageRef window_capture(struct window* window) {
+  CGImageRef image_ref = NULL;
+
+  uint64_t wid = window->id;
+  SLSCaptureWindowsContentsToRectWithOptions(g_connection,
+                                             &wid,
+                                             true,
+                                             CGRectNull,
+                                             1 << 8,
+                                             &image_ref  );
+
+  CGRect bounds;
+  SLSGetScreenRectForWindow(g_connection, wid, &bounds);
+  bounds.size.width = (uint32_t) (bounds.size.width + 0.5);
+  window->frame.size = bounds.size;
+
+  return image_ref;
 }

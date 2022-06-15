@@ -69,10 +69,10 @@ void alias_get_permission(struct alias* alias) {
 void alias_init(struct alias* alias) {
   alias->name = NULL;
   alias->owner = NULL;
-  alias->wid = 0;
   alias->color_override = false;
   alias->color = rgba_color_from_hex(0xffff0000);
 
+  window_init(&alias->window);
   image_init(&alias->image);
 }
 
@@ -139,43 +139,40 @@ void alias_find_window(struct alias* alias) {
                                                      kCGWindowNumber);
 
     if (!window_id_ref) continue;
-    CFDictionaryRef bounds = CFDictionaryGetValue(dictionary, kCGWindowBounds);
-    if (!bounds) continue;
-    CGRectMakeWithDictionaryRepresentation(bounds, &alias->image.bounds);
+    CFDictionaryRef bounds_ref = CFDictionaryGetValue(dictionary, kCGWindowBounds);
+    if (!bounds_ref) continue;
+
+    CGRect bounds;
+    CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds);
+
+    uint64_t wid;
     CFNumberGetValue(window_id_ref,
                      CFNumberGetType(window_id_ref),
-                     &alias->wid                    );
+                     &wid                           );
+
+    alias->window.id = (uint32_t)wid;
+    alias->window.frame.size = bounds.size;
+    alias->window.origin = bounds.origin;
 
     CFRelease(window_list);
     return;
   }
-  alias->wid = 0;
+  alias->window.id = 0;
   CFRelease(window_list);
 }
 
 bool alias_update_image(struct alias* alias) {
-  if (alias->wid == 0) alias_find_window(alias);
-  if (alias->wid == 0) return false;
+  if (alias->window.id == 0) alias_find_window(alias);
+  if (alias->window.id == 0) return false;
 
-  CGRect bounds = CGRectNull;
-  CGImageRef tmp_ref = NULL;
+  CGImageRef image_ref = window_capture(&alias->window);
 
-  SLSCaptureWindowsContentsToRectWithOptions(g_connection,
-                                             &alias->wid,
-                                             true,
-                                             bounds,
-                                             1 << 8,
-                                             &tmp_ref     );
-
-  if (!tmp_ref) {
-    alias->wid = 0;
+  if (!image_ref) {
+    window_init(&alias->window);
     return false;
   }
 
-  SLSGetScreenRectForWindow(g_connection, alias->wid, &bounds);
-  bounds.size.width = (uint32_t) (bounds.size.width + 0.5);
-
-  return image_set_image(&alias->image, tmp_ref, bounds, false);
+  return image_set_image(&alias->image, image_ref, alias->window.frame, false);
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {

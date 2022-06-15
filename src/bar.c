@@ -57,11 +57,11 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
               : window->frame.size.height);
 
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
-  popup_calculate_bounds(&bar_item->popup);
 }
 
-void bar_order_item_windows(struct bar* bar, int mode) {
-  SLSOrderWindow(g_connection, bar->window.id, 1, 0);
+void bar_order_item_windows(struct bar* bar) {
+  window_set_level(&bar->window, g_bar_manager.window_level);
+  window_order(&bar->window, NULL, W_ABOVE);
 
   struct window* previous_window = NULL;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -69,33 +69,17 @@ void bar_order_item_windows(struct bar* bar, int mode) {
     if (bar_item->position == POSITION_POPUP) continue;
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
-    SLSRemoveFromOrderingGroup(g_connection, window->id);
 
     window_set_level(window, g_bar_manager.window_level);
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
-      SLSOrderWindow(g_connection, window->id, mode, bar->window.id);
-      SLSAddWindowToWindowOrderingGroup(g_connection,
-                                        bar->window.id,
-                                        window->id,
-                                        1              );
+      window_order(window, &bar->window, W_ABOVE);
       continue;
     }
 
-    if (previous_window) {
-      SLSOrderWindow(g_connection, window->id, mode, previous_window->id);
-      SLSAddWindowToWindowOrderingGroup(g_connection,
-                                        previous_window->id,
-                                        window->id,
-                                        1                   );
-    }
-    else {
-      SLSOrderWindow(g_connection, window->id, mode, bar->window.id);
-      SLSAddWindowToWindowOrderingGroup(g_connection,
-                                        bar->window.id,
-                                        window->id,
-                                        1              );
-    }
+    if (previous_window) window_order(window, previous_window, W_ABOVE);
+    else window_order(window, &bar->window, W_ABOVE);
+
     previous_window = window;
   }
 }
@@ -128,8 +112,7 @@ void bar_draw(struct bar* bar) {
             && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
 
       if (!CGPointEqualToPoint(window->origin, g_nirvana)) {
-        window->origin = g_nirvana;
-        SLSMoveWindow(g_connection, window->id, &g_nirvana);
+        window_move(window, g_nirvana);
       }
 
       continue;
@@ -144,10 +127,7 @@ void bar_draw(struct bar* bar) {
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      CGRect tracking_rect = window->frame;
-
-      SLSRemoveAllTrackingAreas(g_connection, window->id);
-      SLSAddTrackingRect(g_connection, window->id, tracking_rect);
+      window_assign_mouse_tracking_area(window, window->frame);
     }
 
     CGContextClearRect(window->context, window->frame);
@@ -309,8 +289,7 @@ void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
   window_set_frame(&bar->window, bar_get_frame(bar));
   if (window_apply_frame(&bar->window)) {
-    SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
-    SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
+    window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
     g_bar_manager.bar_needs_update = true;
   }
 }
@@ -319,18 +298,13 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
   if (bar->hidden == hidden) return;
   bar->hidden = hidden;
   
-  if (hidden) {
-    SLSMoveWindow(g_connection, bar->window.id, &g_nirvana);
-    bar->window.origin = g_nirvana;
-  }
+  if (hidden) window_move(&bar->window, g_nirvana);
   else bar_resize(bar);
 }
 
 void bar_create_window(struct bar* bar) {
   window_create(&bar->window, bar_get_frame(bar));
-  SLSRemoveAllTrackingAreas(g_connection, bar->window.id);
-  SLSAddTrackingRect(g_connection, bar->window.id, bar->window.frame);
-  window_set_level(&bar->window, g_bar_manager.window_level);
+  window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
   window_set_blur_radius(&bar->window, g_bar_manager.blur_radius);
   if (!g_bar_manager.shadow) window_disable_shadow(&bar->window);
 

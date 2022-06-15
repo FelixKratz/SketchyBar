@@ -90,7 +90,7 @@ bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bound
   if (image->data_ref) CFRelease(image->data_ref);
 
   image->size = bounds.size;
-  image->bounds = (CGRect){{bounds.origin.x, bounds.origin.y},
+  image->bounds = (CGRect){{0, 0},
                            {bounds.size.width * image->scale,
                             bounds.size.height * image->scale}};
 
