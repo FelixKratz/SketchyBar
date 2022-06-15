@@ -84,6 +84,19 @@ void window_set_frame(struct window* window, CGRect frame) {
 void window_move(struct window* window, CGPoint point) {
   window->origin = point;
   SLSMoveWindow(g_connection, window->id, &point);
+
+  if (__builtin_available(macOS 12.0, *)) {
+  } else {
+    CFNumberRef number = CFNumberCreate(NULL,
+                                        kCFNumberSInt32Type,
+                                        &window->id         );
+
+    const void* values[1] = { number };
+    CFArrayRef array = CFArrayCreate(NULL, values , 1, &kCFTypeArrayCallBacks);
+    SLSReassociateWindowsSpacesByGeometry(g_connection, array);
+    CFRelease(array);
+    CFRelease(number);
+  }
 }
 
 bool window_apply_frame(struct window* window) {
@@ -91,11 +104,12 @@ bool window_apply_frame(struct window* window) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
     SLSSetWindowShape(g_connection,
                       window->id,
-                      window->origin.x,
-                      window->origin.y,
-                      frame_region     );
+                      0,
+                      0,
+                      frame_region  );
 
     CFRelease(frame_region);
+    window_move(window, window->origin);
     window->needs_move = false;
     window->needs_resize = false;
     return true;

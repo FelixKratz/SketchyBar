@@ -24,10 +24,12 @@ extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint *point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, uint32_t child_wid, int order);
 extern CGError SLSRemoveFromOrderingGroup(int cid, uint32_t wid);
-extern int SLSSpaceGetType(int cid, uint64_t sid);
+extern CGError SLSReassociateWindowsSpacesByGeometry(int cid, CFArrayRef wids);
 
 extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
+
+extern int SLSSpaceGetType(int cid, uint64_t sid);
 
 extern CGError SLSAddSurface(int cid, uint32_t wid, uint32_t* outSID);
 extern CGError SLSRemoveSurface(int cid, uint32_t wid, uint32_t sid);
