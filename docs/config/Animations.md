@@ -22,7 +22,7 @@ steps.
 The animation system *always* animates between all *current* values and the
 values specified in a configuration command (i.e. `--bar` or `--set` commands).
 
-### Perform multiple animations chained together (Only on HEAD)
+### Perform multiple animations chained together
 If you want to chain two or more animations together, you can do so by simply
 changing the property multiple times, e.g.:
 ```bash
