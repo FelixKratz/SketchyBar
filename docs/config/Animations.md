@@ -3,10 +3,7 @@ id: animations
 title: Animations
 sidebar_position: 1
 ---
-## Animating the bar (Experimental)
-In the current stable release v2.6.0 animations are still experimental.
-The current HEAD improves speed and other animation properties drastically.
-
+## Animating the bar
 All transitions between `<argb_hex>`, `<integer>` and `<positive_integer>`
 values can be animated, by prepending the animation command in front of any
 regular `--set` or `--bar` command:

@@ -10,13 +10,13 @@ Information about the bar can be queried via:
 ```bash
 sketchybar --query bar
 ```
-The output is a json structure containing relevant information about the configuration settings of the bar.
+The output is a JSON structure containing relevant information about the configuration settings of the bar.
 ### Item Properties
 Information about an item can be queried via:
 ```bash
 sketchybar --query <name>
 ```
-The output is a json structure containing relevant information about the configuration of the item.
+The output is a JSON structure containing relevant information about the configuration of the item.
 ### Default Properties
 Information about the current defaults.
 ```bash

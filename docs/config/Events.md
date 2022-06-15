@@ -4,8 +4,10 @@ title: Events & Scripting
 sidebar_position: 1
 ---
 ## Events and Scripting
-Any item can *subscribe* to arbitrary *events*, when the *event* happens, all items subscribed to the *event* will execute their *script*.
-This can be used to create more reactive and performant items which react to events rather than polling for a change.
+All items can *subscribe* to arbitrary *events*; when the *event* happens,
+all items subscribed to the *event* will execute their *script*.
+This can be used to create more reactive and performant items which react to
+events rather than polling for a change.
 ```bash
 sketchybar --subscribe <name> <event> ... <event>
 ```
@@ -20,12 +22,14 @@ where the events are:
 | `system_woke`        | When the system has awaken from sleep                                                               |
 | `mouse.entered`      | When the mouse enters over an item                                                                  |
 | `mouse.exited`       | When the mouse leaves an item                                                                       |
+| `mouse.entered.global` | When the mouse enters over *any* part of the bar                                             |
+| `mouse.exited.global` | When the mouse leaves *all* parts of the bar                                                 |
 | `mouse.clicked`      | When an item is clicked                                                                             |
 
-When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names, to distinguish between the different events.
+When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names to distinguish between the different events.
 It is thus possible to have a script that reacts to each event differently e.g. via a switch for the `$SENDER` variable in the *script*.
 
-Alternatively a fixed *update_freq* can be *--set*, such that the event is routinely run to poll for change.
+Alternatively a fixed *update_freq* can be *--set*, such that the event is routinely run to poll for change, the `$SENDER` variable will in this case hold the value `routine`.
 
 When an item invokes a script, the script has access to some environment variables, such as:
 ```bash
@@ -47,7 +51,8 @@ Some events send additional information in the `$INFO` variable
 All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 
 ### Creating custom events
-This allows to define events which are triggered by a different application (see Trigger custom events). Items can also subscribe to these events for their script execution.
+This allows to define events which are triggered by arbitrary applications or manually (see Trigger custom events).
+Items can also subscribe to these events for their script execution.
 ```bash
 sketchybar --add event <name> [optional: <NSDistributedNotificationName>]
 ```
@@ -61,13 +66,11 @@ This triggers a custom event that has been added before
 ```bash
 sketchybar --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]
 ```
-Optionaly you can add environment variables to the trigger command witch are passed to the script, e.g.:
+Optionally you can add environment variables to the trigger command witch are passed to the script, e.g.:
 ```bash
 sketchybar --trigger demo VAR=Test
 ```
 will trigger the demo event and `$VAR` will be available as an environment variable in the scripts that this event invokes.
-This could be used to link the powerful event system of yabai to sketchybar by triggering the custom action via a yabai event.
-
 
 ### Forcing all shell scripts to run and the bar to refresh
 ```bash

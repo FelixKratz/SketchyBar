@@ -4,17 +4,17 @@ title: Item Properties
 sidebar_position: 1
 ---
 ## Items and their properties
-Items are the main building blocks of sketchybar and can be configured in a number of ways. Items have the following basic structure:
+Items are the main building blocks of *SketchyBar* and can be configured in a number of ways. Items have the following basic structure:
 
 ![Item Structure](/img/bar_item.svg)
 
-### Adding items to sketchybar
+### Adding items to SketchyBar
 ```bash
 sketchybar --add item <name> <position>
 ```
-where the `<name>` should not contain whitespaces (or must be quoted), it can be used to further configure the item.
-The `<position>` is the placement in the bar and can be either *left*, *right* or *center*. The items will appear in the bar in the order
-in which they are added, but can be moved later on.
+where the `<name>` should not contain whitespaces (or must be quoted), it is later used to refer to this item in the configuration.
+The `<position>` is the placement in the bar and can be either `left`, `right`, `center``or `q` (which is left of the notch) and `e` (which is right of the notch).
+The items will appear in the bar in the order in which they are added, but can be moved later on.
 
 | `<name>`     | `<string>`                                                                                        |
 | -----        | ---------                                                                                         |
@@ -24,8 +24,8 @@ in which they are added, but can be moved later on.
 ```bash
 sketchybar --set <name> <property>=<value> ... <property>=<value>
 ```
-where the *name* is used to target the item with this name.
-(The *name* can be a regular expression inside of two '/': */\<regex\>/*)
+where the `<name>` is used to target the item.
+(The `<name>` can be a regular expression inside of two slashed: `/<regex>/`)
 
 A list of properties available to the *set* command is listed below (components might have additional properties, see the respective component section for them):
 
@@ -33,6 +33,7 @@ A list of properties available to the *set* command is listed below (components 
 
 | <property\>          | <value\>                          | default   | description                                                                                          |
 | :-------:            | :------:                          | :-------: | -----------                                                                                          |
+| `drawing`            | `<boolean>`                       | `on`      | If the item should be drawn into the bar                                                             |
 | `position`           | `left`, `right`, `center`         |           | Position of the item in the bar                                                                      |
 | `associated_space`   | `<positive_integer list>`         | `0`       | Spaces to show this item on                                                                          |
 | `associated_display` | `<positive_integer list>`         | `0`       | Displays to show this item on                                                                        |
@@ -40,13 +41,6 @@ A list of properties available to the *set* command is listed below (components 
 | `y_offset`           | `<integer>`                       | `0`       | Vertical offset applied to the item                                                                  |
 | `width`              | `<positive_integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points                                                 |
 | `align`              | `center`, `left`, `right`         | `left`    | Aligns the `item` content in its container when it has a fixed `width` larger than the content width |
-
-### Drawing properties
-
-| <property\>  |  <value\>   | default   | description                                                                                   |
-| :-------:    | :------:    | :-------: | -----------                                                                                   |
-| `drawing`    | `<boolean>`   | `on`      | If the item should be drawn into the bar                                                    |
-| `lazy`       | `<boolean>` | `off`     | Changes do not trigger a redraw of the bar, item is refreshed when the bar is redrawn anyways |
 
 ### Icon properties
 

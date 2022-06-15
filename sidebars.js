@@ -12,8 +12,8 @@ module.exports = {
         "config/popups",
         "config/events",
         "config/querying",
-        "config/types",
         "config/animations",
+        "config/types",
         "config/tricks"
       ],
     },
