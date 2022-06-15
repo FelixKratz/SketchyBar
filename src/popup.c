@@ -265,6 +265,7 @@ void popup_destroy(struct popup* popup) {
     bar_manager_remove_item(&g_bar_manager, popup->items[i]);
   }
   if (popup->items) free(popup->items);
+  background_destroy(&popup->background);
   popup_close_window(popup);
 }
 

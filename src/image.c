@@ -49,11 +49,12 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
                     true                                        );
 
   else {
+    if (new_image_ref) CFRelease(new_image_ref);
     printf("Could not open image file at: %s!\n", res_path);
     fprintf(rsp, "Could not open image file at: %s!\n", res_path);
   }
 
-  CGDataProviderRelease(data_provider);
+  if (data_provider) CFRelease(data_provider);
   free(res_path);
   return true;
 }
