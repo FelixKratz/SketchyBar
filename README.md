@@ -29,6 +29,8 @@ shell scripts.
 <a href="https://github.com/FelixKratz/SketchyBar/discussions/47">More Setups</a>
 </p>
 
+
+
 ## Features
 * Performance friendly
 * Fully scriptable
@@ -72,3 +74,9 @@ If questions remain, feel free to consult the [Q&A](https://github.com/FelixKrat
 ## Credits
 This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>
 The original idea is based on the status bar that was included in *[yabai](https://github.com/koekeishiya/yabai)* before getting removed.
+
+
+## Demonstration of the animation system
+
+https://user-images.githubusercontent.com/22680421/173958567-c475eaa2-cd56-45c1-86fc-839d697eaad6.mp4
+
