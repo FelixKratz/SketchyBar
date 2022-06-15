@@ -14,7 +14,7 @@ sketchybar --animate <curve> <duration> \
            --set <name> <property>=<value> ... <property>=<value>
 ```
 where the `<curve>` is any of the animation curves:
-- `linear`, `tanh`, `sin`, `exp`, `bounce`, `overshoot`
+- `linear`, `quadratic`, `tanh`, `sin`, `exp`
 
 and the `<duration>` is a positive integer quantifying the number of animation
 steps.
