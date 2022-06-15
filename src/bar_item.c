@@ -89,6 +89,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
+  bar_item->blur_radius = 0;
 
   bar_item->has_const_width = false;
   bar_item->custom_width = 0;
@@ -351,6 +352,16 @@ bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
   return true;
 }
 
+bool bar_item_set_blur_radius(struct bar_item* bar_item, uint32_t radius) {
+  if (bar_item->blur_radius == radius) return false;
+  bar_item->blur_radius = radius;
+  for (int i = 0; i < bar_item->num_windows; i++) {
+    if (!bar_item->windows[i]) continue;
+    window_set_blur_radius(bar_item->windows[i], radius);
+  }
+  return true;
+}
+
 bool bar_item_set_width(struct bar_item* bar_item, uint32_t width) {
   if (bar_item->custom_width == width && bar_item->has_const_width)
     return false;
@@ -419,6 +430,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
     window_create(bar_item->windows[adid - 1],
                   (CGRect){{g_nirvana.x,g_nirvana.y}, {1, 1}});
     window_disable_shadow(bar_item->windows[adid - 1]);
+    window_set_blur_radius(bar_item->windows[adid - 1], bar_item->blur_radius);
     context_set_font_smoothing(bar_item->windows[adid - 1]->context,
                                g_bar_manager.font_smoothing         );
   }
@@ -846,6 +858,13 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
             bar_item,
             bar_item->y_offset,
             token_to_int(token)  );
+
+  } else if (token_equals(property, PROPERTY_BLUR_RADIUS)) {
+    struct token token = get_token(&message);
+    ANIMATE(bar_item_set_blur_radius,
+            bar_item,
+            bar_item->blur_radius,
+            token_to_int(token)      );
 
   } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
     printf("cache_scripts property is deprecated.\n");
