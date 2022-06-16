@@ -12,6 +12,7 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   popup->y_offset = 0;
   popup->adid = 0;
   popup->align = POSITION_LEFT;
+  popup->blur_radius = 0;
   
   popup->num_items = 0;
   popup->cell_size = 30;
@@ -26,6 +27,13 @@ CGRect popup_get_frame(struct popup* popup) {
   return (CGRect){{popup->anchor.x, popup->anchor.y},
                   {popup->background.bounds.size.width,
                    popup->background.bounds.size.height}};
+}
+
+bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
+  if (popup->blur_radius == radius) return false;
+  popup->blur_radius = radius;
+  window_set_blur_radius(&popup->window, radius);
+  return true;
 }
 
 void popup_order_windows(struct popup* popup) {
@@ -171,6 +179,7 @@ void popup_create_window(struct popup* popup) {
   context_set_font_smoothing(popup->window.context,
                              g_bar_manager.font_smoothing);
 
+  window_set_blur_radius(&popup->window, popup->blur_radius);
   popup->drawing = true;
 }
 
@@ -288,6 +297,9 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
     popup->cell_size = token_to_int(get_token(&message));
     popup->overrides_cell_size = true;
     return true;
+  } else if (token_equals(property, PROPERTY_BLUR_RADIUS)) {
+    popup_set_blur_radius(popup, token_to_int(get_token(&message)));
+    return false;
   } 
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text,
