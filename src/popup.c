@@ -59,6 +59,43 @@ void popup_order_windows(struct popup* popup) {
   }
 }
 
+void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item) {
+  if (popup->adid != g_bar_manager.active_adid) return;
+  struct window* window = bar_item_get_window(bar_item, popup->adid);
+
+  if (!bar_item->popup.overrides_cell_size)
+    bar_item->popup.cell_size = window->frame.size.height;
+
+  popup_calculate_bounds(&bar_item->popup);
+
+  CGPoint anchor = window->origin;
+  if (bar_item->position != POSITION_POPUP || popup->horizontal) {
+    if (bar_item->popup.align == POSITION_CENTER) {
+      anchor.x += (window->frame.size.width
+                   - bar_item->popup.background.bounds.size.width) / 2;
+    } else if (bar_item->popup.align == POSITION_LEFT) {
+      anchor.x -= bar_item->background.padding_left;
+    } else {
+      anchor.x += window->frame.size.width
+                  - bar_item->popup.background.bounds.size.width;
+    }
+    anchor.y += (g_bar_manager.position == POSITION_BOTTOM
+                ? (- bar_item->popup.background.bounds.size.height)
+                : window->frame.size.height);
+  } else if (bar_item->parent) {
+    struct popup* host = &bar_item->parent->popup;
+    anchor.x = host->window.origin.x;
+    if (bar_item->popup.align == POSITION_LEFT) {
+      anchor.x -= bar_item->popup.background.bounds.size.width;
+    }
+    else {
+      anchor.x += host->window.frame.size.width;
+    }
+    anchor.y -= host->background.border_width;
+  }
+  popup_set_anchor(&bar_item->popup, anchor, popup->adid);
+}
+
 void popup_calculate_bounds(struct popup* popup) {
   uint32_t y = popup->background.border_width;
   uint32_t x = 0;
@@ -139,6 +176,9 @@ void popup_calculate_bounds(struct popup* popup) {
                          group_frame                                       );
       }
     }
+
+    if (bar_item->popup.drawing)
+      popup_calculate_popup_anchor_for_bar_item(popup, bar_item);
 
     if (item_width > width && !popup->horizontal) width = item_width;
     if (popup->horizontal) x += item_width;
