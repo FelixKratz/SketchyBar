@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for users that like playing around with
+This bar project aims to create a highly flexible, customizable, fast and powerful status bar replacement for people that like playing with
 shell scripts.
 </p>
 
@@ -32,12 +32,12 @@ shell scripts.
 
 
 ## Features
-* Performance friendly
-* Fully scriptable
-* Fully configurable
-* Supports drawing native macOS menu bar applications (Aliases)
+* Optimized to be *Fast* and *Efficient*
+* Completely *Scriptable*
+* Fully *Configurable*
+* Entirely *Animatable*
+* Support for drawing native macOS menu bar applications (aliases)
 * Powerful event and scripting system
-* Animation System
 * Popup Menus
 * Mouse Support
 * Support for graphs
@@ -59,8 +59,7 @@ for some further tips on your journey. If you are searching for functional items
 [plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) section if someone has already created what you are looking for.
 
 ## Documentation
-For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar)
-or if you prefer a single document, see the [markdown version of the docs](https://github.com/FelixKratz/SketchyBar/blob/master/DOCS.md).
+For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar).
 
 If questions remain, feel free to consult the [Q&A](https://github.com/FelixKratz/SketchyBar/discussions/categories/q-a) section.
 
