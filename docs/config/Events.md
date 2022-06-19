@@ -57,9 +57,14 @@ Items can also subscribe to these events for their script execution.
 sketchybar --add event <name> [optional: <NSDistributedNotificationName>]
 ```
 Optional: You can subscribe to the notifications sent to the NSDistributedNotificationCenter e.g.
-the notification Spotify sends on track change: *com.spotify.client.PlaybackStateChanged* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842)), or the
-notification sent by the system when a bluetooth device connected, or disconnected: *com.apple.bluetooth.state* ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1465761))
-to create more responsive items. Custom events that subscribe to NSDistributedNotificationCenter notifications will receive additional notification information in the `$INFO` variable if available.
+the notification Spotify sends on track change:
+`com.spotify.client.PlaybackStateChanged` ([example](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842)), or the
+notification sent by the system when the screen is unlocked:
+`com.apple.screenIsUnlocked` ([example](https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-2979651))
+to create more responsive items.
+Custom events that subscribe to NSDistributedNotificationCenter notifications
+will receive additional notification information in the `$INFO` variable if available.
+For more NSDistributedNotifications see [this discussion](https://github.com/FelixKratz/SketchyBar/discussions/151).
 
 ### Triggering custom events
 This triggers a custom event that has been added before
