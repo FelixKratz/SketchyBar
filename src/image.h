@@ -2,6 +2,8 @@
 #include "shadow.h"
 #include "misc/defines.h"
 
+extern CGImageRef workspace_icon_for_app(char* app);
+
 struct image {
   bool enabled;
 

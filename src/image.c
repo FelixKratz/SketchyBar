@@ -20,42 +20,60 @@ bool image_set_enabled(struct image* image, bool enabled) {
 }
 
 bool image_load(struct image* image, char* path, FILE* rsp) {
+  char* app = string_copy(path);
   char* res_path = resolve_path(path);
-  if (!file_exists(res_path)) {
+  CGImageRef new_image_ref = NULL;
+
+  struct key_value_pair app_kv = get_key_value_pair(app, '.');
+  if (app_kv.key && app_kv.value && strcmp(app_kv.key, "app") == 0) {
+    CGImageRef app_icon = workspace_icon_for_app(app_kv.value);
+    if (app_icon) new_image_ref = app_icon;
+    else {
+      respond(rsp, "[!] Image: Invalid application name: '%s'\n", app_kv.value);
+      free(res_path);
+      free(app);
+      return false;
+    }
+  }
+  else if (file_exists(res_path)) {
+    CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
+    if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
+      new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
+                                                       NULL,
+                                                       false,
+                                                       kCGRenderingIntentDefault);
+    else {
+      new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider,
+                                                        NULL,
+                                                        false,
+                                                        kCGRenderingIntentDefault);
+    }
+
+    if (data_provider) CFRelease(data_provider);
+  }
+  else {
     respond(rsp, "[!] Image: File '%s' not found\n", res_path);
     free(res_path);
+    free(app);
     return false;
   }
 
-  CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
-  CGImageRef new_image_ref = NULL;
-  if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
-    new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
-                                                     NULL,
-                                                     false,
-                                                     kCGRenderingIntentDefault);
-  else {
-    new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider,
-                                                      NULL,
-                                                      false,
-                                                      kCGRenderingIntentDefault);
-  }
-  if (data_provider && new_image_ref)
+  if (new_image_ref) {
     image_set_image(image,
                     new_image_ref,
                     (CGRect){{0,0},
                              {CGImageGetWidth(new_image_ref),
                               CGImageGetHeight(new_image_ref)}},
                     true                                        );
-
+  }
   else {
     if (new_image_ref) CFRelease(new_image_ref);
-    printf("Could not open image file at: %s!\n", res_path);
-    fprintf(rsp, "Could not open image file at: %s!\n", res_path);
+    printf("Could not open image file at: %s\n", res_path);
+    fprintf(rsp, "Could not open image file at: %s\n", res_path);
   }
 
-  if (data_provider) CFRelease(data_provider);
   free(res_path);
+  free(app);
   return true;
 }
 

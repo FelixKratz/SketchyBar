@@ -28,6 +28,16 @@ uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
   return [nsEvent windowNumber];
 }
 
+CGImageRef workspace_icon_for_app(char* app) {
+  NSURL* path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[NSString stringWithUTF8String:app]];
+  if (!path) return NULL;
+  NSImage* image = [[NSWorkspace sharedWorkspace] iconForFile:path.path];
+  if (!image) return NULL;
+
+  NSRect rect = NSMakeRect( 0, 0, [image size].width, [image size].height);
+  return [image CGImageForProposedRect: &rect context: NULL hints:NULL];
+}
+
 @implementation workspace_context
 - (id)init {
     if ((self = [super init])) {
