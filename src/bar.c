@@ -105,8 +105,6 @@ void bar_draw(struct bar* bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-    bar_item_remove_associated_bar(bar_item, bar->adid);
-
     if (!bar_draws_item(bar, bar_item)
         || (bar_item->type == BAR_COMPONENT_GROUP
             && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
@@ -115,6 +113,7 @@ void bar_draw(struct bar* bar) {
         window_move(window, g_nirvana);
       }
 
+      bar_item_remove_associated_bar(bar_item, bar->adid);
       continue;
     }
 

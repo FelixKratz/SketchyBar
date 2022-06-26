@@ -838,7 +838,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                                     NULL,
                                                     0                    ));
     }
-    needs_refresh = prev != bar_item->associated_space;
+    needs_refresh = (prev != bar_item->associated_space);
   } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_display;
@@ -851,7 +851,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                                       NULL,
                                                       0                    ));
     }
-    needs_refresh = prev != bar_item->associated_display;
+    needs_refresh = (prev != bar_item->associated_display);
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
     ANIMATE(bar_item_set_yoffset,

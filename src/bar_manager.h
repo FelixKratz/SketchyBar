@@ -33,6 +33,7 @@ struct bar_manager {
 
   struct bar** bars;
   uint32_t bar_count;
+  uint32_t active_displays;
 
   struct bar_item** bar_items;
   struct bar_item default_item;

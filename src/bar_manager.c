@@ -294,8 +294,13 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
 
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
+    
     if ((bar_item->needs_update && bar_draws_item(bar, bar_item))
-        || (!bar_item->drawing && bar_item->associated_bar != 0) ) {
+        || (!bar_item->drawing && bar_item->associated_bar != 0)
+        || (bar_item->drawing
+            && bar_item->associated_display != 0
+            && (bar_item->associated_bar << 1)
+                != (bar_item->associated_display & bar_manager->active_displays))) {
       return true;
     }
   }
@@ -308,11 +313,6 @@ void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
 
   bar_manager->needs_ordering = false;
   bar_manager->bar_needs_update = false;
-}
-
-void bar_manager_clear_association_for_bar(struct bar_manager* bar_manager, struct bar* bar) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) 
-    bar_item_remove_associated_bar(bar_manager->bar_items[i], bar->adid);
 }
 
 void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
@@ -476,6 +476,11 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
       bar_manager->bars[index - 1] = bar_create(did);
       bar_manager->bars[index - 1]->adid = index;
     }
+  }
+
+  bar_manager->active_displays = 0;
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    bar_manager->active_displays |= 1 << bar_manager->bars[i]->adid;
   }
 
   bar_manager->needs_ordering = true;
@@ -690,9 +695,16 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_arrangement(display_active_display_id());
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char adid_str[3];
+  snprintf(adid_str, 3, "%d", bar_manager->active_adid);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(adid_str));
+
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_DISPLAY_CHANGE,
-                                    NULL                             );
+                                    &env_vars                        );
+  env_vars_destroy(&env_vars);
 }
 
 void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
