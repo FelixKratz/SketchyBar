@@ -58,6 +58,9 @@ You might also enjoy looking at the [Tips & Tricks](https://felixkratz.github.io
 for some further tips on your journey. If you are searching for functional items you might want to check the
 [plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) section if someone has already created what you are looking for.
 
+Should you encounter things not working as you expect them to, please *do not* hesitate to open an [issue](https://github.com/FelixKratz/SketchyBar/issues), as
+this is either a bug or a documentation problem and relevant in any case.
+
 ## Documentation
 For the full documentation of all commands and properties please refer to the [website](https://felixkratz.github.io/SketchyBar/config/bar).
 
