@@ -75,6 +75,8 @@ EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
 EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
     debug("%s:\n", __FUNCTION__);
     bar_manager_resize(&g_bar_manager);
+    g_bar_manager.bar_needs_update = true;
+    bar_manager_refresh(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 

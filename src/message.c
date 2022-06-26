@@ -635,7 +635,8 @@ void handle_message_mach(struct mach_buffer* buffer) {
   }
 
   if (bar_needs_refresh) {
-    bar_manager_resize(&g_bar_manager);
+    if (g_bar_manager.bar_needs_resize) bar_manager_resize(&g_bar_manager);
+
     g_bar_manager.bar_needs_update = true;
   }
 

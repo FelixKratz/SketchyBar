@@ -18,6 +18,7 @@ struct bar_manager {
   bool any_bar_hidden;
   bool needs_ordering;
   bool bar_needs_update;
+  bool bar_needs_resize;
 
   char display;
   char position;

@@ -169,14 +169,14 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
 bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {
   if (bar_manager->margin == margin) return false;
   bar_manager->margin = margin;
-  bar_manager_resize(&g_bar_manager);
+  bar_manager->bar_needs_resize = true;
   return true;
 }
 
 bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset) {
   if (bar_manager->y_offset == y_offset) return false;
   bar_manager->y_offset = y_offset;
-  bar_manager_resize(&g_bar_manager);
+  bar_manager->bar_needs_resize = true;
   return true;
 }
 
@@ -186,13 +186,13 @@ bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
   for (int i = 0; i < bar_manager->bar_count; i++) {
     window_set_blur_radius(&bar_manager->bars[i]->window, radius);
   }
-  return true;
+  return false;
 }
 
 bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   if (bar_manager->position == pos) return false;
   bar_manager->position = pos;
-  bar_manager_resize(bar_manager);
+  bar_manager->bar_needs_resize = true;
   return true;
 }
 
@@ -222,6 +222,7 @@ bool bar_manager_set_notch_offset(struct bar_manager* bar_manager, uint32_t offs
   if (bar_manager->notch_offset == offset) return false;
 
   bar_manager->notch_offset = offset;
+  bar_manager->bar_needs_resize = true;
   return true;
 }
 
@@ -345,6 +346,8 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
 void bar_manager_resize(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_resize(bar_manager->bars[i]);
+
+  bar_manager->bar_needs_resize = false;
 }
 
 struct bar_item* bar_manager_create_item(struct bar_manager* bar_manager) {
@@ -412,6 +415,7 @@ void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
   if (animator_update(&bar_manager->animator)) {
     bar_manager->frozen = false;
 
+    if (bar_manager->bar_needs_resize) bar_manager_resize(bar_manager);
     bar_manager_refresh(bar_manager, false);
   }
   bar_manager_unfreeze(bar_manager);
