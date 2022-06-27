@@ -22,6 +22,7 @@ struct bar_item {
   bool selected;
   bool mouse_over;
   bool ignore_association;
+  bool overrides_association;
 
   // Drawing Modifiers
   bool drawing;

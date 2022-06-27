@@ -442,6 +442,7 @@ out:
 
 static inline uint32_t display_id_for_space(uint32_t sid) {
   uint64_t dsid = dsid_from_sid(sid);
+  if (!dsid) return 0;
   CFStringRef uuid_string = SLSCopyManagedDisplayForSpace(g_connection, dsid);
   if (!uuid_string) return 0;
 

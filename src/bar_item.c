@@ -81,6 +81,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->selected = false;
   bar_item->mouse_over = false;
   bar_item->ignore_association = false;
+  bar_item->overrides_association = false;
   bar_item->counter = 0;
   bar_item->type = BAR_ITEM;
   bar_item->update_frequency = 0;
@@ -134,6 +135,7 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
   if (bar_item->associated_display & bit) return;
   bar_item->associated_display |= bit;
   if (bar_item->type == BAR_COMPONENT_SPACE) {
+    bar_item->overrides_association = true;
     bar_item->associated_display = bit;
     char did_str[32];
     sprintf(did_str, "%u", get_set_bit_position(bit));
