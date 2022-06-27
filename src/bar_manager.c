@@ -379,11 +379,18 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (bar_item->type != BAR_COMPONENT_SPACE) continue;
 
+    uint32_t space = get_set_bit_position(bar_item->associated_space);
+    uint32_t space_did = display_id_for_space(space);
+    if (space_did)
+      bar_item->associated_display = 1 << (display_arrangement(space_did));
+    else
+      bar_item->associated_display = 1 << 31;
+
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
       uint32_t did = bar->adid;
 
-      if (((1 << did) & bar_item->associated_display)) {
+      if ((1 << did) & bar_item->associated_display) {
         uint32_t sid = bar->sid;
         if (sid == 0) continue;
         if ((!bar_item->selected || forced)
@@ -662,12 +669,10 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[1] = '\n';
   uint32_t cursor = 2;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    bar_manager->bars[i]->sid = mission_control_index(
-                                  display_space_id(bar_manager->bars[i]->did));
-
-    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection,
-                                                  bar_manager->bars[i]->sid)
-                                  != 4;
+    uint32_t dsid = display_space_id(bar_manager->bars[i]->did);
+    bar_manager->bars[i]->sid = mission_control_index(dsid);
+    bar_manager->bars[i]->dsid = dsid;
+    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
 
     snprintf(info + cursor, 18 * bar_manager->bar_count + 4 - cursor,
                             "\t\"display-%d\": %d\n",

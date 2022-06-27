@@ -317,7 +317,8 @@ struct bar *bar_create(uint32_t did) {
   bar->hidden = false;
   bar->mouse_over = false;
   bar->did = did;
-  bar->sid = mission_control_index(display_space_id(did));
+  bar->dsid = display_space_id(did);
+  bar->sid = mission_control_index(bar->dsid);
   bar->shown = true;
   g_bar_manager.bar_needs_update = true;
   bar_create_window(bar);

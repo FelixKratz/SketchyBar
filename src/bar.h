@@ -15,8 +15,9 @@ struct bar {
   bool hidden;
   bool mouse_over;
 
-  uint32_t did;
   uint32_t sid;
+  uint32_t dsid;
+  uint32_t did;
   uint32_t adid;
 
   struct window window;

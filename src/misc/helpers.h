@@ -1,6 +1,7 @@
 #pragma once
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -15,6 +16,7 @@
 
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern uint32_t SLSGetActiveSpace(int cid);
+extern CFStringRef SLSCopyManagedDisplayForSpace(int cid, uint64_t sid);
 extern int g_connection;
 
 struct signal_args {
@@ -410,6 +412,44 @@ out:
   return desktop_cnt;
 }
 
-static inline uint32_t current_space(void) {
-  return mission_control_index(SLSGetActiveSpace(g_connection));
+static inline uint64_t dsid_from_sid(uint32_t sid) {
+  uint64_t result = 0;
+  int desktop_cnt = 1;
+
+  CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
+  int display_spaces_count = CFArrayGetCount(display_spaces_ref);
+
+  for (int i = 0; i < display_spaces_count; ++i) {
+    CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
+    CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
+    int spaces_count = CFArrayGetCount(spaces_ref);
+
+    for (int j = 0; j < spaces_count; ++j) {
+      CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
+      CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
+      CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &result);
+      if (sid == desktop_cnt) goto out;
+
+      ++desktop_cnt;
+    }
+  }
+
+  result = 0;
+out:
+  CFRelease(display_spaces_ref);
+  return result;
+}
+
+static inline uint32_t display_id_for_space(uint32_t sid) {
+  uint64_t dsid = dsid_from_sid(sid);
+  CFStringRef uuid_string = SLSCopyManagedDisplayForSpace(g_connection, dsid);
+  if (!uuid_string) return 0;
+
+  CFUUIDRef uuid = CFUUIDCreateFromString(NULL, uuid_string);
+  uint32_t id = CGDisplayGetDisplayIDFromUUID(uuid);
+
+  CFRelease(uuid);
+  CFRelease(uuid_string);
+
+  return id;
 }
