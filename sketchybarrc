@@ -46,20 +46,20 @@ SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8")
 
 for i in "${!SPACE_ICONS[@]}"
 do
-  sketchybar --add space space.$i left                               \
-             --set space.$i associated_space=$(($i+1))               \
-                            icon=${SPACE_ICONS[i]}                   \
-                            icon.highlight_color=0xff48aa2a          \
-                            icon.padding_left=8                      \
-                            icon.padding_right=8                     \
-                            background.padding_left=5                \
-                            background.padding_right=5               \
-                            background.color=0x44ffffff              \
-                            background.corner_radius=5               \
-                            background.height=20                     \
-                            label.drawing=off                        \
-                            script="$PLUGIN_DIR/space.sh"            \
-                            click_script="yabai -m space --focus $i"
+  sketchybar --add space space.$i left                                     \
+             --set space.$i associated_space=$(($i+1))                     \
+                            icon=${SPACE_ICONS[i]}                         \
+                            icon.highlight_color=0xff48aa2a                \
+                            icon.padding_left=8                            \
+                            icon.padding_right=8                           \
+                            background.padding_left=5                      \
+                            background.padding_right=5                     \
+                            background.color=0x44ffffff                    \
+                            background.corner_radius=5                     \
+                            background.height=20                           \
+                            label.drawing=off                              \
+                            script="$PLUGIN_DIR/space.sh"                  \
+                            click_script="yabai -m space --focus $(($i+1))"
 done
 
 ##### Adding Left Items #####
