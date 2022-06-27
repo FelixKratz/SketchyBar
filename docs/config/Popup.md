@@ -18,6 +18,7 @@ sketchybar --set <name> popup.<popup_property>=<value>
 | `drawing`                          | `<boolean>`               | `off`      | If the `popup` should be rendered                            |
 | `horizontal`                       | `<boolean>`               | `off`      | If the `popup` should render horizontally                    |
 | `height`                           | `<positive_integer>`      | bar height | The vertical spacing between items in a popup                |
+| `blur_radius`                      | `<positive_integer>`      | `0`        | The blur applied to the popup background                     |
 | `y_offset`                         | `<integer>`               | `0`        | Vertical offset applied to the `popup`                       |
 | `align`                            | `left`, `right`, `center` | `left`     | Alignment of the popup with its parent item in the bar       |
 | `background.<background_property>` |                           |            | Popups have a background and support all properties          |
