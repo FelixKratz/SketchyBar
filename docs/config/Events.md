@@ -13,18 +13,18 @@ sketchybar --subscribe <name> <event> ... <event>
 ```
 where the events are:
 
-| <event\>             | description                                                                                         | `$INFO`
-| :-------:            | :------:                                                                                            | :------:
-| `front_app_switched` | When the front application changes (not triggered if a different window of the same app is focused) | front application name
-| `space_change`       | When the active mission control space changes                                                       | JSON for active spaces on all displays
-| `display_change`     | When the active display is changed                                                                  | new active display id
-| `system_will_sleep`  | When the system prepares to sleep                                                                   |
-| `system_woke`        | When the system has awaken from sleep                                                               |
-| `mouse.entered`      | When the mouse enters over an item                                                                  |
-| `mouse.exited`       | When the mouse leaves an item                                                                       |
-| `mouse.entered.global` | When the mouse enters over *any* part of the bar                                                  |
-| `mouse.exited.global` | When the mouse leaves *all* parts of the bar                                                       |
-| `mouse.clicked`      | When an item is clicked                                                                             |
+| <event\>               | description                                                                                         | `$INFO`                                |
+| :-------:              | :------:                                                                                            | :------:                               |
+| `front_app_switched`   | When the front application changes (not triggered if a different window of the same app is focused) | front application name                 |
+| `space_change`         | When the active mission control space changes                                                       | JSON for active spaces on all displays |
+| `display_change`       | When the active display is changed                                                                  | new active display id                  |
+| `system_will_sleep`    | When the system prepares to sleep                                                                   |                                        |
+| `system_woke`          | When the system has awaken from sleep                                                               |                                        |
+| `mouse.entered`        | When the mouse enters over an item                                                                  |                                        |
+| `mouse.exited`         | When the mouse leaves an item                                                                       |                                        |
+| `mouse.entered.global` | When the mouse enters over *any* part of the bar                                                    |                                        |
+| `mouse.exited.global`  | When the mouse leaves *all* parts of the bar                                                        |                                        |
+| `mouse.clicked`        | When an item is clicked                                                                             |                                        |
 
 Some events send additional information in the `$INFO` variable
 When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names to distinguish between the different events.
