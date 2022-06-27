@@ -302,6 +302,7 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
 }
 
 void bar_create_window(struct bar* bar) {
+  window_init(&bar->window);
   window_create(&bar->window, bar_get_frame(bar));
   window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
   window_set_blur_radius(&bar->window, g_bar_manager.blur_radius);

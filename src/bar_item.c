@@ -427,6 +427,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
 
   if (!bar_item->windows[adid - 1]) {
     bar_item->windows[adid - 1] = malloc(sizeof(struct window));
+    window_init(bar_item->windows[adid - 1]);
     window_create(bar_item->windows[adid - 1],
                   (CGRect){{g_nirvana.x,g_nirvana.y}, {1, 1}});
     window_disable_shadow(bar_item->windows[adid - 1]);

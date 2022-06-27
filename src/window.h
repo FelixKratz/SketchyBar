@@ -48,6 +48,7 @@ extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int para
 #define W_BELOW -1
 
 struct window {
+  struct window* parent;
   bool needs_move;
   bool needs_resize;
 

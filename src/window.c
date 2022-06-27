@@ -2,6 +2,7 @@
 
 void window_init(struct window* window) {
   window->context = NULL;
+  window->parent = NULL;
   window->frame = CGRectNull;
   window->id = 0;
   window->origin = CGPointZero;
@@ -102,6 +103,7 @@ void window_move(struct window* window, CGPoint point) {
 bool window_apply_frame(struct window* window) {
   if (window->needs_resize) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
+    if (window->parent) window_order(window, window->parent, 0);
     SLSSetWindowShape(g_connection,
                       window->id,
                       0,
@@ -110,6 +112,11 @@ bool window_apply_frame(struct window* window) {
 
     CFRelease(frame_region);
     window_move(window, window->origin);
+    if (window->parent) {
+      CGContextClearRect(window->context, window->frame);
+      CGContextFlush(window->context);
+      window_order(window, window->parent, 1);
+    }
     window->needs_move = false;
     window->needs_resize = false;
     return true;
@@ -140,12 +147,14 @@ void window_set_level(struct window* window, uint32_t level) {
 void window_order(struct window* window, struct window* parent, int mode) {
   SLSRemoveFromOrderingGroup(g_connection, window->id);
   if (parent) {
+    window->parent = parent;
     SLSOrderWindow(g_connection, window->id, mode, parent->id);
     SLSAddWindowToWindowOrderingGroup(g_connection,
                                       parent->id,
                                       window->id,
                                       mode         );
   } else {
+    window->parent = NULL;
     SLSOrderWindow(g_connection, window->id, mode, 0);
   }
 }

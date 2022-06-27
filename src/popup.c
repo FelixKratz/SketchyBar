@@ -19,6 +19,7 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   popup->items = NULL;
   popup->host = host;
   background_init(&popup->background);
+  window_init(&popup->window);
   popup->background.border_color = rgba_color_from_hex(0xffff0000);
   popup->background.color = rgba_color_from_hex(0x44000000);
 }
