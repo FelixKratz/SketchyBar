@@ -261,7 +261,6 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
             &g_bar_manager,
             g_bar_manager.notch_offset,
             token_to_int(token)         );
-
   } else if (token_equals(command, PROPERTY_HIDDEN)) {
     struct token state = get_token(&message);
     uint32_t adid = 0;
@@ -293,7 +292,13 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     if (position.length > 0)
       needs_refresh = bar_manager_set_position(&g_bar_manager, position.text[0]);
   }
-  else
+  else if (token_equals(command, PROPERTY_HEIGHT)) {
+    struct token token = get_token(&message);
+    ANIMATE(bar_manager_set_bar_height,
+            &g_bar_manager,
+            g_bar_manager.background.bounds.size.height,
+            token_to_int(token)                         );
+  } else
     needs_refresh = background_parse_sub_domain(&g_bar_manager.background, rsp, command, message);
 
   return needs_refresh;

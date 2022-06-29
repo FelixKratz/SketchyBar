@@ -180,6 +180,11 @@ bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset) {
   return true;
 }
 
+bool bar_manager_set_bar_height(struct bar_manager* bar_manager, int height) {
+  bar_manager->bar_needs_resize |= background_set_height(&bar_manager->background, height);
+  return bar_manager->bar_needs_resize;
+}
+
 bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius) {
   if (bar_manager->blur_radius == radius) return false;
   bar_manager->blur_radius = radius;

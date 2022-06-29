@@ -59,6 +59,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced);
 bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin);
 bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset);
+bool bar_manager_set_bar_height(struct bar_manager* bar_manager, int height);
 bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t radius);
 bool bar_manager_set_position(struct bar_manager* bar_manager, char pos);
 bool bar_manager_set_spaces(struct bar_manager* bar_manager, bool value);
