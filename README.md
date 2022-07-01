@@ -46,7 +46,9 @@ shell scripts.
 ## Getting Started
 Refer to the installation guide in the [documentation](https://felixkratz.github.io/SketchyBar/setup) to get the program set up.
 Once this is sorted you can start to become familiar with the syntax of sketchybar by going through the default [*sketchybarrc*](https://github.com/FelixKratz/SketchyBar/blob/master/sketchybarrc) file,
-which is located in `~/.config/sketchybar/sketchybarrc`.
+which is located in `~/.config/sketchybar/sketchybarrc` and looks like this:
+
+![](images/default.png)
 
 All commands and options are explained in detail in the relevant sections
 of the configuration [documentation](https://felixkratz.github.io/SketchyBar/config/bar). You can try the commands directly from
