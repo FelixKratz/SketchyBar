@@ -68,10 +68,11 @@ If questions remain, feel free to consult the [Q&A](https://github.com/FelixKrat
 
 ## Supporting
 *You* can support this project is many ways:
-- By creating issues and pull-requests if you encounter problems
-- By sharing your [plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) and [setups](https://github.com/FelixKratz/SketchyBar/discussions/47)
-- By starring the project on GitHub
-- By donating to a charity of your choice
+- By *creating* issues and pull-requests if you encounter problems
+- By *sharing* your [plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) and [setups](https://github.com/FelixKratz/SketchyBar/discussions/47)
+- By *starring* the project on GitHub
+- If this project has value to you, consider quantifying it and *donating* to a charity of your choice. If you want to let me know about your donation, you
+can contact me via [email](mailto:felix.kratz@tu-dortmund.de?Subject=Donation).
 
 ## Credits
 This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>
