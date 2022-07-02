@@ -56,6 +56,7 @@ do
                               background.color=0x44ffffff                \
                               background.corner_radius=5                 \
                               background.height=22                       \
+                              background.drawing=off                     \
                               label.drawing=off                          \
                               script="$PLUGIN_DIR/space.sh"              \
                               click_script="yabai -m space --focus $sid"
