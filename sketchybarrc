@@ -1,8 +1,7 @@
 # This is a demo config to show some of the most important commands more easily.
-# This is meant to be changed and configured, as it is intentionally kept
-# sparse.
+# This is meant to be changed and configured, as it is intentionally kept sparse.
 # For a more advanced configuration example see my dotfiles:
-# https://github.com/FelixKratz/SketchyBar/discussions/47#discussioncomment-2027233
+# https://github.com/FelixKratz/dotfiles
 
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 
@@ -42,24 +41,24 @@ sketchybar --default updates=when_shown                    \
 # https://felixkratz.github.io/SketchyBar/config/components#space----associate-mission-control-spaces-with-an-item
 # to indicate active and available mission control spaces
 
-SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8")
+SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
 
 for i in "${!SPACE_ICONS[@]}"
 do
-  sketchybar --add space space.$i left                                     \
-             --set space.$i associated_space=$(($i+1))                     \
-                            icon=${SPACE_ICONS[i]}                         \
-                            icon.highlight_color=0xff48aa2a                \
-                            icon.padding_left=8                            \
-                            icon.padding_right=8                           \
-                            background.padding_left=5                      \
-                            background.padding_right=5                     \
-                            background.color=0x44ffffff                    \
-                            background.corner_radius=5                     \
-                            background.height=20                           \
-                            label.drawing=off                              \
-                            script="$PLUGIN_DIR/space.sh"                  \
-                            click_script="yabai -m space --focus $(($i+1))"
+  sid=$(($i+1))
+  sketchybar --add space space.$sid left                                 \
+             --set space.$sid associated_space=$sid                      \
+                              icon=${SPACE_ICONS[i]}                     \
+                              icon.padding_left=8                        \
+                              icon.padding_right=8                       \
+                              background.padding_left=5                  \
+                              background.padding_right=5                 \
+                              background.color=0x44ffffff                \
+                              background.corner_radius=5                 \
+                              background.height=22                       \
+                              label.drawing=off                          \
+                              script="$PLUGIN_DIR/space.sh"              \
+                              click_script="yabai -m space --focus $sid"
 done
 
 ##### Adding Left Items #####
@@ -78,9 +77,15 @@ sketchybar --add item space_separator left                            \
            --subscribe window_title front_app_switched
 
 ##### Adding Right Items #####
+# In the same way as the left items we can add items to the right side.
+# Additionally, "center" , left of the notch "q" and right of the notch "e" is
+# available as a position:
+# https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
+
 sketchybar --add item clock right                        \
            --set clock   update_freq=10                  \
                          script="$PLUGIN_DIR/clock.sh"   \
+                                                         \
            --add item battery right                      \
            --set battery script="$PLUGIN_DIR/battery.sh" \
                          update_freq=10                  \
