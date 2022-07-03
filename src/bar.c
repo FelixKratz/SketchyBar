@@ -224,8 +224,8 @@ void bar_calculate_bounds(struct bar* bar) {
                                || bar_item->position == POSITION_CENTER_LEFT)
                               ? group_length
                                 - bar_item_get_length(bar_item, false)
-                                - group_count_members_drawn(bar_item->group)
-                              : 0;
+                                - bar_item->background.padding_right
+                              : bar_item->background.padding_left;
 
       CGRect group_frame = {{frame.origin.x - group_offset,
                              frame.origin.y},

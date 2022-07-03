@@ -48,34 +48,14 @@ uint32_t group_get_length(struct group* group) {
   uint32_t length = 0;
   for (int i = 1; i < group->num_members; i++) {
     if (group->members[i]->drawing) {
-      if (group->members[i]->position == POSITION_RIGHT) {
-        if (i > 1 && !group->members[i]->has_const_width)
-          length += group->members[i]->background.padding_right;
-
-        if (i < group->num_members - 1 && !group->members[i]->has_const_width)
-          length += group->members[i]->background.padding_left;
-      }
-      else {
-        if (i > 1 && !group->members[i]->has_const_width)
-          length += group->members[i]->background.padding_left;
-        if (i < group->num_members - 1 && !group->members[i]->has_const_width)
-          length += group->members[i]->background.padding_right;
-      }
+      if (!group->members[i]->has_const_width)
+        length += group->members[i]->background.padding_left
+                  + group->members[i]->background.padding_right;
 
       length += bar_item_get_length(group->members[i], false);
     }
   }
-  return length + group_count_members_drawn(group);
-}
-
-uint32_t group_count_members_drawn(struct group* group) {
-  int count = 0;
-  for (int i = 1; i < group->num_members; i++) {
-    if (group->members[i]->drawing) {
-      count++;
-    }
-  }
-  return count;
+  return length;
 }
 
 void group_remove_member(struct group* group, struct bar_item* bar_item) {
@@ -102,11 +82,7 @@ void group_destroy(struct group* group) {
 
 void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y, bool rtl) {
   background_calculate_bounds(&group->members[0]->background, x, y);
-  group->members[0]->background.bounds.size.width = group_get_length(group)
-                                        - (rtl
-                                           ? group_count_members_drawn(group)
-                                           : 0                               );
-
+  group->members[0]->background.bounds.size.width = group_get_length(group);
   group->members[0]->background.bounds.origin.x = x;
   group->members[0]->background.bounds.origin.y = y
                          - group->members[0]->background.bounds.size.height / 2

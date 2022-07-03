@@ -573,6 +573,8 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
 
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
   background_draw(&bar_item->background, context);
+  if (bar_item->type == BAR_COMPONENT_GROUP) return;
+
   text_draw(&bar_item->icon, context);
   text_draw(&bar_item->label, context);
 
