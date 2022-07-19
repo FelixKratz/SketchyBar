@@ -31,16 +31,17 @@ A list of properties available to the *set* command is listed below (components 
 
 ### Geometry Properties
 
-| <property\>          | <value\>                          | default   | description                                           |
-| :-------:            | :------:                          | :-------: | -----------                                           |
-| `drawing`            | `<boolean>`                       | `on`      | If the item should be drawn into the bar              |
-| `position`           | `left`, `right`, `center`         |           | Position of the item in the bar                       |
-| `associated_space`   | `<positive_integer list>`         | `0`       | Spaces to show this item on                           |
-| `associated_display` | `<positive_integer list>`         | `0`       | Displays to show this item on                         |
-| `ignore_association` | `<boolean>`                       | `off`     | Ignores all space / display associations while on     |
-| `y_offset`           | `<integer>`                       | `0`       | Vertical offset applied to the item                   |
-| `width`              | `<positive_integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points  |
-| `blur_radius`        | `<positive_integer>`              | `0`       | The blur radius applied to the background of the item |
+| <property\>                        | <value\>                          | default   | description                                           |
+| :-------:                          | :------:                          | :-------: | -----------                                           |
+| `drawing`                          | `<boolean>`                       | `on`      | If the item should be drawn into the bar              |
+| `position`                         | `left`, `right`, `center`         |           | Position of the item in the bar                       |
+| `associated_space`                 | `<positive_integer list>`         | `0`       | Spaces to show this item on                           |
+| `associated_display`               | `<positive_integer list>`         | `0`       | Displays to show this item on                         |
+| `ignore_association`               | `<boolean>`                       | `off`     | Ignores all space / display associations while on     |
+| `y_offset`                         | `<integer>`                       | `0`       | Vertical offset applied to the item                   |
+| `width`                            | `<positive_integer>` or `dynamic` | `dynamic` | Makes the *item* use a fixed *width* given in points  |
+| `blur_radius`                      | `<positive_integer>`              | `0`       | The blur radius applied to the background of the item |
+| `background.<background_property>` |                                   |           | Items support all `background` properties             |
 
 ### Icon properties
 
@@ -84,27 +85,27 @@ A list of properties available to the *set* command is listed below (components 
 
 ### Background properties
 
-| <background_property\>     | <value\>             | default      | description                                 |
-| :-------:                  | :------:             | :-------:    | -----------                                 |
-| `drawing`                  | `<boolean>`          | `off`        | If the `background` should be rendered      |
-| `color`                    | `<argb_hex>`         | `0x00000000` | Fill color of the `background`              |
-| `border_color`             | `<argb_hex>`         | `0x00000000` | Color of the backgrounds border             |
-| `border_width`             | `<positive_integer>` | `0`          | Width of the background border              |
-| `height`                   | `<positive_integer>` | `0`          | Overrides the `height` of the background    |
-| `corner_radius`            | `<positive_integer>` | `0`          | Corner radius of the background             |
-| `padding_left`             | `<integer>`          | `0`          | Padding to the left of the `background`     |
-| `padding_right`            | `<integer>`          | `0`          | Padding to the right of the `background`    |
-| `y_offset`                 | `<integer>`          | `0`          | Vertical offset applied to the `background` |
-| `image`                    | `<path>`, `app.<bundle-id>`     |              | The path to a png or jpeg image file, or a bundle identifier of an application |
-| `image.<image_property>`   |                      |              | Backgrounds support all `image` properties  |
-| `shadow.<shadow_property>` |                      |              | Backgrounds support all `shadow` properties |
+| <background_property\>     | <value\>                    | default      | description                                                                    |
+| :-------:                  | :------:                    | :-------:    | -----------                                                                    |
+| `drawing`                  | `<boolean>`                 | `off`        | If the `background` should be rendered                                         |
+| `color`                    | `<argb_hex>`                | `0x00000000` | Fill color of the `background`                                                 |
+| `border_color`             | `<argb_hex>`                | `0x00000000` | Color of the backgrounds border                                                |
+| `border_width`             | `<positive_integer>`        | `0`          | Width of the background border                                                 |
+| `height`                   | `<positive_integer>`        | `0`          | Overrides the `height` of the background                                       |
+| `corner_radius`            | `<positive_integer>`        | `0`          | Corner radius of the background                                                |
+| `padding_left`             | `<integer>`                 | `0`          | Padding to the left of the `background`                                        |
+| `padding_right`            | `<integer>`                 | `0`          | Padding to the right of the `background`                                       |
+| `y_offset`                 | `<integer>`                 | `0`          | Vertical offset applied to the `background`                                    |
+| `image`                    | `<path>`, `app.<bundle-id>` |              | The path to a png or jpeg image file, or a bundle identifier of an application |
+| `image.<image_property>`   |                             |              | Backgrounds support all `image` properties                                     |
+| `shadow.<shadow_property>` |                             |              | Backgrounds support all `shadow` properties                                    |
 
 ### Image properties
 
-| <image_property\>  | <value\>             | default   | description                                          |
-| :-------:          | :------:             | :-------: | -----------                                          |
-| `drawing`          | `<boolean>`          | `off`     | If the image should draw                             |
-| `scale`            | `<positive_integer>` | `0`       | The scale factor that should be applied to the image |
+| <image_property\> | <value\>    | default   | description                                          |
+| :-------:         | :------:    | :-------: | -----------                                          |
+| `drawing`         | `<boolean>` | `off`     | If the image should draw                             |
+| `scale`           | `<float>`   | `1.0`     | The scale factor that should be applied to the image |
 
 ### Shadow properties
 
