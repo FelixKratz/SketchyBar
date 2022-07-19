@@ -387,10 +387,14 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
     if (!bar_item->overrides_association) {
       uint32_t space = get_set_bit_position(bar_item->associated_space);
       uint32_t space_did = display_id_for_space(space);
-      if (space_did)
+      if (space_did) {
         bar_item->associated_display = 1 << (display_arrangement(space_did));
-      else
+        bar_item->drawing = true;
+      }
+      else {
         bar_item->associated_display = 1 << 31;
+        bar_item->drawing = false;
+      }
     }
     for (int j = 0; j < bar_manager->bar_count; j++) {
       struct bar* bar = bar_manager->bars[j];
