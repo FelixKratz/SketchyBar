@@ -53,6 +53,17 @@ CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
                    reference_bounds.size                          };
 }
 
+void shadow_serialize(struct shadow* shadow, char* indent, FILE* rsp) {
+  fprintf(rsp, "%s\"drawing\": \"%s\",\n"
+               "%s\"color\": \"0x%x\",\n"
+               "%s\"angle\": %u,\n"
+               "%s\"distance\": %u",
+               indent, format_bool(shadow->enabled),
+               indent, hex_from_rgba_color(shadow->color),
+               indent, shadow->angle,
+               indent, shadow->distance                   );
+}
+
 bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_DRAWING)) {

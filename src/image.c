@@ -9,6 +9,7 @@ void image_init(struct image* image) {
   image->bounds = CGRectNull;
   image->size = CGSizeZero;
   image->scale = 1.0;
+  image->path = NULL;
 
   shadow_init(&image->shadow);
 }
@@ -21,6 +22,7 @@ bool image_set_enabled(struct image* image, bool enabled) {
 
 bool image_load(struct image* image, char* path, FILE* rsp) {
   char* app = string_copy(path);
+  image->path = string_copy(path);
   char* res_path = resolve_path(path);
   CGImageRef new_image_ref = NULL;
 
@@ -161,12 +163,23 @@ void image_draw(struct image* image, CGContextRef context) {
 void image_clear_pointers(struct image* image) {
   image->image_ref = NULL;
   image->data_ref = NULL;
+  image->path = NULL;
 }
 
 void image_destroy(struct image* image) {
   CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
+  if (image->path) free(image->path);
   image_clear_pointers(image);
+}
+
+void image_serialize(struct image* image, char* indent, FILE* rsp) {
+  fprintf(rsp, "%s\"value\": \"%s\",\n"
+               "%s\"drawing\": \"%s\",\n"
+               "%s\"scale\": %f",
+               indent, image->path,
+               indent, format_bool(image->enabled),
+               indent, image->scale                );
 }
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {

@@ -618,79 +618,104 @@ void bar_item_destroy(struct bar_item* bar_item) {
 }
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
+  char type[32] = { 0 };
+  switch (bar_item->type) {
+    case BAR_ITEM:
+      snprintf(type, 32, "item");
+      break;
+    case BAR_COMPONENT_ALIAS:
+      snprintf(type, 32, "alias");
+      break;
+    case BAR_COMPONENT_GROUP:
+      snprintf(type, 32, "bracket");
+      break;
+    case BAR_COMPONENT_GRAPH:
+      snprintf(type, 32, "graph");
+      break;
+    case BAR_COMPONENT_SPACE:
+      snprintf(type, 32, "space");
+      break;
+    default:
+      snprintf(type, 32, "invalid");
+      break;
+  }
+
+  char position[32] = { 0 };
+  switch (bar_item->position) {
+    case POSITION_LEFT:
+      snprintf(position, 32, "left");
+      break;
+    case POSITION_RIGHT:
+      snprintf(position, 32, "right");
+      break;
+    case POSITION_CENTER:
+      snprintf(position, 32, "center");
+      break;
+    case POSITION_CENTER_LEFT:
+      snprintf(position, 32, "q");
+      break;
+    case POSITION_CENTER_RIGHT:
+      snprintf(position, 32, "e");
+      break;
+    default:
+      snprintf(position, 32, "invalid");
+      break;
+  }
+
   fprintf(rsp, "{\n"
                "\t\"name\": \"%s\",\n"
-               "\t\"type\": \"%c\",\n"
-               "\t\"text\": {\n"
-               "\t\t\"icon\": \"%s\",\n"
-               "\t\t\"label\": \"%s\",\n"
-               "\t\t\"icon.font\": \"%s\",\n"
-               "\t\t\"label.font\": \"%s\"\n"
-               "\t},\n"
+               "\t\"type\": \"%s\",\n"
                "\t\"geometry\": {\n"
-               "\t\t\"position\": \"%c\",\n"
-               "\t\t\"fixed_width\": %d,\n"
-               "\t\t\"background.padding_left\": %d,\n"
-               "\t\t\"background.padding_right\": %d,\n"
-               "\t\t\"icon.padding_left\": %d,\n"
-               "\t\t\"icon.padding_right\": %d,\n"
-               "\t\t\"label.padding_left\": %d,\n"
-               "\t\t\"label.padding_right\": %d\n"
-               "\t},\n"
-               "\t\"style\": {\n"
-               "\t\t\"icon.color\": \"0x%x\",\n"
-               "\t\t\"icon.highlight_color:\": \"0x%x\",\n"
-               "\t\t\"label.color\": \"0x%x\",\n"
-               "\t\t\"label.highlight_color:\": \"0x%x\",\n"
-               "\t\t\"background.drawing\": %d,\n"
-               "\t\t\"background.height\": %u,\n"
-               "\t\t\"background.corner_radius\": %u,\n"
-               "\t\t\"background.border_width\": %u,\n"
-               "\t\t\"background.color\": \"0x%x\",\n"
-               "\t\t\"background.border_color\": \"0x%x\"\n"
-               "\t},\n"
-               "\t\"state\": {\n"
-               "\t\t\"drawing\": %d,\n"
-               "\t\t\"updates\": %d,\n"
-               "\t\t\"lazy\": %d,\n"
-               "\t\t\"associated_bar_mask\": %u,\n"
-               "\t\t\"associated_display_mask\": %u,\n"
+               "\t\t\"drawing\": \"%s\",\n"
+               "\t\t\"position\": \"%s\",\n"
                "\t\t\"associated_space_mask\": %u,\n"
-               "\t\t\"update_mask\": %llu\n"
-               "\t},\n"
-               "\t\"bounding_rects\": {\n",
+               "\t\t\"associated_display_mask\": %u,\n"
+               "\t\t\"ignore_association\": \"%s\",\n"
+               "\t\t\"y_offset\": %d,\n"
+               "\t\t\"width\": %d,\n"
+               "\t\t\"background\": {\n",
                bar_item->name,
-               bar_item->type,
-               bar_item->icon.string,
-               bar_item->label.string,
-               bar_item->icon.font_name,
-               bar_item->label.font_name,
-               bar_item->position,
-               bar_item->has_const_width ? bar_item->custom_width : -1,
-               bar_item->background.padding_left,
-               bar_item->background.padding_right,
-               bar_item->icon.padding_left,
-               bar_item->icon.padding_right,
-               bar_item->label.padding_left,
-               bar_item->label.padding_right,
-               hex_from_rgba_color(bar_item->icon.color),
-               hex_from_rgba_color(bar_item->icon.highlight_color),
-               hex_from_rgba_color(bar_item->label.color),
-               hex_from_rgba_color(bar_item->label.highlight_color),
-               bar_item->background.enabled,
-               (uint32_t)bar_item->background.bounds.size.height,
-               bar_item->background.corner_radius,
-               bar_item->background.border_width,
-               hex_from_rgba_color(bar_item->background.color),
-               hex_from_rgba_color(bar_item->background.border_color),
-               bar_item->drawing,
-               bar_item->updates,
-               bar_item->lazy,
-               bar_item->associated_bar,
-               bar_item->associated_display,
+               type,
+               format_bool(bar_item->drawing),
+               position,
                bar_item->associated_space,
-               bar_item->update_mask);
+               bar_item->associated_display,
+               format_bool(bar_item->ignore_association),
+               bar_item->y_offset,
+               bar_item->has_const_width ? bar_item->custom_width : -1);
 
+  background_serialize(&bar_item->background, "\t\t\t", rsp, true);
+  fprintf(rsp, "\n\t\t}\n\t},\n");
+
+  fprintf(rsp, "\t\"icon\": {\n");
+  text_serialize(&bar_item->icon, "\t\t", rsp);
+  fprintf(rsp, "\n\t},\n");
+
+  fprintf(rsp, "\t\"label\": {\n");
+  text_serialize(&bar_item->label, "\t\t", rsp);
+  fprintf(rsp, "\n\t},\n");
+
+
+  char* escaped_script = escape_string(bar_item->script);
+  char* escaped_click_script = escape_string(bar_item->click_script);
+  fprintf(rsp, "\t\"scripting\": {\n"
+               "\t\t\"script\": \"%s\",\n"
+               "\t\t\"click_script\": \"%s\",\n"
+               "\t\t\"update_freq\": %u,\n"
+               "\t\t\"update_mask\": %llu,\n"
+               "\t\t\"updates\": \"%s\"\n\t},\n",
+               escaped_script,
+               escaped_click_script,
+               bar_item->update_frequency,
+               bar_item->update_mask,
+               bar_item->updates_only_when_shown
+                ? "when_shown"
+                : format_bool(bar_item->updates) );
+
+  if (escaped_script) free(escaped_script);
+  if (escaped_click_script) free(escaped_click_script);
+
+  fprintf(rsp, "\t\"bounding_rects\": {\n");
   int counter = 0;
   for (int i = 0; i < bar_item->num_windows; i++) {
     if (!bar_item->windows[i]) continue;

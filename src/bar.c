@@ -268,13 +268,13 @@ CGRect bar_get_frame(struct bar *bar) {
   bounds.size.width -= 2*g_bar_manager.margin;
   CGPoint origin = bounds.origin;
   origin.x += g_bar_manager.margin;
-  origin.y += g_bar_manager.y_offset + notch_offset;
+  origin.y += g_bar_manager.background.y_offset + notch_offset;
 
 
   if (g_bar_manager.position == POSITION_BOTTOM) {
     origin.y = CGRectGetMaxY(bounds)
                - g_bar_manager.background.bounds.size.height
-               - 2*(g_bar_manager.y_offset + notch_offset);
+               - 2*(g_bar_manager.background.y_offset + notch_offset);
   } else if (display_menu_bar_visible() && !g_bar_manager.topmost) {
     CGRect menu = display_menu_bar_rect(bar->did);
     origin.y += menu.size.height;

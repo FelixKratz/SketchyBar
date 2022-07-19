@@ -285,6 +285,62 @@ void text_draw(struct text* text, CGContextRef context) {
   CTLineDraw(text->line.line, context);
 }
 
+void text_serialize(struct text* text, char* indent, FILE* rsp) {
+  char align[32] = { 0 };
+  switch (text->align) {
+    case POSITION_LEFT:
+      snprintf(align, 32, "left");
+      break;
+    case POSITION_RIGHT:
+      snprintf(align, 32, "right");
+      break;
+    case POSITION_CENTER:
+      snprintf(align, 32, "center");
+      break;
+    case POSITION_BOTTOM:
+      snprintf(align, 32, "bottom");
+      break;
+    case POSITION_TOP:
+      snprintf(align, 32, "top");
+      break;
+    default:
+      snprintf(align, 32, "invalid");
+      break;
+  }
+
+  fprintf(rsp, "%s\"value\": \"%s\",\n"
+               "%s\"drawing\": \"%s\",\n"
+               "%s\"highlight\": \"%s\",\n"
+               "%s\"color\": \"0x%x\",\n"
+               "%s\"highlight_color\": \"0x%x\",\n"
+               "%s\"padding_left\": %d,\n"
+               "%s\"padding_right\": %d,\n"
+               "%s\"y_offset\": %d,\n"
+               "%s\"font\": \"%s\",\n"
+               "%s\"width\": %d,\n"
+               "%s\"align\": \"%s\",\n"
+               "%s\"background\": {\n",
+               indent, text->string,
+               indent, format_bool(text->drawing),
+               indent, format_bool(text->highlight),
+               indent, hex_from_rgba_color(text->color),
+               indent, hex_from_rgba_color(text->highlight_color),
+               indent, text->padding_left,
+               indent, text->padding_right,
+               indent, text->y_offset,
+               indent, text->font_name,
+               indent, text->custom_width,
+               indent, align, indent                              );
+
+  char deeper_indent[strlen(indent) + 2];
+  snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
+  background_serialize(&text->background, deeper_indent, rsp, true);
+
+  fprintf(rsp, "\n%s},\n%s\"shadow\": {\n", indent, indent);
+  shadow_serialize(&text->shadow, deeper_indent, rsp);
+  fprintf(rsp, "\n%s}", indent);
+}
+
 bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_COLOR)) {

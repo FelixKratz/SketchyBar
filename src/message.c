@@ -228,7 +228,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     struct token token = get_token(&message);
     ANIMATE(bar_manager_set_y_offset,
             &g_bar_manager,
-            g_bar_manager.y_offset,
+            g_bar_manager.background.y_offset,
             token_to_int(token)      );
 
   } else if (token_equals(command, PROPERTY_BLUR_RADIUS)) {

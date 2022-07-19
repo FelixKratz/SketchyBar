@@ -23,7 +23,6 @@ struct bar_manager {
   char display;
   char position;
 
-  int y_offset;
   int margin;
   uint32_t blur_radius;
   uint32_t notch_width;

@@ -131,6 +131,40 @@ void background_destroy(struct background* background) {
   background_clear_pointers(background);
 }
 
+void background_serialize(struct background* background, char* indent, FILE* rsp, bool detailed) {
+  fprintf(rsp, "%s\"drawing\": \"%s\",\n"
+               "%s\"color\": \"0x%x\",\n"
+               "%s\"border_color\": \"0x%x\",\n"
+               "%s\"border_width\": %u,\n"
+               "%s\"height\": %u,\n"
+               "%s\"corner_radius\": %u,\n"
+               "%s\"padding_left\": %d,\n"
+               "%s\"padding_right\": %d,\n"
+               "%s\"y_offset\": %d,\n",
+               indent, format_bool(background->enabled),
+               indent, hex_from_rgba_color(background->color),
+               indent, hex_from_rgba_color(background->border_color),
+               indent, background->border_width,
+               indent, background->overrides_height ? (int)background->bounds.size.height : 0,
+               indent, background->corner_radius,
+               indent, background->padding_left,
+               indent, background->padding_right,
+               indent, background->y_offset                                                    );
+
+  char deeper_indent[strlen(indent) + 2];
+  snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
+
+  fprintf(rsp, "%s\"image\": {\n", indent);
+  image_serialize(&background->image, deeper_indent, rsp);
+  fprintf(rsp, "\n%s}", indent);
+
+  if (!detailed) return;
+
+  fprintf(rsp, ",\n%s\"shadow\": {\n", indent);
+  shadow_serialize(&background->shadow, deeper_indent, rsp);
+  fprintf(rsp, "\n%s}", indent);
+}
+
 bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_DRAWING))

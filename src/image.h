@@ -10,6 +10,8 @@ struct image {
   float scale;
   CGSize size;
   CGRect bounds;
+  
+  char* path;
 
   CGImageRef image_ref;
   CFDataRef data_ref;
@@ -29,4 +31,5 @@ void image_draw(struct image* image, CGContextRef context);
 void image_clear_pointers(struct image* image);
 void image_destroy(struct image* image);
 
+void image_serialize(struct image* image, char* indent, FILE* rsp);
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message);

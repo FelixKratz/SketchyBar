@@ -49,4 +49,5 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
 void text_draw(struct text* text, CGContextRef context);
 void text_destroy(struct text* text);
 
+void text_serialize(struct text* text, char* indent, FILE* rsp);
 bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);

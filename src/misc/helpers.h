@@ -60,6 +60,32 @@ static inline void notification_destroy(struct notification* notification) {
   free(notification);
 }
 
+static inline char* format_bool(bool b) {
+  return b ? "on" : "off";
+}
+
+static inline char* escape_string(char* string) {
+  if (!string) return NULL;
+  int len = strlen(string);
+  char* buffer = malloc(2*len + 1);
+  int cursor = 0;
+  for (int i = 0; i < len; i++) {
+    if (string[i] == '"') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = '"';
+    }
+    else if (string[i] == '\n') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = 'n';
+    }
+    else {
+      buffer[cursor++] = string[i];
+    }
+  }
+  buffer[cursor] = '\0';
+  return buffer;
+}
+
 static inline void respond(FILE* rsp, char* response, ...) {
   time_t t = time(NULL);
   struct tm ltime = *localtime(&t);

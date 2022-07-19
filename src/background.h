@@ -34,4 +34,5 @@ void background_draw(struct background* background, CGContextRef context);
 void background_clear_pointers(struct background* background);
 void background_destroy(struct background* background);
 
+void background_serialize(struct background* background, char* indent, FILE* rsp, bool detailed);
 bool background_parse_sub_domain(struct background* background, FILE* rsp, struct token property, char* message);

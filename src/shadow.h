@@ -18,4 +18,5 @@ bool shadow_set_distance(struct shadow* shadow, uint32_t distance);
 bool shadow_set_color(struct shadow* shadow, uint32_t color);
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds);
 
+void shadow_serialize(struct shadow* shadow, char* indent, FILE* rsp);
 bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token property, char* message);

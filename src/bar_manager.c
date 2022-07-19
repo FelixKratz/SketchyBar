@@ -22,7 +22,6 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->bar_item_count = 0;
   bar_manager->display = DISPLAY_ALL;
   bar_manager->position = POSITION_TOP;
-  bar_manager->y_offset = 0;
   bar_manager->shadow = false;
   bar_manager->blur_radius = 0;
   bar_manager->margin = 0;
@@ -37,6 +36,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
 
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;
+  bar_manager->background.overrides_height = true;
   bar_manager->background.padding_left = 20;
   bar_manager->background.padding_right = 20;
   bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
@@ -174,8 +174,8 @@ bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {
 }
 
 bool bar_manager_set_y_offset(struct bar_manager* bar_manager, int y_offset) {
-  if (bar_manager->y_offset == y_offset) return false;
-  bar_manager->y_offset = y_offset;
+  if (bar_manager->background.y_offset == y_offset) return false;
+  bar_manager->background.y_offset = y_offset;
   bar_manager->bar_needs_resize = true;
   return true;
 }
@@ -775,47 +775,28 @@ void bar_manager_destroy(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
+  char indent[] = { "\t" };
   fprintf(rsp, "{\n"
-               "\t\"geometry\": {\n"
-               "\t\t\"position\": \"%c\",\n"
-               "\t\t\"height\": %u,\n"
-               "\t\t\"margin\": %d,\n"
-               "\t\t\"y_offset\": %d,\n"
-               "\t\t\"corner_radius\": %u,\n"
-               "\t\t\"border_width\": %u,\n"
-               "\t\t\"padding_left\": %u,\n"
-               "\t\t\"padding_right\": %u\n"
-               "\t},\n"
-               "\t\"style\": {\n"
-               "\t\t\"color\": \"0x%x\",\n"
-               "\t\t\"border_color\": \"0x%x\",\n"
-               "\t\t\"blur_radius\": %u\n"
-               "\t},\n"
-               "\t\"state\": {\n"
-               "\t\t\"frozen\": %d,\n"
-               "\t\t\"topmost\": %d,\n"
-               "\t\t\"shadow\": %d,\n"
-               "\t\t\"font_smoothing\": %d\n"
-               "\t},\n"
-               "\t\"items\": [\n",
-               bar_manager->position,
-               (uint32_t)bar_manager->background.bounds.size.height,
-               bar_manager->margin,
-               bar_manager->y_offset,
-               bar_manager->background.corner_radius,
-               bar_manager->background.border_width,
-               bar_manager->background.padding_left,
-               bar_manager->background.padding_right,
-               hex_from_rgba_color(bar_manager->background.color),
-               hex_from_rgba_color(bar_manager->background.border_color),
-               bar_manager->blur_radius,
-               bar_manager->frozen,
-               bar_manager->topmost,
-               bar_manager->shadow,
-               bar_manager->font_smoothing);
+               "%s\"position\": \"%s\",\n"
+               "%s\"topmost\": \"%s\",\n"
+               "%s\"shadow\": \"%s\",\n"
+               "%s\"font_smoothing\": \"%s\",\n"
+               "%s\"blur_radius\": %u,\n"
+               "%s\"margin\": %d,\n",
+               indent, bar_manager->position == POSITION_BOTTOM
+                                              ? "bottom" : "top",
+               indent, format_bool(bar_manager->topmost),
+               indent, format_bool(bar_manager->shadow),
+               indent, format_bool(bar_manager->font_smoothing),
+               indent, bar_manager->blur_radius,
+               indent, bar_manager->margin         );
+
+  background_serialize(&bar_manager->background, indent, rsp, false);
+
+  fprintf(rsp, ",\n%s\"items\": [\n", indent);
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    fprintf(rsp, "\t\t \"%s\"", bar_manager->bar_items[i]->name);
+    fprintf(rsp, "%s\t \"%s\"", indent, bar_manager->bar_items[i]->name);
     if (i < bar_manager->bar_item_count - 1) fprintf(rsp, ",\n");
   }
-  fprintf(rsp, "\n\t]\n}\n");
+  fprintf(rsp, "\n%s]\n}\n", indent);
 }
