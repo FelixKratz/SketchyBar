@@ -125,7 +125,8 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                             wid,
                                                             adid           );
-    if (!bar_item) {
+
+    if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
       CGPoint point = CGEventGetLocation(context);
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
     }
