@@ -34,8 +34,17 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
       free(app);
       return false;
     }
-  }
-  else if (file_exists(res_path)) {
+  } else if (app_kv.key && app_kv.value && strcmp(app_kv.key, "space") == 0) {
+    uint32_t sid = atoi(app_kv.value);
+    CGImageRef space_img = space_capture(sid);
+    if (space_img) new_image_ref = space_img;
+    else {
+      respond(rsp, "[!] Image: Invalid Space ID: '%s'\n", app_kv.value);
+      free(res_path);
+      free(app);
+      return false;
+    }
+  } else if (file_exists(res_path)) {
     CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
     if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
       new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
@@ -173,4 +182,3 @@ bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token propert
   }
   return false;
 }
-

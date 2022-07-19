@@ -17,6 +17,7 @@
 extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
 extern uint32_t SLSGetActiveSpace(int cid);
 extern CFStringRef SLSCopyManagedDisplayForSpace(int cid, uint64_t sid);
+extern CFArrayRef SLSHWCaptureSpace(int64_t cid, int64_t sid, int64_t flags);
 extern int g_connection;
 
 struct signal_args {
@@ -438,6 +439,19 @@ static inline uint64_t dsid_from_sid(uint32_t sid) {
 out:
   CFRelease(display_spaces_ref);
   return result;
+}
+
+static inline CGImageRef space_capture(uint32_t sid) {
+  uint64_t dsid = dsid_from_sid(sid);
+  CGImageRef image = NULL;
+  if (dsid) {
+    CFArrayRef result = SLSHWCaptureSpace(g_connection, dsid, 0);
+    uint32_t count = CFArrayGetCount(result);
+    if (count > 0) {
+      image = (CGImageRef)CFArrayGetValueAtIndex(result, 0);
+    }
+  }
+  return image;
 }
 
 static inline uint32_t display_id_for_space(uint32_t sid) {
