@@ -19,7 +19,6 @@ sketchybar --bar height=32        \
                  padding_right=10 \
                  color=0x15ffffff
 
-
 ##### Changing Defaults #####
 # We now change some default values that are applied to all further items
 # For a full list of all available item properties see:
@@ -79,8 +78,7 @@ sketchybar --add item space_separator left                            \
 
 ##### Adding Right Items #####
 # In the same way as the left items we can add items to the right side.
-# Additionally, "center" , left of the notch "q" and right of the notch "e" is
-# available as a position:
+# Additional position (e.g. center) are available, see:
 # https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
 
 sketchybar --add item clock right                        \
@@ -93,6 +91,9 @@ sketchybar --add item clock right                        \
            --subscribe battery system_woke
 
 ##### Finalizing Setup #####
+# The below command is only needed at the end of the initial configuration and
+# should never be run in an item script.
+
 sketchybar --update
 
 echo "sketchybar configuration loaded.."
