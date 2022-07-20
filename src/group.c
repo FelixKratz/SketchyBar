@@ -93,17 +93,12 @@ void group_draw(struct group* group, CGContextRef context) {
   background_draw(&group->members[0]->background, context);
 }
 
-void group_serialize(struct group* group, FILE* rsp) {
-    fprintf(rsp, ",\n"
-                 "\t\"bracket\": [\n");
-
+void group_serialize(struct group* group, char* indent, FILE* rsp) {
     int counter = 0;
     for (int i = 1; i < group->num_members; i++) {
       if (!group->members[i]) continue;
       if (counter++ > 0) fprintf(rsp, ",\n");
-      fprintf(rsp, "\t\t\"%s\"",
-              group->members[i]->name);
+      fprintf(rsp, "%s\"%s\"", indent, group->members[i]->name);
     }
-    fprintf(rsp, "\n\t]");
 }
 

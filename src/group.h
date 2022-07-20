@@ -20,4 +20,4 @@ void group_calculate_bounds(struct group* group, uint32_t x, uint32_t y, bool rt
 void group_draw(struct group* group, CGContextRef context);
 void group_destroy(struct group* group);
 
-void group_serialize(struct group* group, FILE* rsp);
+void group_serialize(struct group* group, char* indent, FILE* rsp);

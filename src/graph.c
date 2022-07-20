@@ -106,23 +106,20 @@ void graph_draw(struct graph* graph, CGContextRef context) {
   CGContextRestoreGState(context);
 }
 
-void graph_serialize(struct graph* graph, FILE* rsp) {
-    fprintf(rsp, ",\n"
-                 "\t\"graph\": {\n"
-                 "\t\t\"graph.color\": \"0x%x\",\n"
-                 "\t\t\"graph.fill_color\": \"0x%x\",\n"
-                 "\t\t\"graph.line_width\": \"%f\",\n"
-                 "\t\t\"data\": [\n",
-                 hex_from_rgba_color(graph->line_color),
-                 hex_from_rgba_color(graph->fill_color),
-                 graph->line_width);
+void graph_serialize(struct graph* graph, char* indent, FILE* rsp) {
+    fprintf(rsp, "%s\"graph.color\": \"0x%x\",\n"
+                 "%s\"graph.fill_color\": \"0x%x\",\n"
+                 "%s\"graph.line_width\": \"%f\",\n"
+                 "%s\"data\": [\n",
+                 indent, hex_from_rgba_color(graph->line_color),
+                 indent, hex_from_rgba_color(graph->fill_color),
+                 indent, graph->line_width, indent);
     int counter = 0;
     for (int i = 0; i < graph->width; i++) {
       if (counter++ > 0) fprintf(rsp, ",\n");
-      fprintf(rsp, "\t\t\t\"%f\"",
-              graph->y[i]);
+      fprintf(rsp, "%s\t\"%f\"", indent, graph->y[i]);
     }
-    fprintf(rsp, "\n\t]\n\t}");
+    fprintf(rsp, "\n%s]", indent);
 }
 
 void graph_destroy(struct graph* graph) {

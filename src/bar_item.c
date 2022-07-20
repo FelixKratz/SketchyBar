@@ -731,11 +731,22 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
   } 
   fprintf(rsp, "\n\t}");
 
-  if (bar_item->type == BAR_COMPONENT_GROUP && bar_item->group) {
-    group_serialize(bar_item->group, rsp);
-  } else if (bar_item->type == BAR_COMPONENT_GRAPH) {
-    graph_serialize(&bar_item->graph, rsp);
+  if (bar_item->popup.num_items > 0) {
+    fprintf(rsp, ",\n\t\"popup\": {\n");
+    popup_serialize(&bar_item->popup, "\t\t", rsp);
+    fprintf(rsp, "\n\t}");
   }
+
+  if (bar_item->type == BAR_COMPONENT_GROUP && bar_item->group) {
+    fprintf(rsp, ",\n\t\"bracket\": [\n");
+    group_serialize(bar_item->group, "\t\t", rsp);
+    fprintf(rsp, "\n\t]");
+  } else if (bar_item->type == BAR_COMPONENT_GRAPH) {
+    fprintf(rsp, ",\n\t\"graph\": {\n");
+    graph_serialize(&bar_item->graph, "\t\t", rsp);
+    fprintf(rsp, "\n\t}");
+  }
+
   fprintf(rsp, "\n}\n");
 }
 

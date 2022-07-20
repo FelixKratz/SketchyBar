@@ -40,4 +40,5 @@ void popup_calculate_bounds(struct popup* popup);
 void popup_draw(struct popup* popup);
 void popup_destroy(struct popup* popup);
 
+void popup_serialize(struct popup* popup, char* indent, FILE* rsp);
 bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message);

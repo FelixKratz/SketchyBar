@@ -319,6 +319,56 @@ void popup_destroy(struct popup* popup) {
   popup_close_window(popup);
 }
 
+void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
+  char align[32] = { 0 };
+  switch (popup->align) {
+    case POSITION_LEFT:
+      snprintf(align, 32, "left");
+      break;
+    case POSITION_RIGHT:
+      snprintf(align, 32, "right");
+      break;
+    case POSITION_CENTER:
+      snprintf(align, 32, "center");
+      break;
+    case POSITION_BOTTOM:
+      snprintf(align, 32, "bottom");
+      break;
+    case POSITION_TOP:
+      snprintf(align, 32, "top");
+      break;
+    default:
+      snprintf(align, 32, "invalid");
+      break;
+  }
+
+  fprintf(rsp, "%s\"drawing\": \"%s\",\n"
+               "%s\"horizontal\": \"%s\",\n"
+               "%s\"height\": %d,\n"
+               "%s\"blur_radius\": %u,\n"
+               "%s\"y_offset\": %d,\n"
+               "%s\"align\": \"%s\",\n"
+               "%s\"background\": {\n",
+               indent, format_bool(popup->drawing),
+               indent, format_bool(popup->horizontal),
+               indent, popup->overrides_cell_size ? popup->cell_size : -1,
+               indent, popup->blur_radius,
+               indent, popup->y_offset,
+               indent, align, indent                                      );
+
+  char deeper_indent[strlen(indent) + 2];
+  snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
+  background_serialize(&popup->background, deeper_indent, rsp, true);
+
+  fprintf(rsp, "\n%s},\n%s\"items\": [\n", indent, indent);
+  for (int i = 0; i < popup->num_items; i++) {
+    fprintf(rsp, "%s\t \"%s\"", indent, popup->items[i]->name);
+    if (i < popup->num_items - 1) fprintf(rsp, ",\n");
+  }
+  fprintf(rsp, "\n%s]", indent);
+
+}
+
 bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_YOFFSET)) {
     popup->y_offset = token_to_int(get_token(&message));
