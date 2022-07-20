@@ -657,6 +657,9 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
     case POSITION_CENTER_RIGHT:
       snprintf(position, 32, "e");
       break;
+    case POSITION_POPUP:
+      snprintf(position, 32, "popup");
+      break;
     default:
       snprintf(position, 32, "invalid");
       break;
