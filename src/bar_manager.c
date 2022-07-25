@@ -504,10 +504,12 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
 }
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
+  if (adid < 1) return NULL;
+
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (!bar_item->drawing || bar_item->num_windows < adid
-        || bar_item->windows[adid - 1] == NULL) {
+        || !bar_item->windows[adid - 1]                   ) {
       continue;
     }
 
@@ -522,6 +524,8 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
 }
 
 struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, uint32_t wid, uint32_t adid) {
+  if (adid < 1) return NULL;
+
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     if (!bar_item->drawing || bar_item->num_windows < adid

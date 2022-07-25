@@ -85,6 +85,8 @@ void bar_order_item_windows(struct bar* bar) {
 }
 
 void bar_draw(struct bar* bar) {
+  if (bar->sid < 1 || bar->adid < 1) return;
+
   if (g_bar_manager.bar_needs_update) {
     draw_rect(bar->window.context,
               bar->window.frame,
@@ -137,7 +139,7 @@ void bar_draw(struct bar* bar) {
 }
 
 void bar_calculate_bounds(struct bar* bar) {
-  if (bar->sid == 0) return;
+  if (bar->sid < 1 || bar->adid < 1) return;
 
   bool is_builtin = CGDisplayIsBuiltin(bar->did);
   uint32_t notch_width = is_builtin ? g_bar_manager.notch_width : 0;

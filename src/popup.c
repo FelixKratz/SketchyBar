@@ -290,7 +290,7 @@ bool popup_set_drawing(struct popup* popup, bool drawing) {
 }
 
 void popup_draw(struct popup* popup) {
-  if (!popup->drawing || popup->adid <= 0) return;
+  if (!popup->drawing || popup->adid < 1) return;
 
   window_apply_frame(&popup->window);
   CGContextClearRect(popup->window.context, popup->background.bounds);

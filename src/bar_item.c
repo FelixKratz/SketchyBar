@@ -416,7 +416,7 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
 }
 
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
-  if (adid <= 0) return NULL;
+  if (adid < 1) return NULL;
   if (bar_item->num_windows < adid) {
     bar_item->windows = (struct window**) realloc(bar_item->windows,
                                                   sizeof(struct window*)*adid);
