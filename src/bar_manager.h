@@ -13,6 +13,7 @@ struct bar_manager {
   bool sleeps;
   bool shadow;
   bool topmost;
+  bool sticky;
   bool picky_redraw;
   bool font_smoothing;
   bool any_bar_hidden;
@@ -66,6 +67,7 @@ bool bar_manager_set_spaces_for_all_displays(struct bar_manager* bar_manager, bo
 bool bar_manager_set_display(struct bar_manager* bar_manager, char display);
 bool bar_manager_set_hidden(struct bar_manager* bar_manager, uint32_t sid, bool hidden);
 bool bar_manager_set_topmost(struct bar_manager* bar_manager, bool topmost);
+bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky);
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow);
 bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
 bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width);

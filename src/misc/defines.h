@@ -77,6 +77,7 @@
 #define PROPERTY_MARGIN                                     "margin"
 #define PROPERTY_DISPLAY                                    "display"
 #define PROPERTY_TOPMOST                                    "topmost"
+#define PROPERTY_STICKY                                     "sticky"
 #define PROPERTY_HIDDEN                                     "hidden"
 #define PROPERTY_FONT_SMOOTHING                             "font_smoothing"
 #define PROPERTY_SHADOW                                     "shadow"

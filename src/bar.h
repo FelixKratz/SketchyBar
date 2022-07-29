@@ -28,4 +28,6 @@ void bar_order_item_windows(struct bar* bar);
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
 
+void bar_change_space(struct bar* bar, uint64_t dsid);
+
 void context_set_font_smoothing(CGContextRef context, bool smoothing);

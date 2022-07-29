@@ -313,6 +313,17 @@ void bar_create_window(struct bar* bar) {
   context_set_font_smoothing(bar->window.context, g_bar_manager.font_smoothing);
 }
 
+void bar_change_space(struct bar* bar, uint64_t dsid) {
+  if (bar->adid < 1) return;
+
+  for (uint32_t i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    bar_item_change_space(bar_item, dsid, bar->adid);
+  }
+
+  window_send_to_space(&bar->window, dsid);
+}
+
 struct bar *bar_create(uint32_t did) {
   struct bar *bar = malloc(sizeof(struct bar));
   memset(bar, 0, sizeof(struct bar));

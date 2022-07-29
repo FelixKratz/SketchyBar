@@ -29,6 +29,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->sleeps = false;
   bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager->topmost = false;
+  bar_manager->sticky = false;
   bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
@@ -267,6 +268,14 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   else bar_manager->window_level = kCGNormalWindowLevel;
   bar_manager_reset(bar_manager);
   bar_manager->topmost = topmost;
+  return true;
+}
+
+bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky) {
+  if (sticky == bar_manager->sticky) return false;
+
+  bar_manager->sticky = sticky;
+  bar_manager_reset(bar_manager);
   return true;
 }
 
@@ -683,9 +692,13 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[1] = '\n';
   uint32_t cursor = 2;
   for (int i = 0; i < bar_manager->bar_count; i++) {
-    uint32_t dsid = display_space_id(bar_manager->bars[i]->did);
+    uint64_t dsid = display_space_id(bar_manager->bars[i]->did);
     bar_manager->bars[i]->sid = mission_control_index(dsid);
-    bar_manager->bars[i]->dsid = dsid;
+    if (bar_manager->bars[i]->dsid != dsid) {
+      bar_manager->bars[i]->dsid = dsid;
+      if (!bar_manager->sticky)
+        bar_change_space(bar_manager->bars[i], dsid);
+    }
     bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
 
     snprintf(info + cursor, 18 * bar_manager->bar_count + 4 - cursor,
@@ -783,6 +796,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
   fprintf(rsp, "{\n"
                "%s\"position\": \"%s\",\n"
                "%s\"topmost\": \"%s\",\n"
+               "%s\"sticky\": \"%s\",\n"
                "%s\"shadow\": \"%s\",\n"
                "%s\"font_smoothing\": \"%s\",\n"
                "%s\"blur_radius\": %u,\n"
@@ -790,6 +804,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                indent, bar_manager->position == POSITION_BOTTOM
                                               ? "bottom" : "top",
                indent, format_bool(bar_manager->topmost),
+               indent, format_bool(bar_manager->sticky),
                indent, format_bool(bar_manager->shadow),
                indent, format_bool(bar_manager->font_smoothing),
                indent, bar_manager->blur_radius,

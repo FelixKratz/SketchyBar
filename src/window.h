@@ -25,6 +25,7 @@ extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef proper
 extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, uint32_t child_wid, int order);
 extern CGError SLSRemoveFromOrderingGroup(int cid, uint32_t wid);
 extern CGError SLSReassociateWindowsSpacesByGeometry(int cid, CFArrayRef wids);
+extern void SLSMoveWindowsToManagedSpace(int cid, CFArrayRef window_list, uint64_t sid);
 
 extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
@@ -67,6 +68,7 @@ void window_close(struct window* window);
 void window_move(struct window* window, CGPoint point);
 void window_set_frame(struct window* window, CGRect frame);
 bool window_apply_frame(struct window* window);
+void window_send_to_space(struct window* window, uint64_t dsid);
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius);
 void window_disable_shadow(struct window* window);

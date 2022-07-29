@@ -584,6 +584,13 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
     graph_draw(&bar_item->graph, context);
 }
 
+void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid) {
+  if (bar_item->num_windows >= adid && bar_item->windows[adid - 1]) {
+    window_send_to_space(bar_item->windows[adid - 1], dsid);
+  }
+  popup_change_space(&bar_item->popup, dsid, adid);
+}
+
 void bar_item_destroy(struct bar_item* bar_item) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script) free(bar_item->script);

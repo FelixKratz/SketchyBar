@@ -282,6 +282,11 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     needs_refresh = bar_manager_set_topmost(&g_bar_manager,
                                             evaluate_boolean_state(token,
                                                                    g_bar_manager.topmost));
+  } else if (token_equals(command, PROPERTY_STICKY)) {
+    struct token token = get_token(&message);
+    needs_refresh = bar_manager_set_sticky(&g_bar_manager,
+                                           evaluate_boolean_state(token,
+                                                                  g_bar_manager.sticky));
   } else if (token_equals(command, PROPERTY_DISPLAY)) {
     struct token position = get_token(&message);
     if (position.length > 0)

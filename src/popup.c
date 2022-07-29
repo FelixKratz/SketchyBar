@@ -310,6 +310,17 @@ void popup_draw(struct popup* popup) {
   }
 }
 
+void popup_change_space(struct popup* popup, uint64_t dsid, uint32_t adid) {
+  for (int i = 0; i < popup->num_items; i++) {
+    struct bar_item* bar_item = popup->items[i];
+    bar_item_change_space(bar_item, dsid, adid);
+  }
+
+  if (popup->drawing) {
+    window_send_to_space(&popup->window, dsid);
+  }
+}
+
 void popup_destroy(struct popup* popup) {
   for (int i = 0; i < popup->num_items; i++) {
     bar_manager_remove_item(&g_bar_manager, popup->items[i]);

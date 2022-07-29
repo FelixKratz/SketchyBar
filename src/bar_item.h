@@ -116,6 +116,8 @@ CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 
+void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid);
+
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
 
 void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* rsp);

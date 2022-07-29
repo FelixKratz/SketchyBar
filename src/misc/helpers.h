@@ -21,16 +21,16 @@ extern CFArrayRef SLSHWCaptureSpace(int64_t cid, int64_t sid, int64_t flags);
 extern int g_connection;
 
 struct signal_args {
-    struct env_vars env_vars;
-    void *entity;
-    void *param1;
+  struct env_vars env_vars;
+  void *entity;
+  void *param1;
 };
 
 struct rgba_color {
-    float r;
-    float g;
-    float b;
-    float a;
+  float r;
+  float g;
+  float b;
+  float a;
 };
 
 static struct rgba_color g_transparent = { 0 };
@@ -39,8 +39,8 @@ static CGPoint g_nirvana = {-9999, -9999};
 static double deg_to_rad = 2.* M_PI / 360.;
 
 struct token {
-    char *text;
-    unsigned int length;
+  char *text;
+  unsigned int length;
 };
 
 struct notification {
@@ -89,12 +89,13 @@ static inline char* escape_string(char* string) {
 static inline void respond(FILE* rsp, char* response, ...) {
   time_t t = time(NULL);
   struct tm ltime = *localtime(&t);
-  printf("[%d-%02d-%02d %02d:%02d:%02d] ", ltime.tm_year + 1900,
-                                         ltime.tm_mon + 1,
-                                         ltime.tm_mday,
-                                         ltime.tm_hour,
-                                         ltime.tm_min,
-                                         ltime.tm_sec            );
+  printf("[%d-%02d-%02d %02d:%02d:%02d] ",
+         ltime.tm_year + 1900,
+         ltime.tm_mon + 1,
+         ltime.tm_mday,
+         ltime.tm_hour,
+         ltime.tm_min,
+         ltime.tm_sec                     );
 
   va_list args_rsp;
   va_list args_stdout;
@@ -116,35 +117,35 @@ static inline uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
 }
 
 static inline struct rgba_color rgba_color_from_hex(uint32_t color) {
-    struct rgba_color result;
-    result.r = ((color >> 16) & 0xff) / 255.0;
-    result.g = ((color >> 8) & 0xff) / 255.0;
-    result.b = ((color >> 0) & 0xff) / 255.0;
-    result.a = ((color >> 24) & 0xff) / 255.0;
-    return result;
+  struct rgba_color result;
+  result.r = ((color >> 16) & 0xff) / 255.0;
+  result.g = ((color >> 8) & 0xff) / 255.0;
+  result.b = ((color >> 0) & 0xff) / 255.0;
+  result.a = ((color >> 24) & 0xff) / 255.0;
+  return result;
 }
 
 static inline struct key_value_pair get_key_value_pair(char *token, char split) {
-    struct key_value_pair key_value_pair;
-    key_value_pair.key = token;
+  struct key_value_pair key_value_pair;
+  key_value_pair.key = token;
 
-    while (*token) {
-        if (token[0] == split) break;
-        ++token;
-    }
+  while (*token) {
+    if (token[0] == split) break;
+    ++token;
+  }
 
-    if (*token != split) {
-        key_value_pair.key = NULL;
-        key_value_pair.value = NULL;
-    } else if (token[1]) {
-        *token = '\0';
-        key_value_pair.value = token + 1;
-    } else {
-        *token = '\0';
-        key_value_pair.value = NULL;
-    }
+  if (*token != split) {
+    key_value_pair.key = NULL;
+    key_value_pair.value = NULL;
+  } else if (token[1]) {
+    *token = '\0';
+    key_value_pair.value = token + 1;
+  } else {
+    *token = '\0';
+    key_value_pair.value = NULL;
+  }
 
-    return key_value_pair;
+  return key_value_pair;
 }
 
 static inline void pack_key_value_pair(char* cursor, struct key_value_pair* key_value_pair) {
@@ -160,11 +161,11 @@ static inline void pack_key_value_pair(char* cursor, struct key_value_pair* key_
 }
 
 static inline bool is_root(void) {
-    return getuid() == 0 || geteuid() == 0;
+  return getuid() == 0 || geteuid() == 0;
 }
 
 static inline bool string_equals(const char *a, const char *b) {
-    return a && b && strcmp(a, b) == 0;
+  return a && b && strcmp(a, b) == 0;
 }
 
 static inline char* get_type_description(uint32_t type) {
@@ -250,8 +251,13 @@ static inline struct token get_token(char **message) {
 }
 
 static inline bool evaluate_boolean_state(struct token state, bool previous_state) {
-  if (token_equals(state, ARGUMENT_COMMON_VAL_ON) || token_equals(state, ARGUMENT_COMMON_VAL_YES) || token_equals(state, ARGUMENT_COMMON_VAL_TRUE) || token_equals(state, ARGUMENT_COMMON_VAL_ONE)) return true;
-  else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE)) return !previous_state;
+  if (token_equals(state, ARGUMENT_COMMON_VAL_ON)
+      || token_equals(state, ARGUMENT_COMMON_VAL_YES)
+      || token_equals(state, ARGUMENT_COMMON_VAL_TRUE)
+      || token_equals(state, ARGUMENT_COMMON_VAL_ONE) )
+    return true;
+  else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE))
+    return !previous_state;
   else return false;
 }
 
@@ -269,7 +275,7 @@ static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_co
   CGContextSetLineWidth(context, line_width);
   if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
   CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
-  
+
   if (clear) CGContextClearRect(context, region);
   CGMutablePathRef path = CGPathCreateMutable();
   CGRect inset_region = CGRectInset(region, (float)(line_width) / 2.f, (float)(line_width) / 2.f);
@@ -288,56 +294,72 @@ static inline CGRect cgrect_mirror_y(CGRect rect, float y) {
 }
 
 static inline bool cgrect_contains_point(CGRect* r, CGPoint* p) {
-    return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
-           p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;
+  return p->x >= r->origin.x && p->x <= r->origin.x + r->size.width &&
+         p->y >= r->origin.y && p->y <= r->origin.y + r->size.height;
 }
 
 static inline char *string_escape_quote(char *s) {
-    if (!s) return NULL;
+  if (!s) return NULL;
 
-    char *cursor = s;
-    int num_quotes = 0;
+  char *cursor = s;
+  int num_quotes = 0;
 
-    while (*cursor) {
-        if (*cursor == '"') ++num_quotes;
-        ++cursor;
-    }
+  while (*cursor) {
+    if (*cursor == '"') ++num_quotes;
+    ++cursor;
+  }
 
-    if (!num_quotes) return NULL;
+  if (!num_quotes) return NULL;
 
-    int size_in_bytes = (int)(cursor - s) + num_quotes;
-    char *result = malloc(sizeof(char) * (size_in_bytes+1));
-    result[size_in_bytes] = '\0';
+  int size_in_bytes = (int)(cursor - s) + num_quotes;
+  char *result = malloc(sizeof(char) * (size_in_bytes+1));
+  result[size_in_bytes] = '\0';
 
-    for (char *dst = result, *cursor = s; *cursor; ++cursor) {
-        if (*cursor == '"') *dst++ = '\\';
-        *dst++ = *cursor;
-    }
+  for (char *dst = result, *cursor = s; *cursor; ++cursor) {
+    if (*cursor == '"') *dst++ = '\\';
+    *dst++ = *cursor;
+  }
 
-    return result;
+  return result;
+}
+
+static inline CFArrayRef cfarray_of_cfnumbers(void *values, size_t size, int count, CFNumberType type) {
+  CFNumberRef temp[count];
+
+  for (int i = 0; i < count; ++i) {
+    temp[i] = CFNumberCreate(NULL, type, ((char *)values) + (size * i));
+  }
+
+  CFArrayRef result = CFArrayCreate(NULL, (const void **)temp, count, &kCFTypeArrayCallBacks);
+
+  for (int i = 0; i < count; ++i) {
+    CFRelease(temp[i]);
+  }
+
+  return result;
 }
 
 static inline char *cfstring_copy(CFStringRef string) {
-    CFIndex num_bytes = CFStringGetMaximumSizeForEncoding(CFStringGetLength(string), kCFStringEncodingUTF8);
-    char *result = malloc(num_bytes + 1);
-    if (!result) return NULL;
+  CFIndex num_bytes = CFStringGetMaximumSizeForEncoding(CFStringGetLength(string), kCFStringEncodingUTF8);
+  char *result = malloc(num_bytes + 1);
+  if (!result) return NULL;
 
-    if (!CFStringGetCString(string, result, num_bytes + 1, kCFStringEncodingUTF8)) {
-        free(result);
-        result = NULL;
-    }
+  if (!CFStringGetCString(string, result, num_bytes + 1, kCFStringEncodingUTF8)) {
+    free(result);
+    result = NULL;
+  }
 
-    return result;
+  return result;
 }
 
 static inline char *string_copy(char *s) {
-    int length = strlen(s);
-    char *result = malloc(length + 1);
-    if (!result) return NULL;
+  int length = strlen(s);
+  char *result = malloc(length + 1);
+  if (!result) return NULL;
 
-    memcpy(result, s, length);
-    result[length] = '\0';
-    return result;
+  memcpy(result, s, length);
+  result[length] = '\0';
+  return result;
 }
 
 static inline char* read_file(char* path) {
@@ -361,53 +383,53 @@ static inline char* resolve_path(char* path) {
 }
 
 static inline bool file_exists(char *filename) {
-    struct stat buffer;
+  struct stat buffer;
 
-    if (stat(filename, &buffer) != 0) {
-        return false;
-    }
+  if (stat(filename, &buffer) != 0) {
+    return false;
+  }
 
-    if (buffer.st_mode & S_IFDIR) {
-        return false;
-    }
+  if (buffer.st_mode & S_IFDIR) {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 static inline bool ensure_executable_permission(char *filename) {
-    struct stat buffer;
+  struct stat buffer;
 
-    if (stat(filename, &buffer) != 0) {
-        return false;
-    }
+  if (stat(filename, &buffer) != 0) {
+    return false;
+  }
 
-    bool is_executable = buffer.st_mode & S_IXUSR;
-    if (!is_executable && chmod(filename, S_IXUSR | buffer.st_mode) != 0) {
-        return false;
-    }
-    return true;
+  bool is_executable = buffer.st_mode & S_IXUSR;
+  if (!is_executable && chmod(filename, S_IXUSR | buffer.st_mode) != 0) {
+    return false;
+  }
+  return true;
 }
 
 static inline bool sync_exec(char *command, struct env_vars *env_vars) {
-    if (env_vars) {
-      for (int i = 0; i < env_vars->count; i++) {
-        setenv(env_vars->vars[i]->key, env_vars->vars[i]->value, 1);
-      }
+  if (env_vars) {
+    for (int i = 0; i < env_vars->count; i++) {
+      setenv(env_vars->vars[i]->key, env_vars->vars[i]->value, 1);
     }
+  }
 
-    char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
-    return execvp(exec[0], exec);
+  char *exec[] = { "/usr/bin/env", "sh", "-c", command, NULL};
+  return execvp(exec[0], exec);
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 static inline bool fork_exec(char *command, struct env_vars* env_vars) {
-    int pid = vfork();
-    if (pid == -1) return false;
-    if (pid !=  0) return true;
+  int pid = vfork();
+  if (pid == -1) return false;
+  if (pid !=  0) return true;
 
-    alarm(FORK_TIMEOUT);
-    exit(sync_exec(command, env_vars));
+  alarm(FORK_TIMEOUT);
+  exit(sync_exec(command, env_vars));
 }
 #pragma clang diagnostic pop
 

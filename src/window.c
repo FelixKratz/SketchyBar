@@ -1,4 +1,7 @@
 #include "window.h"
+#include "bar_manager.h"
+
+extern struct bar_manager g_bar_manager;
 
 void window_init(struct window* window) {
   window->context = NULL;
@@ -18,8 +21,13 @@ static CFTypeRef window_create_region(struct window *window, CGRect frame) {
 }
 
 void window_create(struct window* window, CGRect frame) {
-  uint64_t set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
-  uint64_t clear_tags = kCGSSuperStickyTagBit;
+  uint64_t set_tags = 0; // kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
+  uint64_t clear_tags = 0; // kCGSSuperStickyTagBit;
+                           //
+  if (g_bar_manager.sticky) {
+    set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
+    clear_tags = kCGSSuperStickyTagBit;
+  }
 
   window->origin = frame.origin;
   window->frame.origin = CGPointZero;
@@ -126,6 +134,11 @@ bool window_apply_frame(struct window* window) {
     return false;
   }
   return false;
+}
+
+void window_send_to_space(struct window* window, uint64_t dsid) {
+  CFArrayRef window_list = cfarray_of_cfnumbers(&window->id, sizeof(uint32_t), 1, kCFNumberSInt32Type);
+  SLSMoveWindowsToManagedSpace(g_connection, window_list, dsid);
 }
 
 void window_close(struct window* window) {
