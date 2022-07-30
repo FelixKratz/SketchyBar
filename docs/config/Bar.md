@@ -41,6 +41,7 @@ where possible settings are:
 | `display`        | `main`, `all`          | `all`        | Display to show the bar on                                  |
 | `hidden`         | `<boolean>`, `current` | `off`        | If all / the current bar is hidden                          |
 | `topmost`        | `<boolean>`            | `off`        | If the bar should be drawn on top of `everything`           |
+| `sticky`         | `<boolean>`            | `off`        | Makes the bar sticky (only use with disabled space change animations [#220](https://github.com/FelixKratz/SketchyBar/issues/220)) |
 | `font_smoothing` | `<boolean>`            | `off`        | If fonts should be smoothened                               |
 | `shadow`         | `<boolean>`            | `off`        | If the bar should draw a shadow                             |
 
