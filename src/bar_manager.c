@@ -694,12 +694,12 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; i++) {
     uint64_t dsid = display_space_id(bar_manager->bars[i]->did);
     bar_manager->bars[i]->sid = mission_control_index(dsid);
+    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
     if (bar_manager->bars[i]->dsid != dsid) {
       bar_manager->bars[i]->dsid = dsid;
-      if (!bar_manager->sticky)
+      if (!bar_manager->sticky && bar_manager->bars[i]->shown)
         bar_change_space(bar_manager->bars[i], dsid);
     }
-    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
 
     snprintf(info + cursor, 18 * bar_manager->bar_count + 4 - cursor,
                             "\t\"display-%d\": %d\n",
