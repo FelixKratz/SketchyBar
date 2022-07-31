@@ -163,7 +163,9 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       if (index >= 0)
         group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
       else {
-        respond(rsp, "[?] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
+        respond(rsp, "[!] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
+        bar_manager_remove_item(&g_bar_manager, bar_item);
+        return;
       }
       member = get_token(&message);
       while (member.text && member.length > 0) {
