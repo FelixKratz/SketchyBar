@@ -137,8 +137,10 @@ bool window_apply_frame(struct window* window) {
 }
 
 void window_send_to_space(struct window* window, uint64_t dsid) {
-  CFArrayRef window_list = cfarray_of_cfnumbers(&window->id, sizeof(uint32_t), 1, kCFNumberSInt32Type);
-  SLSMoveWindowsToManagedSpace(g_connection, window_list, dsid);
+  if (!CGPointEqualToPoint(window->origin, g_nirvana)) {
+    CFArrayRef window_list = cfarray_of_cfnumbers(&window->id, sizeof(uint32_t), 1, kCFNumberSInt32Type);
+    SLSMoveWindowsToManagedSpace(g_connection, window_list, dsid);
+  }
 }
 
 void window_close(struct window* window) {
