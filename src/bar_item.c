@@ -525,13 +525,6 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     label_position += alias_get_length(&bar_item->alias); 
   }
 
-  if (bar_item->group && group_is_first_member(bar_item->group, bar_item))
-    group_calculate_bounds(bar_item->group,
-                           x,
-                           y,
-                           bar_item->position == POSITION_RIGHT
-                           || bar_item->position == POSITION_CENTER_LEFT);
-
   text_calculate_bounds(&bar_item->icon,
                         icon_position,
                         content_y + bar_item->y_offset);

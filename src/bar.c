@@ -40,7 +40,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
   if (!bar_item->popup.overrides_cell_size)
     bar_item->popup.cell_size = window->frame.size.height;
 
-  popup_calculate_bounds(&bar_item->popup);
+  popup_calculate_bounds(&bar_item->popup, bar);
 
   CGPoint anchor = window->origin;
   if (bar_item->popup.align == POSITION_CENTER) {
@@ -57,6 +57,7 @@ void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* b
               : window->frame.size.height);
 
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
+  popup_calculate_bounds(&bar_item->popup, bar);
 }
 
 void bar_order_item_windows(struct bar* bar) {
@@ -218,10 +219,17 @@ void bar_calculate_bounds(struct bar* bar) {
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
 
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
+      group_calculate_bounds(bar_item->group,
+                             bar,
+                             (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
+                             y,
+                             bar_item->position == POSITION_RIGHT
+                             || bar_item->position == POSITION_CENTER_LEFT);
+
       CGPoint shadow_offsets =
                 bar_item_calculate_shadow_offsets(bar_item->group->members[0]);
 
-      uint32_t group_length = group_get_length(bar_item->group);
+      uint32_t group_length = group_get_length(bar_item->group, bar);
       uint32_t group_offset = (bar_item->position == POSITION_RIGHT
                                || bar_item->position == POSITION_CENTER_LEFT)
                               ? group_length

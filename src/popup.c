@@ -1,6 +1,7 @@
 #include "popup.h"
 #include "bar_item.h"
 #include "bar_manager.h"
+#include "bar.h"
 
 void popup_init(struct popup* popup, struct bar_item* host) {
   popup->drawing = false;
@@ -60,14 +61,14 @@ void popup_order_windows(struct popup* popup) {
   }
 }
 
-void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item) {
+void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item, struct bar* bar) {
   if (popup->adid != g_bar_manager.active_adid) return;
   struct window* window = bar_item_get_window(bar_item, popup->adid);
 
   if (!bar_item->popup.overrides_cell_size)
     bar_item->popup.cell_size = window->frame.size.height;
 
-  popup_calculate_bounds(&bar_item->popup);
+  popup_calculate_bounds(&bar_item->popup, bar);
 
   CGPoint anchor = window->origin;
   if (bar_item->position != POSITION_POPUP || popup->horizontal) {
@@ -97,7 +98,7 @@ void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_i
   popup_set_anchor(&bar_item->popup, anchor, popup->adid);
 }
 
-void popup_calculate_bounds(struct popup* popup) {
+void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
   uint32_t y = popup->background.border_width;
   uint32_t x = 0;
   uint32_t total_item_width = 0;
@@ -166,7 +167,7 @@ void popup_calculate_bounds(struct popup* popup) {
       if (bar_item->group
           && group_is_first_member(bar_item->group, bar_item)) {
 
-        uint32_t group_length = group_get_length(bar_item->group);
+        uint32_t group_length = group_get_length(bar_item->group, bar);
         CGRect group_frame = {{frame.origin.x,
                                frame.origin.y },
                               {group_length,
@@ -179,7 +180,7 @@ void popup_calculate_bounds(struct popup* popup) {
     }
 
     if (bar_item->popup.drawing)
-      popup_calculate_popup_anchor_for_bar_item(popup, bar_item);
+      popup_calculate_popup_anchor_for_bar_item(popup, bar_item, bar);
 
     if (item_width > width && !popup->horizontal) width = item_width;
     if (popup->horizontal) x += item_width;
@@ -278,7 +279,6 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   }
 
   popup->adid = adid;
-  popup_calculate_bounds(popup);
 }
 
 bool popup_set_drawing(struct popup* popup, bool drawing) {

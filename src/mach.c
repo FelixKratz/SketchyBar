@@ -31,7 +31,7 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
                                           0,
                                           sizeof(struct mach_buffer),
                                           port,
-                                          10,
+                                          100,
                                           MACH_PORT_NULL             );
   else 
     msg_return = mach_msg(&buffer->message.header,

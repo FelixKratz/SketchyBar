@@ -4,6 +4,7 @@
 #include "window.h"
 
 struct bar_item;
+struct bar;
 
 struct popup {
   bool drawing;
@@ -36,7 +37,7 @@ bool popup_set_drawing(struct popup* popup, bool drawing);
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item);
 
 uint32_t popup_get_width(struct popup* popup);
-void popup_calculate_bounds(struct popup* popup);
+void popup_calculate_bounds(struct popup* popup, struct bar* bar);
 void popup_draw(struct popup* popup);
 void popup_destroy(struct popup* popup);
 
