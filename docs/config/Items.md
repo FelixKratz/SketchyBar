@@ -6,7 +6,7 @@ sidebar_position: 1
 ## Items and their properties
 Items are the main building blocks of *SketchyBar* and can be configured in a number of ways. Items have the following basic structure:
 
-![Item Structure](/img/bar_item.svg)
+![Item Structure](/img/bar_item.jpg)
 
 ### Adding items to SketchyBar
 ```bash
