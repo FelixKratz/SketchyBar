@@ -167,6 +167,12 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
       if (bar_item->group
           && group_is_first_member(bar_item->group, bar_item)) {
 
+        group_calculate_bounds(bar_item->group,
+                               bar,
+                               0,
+                               item_y,
+                               false           );
+
         uint32_t group_length = group_get_length(bar_item->group, bar);
         CGRect group_frame = {{frame.origin.x,
                                frame.origin.y },

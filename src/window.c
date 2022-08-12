@@ -21,9 +21,9 @@ static CFTypeRef window_create_region(struct window *window, CGRect frame) {
 }
 
 void window_create(struct window* window, CGRect frame) {
-  uint64_t set_tags = 0; // kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
-  uint64_t clear_tags = 0; // kCGSSuperStickyTagBit;
-                           //
+  uint64_t set_tags = 0;
+  uint64_t clear_tags = 0;
+
   if (g_bar_manager.sticky) {
     set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
     clear_tags = kCGSSuperStickyTagBit;
