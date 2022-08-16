@@ -526,9 +526,12 @@ void handle_message_mach(struct mach_buffer* buffer) {
           else if (reti != REG_NOMATCH) {
             char buf[1024];
             regerror(reti, &regex, buf, sizeof(char)*1024);
-            respond(rsp, "[?] Set: No match found for regex '%s'\n", name.text);
+            respond(rsp, "[!] Set: Regex '%s' errored out\n", buf);
             break;
           }
+        }
+        if (!bar_items) {
+          respond(rsp, "[!] Set: No match found for regex '%s'\n", name.text);
         }
         regfree(&regex);
       }
@@ -542,7 +545,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
         bar_items[0] = g_bar_manager.bar_items[item_index_for_name];
         count = 1;
       }
-      if (!bar_items || count == 0) return;
+      if (!bar_items || count == 0) goto out;
 
       struct token token = get_token(&message);
       while (token.text && token.length > 0) {
@@ -656,6 +659,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
   bar_manager_refresh(&g_bar_manager, false);
   bar_manager_unfreeze(&g_bar_manager);
 
+out:
   if (rsp) fclose(rsp);
 
   mach_send_message(buffer->message.header.msgh_remote_port, response,
