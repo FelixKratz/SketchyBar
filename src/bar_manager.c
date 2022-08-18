@@ -27,7 +27,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
-  bar_manager->window_level = kCGNormalWindowLevel;
+  bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager->topmost = false;
   bar_manager->sticky = false;
   bar_manager->picky_redraw = false;
@@ -265,7 +265,7 @@ bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool
 
 bool bar_manager_set_topmost(struct bar_manager *bar_manager, bool topmost) {
   if (topmost) bar_manager->window_level = kCGScreenSaverWindowLevel;
-  else bar_manager->window_level = kCGNormalWindowLevel;
+  else bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager_reset(bar_manager);
   bar_manager->topmost = topmost;
   return true;
