@@ -149,9 +149,15 @@ void bar_calculate_bounds(struct bar* bar) {
                                                            bar,
                                                            POSITION_CENTER);
 
-  uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left;
+  uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left > 0
+                                   ? g_bar_manager.background.padding_left
+                                   : 0;
+
   uint32_t bar_right_first_item_x = bar->window.frame.size.width
-                                    - g_bar_manager.background.padding_right;
+                                    - (g_bar_manager.background.padding_right
+                                       > 0
+                                       ? g_bar_manager.background.padding_right
+                                       : 0                                   );
 
   uint32_t bar_center_first_item_x = (bar->window.frame.size.width
                                       - 2*g_bar_manager.margin
@@ -192,11 +198,15 @@ void bar_calculate_bounds(struct bar* bar) {
 
     if (bar_item->position == POSITION_RIGHT
         || bar_item->position == POSITION_CENTER_LEFT) {
-      *next_position -= bar_item_display_length
-                        + bar_item->background.padding_right;
+
+      *next_position = min(*next_position - bar_item_display_length
+                           - bar_item->background.padding_right,
+                           bar->window.frame.size.width
+                           - bar_item_display_length               );
     }
     else {
-      *next_position += bar_item->background.padding_left;
+      *next_position += max((int)-*next_position,
+                            bar_item->background.padding_left);
     }
 
     bar_item->graph.rtl = rtl;
