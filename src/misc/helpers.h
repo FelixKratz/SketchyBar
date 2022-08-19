@@ -9,8 +9,8 @@
 #include "defines.h"
 
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
-#define max(a, b) a > b ? a : b
-#define min(a, b) a < b ? a : b
+#define max(a, b) (a > b ? a : b)
+#define min(a, b) (a < b ? a : b)
 #define MAXLEN 512
 #define FORK_TIMEOUT 60
 

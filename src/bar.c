@@ -149,15 +149,12 @@ void bar_calculate_bounds(struct bar* bar) {
                                                            bar,
                                                            POSITION_CENTER);
 
-  uint32_t bar_left_first_item_x = g_bar_manager.background.padding_left > 0
-                                   ? g_bar_manager.background.padding_left
-                                   : 0;
+  uint32_t bar_left_first_item_x = max(g_bar_manager.background.padding_left,
+                                       0                                     );
 
   uint32_t bar_right_first_item_x = bar->window.frame.size.width
-                                    - (g_bar_manager.background.padding_right
-                                       > 0
-                                       ? g_bar_manager.background.padding_right
-                                       : 0                                   );
+                                   -max(g_bar_manager.background.padding_right,
+                                          0                                  );
 
   uint32_t bar_center_first_item_x = (bar->window.frame.size.width
                                       - 2*g_bar_manager.margin
@@ -215,11 +212,11 @@ void bar_calculate_bounds(struct bar* bar) {
     uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
                                  bar->window.frame.size.height
                                  - (g_bar_manager.background.border_width + 1),
-                                 (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
+                                 max(shadow_offsets.x, 0),
                                  y                                           );
 
     CGRect frame = {{bar->window.origin.x + *next_position
-                    - (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
+                    - max(shadow_offsets.x, 0),
                      bar->window.origin.y                         },
                     {bar_item_display_length
                       + shadow_offsets.x
@@ -231,7 +228,7 @@ void bar_calculate_bounds(struct bar* bar) {
     if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
       group_calculate_bounds(bar_item->group,
                              bar,
-                             (shadow_offsets.x > 0 ? shadow_offsets.x : 0),
+                             max(shadow_offsets.x, 0),
                              y,
                              bar_item->position == POSITION_RIGHT
                              || bar_item->position == POSITION_CENTER_LEFT);
