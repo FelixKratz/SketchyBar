@@ -41,17 +41,24 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
 
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
-  struct token y = get_token(&message);
   
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                 name.text    );
 
   if (item_index_for_name < 0) {
-    respond(rsp, "[!] Push: Item '%s' not found", name.text);
+    respond(rsp, "[!] Push: Item '%s' not found\n", name.text);
     return;
   }
   struct bar_item* bar_item = g_bar_manager.bar_items[item_index_for_name];
-  graph_push_back(&bar_item->graph, token_to_float(y));
+  if (bar_item->type != BAR_COMPONENT_GRAPH) {
+    respond(rsp, "[!] Push: Item '%s' not a graph\n", name.text);
+    return;
+  }
+  struct token y = get_token(&message);
+  while (y.text && y.length > 0) {
+    graph_push_back(&bar_item->graph, token_to_float(y));
+    y = get_token(&message);
+  }
   bar_item_needs_update(bar_item);
 }
 
