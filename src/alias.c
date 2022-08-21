@@ -2,7 +2,15 @@
 
 void print_all_menu_items(FILE* rsp) {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
-  if (__builtin_available(macOS 11.0, *)) CGRequestScreenCaptureAccess();
+  if (__builtin_available(macOS 11.0, *)) {
+    if (!CGRequestScreenCaptureAccess()) {
+      respond(rsp, "[!] Query (default_menu_items): Screen Recording "
+                   "Permissions not given. Restart SketchyBar after granting "
+                   "permissions.\n");
+      return;
+    }
+  }
+
 #endif
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
                                                       kCGNullWindowID        );
