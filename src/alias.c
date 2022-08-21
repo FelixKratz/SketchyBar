@@ -237,4 +237,3 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
   }
   return false;
 }
-

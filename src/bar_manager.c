@@ -456,10 +456,13 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
                                      forced,
                                      NULL                      );
   }
-  bar_manager_freeze(bar_manager);
-  bar_manager->frozen = false;
-  if (needs_refresh) bar_manager_refresh(bar_manager, false);
-  bar_manager_unfreeze(bar_manager);
+
+  if (needs_refresh) {
+    bar_manager_freeze(bar_manager);
+    bar_manager->frozen = false;
+    bar_manager_refresh(bar_manager, false);
+    bar_manager_unfreeze(bar_manager);
+  }
 }
 
 void bar_manager_reset(struct bar_manager* bar_manager) {
