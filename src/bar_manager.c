@@ -694,6 +694,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[0] = '{';
   info[1] = '\n';
   uint32_t cursor = 2;
+  bar_manager_freeze(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; i++) {
     uint64_t dsid = display_space_id(bar_manager->bars[i]->did);
     bar_manager->bars[i]->sid = mission_control_index(dsid);
@@ -721,7 +722,6 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
                                     &env_vars                      );
 
 
-  bar_manager_freeze(bar_manager);
   bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, false);
   bar_manager_unfreeze(bar_manager);
