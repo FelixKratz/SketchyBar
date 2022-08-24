@@ -87,6 +87,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->update_frequency = 0;
   bar_item->position = POSITION_LEFT;
   bar_item->align = POSITION_LEFT;
+  bar_item->associated_to_active_display = false;
   bar_item->associated_display = 0;
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
@@ -874,26 +875,38 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_space;
     bar_item->associated_space = 0;
-    for (int i = 0; i < token.length; i++) {
-      int sep = -1;
-      if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item_append_associated_space(bar_item,
-                                       1 << strtoul(&token.text[sep + 1],
-                                                    NULL,
-                                                    0                    ));
+    uint32_t count;
+    char** list = token_split(token, ',', &count);
+    if (list && count > 0) {
+      for (int i = 0; i < count; i++) {
+        bar_item_append_associated_space(bar_item,
+                                         1 << strtoul(list[i],
+                                                      NULL,
+                                                      0       ));
+      }
+      free(list);
     }
     needs_refresh = (prev != bar_item->associated_space);
   } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_display;
     bar_item->associated_display = 0;
-    for (int i = 0; i < token.length; i++) {
-      int sep = -1;
-      if (token.text[i] == ',') token.text[i] = '\0', sep = i;
-      bar_item_append_associated_display(bar_item,
-                                         1 << strtoul(&token.text[sep + 1],
-                                                      NULL,
-                                                      0                    ));
+    bar_item->associated_to_active_display = false;
+    uint32_t count;
+    char** list = token_split(token, ',', &count);
+    if (list && count > 0) {
+      for (int i = 0; i < count; i++) {
+        if (strcmp(list[i], "active") == 0) {
+          bar_item->associated_to_active_display = true;
+        }
+        else {
+          bar_item_append_associated_display(bar_item,
+                                             1 << strtoul(list[i],
+                                                          NULL,
+                                                          0       ));
+        }
+      }
+      free(list);
     }
     needs_refresh = (prev != bar_item->associated_display);
   } else if (token_equals(property, PROPERTY_YOFFSET)) {

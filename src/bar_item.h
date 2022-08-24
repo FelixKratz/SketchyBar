@@ -32,6 +32,7 @@ struct bar_item {
   uint32_t blur_radius;
 
   // These are 32bit masks where the ith bit represents the ith screen/display/bar association
+  bool associated_to_active_display;
   uint32_t associated_bar;
   uint32_t associated_display;
   uint32_t associated_space;

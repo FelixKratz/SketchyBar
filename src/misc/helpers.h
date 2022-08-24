@@ -192,6 +192,23 @@ static inline char* get_modifier_description(uint32_t modifier) {
     return "none";
 }
 
+static inline char** token_split(struct token token, char split, uint32_t* count) {
+  if (!token.text || token.length == 0) return NULL;
+  char** list = NULL;
+  *count = 0;
+
+  int prev = -1;
+  for (int i = 0; i < token.length + 1; i++) {
+    if (token.text[i] == split || token.text[i] == '\0') {
+      list = realloc(list, sizeof(char*) * ++*count);
+      token.text[i] = '\0';
+      list[*count - 1] = &token.text[prev + 1];
+      prev = i;
+    }
+  }
+  return list;
+}
+
 static inline bool token_equals(struct token token, char *match) {
   char *at = match;
   for (int i = 0; i < token.length; ++i, ++at) {

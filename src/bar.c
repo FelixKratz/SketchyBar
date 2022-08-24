@@ -13,9 +13,11 @@ void bar_draw_graph(struct bar* bar, struct bar_item* bar_item, uint32_t x, bool
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
 
-    if (bar_item->associated_display > 0
-        && (!(bar_item->associated_display & (1 << bar->adid)))
-            && !bar_item->ignore_association)
+    if (((bar_item->associated_display > 0
+          && (!(bar_item->associated_display & (1 << bar->adid))))
+        || (bar_item->associated_to_active_display
+            && (bar->adid != g_bar_manager.active_adid)))
+        && !bar_item->ignore_association)
       return false;
 
     if (bar_item->associated_space > 0
