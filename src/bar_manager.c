@@ -306,17 +306,66 @@ uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct
 bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* bar) {
   if (bar_manager->bar_needs_update) return true;
 
+  uint32_t bar_mask = 1 << bar->adid;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
+    bool draws_item = bar_draws_item(bar, bar_item);
     
-    if ((bar_item->needs_update && bar_draws_item(bar, bar_item))
-        || (!bar_item->drawing && bar_item->associated_bar != 0)
-        || (bar_item->drawing
-            && bar_item->associated_display != 0
-            && (bar_item->associated_bar << 1)
-                != (bar_item->associated_display & bar_manager->active_displays))) {
-      return true;
-    }
+    bool regular_update = bar_item->needs_update
+                          && draws_item;
+
+    if (regular_update) return true;
+
+    bool disabled_item_drawn_on_bar = !bar_item->drawing
+                                      && (bar_item->associated_bar != 0);
+
+    if (disabled_item_drawn_on_bar) return true;
+
+    if (bar_item->ignore_association
+        || (bar_item->type == BAR_COMPONENT_SPACE))
+      continue;
+
+    bool drawn_on_non_associated_space = bar_item->associated_space > 0
+                                         && !(bar_item->associated_space
+                                              & (1 << bar->sid))
+                                         && ((bar_item->associated_bar << 1)
+                                             & bar_mask);
+
+    if (drawn_on_non_associated_space) return true;
+
+    bool not_drawn_on_associated_space = draws_item
+                                         && bar_item->associated_space > 0
+                                         && (bar_item->associated_space
+                                             & (1 << bar->sid))
+                                         && !((bar_item->associated_bar << 1)
+                                              & bar_mask);
+
+    if (not_drawn_on_associated_space) return true;
+
+    bool not_drawn_on_associated_display =
+      (draws_item
+       && (bar_item->associated_display > 0)
+       && (bar_item->associated_display & bar_mask)
+       && !(((bar_item->associated_bar << 1) & bar_mask)))
+      || (draws_item
+          && bar_item->associated_to_active_display
+          && bar_manager->active_adid == bar->adid
+          && !((bar_item->associated_bar << 1) & bar_mask));
+
+    if (not_drawn_on_associated_display) return true;
+
+    bool drawn_on_non_associated_display =
+      (!bar_item->associated_to_active_display
+       && (bar_item->associated_display > 0)
+       && !(bar_item->associated_display & bar_mask)
+       && (((bar_item->associated_bar << 1) & bar_mask)))
+      || (bar_item->drawing
+       && bar_item->associated_to_active_display
+       && (((bar_item->associated_bar << 1) & bar_mask))
+       && (bar->adid != bar_manager->active_adid));
+
+    if (drawn_on_non_associated_display) return true;
+
   }
   return false;
 }
@@ -739,6 +788,11 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_DISPLAY_CHANGE,
                                     &env_vars                        );
+
+  bar_manager_freeze(bar_manager);
+  bar_manager->frozen = false;
+  bar_manager_refresh(bar_manager, false);
+  bar_manager_unfreeze(bar_manager);
   env_vars_destroy(&env_vars);
 }
 
