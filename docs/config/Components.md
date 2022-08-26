@@ -26,9 +26,9 @@ Additional graph properties:
 
 Push data points into the graph via:
 ```bash
-sketchybar --push <name> <data point>
+sketchybar --push <name> <data point> ... <data point>
 ```
-where the `data point` is a floating point number between 0 and 1.
+where the `<data point>` is a floating point number between 0 and 1.
 
 Graphs usually take the entire height of the bar as a drawing canvas, however,
 if you set a background for the graph item and set a height for it, the graph
