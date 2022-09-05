@@ -15,6 +15,7 @@ PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 sketchybar --bar height=32        \
                  blur_radius=50   \
                  position=top     \
+                 sticky=off       \
                  padding_left=10  \
                  padding_right=10 \
                  color=0x15ffffff
