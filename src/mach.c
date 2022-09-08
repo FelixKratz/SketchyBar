@@ -2,7 +2,7 @@
 #include <mach/message.h>
 #include <stdint.h>
 
-mach_port_t mach_get_bs_port() {
+mach_port_t mach_get_bs_port(char* bs_name) {
   mach_port_name_t task = mach_task_self();
 
   mach_port_t bs_port;
@@ -14,7 +14,7 @@ mach_port_t mach_get_bs_port() {
 
   mach_port_t port;
   if (bootstrap_look_up(bs_port,
-                        "git.felix.sketchybar",
+                        bs_name,
                         &port                  ) != KERN_SUCCESS) {
     return 0;
   }
@@ -47,10 +47,10 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
   }
 }
 
-bool mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response) {
+char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response) {
   if (!message || !port) {
     if (message) free(message);
-    return false;
+    return NULL;
   }
 
   mach_port_t response_port;
@@ -58,13 +58,13 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len, bool await
     mach_port_name_t task = mach_task_self();
     if (mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE,
                                  &response_port          ) != KERN_SUCCESS) {
-      return false;
+      return NULL;
     }
 
     if (mach_port_insert_right(task, response_port,
                                      response_port,
                                      MACH_MSG_TYPE_MAKE_SEND)!= KERN_SUCCESS) {
-      return false;
+      return NULL;
     }
   }
 
@@ -74,11 +74,11 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len, bool await
     msg.header.msgh_local_port = response_port;
     msg.header.msgh_id = response_port;
     msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
-                                              MACH_MSG_TYPE_MAKE_SEND_ONCE,
+                                              MACH_MSG_TYPE_MAKE_SEND,
                                               0,
                                               MACH_MSGH_BITS_COMPLEX       );
   } else {
-    msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_MOVE_SEND_ONCE
+    msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND
                                               & MACH_MSGH_BITS_REMOTE_MASK,
                                               0,
                                               0,
@@ -94,23 +94,23 @@ bool mach_send_message(mach_port_t port, char* message, uint32_t len, bool await
   msg.descriptor.deallocate = await_response;
   msg.descriptor.type = MACH_MSG_OOL_DESCRIPTOR;
 
-  mach_msg_return_t msg_return = mach_msg(&msg.header,
-                                          MACH_SEND_MSG,
-                                          sizeof(struct mach_message),
-                                          0,
-                                          MACH_PORT_NULL,
-                                          MACH_MSG_TIMEOUT_NONE,
-                                          MACH_PORT_NULL              );
+  mach_msg(&msg.header,
+           MACH_SEND_MSG,
+           sizeof(struct mach_message),
+           0,
+           MACH_PORT_NULL,
+           MACH_MSG_TIMEOUT_NONE,
+           MACH_PORT_NULL              );
 
   if (await_response) {
     struct mach_buffer buffer = { 0 };
     mach_receive_message(response_port, &buffer, true);
     if (buffer.message.descriptor.address)
-      printf("%s", (char*)buffer.message.descriptor.address);
+      return (char*)buffer.message.descriptor.address;
     mach_msg_destroy(&buffer.message.header);
   }
 
-  return msg_return == MACH_MSG_SUCCESS;
+  return NULL;
 }
 
 static void* mach_connection_handler(void *context) {
@@ -149,8 +149,8 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   }
 
   if (bootstrap_register(mach_server->bs_port,
-                         "git.felix.sketchybar",
-                          mach_server->port     ) != KERN_SUCCESS) {
+                         MACH_BS_NAME,
+                         mach_server->port     ) != KERN_SUCCESS) {
     return false;
   }
 

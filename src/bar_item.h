@@ -76,6 +76,9 @@ struct bar_item {
   // Popup
   struct popup popup;
   struct bar_item* parent;
+
+  // Mach
+  mach_port_t event_port;
 };
 
 struct bar_item* bar_item_create();

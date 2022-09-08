@@ -1,5 +1,7 @@
 #include "bar_item.h"
 #include "bar_manager.h"
+#include "event_loop.h"
+#include "event.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -92,6 +94,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_space = 0;
   bar_item->associated_bar = 0;
   bar_item->blur_radius = 0;
+  bar_item->event_port = 0;
 
   bar_item->has_const_width = false;
   bar_item->custom_width = 0;
@@ -180,8 +183,8 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
   if (((scheduled_update_needed || sender) && should_update) || forced) {
     bar_item->counter = 0;
 
-    // Script Update
-    if (bar_item->script && strlen(bar_item->script) > 0) {
+    if ((bar_item->script && strlen(bar_item->script) > 0)
+         || bar_item->event_port                          ) {
       if (!env_vars)
         env_vars = &bar_item->signal_args.env_vars;
       else {
@@ -201,8 +204,19 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
         env_vars_set(env_vars,
                      string_copy("SENDER"),
                      string_copy(forced ? "forced" : "routine"));
-
+    }
+    // Script Update
+    if (bar_item->script && strlen(bar_item->script) > 0) {
       fork_exec(bar_item->script, env_vars);
+    }
+
+    // Mach events
+    if (bar_item->event_port) {
+      uint32_t len = 0;
+      char* message = env_vars_copy_serialized_representation(env_vars, &len);
+
+      mach_send_message(bar_item->event_port, message, len, false);
+      free(message);
     }
 
     // Alias Update
@@ -372,6 +386,11 @@ bool bar_item_set_width(struct bar_item* bar_item, uint32_t width) {
   bar_item->custom_width = width;
   bar_item->has_const_width = true;
   return true;
+}
+
+void bar_item_set_event_port(struct bar_item* bar_item, char* bs_name) {
+  mach_port_t port = mach_get_bs_port(bs_name);
+  bar_item->event_port = port;
 }
 
 uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
@@ -923,16 +942,16 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
             bar_item->blur_radius,
             token_to_int(token)      );
 
-  } else if (token_equals(property, PROPERTY_CACHE_SCRIPTS)) {
-    printf("cache_scripts property is deprecated.\n");
-  } else if (token_equals(property, PROPERTY_LAZY)) {
-    printf("lazy property is deprecated.\n");
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);
     needs_refresh = true;
   } else if (token_equals(property, COMMAND_DEFAULT_RESET)) {
     bar_item_init(&g_bar_manager.default_item, NULL);
+  } else if (token_equals(property, PROPERTY_EVENT_PORT)) {
+    struct token token = get_token(&message);
+    if (token.text && token.length > 0)
+      bar_item_set_event_port(bar_item, token.text);
   } else {
     respond(rsp, "[!] Item (%s): Invalid property '%s' \n", bar_item->name, property.text);
   }

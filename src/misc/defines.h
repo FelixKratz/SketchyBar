@@ -71,6 +71,7 @@
 #define PROPERTY_CACHE_SCRIPTS                              "cache_scripts"
 #define PROPERTY_LAZY                                       "lazy"
 #define PROPERTY_IGNORE_ASSOCIATION                         "ignore_association"
+#define PROPERTY_EVENT_PORT                                 "mach_helper"
 
 #define DOMAIN_BAR                                          "--bar"
 #define PROPERTY_POSITION                                   "position"

@@ -16,8 +16,8 @@
 #define VERSION_OPT_SHRT        "-v"
 
 #define MAJOR 2
-#define MINOR 8
-#define PATCH 6
+#define MINOR 9
+#define PATCH 0
 
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
@@ -61,10 +61,17 @@ static int client_send_message(int argc, char **argv) {
     }
     *temp++ = '\0';
 
-    if (!mach_send_message(mach_get_bs_port(), message, message_length, true))
+    char* rsp = mach_send_message(mach_get_bs_port(MACH_BS_NAME),
+                                  message,
+                                  message_length,
+                                  true                           );
+    if (!rsp)
       return EXIT_FAILURE;
 
-    return 0;
+    printf("%s", rsp);
+
+    if (strlen(rsp) > 2 && rsp[1] == '!') return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 static void acquire_lockfile(void) {
