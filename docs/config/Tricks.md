@@ -66,4 +66,5 @@ If you are looking for stylised app icons you might want to checkout the excelle
 * Set *updates=when_shown* for items that do not need to run their script if they are not rendered.
 * Reduce the *update_freq* of *scripts* and *aliases* and use event-driven scripting when ever possible.
 * Do not add *aliases* to apps that are not always running, otherwise *SketchyBar* searches for them continuously.
+* (Advanced; Only >=v2.9.0) Use compiled `mach_helper` programs that directly interface with *SketchyBar* [example](https://github.com/FelixKratz/dotfiles/tree/experimental) for performance sensitive tasks
 
