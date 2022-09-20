@@ -116,7 +116,7 @@ bool window_apply_frame(struct window* window) {
                       window->id,
                       0,
                       0,
-                      frame_region  );
+                      frame_region );
 
     CFRelease(frame_region);
     window_move(window, window->origin);

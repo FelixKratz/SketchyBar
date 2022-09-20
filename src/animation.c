@@ -10,8 +10,8 @@ double function_square(double x) {
 }
 
 double function_tanh(double x) {
-  double result = tanh(2.647 * x);
-  return result >= 0.99 ? 1. : result;
+  double a = 0.52;
+  return a * tanh(2. * atanh(1. / (2. * a)) * (x  - 0.5)) + 0.5;
 }
 
 double function_sin(double x) {
