@@ -34,7 +34,7 @@ EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
 
 EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
     debug("%s\n", __FUNCTION__);
-    bar_manager_handle_space_change(&g_bar_manager);
+    bar_manager_handle_space_change(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 

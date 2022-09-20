@@ -695,6 +695,8 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
+
+  bar_manager_handle_space_change(bar_manager, true);
 }
 
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager) {
@@ -736,7 +738,7 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* 
   env_vars_destroy(&env_vars);
 }
 
-void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
+void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool forced) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char info[18 * bar_manager->bar_count + 4];
@@ -765,7 +767,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager) {
   info[cursor + 1] = '\0';
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(info));
 
-  bar_manager_update_space_components(bar_manager, false);
+  bar_manager_update_space_components(bar_manager, forced);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SPACE_CHANGE,
                                     &env_vars                      );
@@ -805,7 +807,6 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager->sleeps = false;
-  bar_manager_update_space_components(bar_manager, false);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                     NULL                          );
@@ -814,6 +815,8 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
+
+  bar_manager_handle_space_change(bar_manager, true);
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {
