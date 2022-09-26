@@ -219,11 +219,11 @@ void bar_calculate_bounds(struct bar* bar) {
 
     CGRect frame = {{bar->window.origin.x + *next_position
                     - max(shadow_offsets.x, 0),
-                     bar->window.origin.y                         },
+                     bar->window.origin.y                 },
                     {bar_item_display_length
                       + shadow_offsets.x
                       + shadow_offsets.y,
-                     bar->window.frame.size.height}                 };
+                     bar->window.frame.size.height}         };
 
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
 

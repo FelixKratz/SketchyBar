@@ -2,6 +2,7 @@
 #include "bar_item.h"
 #include "bar_manager.h"
 #include "bar.h"
+#include "animation.h"
 
 void popup_init(struct popup* popup, struct bar_item* host) {
   popup->drawing = false;
@@ -35,7 +36,7 @@ bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
   if (popup->blur_radius == radius) return false;
   popup->blur_radius = radius;
   window_set_blur_radius(&popup->window, radius);
-  return true;
+  return false;
 }
 
 void popup_order_windows(struct popup* popup) {
@@ -382,10 +383,23 @@ void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
 
 }
 
+bool popup_set_yoffset(struct popup* popup, int y_offset) {
+  if (popup->y_offset == y_offset) return false;
+  popup->y_offset = y_offset;
+  return true;
+}
+
+bool popup_set_cell_size(struct popup* popup, int size) {
+  if (popup->cell_size == size && popup->overrides_cell_size) return false;
+  popup->overrides_cell_size = true;
+  popup->cell_size = size;
+  return true;
+}
+
 bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
+  bool needs_refresh = false;
   if (token_equals(property, PROPERTY_YOFFSET)) {
-    popup->y_offset = token_to_int(get_token(&message));
-    return true;
+    ANIMATE(popup_set_yoffset, popup, popup->y_offset, token_to_int(get_token(&message)));
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     return popup_set_drawing(popup,
                              evaluate_boolean_state(get_token(&message),
@@ -398,11 +412,15 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
     popup->align = get_token(&message).text[0];
     return true;
   } else if (token_equals(property, PROPERTY_HEIGHT)) {
-    popup->cell_size = token_to_int(get_token(&message));
-    popup->overrides_cell_size = true;
-    return true;
+    ANIMATE(popup_set_cell_size,
+            popup,
+            popup->cell_size,
+            token_to_int(get_token(&message)));
   } else if (token_equals(property, PROPERTY_BLUR_RADIUS)) {
-    popup_set_blur_radius(popup, token_to_int(get_token(&message)));
+    ANIMATE(popup_set_blur_radius,
+            popup,
+            popup->blur_radius,
+            token_to_int(get_token(&message)));
     return false;
   } 
   else {
@@ -424,5 +442,5 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
       respond(rsp, "[!] Popup: Invalid property '%s'\n", property.text);
     }
   }
-  return false;
+  return needs_refresh;
 }
