@@ -65,8 +65,8 @@ static int client_send_message(int argc, char **argv) {
                                   message,
                                   message_length,
                                   true                           );
-    if (!rsp)
-      return EXIT_FAILURE;
+
+    if (!rsp) return EXIT_SUCCESS;
 
     printf("%s", rsp);
 
