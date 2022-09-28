@@ -35,7 +35,15 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
 
     token = get_token(&message);
   }
-  bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
+
+  if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
+    bar_manager_handle_space_change(&g_bar_manager, true);
+  }
+  else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
+    bar_manager_handle_display_change(&g_bar_manager);
+  } else {
+    bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
+  }
   env_vars_destroy(&env_vars);
 }
 
