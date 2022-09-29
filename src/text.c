@@ -169,6 +169,12 @@ bool text_set_yoffset(struct text* text, int offset) {
 }
 
 bool text_set_width(struct text* text, int width) {
+  if (width < 0) {
+    bool prev = text->has_const_width;
+    text->has_const_width = false;
+    return prev != text->has_const_width;
+  }
+
   if (text->custom_width == width && text->has_const_width) return false;
   text->custom_width = width;
   text->has_const_width = true;
@@ -410,15 +416,27 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
       if (text->has_const_width) {
-        needs_refresh = text->has_const_width;
-        text->has_const_width = false;
+        ANIMATE(text_set_width,
+                text,
+                text->custom_width,
+                text_get_length(text, true));
+
+        struct animation* animation = animation_create();
+        animation_setup(animation,
+                        text,
+                        (bool (*)(void*, int))&text_set_width,
+                        text->custom_width,
+                        -1,
+                        1,
+                        INTERP_FUNCTION_LINEAR               );
+        animator_add(&g_bar_manager.animator, animation);
       }
     }
     else {
       ANIMATE(text_set_width,
               text,
-              text->custom_width,
-              token_to_int(token));
+              text_get_length(text, false),
+              token_to_int(token)          );
     }
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     bool prev = text->drawing;
