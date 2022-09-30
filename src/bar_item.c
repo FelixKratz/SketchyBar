@@ -379,7 +379,12 @@ bool bar_item_set_blur_radius(struct bar_item* bar_item, uint32_t radius) {
   return true;
 }
 
-bool bar_item_set_width(struct bar_item* bar_item, uint32_t width) {
+bool bar_item_set_width(struct bar_item* bar_item, int width) {
+  if (width < 0) {
+    bool prev = bar_item->has_const_width;
+    bar_item->has_const_width = false;
+    return prev != bar_item->has_const_width;
+  }
   if (bar_item->custom_width == width && bar_item->has_const_width)
     return false;
 
@@ -848,14 +853,32 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
-      needs_refresh = bar_item->has_const_width;
-      bar_item->has_const_width = false;
+      if (bar_item->has_const_width) {
+        ANIMATE(bar_item_set_width,
+                bar_item,
+                bar_item->custom_width,
+                bar_item_get_length(bar_item, true)
+                + bar_item->background.padding_left
+                + bar_item->background.padding_right);
+
+        struct animation* animation = animation_create();
+        animation_setup(animation,
+                        bar_item,
+                        (bool (*)(void*, int))&bar_item_set_width,
+                        bar_item->custom_width,
+                        -1,
+                        1,
+                        INTERP_FUNCTION_LINEAR               );
+        animator_add(&g_bar_manager.animator, animation);
+      }
     }
     else {
       ANIMATE(bar_item_set_width,
               bar_item,
-              bar_item->custom_width,
-              token_to_int(token)    );
+              bar_item_get_length(bar_item, false)
+              + bar_item->background.padding_left
+              + bar_item->background.padding_right,
+              token_to_int(token)                  );
     }
   } else if (token_equals(property, PROPERTY_SCRIPT)) {
     bar_item_set_script(bar_item, token_to_string(get_token(&message)));
