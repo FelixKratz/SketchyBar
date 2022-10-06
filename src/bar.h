@@ -17,7 +17,6 @@ struct bar {
 };
 
 struct bar *bar_create(uint32_t did);
-void bar_create_window(struct bar* bar);
 void bar_close_window(struct bar* bar);
 void bar_destroy(struct bar* bar);
 void bar_set_hidden(struct bar* bar, bool hidden);
