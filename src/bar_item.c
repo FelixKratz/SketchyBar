@@ -429,15 +429,21 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t alias_height = alias_get_height(&bar_item->alias);
   
   uint32_t text_height = max(label_height, icon_height);
-
   uint32_t item_height = max(text_height, alias_height);
 
-  if (bar_item->background.enabled && bar_item->background.image.enabled
-      && bar_item->background.image.bounds.size.height > item_height    ) {
-    return bar_item->background.image.bounds.size.height;
+  uint32_t background_height = 0;
+  if (bar_item->background.enabled) {
+    uint32_t image_height = bar_item->background.image.enabled
+                            ? bar_item->background.image.bounds.size.height
+                            : 0;
+
+    background_height = max(image_height,
+                            bar_item->background.bounds.size.height);
   }
 
-  return item_height;
+  uint32_t height = max(item_height, background_height);
+
+  return height;
 }
 
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {

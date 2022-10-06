@@ -221,7 +221,7 @@ uint32_t text_get_length(struct text* text, bool override) {
 }
 
 uint32_t text_get_height(struct text* text) {
-  return text->bounds.size.height;
+  return text->drawing ? text->bounds.size.height : 0;
 }
 
 void text_destroy_line(struct text* text) {
