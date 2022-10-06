@@ -101,7 +101,7 @@ void text_prepare_line(struct text* text) {
                                             kCTLineBoundsUseGlyphPathBounds);
 
   text->bounds.size.width = (uint32_t) (text->bounds.size.width + 1.5);
-  text->bounds.size.height = (uint32_t) (text->bounds.size.height + 0.5);
+  text->bounds.size.height = (uint32_t) (text->bounds.size.height + 1.5);
   text->bounds.origin.x = (uint32_t) (text->bounds.origin.x + 0.5);
   text->line.color = text->highlight ? text->highlight_color : text->color;
 
