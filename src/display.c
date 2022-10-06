@@ -1,5 +1,6 @@
 #include "display.h"
 
+extern int workspace_display_notch_height(uint32_t did);
 extern struct event_loop g_event_loop;
 extern int g_connection;
 
@@ -169,9 +170,22 @@ bool display_menu_bar_visible(void) {
 }
 
 CGRect display_menu_bar_rect(uint32_t did) {
-    CGRect bounds = {};
-    SLSGetRevealedMenuBarBounds(&bounds, g_connection, display_space_id(did));
-    return bounds;
+  CGRect bounds = {};
+
+  #ifdef __x86_64__
+  SLSGetRevealedMenuBarBounds(&bounds, g_connection, display_space_id(did));
+  #elif __arm64__
+  int notch_height = workspace_display_notch_height(did);
+  if (notch_height) {
+      bounds.size.height = notch_height + 6;
+  } else {
+      bounds.size.height = 24;
+  }
+
+  bounds.size.width = CGDisplayPixelsWide(did);
+  #endif
+
+  return bounds;
 }
 
 uint32_t display_active_display_count(void) {

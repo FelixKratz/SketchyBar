@@ -23,6 +23,23 @@ void workspace_create_custom_observer (void **context, char* notification) {
     [ws_context addCustomObserver:@(notification)];
 }
 
+int workspace_display_notch_height(uint32_t did)
+{
+  if (!CGDisplayIsBuiltin(did)) return 0;
+
+  #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
+  if (__builtin_available(macos 12.0, *)) {
+    for (NSScreen *screen in [NSScreen screens]) {
+      if ([[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue] == did) {
+        return screen.safeAreaInsets.top;
+      }
+    }
+  }
+  #endif
+
+  return 0;
+}
+
 uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
   NSEvent *nsEvent = [NSEvent eventWithCGEvent:cgevent];
   return [nsEvent windowNumber];
