@@ -293,12 +293,17 @@ uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct
   uint32_t total_length = 0;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (bar_item->position == side && bar_draws_item(bar, bar_item))
-      total_length += bar_item_get_length(bar_item, false)
-                      + (bar_item->has_const_width
-                         ? 0
-                         : bar_item->background.padding_left
-                           + bar_item->background.padding_right);
+    if (bar_item->position == side && bar_draws_item(bar, bar_item)) {
+      int item_length = (bar_manager->position == POSITION_LEFT
+                         || bar_manager->position == POSITION_RIGHT)
+                        ? bar_item_get_height(bar_item)
+                        : bar_item_get_length(bar_item, false);
+
+      total_length += item_length + (bar_item->has_const_width
+                                     ? 0
+                                     : bar_item->background.padding_left
+                                       + bar_item->background.padding_right);
+    }
   }
   return total_length;
 }
