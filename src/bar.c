@@ -35,25 +35,47 @@ static inline void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, stru
   if (bar->adid != g_bar_manager.active_adid) return;
   struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-  if (!bar_item->popup.overrides_cell_size)
-    bar_item->popup.cell_size = window->frame.size.height;
+  if (!bar_item->popup.overrides_cell_size) {
+    if (g_bar_manager.position == POSITION_LEFT
+        || g_bar_manager.position == POSITION_RIGHT) {
+      bar_item->popup.cell_size = window->frame.size.width;
+    } else {
+      bar_item->popup.cell_size = window->frame.size.height;
+    }
+  }
 
   popup_calculate_bounds(&bar_item->popup, bar);
 
   CGPoint anchor = window->origin;
-  if (bar_item->popup.align == POSITION_CENTER) {
-    anchor.x += (window->frame.size.width
-                 - bar_item->popup.background.bounds.size.width) / 2;
-  } else if (bar_item->popup.align == POSITION_LEFT) {
-    anchor.x -= bar_item->background.padding_left;
-  } else {
-    anchor.x += window->frame.size.width
-                - bar_item->popup.background.bounds.size.width;
-  }
-  anchor.y += (g_bar_manager.position == POSITION_BOTTOM
-              ? (- bar_item->popup.background.bounds.size.height)
-              : window->frame.size.height);
 
+  if (g_bar_manager.position == POSITION_LEFT
+      || g_bar_manager.position == POSITION_RIGHT) {
+    if (bar_item->popup.align == POSITION_CENTER) {
+      anchor.y += (window->frame.size.height
+                   - bar_item->popup.background.bounds.size.height) / 2;
+    } else if (bar_item->popup.align == POSITION_LEFT) {
+      anchor.y -= bar_item->background.padding_left;
+    } else {
+      anchor.y += window->frame.size.height
+                  - bar_item->popup.background.bounds.size.height;
+    }
+    anchor.x += (g_bar_manager.position == POSITION_RIGHT
+                ? (- bar_item->popup.background.bounds.size.width)
+                : window->frame.size.width);
+  } else {
+    if (bar_item->popup.align == POSITION_CENTER) {
+      anchor.x += (window->frame.size.width
+                   - bar_item->popup.background.bounds.size.width) / 2;
+    } else if (bar_item->popup.align == POSITION_LEFT) {
+      anchor.x -= bar_item->background.padding_left;
+    } else {
+      anchor.x += window->frame.size.width
+                  - bar_item->popup.background.bounds.size.width;
+    }
+    anchor.y += (g_bar_manager.position == POSITION_BOTTOM
+                ? (- bar_item->popup.background.bounds.size.height)
+                : window->frame.size.height);
+  }
   popup_set_anchor(&bar_item->popup, anchor, bar->adid);
   popup_calculate_bounds(&bar_item->popup, bar);
 }
@@ -388,9 +410,9 @@ static inline void bar_calculate_bounds_left_right(struct bar* bar) {
     //                                        bar->adid                   ),
     //                    group_frame                                       );
     // }
-    //
-    // if (bar_item->popup.drawing)
-    //   bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
+
+    if (bar_item->popup.drawing)
+      bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
 
     if (bar_item->position == POSITION_RIGHT
         || bar_item->position == POSITION_CENTER_LEFT) {
