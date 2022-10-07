@@ -9,7 +9,7 @@ struct bar_item* bar_item_create() {
   return bar_item;
 }
 
-void bar_item_clear_pointers(struct bar_item* bar_item) {
+static void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->name = NULL;
   bar_item->script = NULL;
   bar_item->click_script = NULL;

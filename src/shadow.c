@@ -12,13 +12,13 @@ void shadow_init(struct shadow* shadow) {
   shadow->color = rgba_color_from_hex(0xff000000);
 }
 
-bool shadow_set_enabled(struct shadow* shadow, bool enabled) {
+static bool shadow_set_enabled(struct shadow* shadow, bool enabled) {
   if (shadow->enabled == enabled) return false;
   shadow->enabled = enabled;
   return true;
 }
 
-bool shadow_set_angle(struct shadow* shadow, uint32_t angle) {
+static bool shadow_set_angle(struct shadow* shadow, uint32_t angle) {
   if (shadow->angle == angle) return false;
   shadow->angle = angle;
   shadow->offset.x = ((float)shadow->distance)*cos(((double)shadow->angle)*deg_to_rad);
@@ -26,7 +26,7 @@ bool shadow_set_angle(struct shadow* shadow, uint32_t angle) {
   return true;
 }
 
-bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
+static bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
   if (shadow->distance == distance) return false;
   shadow->distance = distance;
   shadow->offset.x = ((float)shadow->distance)
@@ -36,7 +36,7 @@ bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
   return true;
 }
 
-bool shadow_set_color(struct shadow* shadow, uint32_t color) {
+static bool shadow_set_color(struct shadow* shadow, uint32_t color) {
   struct rgba_color target_color = rgba_color_from_hex(color);
   if (shadow->color.r == target_color.r 
       && shadow->color.g == target_color.g 

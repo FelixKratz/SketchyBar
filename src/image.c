@@ -88,7 +88,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
   return true;
 }
 
-bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
+static bool image_data_equals(struct image* image, CFDataRef new_data_ref) {
   bool equals = false;
   if (image->image_ref && image->data_ref) {
     uint32_t old_len = CFDataGetLength(image->data_ref);

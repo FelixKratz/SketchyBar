@@ -69,10 +69,7 @@ struct animation {
 };
 
 struct animation* animation_create();
-void animation_destroy(struct animation* animation);
-
 void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function);
-bool animation_update(struct animation* animation);
 
 extern struct event_loop g_event_loop;
 
@@ -90,5 +87,4 @@ struct animator {
 
 void animator_init(struct animator* animator);
 void animator_add(struct animator* animator, struct animation* animation);
-void animator_remove(struct animator* animator, struct animation* animation);
 bool animator_update(struct animator* animator);

@@ -12,10 +12,6 @@ struct shadow {
 };
 
 void shadow_init(struct shadow* shadow);
-bool shadow_set_enabled(struct shadow* shadow, bool enabled);
-bool shadow_set_angle(struct shadow* shadow, uint32_t angle);
-bool shadow_set_distance(struct shadow* shadow, uint32_t distance);
-bool shadow_set_color(struct shadow* shadow, uint32_t color);
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds);
 
 void shadow_serialize(struct shadow* shadow, char* indent, FILE* rsp);

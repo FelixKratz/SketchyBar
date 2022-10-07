@@ -19,16 +19,10 @@ struct background {
 };
 
 void background_init(struct background* background);
-bool background_set_color(struct background* background, uint32_t color);
-bool background_set_border_color(struct background* background, uint32_t color);
-bool background_set_enabled(struct background* background, bool enabled);
-bool background_set_height(struct background* background, uint32_t height);
-bool background_set_border_width(struct background* background, uint32_t border_width);
-bool background_set_corner_radius(struct background* background, uint32_t corner_radius);
-bool background_set_padding_left(struct background* background, uint32_t pad);
-bool background_set_padding_right(struct background* background, uint32_t pad);
-
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y);
+
+bool background_set_height(struct background* background, uint32_t height);
+
 void background_draw(struct background* background, CGContextRef context);
 
 void background_clear_pointers(struct background* background);

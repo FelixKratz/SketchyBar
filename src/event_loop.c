@@ -1,23 +1,6 @@
 #include "event_loop.h"
 #include "event.h"
 
-#ifdef STATS
-struct cycle_counter {
-    uint64_t cycle_count;
-    uint64_t hit_count;
-};
-
-static struct cycle_counter queue_counters[2];
-static struct cycle_counter event_counters[EVENT_TYPE_COUNT];
-
-static inline void cycle_counter_tick(const char *name, struct cycle_counter *counter, uint64_t elapsed_cycles) {
-    uint64_t cycle_count = __sync_add_and_fetch(&counter->cycle_count, elapsed_cycles);
-    uint64_t hit_count = __sync_add_and_fetch(&counter->hit_count, 1);
-    fprintf(stdout, "%30s: hits %'25lld | cur %'25lld | avg %'25lld\n",
-            name, hit_count, elapsed_cycles, cycle_count / hit_count)
-}
-#endif
-
 static bool queue_init(struct queue *queue) {
     if (!memory_pool_init(&queue->pool, QUEUE_POOL_SIZE)) return false;
     queue->head = memory_pool_push(&queue->pool, struct queue_item);
@@ -34,10 +17,6 @@ static void queue_push(struct queue *queue, struct event *event) {
     bool success;
     struct queue_item *tail, *new_tail;
 
-#ifdef STATS
-    uint64_t begin_cycles = __rdtsc();
-#endif
-
     new_tail = memory_pool_push(&queue->pool, struct queue_item);
     new_tail->data = event;
     new_tail->next = NULL;
@@ -49,15 +28,6 @@ static void queue_push(struct queue *queue, struct event *event) {
         if (!success) __sync_bool_compare_and_swap(&queue->tail, tail, tail->next);
     } while (!success);
     __sync_bool_compare_and_swap(&queue->tail, tail, new_tail);
-
-#ifdef DEBUG
-    uint64_t count = __sync_add_and_fetch(&queue->count, 1);
-    assert(count > 0 && count < QUEUE_MAX_COUNT);
-#endif
-
-#ifdef STATS
-    cycle_counter_tick(__FUNCTION__, &queue_counters[0], __rdtsc() - begin_cycles);
-#endif
 }
 
 static struct event *queue_pop(struct queue *queue) {

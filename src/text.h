@@ -37,13 +37,10 @@ struct text {
 
 void text_init(struct text* text);
 void text_clear_pointers(struct text* text);
-void text_destroy_line(struct text* text);
-bool text_set_string(struct text* text, char* string, bool forced);
-bool text_set_color(struct text* text, uint32_t color);
-bool text_set_font(struct text* text, char* font_string, bool forced);
 uint32_t text_get_length(struct text* text, bool override);
 uint32_t text_get_height(struct text* text);
-bool text_update_color(struct text* text);
+bool text_set_string(struct text* text, char* string, bool forced);
+bool text_set_font(struct text* text, char* font_string, bool forced);
 
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
 void text_draw(struct text* text, CGContextRef context);

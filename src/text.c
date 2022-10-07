@@ -44,29 +44,7 @@ static CTFontRef text_create_font(char *cstring) {
   return font;
 }
 
-void text_init(struct text* text) {
-  text->drawing = true;
-  text->highlight = false;
-  text->has_const_width = false;
-  text->custom_width = 0;
-  text->padding_left = 0;
-  text->padding_right = 0;
-  text->y_offset = 0;
-  text->align = POSITION_LEFT;
-
-  text->color = rgba_color_from_hex(0xffffffff);
-  text->highlight_color = rgba_color_from_hex(0xff000000);
-
-  text->font = NULL;
-  text->string = string_copy("");
-  text->font_name = string_copy("Hack Nerd Font:Bold:14.0");
-  text_set_font(text, text->font_name, true);
-  text_set_string(text, text->string, false);
-  shadow_init(&text->shadow);
-  background_init(&text->background);
-}
-
-void text_prepare_line(struct text* text) {
+static void text_prepare_line(struct text* text) {
   const void *keys[] = { kCTFontAttributeName,
                          kCTForegroundColorFromContextAttributeName };
 
@@ -111,6 +89,11 @@ void text_prepare_line(struct text* text) {
   CFRelease(attr_string);
 }
 
+static void text_destroy_line(struct text* text) {
+  if (text->line.line) CFRelease(text->line.line);
+  text->line.line = NULL;
+}
+
 bool text_set_string(struct text* text, char* string, bool forced) {
   if (!string) return false;
   if (!forced && text->string && strcmp(text->string, string) == 0) { 
@@ -122,16 +105,6 @@ bool text_set_string(struct text* text, char* string, bool forced) {
   text->string = string;
   text_prepare_line(text);
   return true;
-}
-
-bool text_set_color(struct text* text, uint32_t color) {
-  text->color = rgba_color_from_hex(color);
-  return text_update_color(text);
-}
-
-bool text_set_hightlight_color(struct text* text, uint32_t color) {
-  text->highlight_color = rgba_color_from_hex(color);
-  return text_update_color(text);
 }
 
 bool text_set_font(struct text* text, char* font_string, bool forced) {
@@ -151,38 +124,29 @@ bool text_set_font(struct text* text, char* font_string, bool forced) {
   return text_set_string(text, text->string, true);
 }
 
-bool text_set_padding_left(struct text* text, int padding) {
-  if (text->padding_left == padding) return false;
-  text->padding_left = padding;
-  return true;
+void text_init(struct text* text) {
+  text->drawing = true;
+  text->highlight = false;
+  text->has_const_width = false;
+  text->custom_width = 0;
+  text->padding_left = 0;
+  text->padding_right = 0;
+  text->y_offset = 0;
+  text->align = POSITION_LEFT;
+
+  text->color = rgba_color_from_hex(0xffffffff);
+  text->highlight_color = rgba_color_from_hex(0xff000000);
+
+  text->font = NULL;
+  text->string = string_copy("");
+  text->font_name = string_copy("Hack Nerd Font:Bold:14.0");
+  text_set_font(text, text->font_name, true);
+  text_set_string(text, text->string, false);
+  shadow_init(&text->shadow);
+  background_init(&text->background);
 }
 
-bool text_set_padding_right(struct text* text, int padding) {
-  if (text->padding_right == padding) return false;
-  text->padding_right = padding;
-  return true;
-}
-
-bool text_set_yoffset(struct text* text, int offset) {
-  if (text->y_offset == offset) return false;
-  text->y_offset = offset;
-  return true;
-}
-
-bool text_set_width(struct text* text, int width) {
-  if (width < 0) {
-    bool prev = text->has_const_width;
-    text->has_const_width = false;
-    return prev != text->has_const_width;
-  }
-
-  if (text->custom_width == width && text->has_const_width) return false;
-  text->custom_width = width;
-  text->has_const_width = true;
-  return true;
-}
-
-bool text_update_color(struct text* text) {
+static bool text_update_color(struct text* text) {
   struct rgba_color target_color = text->highlight
                                    ? text->highlight_color
                                    : text->color;
@@ -195,6 +159,47 @@ bool text_update_color(struct text* text) {
   }
 
   text->line.color = target_color;
+  return true;
+}
+
+static bool text_set_color(struct text* text, uint32_t color) {
+  text->color = rgba_color_from_hex(color);
+  return text_update_color(text);
+}
+
+static bool text_set_hightlight_color(struct text* text, uint32_t color) {
+  text->highlight_color = rgba_color_from_hex(color);
+  return text_update_color(text);
+}
+
+static bool text_set_padding_left(struct text* text, int padding) {
+  if (text->padding_left == padding) return false;
+  text->padding_left = padding;
+  return true;
+}
+
+static bool text_set_padding_right(struct text* text, int padding) {
+  if (text->padding_right == padding) return false;
+  text->padding_right = padding;
+  return true;
+}
+
+static bool text_set_yoffset(struct text* text, int offset) {
+  if (text->y_offset == offset) return false;
+  text->y_offset = offset;
+  return true;
+}
+
+static bool text_set_width(struct text* text, int width) {
+  if (width < 0) {
+    bool prev = text->has_const_width;
+    text->has_const_width = false;
+    return prev != text->has_const_width;
+  }
+
+  if (text->custom_width == width && text->has_const_width) return false;
+  text->custom_width = width;
+  text->has_const_width = true;
   return true;
 }
 
@@ -223,11 +228,6 @@ uint32_t text_get_length(struct text* text, bool override) {
 
 uint32_t text_get_height(struct text* text) {
   return text->drawing ? text->bounds.size.height : 0;
-}
-
-void text_destroy_line(struct text* text) {
-  if (text->line.line) CFRelease(text->line.line);
-  text->line.line = NULL;
 }
 
 void text_destroy(struct text* text) {

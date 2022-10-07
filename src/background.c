@@ -23,7 +23,20 @@ void background_init(struct background* background) {
   image_init(&background->image);
 }
 
-bool background_set_color(struct background* background, uint32_t color) {
+bool background_set_height(struct background* background, uint32_t height) {
+  if (background->bounds.size.height == height) return false;
+  background->bounds.size.height = height;
+  background->overrides_height = height != 0;
+  return true;
+}
+
+static bool background_set_enabled(struct background* background, bool enabled) {
+  if (background->enabled == enabled) return false;
+  background->enabled = enabled;
+  return true;
+}
+
+static bool background_set_color(struct background* background, uint32_t color) {
   struct rgba_color target_color = rgba_color_from_hex(color);
   if (background->color.r == target_color.r 
       && background->color.g == target_color.g 
@@ -34,7 +47,7 @@ bool background_set_color(struct background* background, uint32_t color) {
   return true;
 }
 
-bool background_set_border_color(struct background* background, uint32_t color) {
+static bool background_set_border_color(struct background* background, uint32_t color) {
   struct rgba_color target_color = rgba_color_from_hex(color);
   if (background->border_color.r == target_color.r 
       && background->border_color.g == target_color.g 
@@ -44,44 +57,31 @@ bool background_set_border_color(struct background* background, uint32_t color) 
   return true;
 }
 
-bool background_set_enabled(struct background* background, bool enabled) {
-  if (background->enabled == enabled) return false;
-  background->enabled = enabled;
-  return true;
-}
-
-bool background_set_height(struct background* background, uint32_t height) {
-  if (background->bounds.size.height == height) return false;
-  background->bounds.size.height = height;
-  background->overrides_height = height != 0;
-  return true;
-}
-
-bool background_set_border_width(struct background* background, uint32_t border_width) {
+static bool background_set_border_width(struct background* background, uint32_t border_width) {
   if (background->border_width == border_width) return false;
   background->border_width = border_width;
   return true;
 }
 
-bool background_set_corner_radius(struct background* background, uint32_t corner_radius) {
+static bool background_set_corner_radius(struct background* background, uint32_t corner_radius) {
   if (background->corner_radius == corner_radius) return false;
   background->corner_radius = corner_radius;
   return true;
 }
 
-bool background_set_padding_left(struct background* background, uint32_t pad) {
+static bool background_set_padding_left(struct background* background, uint32_t pad) {
   if (background->padding_left == pad) return false;
   background->padding_left = pad;
   return true;
 }
 
-bool background_set_padding_right(struct background* background, uint32_t pad) {
+static bool background_set_padding_right(struct background* background, uint32_t pad) {
   if (background->padding_right == pad) return false;
   background->padding_right = pad;
   return true;
 }
 
-bool background_set_yoffset(struct background* background, int offset) {
+static bool background_set_yoffset(struct background* background, int offset) {
   if (background->y_offset == offset) return false;
   background->y_offset = offset;
   return true;

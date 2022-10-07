@@ -31,7 +31,7 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     return true;
 }
 
-static inline void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
+static void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
   if (bar->adid != g_bar_manager.active_adid) return;
   struct window* window = bar_item_get_window(bar_item, bar->adid);
 
@@ -159,7 +159,7 @@ void bar_draw(struct bar* bar) {
   }
 }
 
-static inline void bar_calculate_bounds_top_bottom(struct bar* bar) {
+static void bar_calculate_bounds_top_bottom(struct bar* bar) {
   bool is_builtin = CGDisplayIsBuiltin(bar->did);
   uint32_t notch_width = is_builtin ? g_bar_manager.notch_width : 0;
 
@@ -294,7 +294,7 @@ static inline void bar_calculate_bounds_top_bottom(struct bar* bar) {
   }
 }
 
-static inline void bar_calculate_bounds_left_right(struct bar* bar) {
+static void bar_calculate_bounds_left_right(struct bar* bar) {
   uint32_t notch_width = 0;
 
   uint32_t center_length = bar_manager_length_for_bar_side(&g_bar_manager,
@@ -411,7 +411,7 @@ void bar_calculate_bounds(struct bar* bar) {
   }
 }
 
-static inline CGRect bar_get_frame(struct bar *bar) {
+static CGRect bar_get_frame(struct bar *bar) {
   bool is_builtin = CGDisplayIsBuiltin(bar->did);
   int notch_offset = is_builtin ? g_bar_manager.notch_offset : 0;
 
@@ -479,7 +479,7 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
   else bar_resize(bar);
 }
 
-static inline void bar_create_window(struct bar* bar) {
+static void bar_create_window(struct bar* bar) {
   window_init(&bar->window);
   window_create(&bar->window, bar_get_frame(bar));
   window_assign_mouse_tracking_area(&bar->window, bar->window.frame);

@@ -26,20 +26,20 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   popup->background.color = rgba_color_from_hex(0x44000000);
 }
 
-CGRect popup_get_frame(struct popup* popup) {
+static CGRect popup_get_frame(struct popup* popup) {
   return (CGRect){{popup->anchor.x, popup->anchor.y},
                   {popup->background.bounds.size.width,
                    popup->background.bounds.size.height}};
 }
 
-bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
+static bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
   if (popup->blur_radius == radius) return false;
   popup->blur_radius = radius;
   window_set_blur_radius(&popup->window, radius);
   return false;
 }
 
-void popup_order_windows(struct popup* popup) {
+static void popup_order_windows(struct popup* popup) {
   window_set_level(&popup->window, kCGScreenSaverWindowLevel);
   window_order(&popup->window, NULL, W_ABOVE);
 
@@ -62,7 +62,7 @@ void popup_order_windows(struct popup* popup) {
   }
 }
 
-void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item, struct bar* bar) {
+static void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item, struct bar* bar) {
   if (popup->adid != g_bar_manager.active_adid) return;
   struct window* window = bar_item_get_window(bar_item, popup->adid);
 
@@ -210,7 +210,7 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
     window_set_frame(&popup->window, popup_get_frame(popup));
 }
 
-void popup_create_window(struct popup* popup) {
+static void popup_create_window(struct popup* popup) {
   window_create(&popup->window,(CGRect){{popup->anchor.x, popup->anchor.y},
                                       {popup->background.bounds.size.width,
                                        popup->background.bounds.size.height}});
@@ -228,7 +228,7 @@ void popup_create_window(struct popup* popup) {
   popup->drawing = true;
 }
 
-void popup_close_window(struct popup* popup) {
+static void popup_close_window(struct popup* popup) {
   window_close(&popup->window);
   popup->drawing = false;
 }
@@ -241,7 +241,7 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   bar_item->parent = popup->host;
 }
 
-bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
+static bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
   for (int i = 0; i < popup->num_items; i++) {
     if (popup->items[i] == bar_item) return true;
   }
@@ -380,16 +380,15 @@ void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
     if (i < popup->num_items - 1) fprintf(rsp, ",\n");
   }
   fprintf(rsp, "\n%s]", indent);
-
 }
 
-bool popup_set_yoffset(struct popup* popup, int y_offset) {
+static bool popup_set_yoffset(struct popup* popup, int y_offset) {
   if (popup->y_offset == y_offset) return false;
   popup->y_offset = y_offset;
   return true;
 }
 
-bool popup_set_cell_size(struct popup* popup, int size) {
+static bool popup_set_cell_size(struct popup* popup, int size) {
   if (popup->cell_size == size && popup->overrides_cell_size) return false;
   popup->overrides_cell_size = true;
   popup->cell_size = size;

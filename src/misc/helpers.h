@@ -60,6 +60,43 @@ static inline void notification_destroy(struct notification* notification) {
   free(notification);
 }
 
+static inline double function_linear(double x) {
+  return x;
+}
+
+static inline double function_square(double x) {
+  return x*x;
+}
+
+static inline double function_tanh(double x) {
+  double a = 0.52;
+  return a * tanh(2. * atanh(1. / (2. * a)) * (x  - 0.5)) + 0.5;
+}
+
+static inline double function_sin(double x) {
+  return sin(M_PI / 2. * x);
+}
+
+static inline double function_exp(double x) {
+  return x*exp(x - 1.);
+}
+
+static inline double function_bounce(double x) {
+  double alpha = 2.;
+  double beta = 0.8;
+  if (x < 1. / alpha) {
+    return alpha*alpha * x * x;
+  }
+  else {
+    return beta * beta * (x - 1./2. + 1./alpha/2.)
+           + 1. - beta*beta* (1./2. + 1./alpha/2.);
+  }
+}
+
+static inline double function_overshoot(double x) {
+  return x * (1. + 0.5*(sin(3. * M_PI * x)));
+}
+
 static inline char* format_bool(bool b) {
   return b ? "on" : "off";
 }
