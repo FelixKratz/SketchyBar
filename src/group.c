@@ -59,6 +59,20 @@ uint32_t group_get_length(struct group* group, struct bar* bar) {
   return length;
 }
 
+uint32_t group_get_height(struct group* group, struct bar* bar) {
+  uint32_t height = 0;
+  for (int i = 1; i < group->num_members; i++) {
+    if (bar_draws_item(bar, group->members[i])) {
+      if (!group->members[i]->has_const_width)
+        height += group->members[i]->background.padding_left
+                  + group->members[i]->background.padding_right;
+
+      height += bar_item_get_height(group->members[i]);
+    }
+  }
+  return height;
+}
+
 void group_remove_member(struct group* group, struct bar_item* bar_item) {
   if (group->num_members <= 0) return;
   struct bar_item* tmp[group->num_members - 1];

@@ -361,7 +361,7 @@ static inline void bar_calculate_bounds_left_right(struct bar* bar) {
 
     bar_item->graph.rtl = rtl;
 
-    CGPoint shadow_offsets = {0, 0};//bar_item_calculate_shadow_offsets(bar_item);
+    CGPoint shadow_offsets = bar_item_calculate_shadow_offsets(bar_item);
     bar_item_calculate_bounds(bar_item,
                               bar_item_display_height,
                               (g_bar_manager.background.bounds.size.height
@@ -379,37 +379,6 @@ static inline void bar_calculate_bounds_left_right(struct bar* bar) {
                      bar_item_display_height + abs(bar_item->y_offset)}};
 
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
-
-    // if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-    //   group_calculate_bounds(bar_item->group,
-    //                          bar,
-    //                          max(shadow_offsets.x, 0),
-    //                          *next_position,
-    //                          bar_item->position == POSITION_RIGHT
-    //                          || bar_item->position == POSITION_CENTER_LEFT);
-    //
-    //   CGPoint shadow_offsets =
-    //             bar_item_calculate_shadow_offsets(bar_item->group->members[0]);
-    //
-    //   uint32_t group_length = group_get_length(bar_item->group, bar);
-    //   uint32_t group_offset = (bar_item->position == POSITION_RIGHT
-    //                            || bar_item->position == POSITION_CENTER_LEFT)
-    //                           ? group_length
-    //                             - bar_item_get_length(bar_item, false)
-    //                             - bar_item->background.padding_right
-    //                           : bar_item->background.padding_left;
-    //
-    //   CGRect group_frame = {{frame.origin.x - group_offset,
-    //                          frame.origin.y},
-    //                         {group_length
-    //                           + shadow_offsets.x
-    //                           + shadow_offsets.y,
-    //                          frame.size.height}            };
-    //   
-    //   window_set_frame(bar_item_get_window(bar_item->group->members[0],
-    //                                        bar->adid                   ),
-    //                    group_frame                                       );
-    // }
 
     if (bar_item->popup.drawing)
       bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
