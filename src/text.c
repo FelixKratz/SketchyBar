@@ -416,22 +416,20 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
-      if (text->has_const_width) {
-        ANIMATE(text_set_width,
-                text,
-                text->custom_width,
-                text_get_length(text, true));
+      ANIMATE(text_set_width,
+              text,
+              text->custom_width,
+              text_get_length(text, true));
 
-        struct animation* animation = animation_create();
-        animation_setup(animation,
-                        text,
-                        (bool (*)(void*, int))&text_set_width,
-                        text->custom_width,
-                        -1,
-                        1,
-                        INTERP_FUNCTION_LINEAR               );
-        animator_add(&g_bar_manager.animator, animation);
-      }
+      struct animation* animation = animation_create();
+      animation_setup(animation,
+                      text,
+                      (bool (*)(void*, int))&text_set_width,
+                      text->custom_width,
+                      -1,
+                      1,
+                      INTERP_FUNCTION_LINEAR               );
+      animator_add(&g_bar_manager.animator, animation);
     }
     else {
       ANIMATE(text_set_width,
