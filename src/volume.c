@@ -50,6 +50,7 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
 
 void begin_receiving_volume_events() {
   if (g_volume_events) return;
+  g_volume_events = true;
   AudioObjectPropertyAddress output_addr = {
                                    kAudioHardwarePropertyDefaultOutputDevice,
                                    kAudioObjectPropertyScopeGlobal,
