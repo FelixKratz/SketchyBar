@@ -29,6 +29,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED);
+EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION);
 
 #define EVENT_QUEUED     0x0
@@ -59,6 +60,7 @@ enum event_type {
     MOUSE_UP,
     MOUSE_ENTERED,
     MOUSE_EXITED,
+    VOLUME_CHANGED,
     DISTRIBUTED_NOTIFICATION,
 
     EVENT_TYPE_COUNT
@@ -83,6 +85,7 @@ static const char *event_type_str[] = {
     [MOUSE_UP]                       = "mouse_up",
     [MOUSE_ENTERED]                  = "mouse_entered",
     [MOUSE_EXITED]                   = "mouse_exited",
+    [VOLUME_CHANGED]                 = "volume_changed",
     [DISTRIBUTED_NOTIFICATION]       = "distributed_notification",
 
     [EVENT_TYPE_COUNT]               = "event_type_count"
@@ -99,6 +102,7 @@ static event_callback *event_handler[] = {
     [MOUSE_UP]                       = EVENT_HANDLER_MOUSE_UP,
     [MOUSE_ENTERED]                  = EVENT_HANDLER_MOUSE_ENTERED,
     [MOUSE_EXITED]                   = EVENT_HANDLER_MOUSE_EXITED,
+    [VOLUME_CHANGED]                 = EVENT_HANDLER_VOLUME_CHANGED,
     [DISTRIBUTED_NOTIFICATION]       = EVENT_HANDLER_DISTRIBUTED_NOTIFICATION,
 
     [MENU_BAR_HIDDEN_CHANGED]        = EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED,

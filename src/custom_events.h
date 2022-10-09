@@ -11,6 +11,7 @@
 #define UPDATE_SYSTEM_WILL_SLEEP  1ULL << 7
 #define UPDATE_ENTERED_GLOBAL     1ULL << 8
 #define UPDATE_EXITED_GLOBAL      1ULL << 9
+#define UPDATE_VOLUME_CHANGE      1ULL << 10
 
 extern void* g_workspace_context;
 extern void workspace_create_custom_observer(void** context, char* name);

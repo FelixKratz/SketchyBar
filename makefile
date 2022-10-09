@@ -1,12 +1,12 @@
 CFLAGS   = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden -fno-common
-LIBS     = -framework Carbon -framework Cocoa -F/System/Library/PrivateFrameworks -framework SkyLight
+LIBS     = -framework Carbon -framework Cocoa -framework CoreAudio -F/System/Library/PrivateFrameworks -framework SkyLight
 ODIR     = bin
 SRC      = src
 
 _OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
        image.o mouse.o shadow.o text.o message.o mouse.o bar.o window.o \
        bar_manager.o display.o event_loop.o group.o mach.o popup.o \
-       animation.o workspace.om
+       animation.o workspace.om volume.o
 OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 .PHONY: all clean arm x86 profile leak universal

@@ -4,6 +4,7 @@
 #include "mach.h"
 #include "mouse.h"
 #include "message.h"
+#include "volume.h"
 
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
@@ -32,6 +33,7 @@ void *g_workspace_context;
 char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_verbose;
+bool g_volume_events;
 
 static int client_send_message(int argc, char **argv) {
     if (argc <= 1) {
@@ -148,6 +150,7 @@ static inline void init_misc_settings(void) {
     CGSetLocalEventsSuppressionInterval(0.0f);
     CGEnableEventStateCombining(false);
     g_connection = SLSMainConnectionID();
+    g_volume_events = false;
 }
 #pragma clang diagnostic pop
 

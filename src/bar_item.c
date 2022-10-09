@@ -2,6 +2,7 @@
 #include "bar_manager.h"
 #include "event_loop.h"
 #include "event.h"
+#include "volume.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -994,6 +995,11 @@ void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message, 
   while (event.text && event.length > 0) {
     uint64_t event_flag = custom_events_get_flag_for_name(&g_bar_manager.custom_events,
                                                           event.text                   );
+
+    if (event_flag & UPDATE_VOLUME_CHANGE) {
+      begin_receiving_volume_events();
+    }
+
     bar_item->update_mask |= event_flag;
 
     if (!event_flag) {
