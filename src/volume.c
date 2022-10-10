@@ -146,9 +146,6 @@ OSStatus device_changed(AudioObjectID id, uint32_t address_count, const AudioObj
 }
 
 void begin_receiving_volume_events() {
-// TODO: Add handler for input source change to add a new property listener
-// for the new device and remove the old one; create audio_output_change event
-
   if (g_volume_events) return;
   g_volume_events = true;
 
@@ -186,5 +183,4 @@ void begin_receiving_volume_events() {
                                  &kHardwareDevicePropertyAddress,
                                  &device_changed,
                                  NULL                            );
-
 }
