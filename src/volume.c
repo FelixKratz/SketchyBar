@@ -3,40 +3,80 @@
 
 extern bool g_volume_events;
 
-static AudioObjectPropertyAddress kVolumePropertyAddress = {
+static AudioObjectPropertyAddress kHardwareDevicePropertyAddress = {
+                                   kAudioHardwarePropertyDefaultOutputDevice,
+                                   kAudioObjectPropertyScopeGlobal,
+                                   kAudioObjectPropertyElementMain           };
+
+static AudioObjectPropertyAddress kVolumeMainPropertyAddress = {
                                             kAudioDevicePropertyVolumeScalar,
                                             kAudioObjectPropertyScopeOutput,
                                             kAudioObjectPropertyElementMain  };
 
-static AudioObjectPropertyAddress kMutePropertyAddress = {
+static AudioObjectPropertyAddress kVolumeLeftPropertyAddress = {
+                                            kAudioDevicePropertyVolumeScalar,
+                                            kAudioObjectPropertyScopeOutput,
+                                            1                                };
+
+static AudioObjectPropertyAddress kMuteMainPropertyAddress = {
                                             kAudioDevicePropertyMute,
                                             kAudioObjectPropertyScopeOutput,
                                             kAudioObjectPropertyElementMain  };
 
-float g_last_volume = 0.f;
+static AudioObjectPropertyAddress kMuteLeftPropertyAddress = {
+                                            kAudioDevicePropertyMute,
+                                            kAudioObjectPropertyScopeOutput,
+                                            1                                };
+
+static float g_last_volume = 0.f;
 static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObjectPropertyAddress* addresses, void* context) {
   float* volume = malloc(sizeof(float));
   memset(volume, 0, sizeof(float));
 
-  uint32_t muted = 0;
+  uint32_t muted_main = 0;
   uint32_t size = sizeof(uint32_t);
 
   AudioObjectGetPropertyData(id,
-                             &kMutePropertyAddress,
+                             &kMuteMainPropertyAddress,
                              0,
                              NULL,
                              &size,
-                             &muted                );
+                             &muted_main               );
+
+  uint32_t muted_left = 0;
+  size = sizeof(uint32_t);
+  AudioObjectGetPropertyData(id,
+                             &kMuteLeftPropertyAddress,
+                             0,
+                             NULL,
+                             &size,
+                             &muted_left               );
+
 
   size = sizeof(float);
+  float volume_main = 0.f;
   AudioObjectGetPropertyData(id,
-                             &kVolumePropertyAddress,
+                             &kVolumeMainPropertyAddress,
                              0,
                              NULL,
                              &size,
-                             volume                 );
+                             &volume_main                );
 
-  if (muted) *volume = 0.f;
+  size = sizeof(float);
+  float volume_left = 0.f;
+  AudioObjectGetPropertyData(id,
+                             &kVolumeLeftPropertyAddress,
+                             0,
+                             NULL,
+                             &size,
+                             &volume_left                );
+
+  if (volume_left > 0.f) {
+    *volume = muted_left ? 0.f : volume_left;
+  } else {
+    *volume = muted_main ? 0.f : volume_main;
+  }
+
   if (*volume > g_last_volume + 1e-2 || *volume < g_last_volume - 1e-2) {
     g_last_volume = *volume;
     struct event *event = event_create(&g_event_loop,
@@ -48,23 +88,103 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
   return KERN_SUCCESS;
 }
 
+static AudioObjectID g_audio_id = 0;
+OSStatus device_changed(AudioObjectID id, uint32_t address_count, const AudioObjectPropertyAddress* addresses, void* context) {
+  AudioObjectID new_id = 0;
+  uint32_t size = sizeof(AudioObjectID);
+  AudioObjectGetPropertyData(kAudioObjectSystemObject,
+                             &kHardwareDevicePropertyAddress,
+                             0,
+                             NULL,
+                             &size,
+                             &new_id                         );
+
+  if (g_audio_id) {
+    AudioObjectRemovePropertyListener(g_audio_id,
+                                      &kMuteMainPropertyAddress,
+                                      &handler,
+                                      NULL                      );
+
+    AudioObjectRemovePropertyListener(g_audio_id,
+                                      &kMuteLeftPropertyAddress,
+                                      &handler,
+                                      NULL                      );
+
+    AudioObjectRemovePropertyListener(g_audio_id,
+                                      &kVolumeMainPropertyAddress,
+                                      &handler,
+                                      NULL                        );
+
+    AudioObjectRemovePropertyListener(g_audio_id,
+                                      &kVolumeLeftPropertyAddress,
+                                      &handler,
+                                      NULL                        );
+  }
+
+  AudioObjectAddPropertyListener(new_id,
+                                 &kMuteMainPropertyAddress,
+                                 &handler,
+                                 NULL                      );
+
+  AudioObjectAddPropertyListener(new_id,
+                                 &kMuteLeftPropertyAddress,
+                                 &handler,
+                                 NULL                      );
+
+  AudioObjectAddPropertyListener(new_id,
+                                 &kVolumeMainPropertyAddress,
+                                 &handler,
+                                 NULL                        );
+
+  AudioObjectAddPropertyListener(new_id,
+                                 &kVolumeLeftPropertyAddress,
+                                 &handler,
+                                 NULL                        );
+  g_audio_id = new_id;
+  handler(g_audio_id, address_count, addresses, context);
+  return KERN_SUCCESS;
+}
+
 void begin_receiving_volume_events() {
+// TODO: Add handler for input source change to add a new property listener
+// for the new device and remove the old one; create audio_output_change event
+
   if (g_volume_events) return;
   g_volume_events = true;
-  AudioObjectPropertyAddress output_addr = {
-                                   kAudioHardwarePropertyDefaultOutputDevice,
-                                   kAudioObjectPropertyScopeGlobal,
-                                   kAudioObjectPropertyElementMain           };
 
   AudioObjectID id = 0;
   uint32_t size = sizeof(AudioObjectID);
   AudioObjectGetPropertyData(kAudioObjectSystemObject,
-                             &output_addr,
+                             &kHardwareDevicePropertyAddress,
                              0,
                              NULL,
                              &size,
-                             &id                      );
+                             &id                             );
 
-  AudioObjectAddPropertyListener(id, &kMutePropertyAddress, &handler, NULL);
-  AudioObjectAddPropertyListener(id, &kVolumePropertyAddress, &handler, NULL);
+  g_audio_id = id;
+  AudioObjectAddPropertyListener(id,
+                                 &kMuteLeftPropertyAddress,
+                                 &handler,
+                                 NULL                      );
+
+  AudioObjectAddPropertyListener(id,
+                                 &kMuteMainPropertyAddress,
+                                 &handler,
+                                 NULL                      );
+
+  AudioObjectAddPropertyListener(id,
+                                 &kVolumeLeftPropertyAddress,
+                                 &handler,
+                                 NULL                        );
+
+  AudioObjectAddPropertyListener(id,
+                                 &kVolumeMainPropertyAddress,
+                                 &handler,
+                                 NULL                        );
+
+  AudioObjectAddPropertyListener(kAudioObjectSystemObject,
+                                 &kHardwareDevicePropertyAddress,
+                                 &device_changed,
+                                 NULL                            );
+
 }
