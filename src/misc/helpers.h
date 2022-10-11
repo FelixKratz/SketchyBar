@@ -308,7 +308,11 @@ static inline bool evaluate_boolean_state(struct token state, bool previous_stat
   if (token_equals(state, ARGUMENT_COMMON_VAL_ON)
       || token_equals(state, ARGUMENT_COMMON_VAL_YES)
       || token_equals(state, ARGUMENT_COMMON_VAL_TRUE)
-      || token_equals(state, ARGUMENT_COMMON_VAL_ONE) )
+      || token_equals(state, ARGUMENT_COMMON_VAL_ONE)
+      || token_equals(state, ARGUMENT_COMMON_VAL_NOT_OFF)
+      || token_equals(state, ARGUMENT_COMMON_VAL_NOT_NO)
+      || token_equals(state, ARGUMENT_COMMON_VAL_NOT_FALSE)
+      || token_equals(state, ARGUMENT_COMMON_VAL_NOT_ZERO) )
     return true;
   else if (token_equals(state, ARGUMENT_COMMON_VAL_TOGGLE))
     return !previous_state;
