@@ -16,3 +16,4 @@ sidebar_position: 1
 | `<positive_integer>`      | A positive integer                                               |
 | `<positive_integer list>` | A comma separated list of positive integers                      |
 
+Note: All `<boolean>` properties can be negated with an exclamation mark, e.g. `!on`.

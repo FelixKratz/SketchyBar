@@ -24,7 +24,7 @@ values specified in a configuration command (i.e. `--bar` or `--set` commands).
 
 ### Perform multiple animations chained together
 If you want to chain two or more animations together, you can do so by simply
-changing the property multiple times, e.g.:
+changing the property multiple times in a single call, e.g.:
 ```bash
 sketchybar --animate sin 30 --bar y_offset=10 y_offset=0
 ```
@@ -34,3 +34,9 @@ animation function in between. This is a nice way to create custom animations
 with key-frames. You can also make other properties wait with their animation
 till another animation is finished, by simply setting the property that should
 wait to its current value in the first animation.
+
+A new non-animated `--set` command targeting a currently animated property will cancel the
+animation queue and immediately set the value.
+
+A new animated `--set` command targeting a currently animated property will cancel the
+animation queue and immediately begin with the new animation, beginning at the current state.
