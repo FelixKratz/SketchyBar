@@ -17,6 +17,10 @@ static void animation_destroy(struct animation* animation) {
   if (animation) free(animation);
 }
 
+static void animation_lock(struct animation* animation) {
+  animation->locked = true;
+}
+
 void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function) {
   animation->counter = 1;
   animation->duration = duration;
@@ -100,6 +104,12 @@ void animator_init(struct animator* animator) {
   animator->duration = 0;
 }
 
+void animator_lock(struct animator* animator) {
+  for (int i = 0; i < animator->animation_count; i++) {
+     animation_lock(animator->animations[i]);
+  }
+}
+
 static void animator_calculate_offset_for_animation(struct animator* animator, struct animation* animation) {
   if (animator->animation_count < 1) return;
 
@@ -171,30 +181,64 @@ static void animator_remove(struct animator* animator, struct animation* animati
   }
 }
 
+void animator_cancel_locked(struct animator* animator, void* target, animator_function* function) {
+  struct animation* remove[animator->animation_count];
+  memset(remove, 0, animator->animation_count);
+  uint32_t remove_count = 0;
+
+  for (int i = 0; i < animator->animation_count; i++) {
+    struct animation* animation = animator->animations[i];
+    if (animation->locked
+        && animation->target == target
+        && animation->update_function == function) {
+      remove[remove_count++] = animation;
+    }
+  }
+
+  for (uint32_t i = 0; i < remove_count; i++) {
+    animator_remove(animator, remove[i]);
+  }
+}
+
 bool animator_cancel(struct animator* animator, void* target, animator_function* function) {
   bool needs_update = false;
+
+  struct animation* remove[animator->animation_count];
+  memset(remove, 0, animator->animation_count);
+  uint32_t remove_count = 0;
+
   for (int i = 0; i < animator->animation_count; i++) {
     struct animation* animation = animator->animations[i];
     if (animation->target == target
         && animation->update_function == function) {
       needs_update |= function(animation->target, animation->final_value);
-      animator_remove(animator, animation);
+      remove[remove_count++] = animation;
     }
   }
+
+  for (uint32_t i = 0; i < remove_count; i++) {
+    animator_remove(animator, remove[i]);
+  }
+
   return needs_update;
 }
 
 bool animator_update(struct animator* animator) {
-  bool removed = false;
   bool needs_refresh = false;
+  struct animation* remove[animator->animation_count];
+  memset(remove, 0, animator->animation_count);
+  uint32_t remove_count = 0;
+
   for (uint32_t i = 0; i < animator->animation_count; i++) {
-    if (removed) i--;
-    removed = false;
     needs_refresh |= animation_update(animator->animations[i]);
     if (animator->animations[i]->counter > animator->animations[i]->duration) {
-      animator_remove(animator, animator->animations[i]);
-      removed = true;
+      remove[remove_count++] = animator->animations[i];
     }
   }
+
+  for (uint32_t i = 0; i < remove_count; i++) {
+    animator_remove(animator, remove[i]);
+  }
+
   return needs_refresh;
 }

@@ -670,6 +670,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
     g_bar_manager.bar_needs_update = true;
   }
 
+  animator_lock(&g_bar_manager.animator);
   g_bar_manager.frozen = false;
   bar_manager_refresh(&g_bar_manager, false);
   bar_manager_unfreeze(&g_bar_manager);

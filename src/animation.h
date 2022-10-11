@@ -6,6 +6,7 @@ extern struct bar_manager g_bar_manager;
 #define ANIMATE(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \
+    animator_cancel_locked(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
     struct animation* animation = animation_create(); \
     animation_setup(animation, \
                     (void*)o, \
@@ -24,6 +25,7 @@ extern struct bar_manager g_bar_manager;
 #define ANIMATE_BYTES(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \
+    animator_cancel_locked(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
     struct animation* animation = animation_create(); \
     animation_setup(animation, \
                     (void*)o, \
@@ -35,7 +37,8 @@ extern struct bar_manager g_bar_manager;
     animation->seperate_bytes = true; \
     animator_add(&g_bar_manager.animator, animation); \
   } else { \
-    needs_refresh = f(o, t); \
+    needs_refresh = animator_cancel(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
+    needs_refresh |= f(o, t); \
   } \
 }
 
@@ -56,6 +59,7 @@ typedef ANIMATION_FUNCTION(animation_function);
 
 struct animation {
   bool seperate_bytes;
+  bool locked;
 
   uint32_t duration;
   uint32_t counter;
@@ -89,4 +93,6 @@ struct animator {
 void animator_init(struct animator* animator);
 void animator_add(struct animator* animator, struct animation* animation);
 bool animator_cancel(struct animator* animator, void* target, animator_function* function);
+void animator_cancel_locked(struct animator* animator, void* target, animator_function* function);
 bool animator_update(struct animator* animator);
+void animator_lock(struct animator* animator);
