@@ -16,7 +16,8 @@ extern struct bar_manager g_bar_manager;
                     g_bar_manager.animator.interp_function ); \
     animator_add(&g_bar_manager.animator, animation); \
   } else { \
-    needs_refresh = f(o, t); \
+    needs_refresh = animator_cancel(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
+    needs_refresh |= f(o, t); \
   } \
 }
 
@@ -87,4 +88,5 @@ struct animator {
 
 void animator_init(struct animator* animator);
 void animator_add(struct animator* animator, struct animation* animation);
+bool animator_cancel(struct animator* animator, void* target, animator_function* function);
 bool animator_update(struct animator* animator);

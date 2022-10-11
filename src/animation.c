@@ -171,6 +171,19 @@ static void animator_remove(struct animator* animator, struct animation* animati
   }
 }
 
+bool animator_cancel(struct animator* animator, void* target, animator_function* function) {
+  bool needs_update = false;
+  for (int i = 0; i < animator->animation_count; i++) {
+    struct animation* animation = animator->animations[i];
+    if (animation->target == target
+        && animation->update_function == function) {
+      needs_update |= function(animation->target, animation->final_value);
+      animator_remove(animator, animation);
+    }
+  }
+  return needs_update;
+}
+
 bool animator_update(struct animator* animator) {
   bool removed = false;
   bool needs_refresh = false;
