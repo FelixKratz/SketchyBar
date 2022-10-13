@@ -84,6 +84,8 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
                                        (void *) volume);
 
     event_loop_post(&g_event_loop, event);
+  } else {
+    free(volume);
   }
   return KERN_SUCCESS;
 }
