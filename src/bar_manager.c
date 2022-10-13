@@ -745,6 +745,18 @@ void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float vol
   env_vars_destroy(&env_vars);
 }
 
+void bar_manager_handle_brightness_change(struct bar_manager* bar_manager, float brightness) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char brightness_str[16];
+  snprintf(brightness_str, 16, "%d", (int)(brightness*100. + 0.5));
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(brightness_str));
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE,
+                                    &env_vars                           );
+  env_vars_destroy(&env_vars);
+}
+
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);

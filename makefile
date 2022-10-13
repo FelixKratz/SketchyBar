@@ -1,5 +1,5 @@
 CFLAGS   = -std=c99 -Wall -DNDEBUG -Ofast -ffast-math -fvisibility=hidden -fno-common
-LIBS     = -framework Carbon -framework Cocoa -framework CoreAudio -F/System/Library/PrivateFrameworks -framework SkyLight
+LIBS     = -framework Carbon -framework Cocoa -framework CoreAudio -F/System/Library/PrivateFrameworks -framework SkyLight -framework DisplayServices
 ODIR     = bin
 SRC      = src
 

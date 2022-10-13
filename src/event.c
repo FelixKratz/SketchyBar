@@ -256,3 +256,9 @@ EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED) {
   free(context);
   return EVENT_SUCCESS;
 }
+
+EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED) {
+  bar_manager_handle_brightness_change(&g_bar_manager, *(float*)context);
+  free(context);
+  return EVENT_SUCCESS;
+}

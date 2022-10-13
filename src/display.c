@@ -3,7 +3,25 @@
 extern int workspace_display_notch_height(uint32_t did);
 extern struct event_loop g_event_loop;
 extern int g_connection;
+extern bool g_brightness_events;
 
+
+float g_last_brightness = 0;
+static void brightness_handler(void* notification_center, uint32_t did, void* name, const void* sender, CFDictionaryRef info) {
+  float* brightness = malloc(sizeof(float));
+  memset(brightness, 0, sizeof(float));
+  DisplayServicesGetBrightness(did, brightness);
+  if (g_last_brightness < *brightness - 1e-2 || g_last_brightness > *brightness + 1e-2) {
+    g_last_brightness = *brightness;
+    struct event *event = event_create(&g_event_loop,
+                                       BRIGHTNESS_CHANGED,
+                                       (void *) brightness);
+
+    event_loop_post(&g_event_loop, event);
+  } else {
+    free(brightness);
+  }
+}
 
 static DISPLAY_EVENT_HANDLER(display_handler) {
     if (flags & kCGDisplayAddFlag) {
@@ -12,12 +30,16 @@ static DISPLAY_EVENT_HANDLER(display_handler) {
                                            (void *)(intptr_t) did);
 
         event_loop_post(&g_event_loop, event);
+        if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
+          DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
     } else if (flags & kCGDisplayRemoveFlag) {
         struct event *event = event_create(&g_event_loop,
                                            DISPLAY_REMOVED,
                                            (void *)(intptr_t) did);
 
         event_loop_post(&g_event_loop, event);
+        if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
+          DisplayServicesUnregisterForBrightnessChangeNotifications(did, did);
     } else if (flags & kCGDisplayMovedFlag) {
         struct event *event = event_create(&g_event_loop,
                                            DISPLAY_MOVED,
@@ -211,4 +233,16 @@ bool display_end() {
             == kCGErrorSuccess;
 }
 
+void begin_receiving_brightness_events() {
+  if (g_brightness_events) return;
+  g_brightness_events = true;
+  uint32_t count;
+  uint32_t* result = display_active_display_list(&count);
+  for (int i = 0; i < count; i++) {
+    uint32_t did = *(result + i);
+    if (DisplayServicesCanChangeBrightness(did)) {
+      DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
+    }
+  }
+}
 

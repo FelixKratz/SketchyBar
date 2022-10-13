@@ -102,6 +102,7 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
 void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager);
 void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float volume);
+void bar_manager_handle_brightness_change(struct bar_manager* bar_manager, float brightness);
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name, struct env_vars* env_vars);
 
 void bar_manager_destroy(struct bar_manager* bar_manager);
