@@ -9,10 +9,11 @@ static AudioObjectPropertyAddress kHardwareDevicePropertyAddress = {
                                    kAudioObjectPropertyScopeGlobal,
                                    kAudioObjectPropertyElementMain           };
 #else
+#define kAudioObjectPropertyElementMain kAudioObjectPropertyElementMaster
 static AudioObjectPropertyAddress kHardwareDevicePropertyAddress = {
                                    kAudioHardwarePropertyDefaultOutputDevice,
                                    kAudioObjectPropertyScopeGlobal,
-                                   kAudioObjectPropertyElementMaster         };
+                                   kAudioObjectPropertyElementMain           };
 #endif
 
 static AudioObjectPropertyAddress kVolumeMainPropertyAddress = {
