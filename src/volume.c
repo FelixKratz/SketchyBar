@@ -3,10 +3,17 @@
 
 extern bool g_volume_events;
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
 static AudioObjectPropertyAddress kHardwareDevicePropertyAddress = {
                                    kAudioHardwarePropertyDefaultOutputDevice,
                                    kAudioObjectPropertyScopeGlobal,
                                    kAudioObjectPropertyElementMain           };
+#else
+static AudioObjectPropertyAddress kHardwareDevicePropertyAddress = {
+                                   kAudioHardwarePropertyDefaultOutputDevice,
+                                   kAudioObjectPropertyScopeGlobal,
+                                   kAudioObjectPropertyElementMaster         };
+#endif
 
 static AudioObjectPropertyAddress kVolumeMainPropertyAddress = {
                                             kAudioDevicePropertyVolumeScalar,
