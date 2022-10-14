@@ -19,6 +19,7 @@ where the events are:
 | `space_change`         | When the active mission control space changes                                                       | JSON for active spaces on all displays |
 | `display_change`       | When the active display is changed                                                                  | new active display id                  |
 | `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
+| `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
 | `system_will_sleep`    | When the system prepares to sleep                                                                   |                                        |
 | `system_woke`          | When the system has awaken from sleep                                                               |                                        |
 | `mouse.entered`        | When the mouse enters over an item                                                                  |                                        |
