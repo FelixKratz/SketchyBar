@@ -113,6 +113,10 @@ void bar_order_item_windows(struct bar* bar) {
 void bar_draw(struct bar* bar) {
   if (bar->sid < 1 || bar->adid < 1) return;
 
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    g_bar_manager.bar_needs_update |= g_bar_manager.bar_items[i]->bar_needs_update;
+  }
+
   if (g_bar_manager.bar_needs_update) {
     draw_rect(bar->window.context,
               bar->window.frame,
@@ -125,15 +129,15 @@ void bar_draw(struct bar* bar) {
     if (g_bar_manager.background.image.enabled) {
       image_draw(&g_bar_manager.background.image, bar->window.context);
     }
-
-    CGContextFlush(bar->window.context);
   }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-    if (!bar_draws_item(bar, bar_item)
+    if (bar_draws_item(bar, bar_item)) {
+      background_clip(&bar_item->background, window->origin, bar->window.origin, bar->window.context);
+    } else if (!bar_draws_item(bar, bar_item)
         || (bar_item->type == BAR_COMPONENT_GROUP
             && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
 
@@ -161,6 +165,10 @@ void bar_draw(struct bar* bar) {
 
     bar_item_draw(bar_item, window->context);
     CGContextFlush(window->context);
+  }
+
+  if (g_bar_manager.bar_needs_update) {
+    CGContextFlush(bar->window.context);
   }
 }
 

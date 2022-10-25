@@ -16,6 +16,7 @@ struct bar_item {
   // Update Modifiers
   uint32_t counter;
   bool needs_update;
+  bool bar_needs_update;
   bool updates;
   bool updates_only_when_shown;
   bool lazy;
@@ -106,6 +107,7 @@ bool bar_item_set_width(struct bar_item* bar_item, int width);
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);
 uint32_t bar_item_get_height(struct bar_item* bar_item);
 
+void bar_item_bar_needs_update(struct bar_item* bar_item, bool force);
 void bar_item_needs_update(struct bar_item* bar_item);
 
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier);

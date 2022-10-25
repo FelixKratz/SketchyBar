@@ -313,8 +313,9 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     struct token position = get_token(&message);
     if (position.length > 0)
       needs_refresh = bar_manager_set_position(&g_bar_manager, position.text[0]);
-  }
-  else if (token_equals(command, PROPERTY_HEIGHT)) {
+  } else if (token_equals(command, PROPERTY_CLIP)) {
+    respond(rsp, "[!] Bar: Invalid property 'clip'\n");
+  } else if (token_equals(command, PROPERTY_HEIGHT)) {
     struct token token = get_token(&message);
     ANIMATE(bar_manager_set_bar_height,
             &g_bar_manager,

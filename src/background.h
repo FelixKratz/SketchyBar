@@ -3,6 +3,7 @@
 
 struct background {
   bool enabled;
+  float clip;
   bool overrides_height;
 
   int padding_left;
@@ -23,6 +24,7 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
 
 bool background_set_height(struct background* background, uint32_t height);
 
+void background_clip(struct background* background, CGPoint bar_item_origin, CGPoint bar_window_origin, CGContextRef context);
 void background_draw(struct background* background, CGContextRef context);
 
 void background_clear_pointers(struct background* background);

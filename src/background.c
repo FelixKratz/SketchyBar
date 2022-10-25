@@ -7,6 +7,7 @@
 
 void background_init(struct background* background) {
   background->enabled = false;
+  background->clip = 0.f;
   background->overrides_height = false;
 
   background->bounds.size.height = 25;
@@ -33,6 +34,13 @@ bool background_set_height(struct background* background, uint32_t height) {
 static bool background_set_enabled(struct background* background, bool enabled) {
   if (background->enabled == enabled) return false;
   background->enabled = enabled;
+  return true;
+}
+
+static bool background_set_clip(struct background* background, float clip) {
+  if (background->clip == clip) return false;
+  background->clip = clip;
+  background_set_enabled(background, clip > 0.f);
   return true;
 }
 
@@ -95,6 +103,20 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
     image_calculate_bounds(&background->image, x, y);
 }
 
+void background_clip(struct background* background, CGPoint bar_item_origin, CGPoint bar_window_origin, CGContextRef context) {
+  if (!background->enabled) return;
+  if (background->clip == 0.f) return;
+  CGRect region = {{0, 0}, background->bounds.size};
+  region.origin.x = bar_item_origin.x
+                    - bar_window_origin.x
+                    + background->bounds.origin.x,
+  region.origin.y = bar_item_origin.y
+                    - bar_window_origin.y
+                    + background->bounds.origin.y
+                    + background->y_offset;
+  clip_rect(context, region, background->clip, background->corner_radius);
+}
+
 void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
   CGRect background_bounds = background->bounds;
@@ -133,6 +155,7 @@ void background_destroy(struct background* background) {
 
 void background_serialize(struct background* background, char* indent, FILE* rsp, bool detailed) {
   fprintf(rsp, "%s\"drawing\": \"%s\",\n"
+               "%s\"clip\": \"%f\",\n"
                "%s\"color\": \"0x%x\",\n"
                "%s\"border_color\": \"0x%x\",\n"
                "%s\"border_width\": %u,\n"
@@ -142,6 +165,7 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                "%s\"padding_right\": %d,\n"
                "%s\"y_offset\": %d,\n",
                indent, format_bool(background->enabled),
+               indent, background->clip,
                indent, hex_from_rgba_color(background->color),
                indent, hex_from_rgba_color(background->border_color),
                indent, background->border_width,
@@ -171,7 +195,13 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
     return background_set_enabled(background,
                                   evaluate_boolean_state(get_token(&message),
                                                          background->enabled));
-  else if (token_equals(property, PROPERTY_HEIGHT)) {
+  else if (token_equals(property, PROPERTY_CLIP)) {
+    struct token token = get_token(&message);
+    ANIMATE_FLOAT(background_set_clip,
+                  background,
+                  background->clip,
+                  token_to_float(token));
+  } else if (token_equals(property, PROPERTY_HEIGHT)) {
     struct token token = get_token(&message);
     ANIMATE(background_set_height,
             background,
