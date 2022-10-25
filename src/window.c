@@ -114,7 +114,7 @@ bool window_apply_frame(struct window* window) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
     if (__builtin_available(macOS 13.0, *)) {
-    } else {
+    } else if (window->parent) {
       window_order(window, window->parent, W_OUT);
     }
 
@@ -127,9 +127,15 @@ bool window_apply_frame(struct window* window) {
     CFRelease(frame_region);
     window_move(window, window->origin);
 
-    CGContextClearRect(window->context, window->frame);
-    CGContextFlush(window->context);
-    window_order(window, window->parent, window->order_mode);
+    if (__builtin_available(macOS 13.0, *)) {
+      CGContextClearRect(window->context, window->frame);
+      CGContextFlush(window->context);
+      window_order(window, window->parent, window->order_mode);
+    } else if (window->parent) {
+      CGContextClearRect(window->context, window->frame);
+      CGContextFlush(window->context);
+      window_order(window, window->parent, window->order_mode);
+    }
 
     window->needs_move = false;
     window->needs_resize = false;
