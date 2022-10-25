@@ -45,11 +45,13 @@ extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int para
 #define kCGSStickyTagBit                (1ULL << 11)
 #define kCGSSuperStickyTagBit           (1ULL << 45)
 
-#define W_ABOVE 1
+#define W_ABOVE  1
+#define W_OUT    0
 #define W_BELOW -1
 
 struct window {
   struct window* parent;
+  int order_mode;
   bool needs_move;
   bool needs_resize;
 

@@ -85,16 +85,21 @@ void bar_order_item_windows(struct bar* bar) {
   window_order(&bar->window, NULL, W_ABOVE);
 
   struct window* previous_window = NULL;
+  struct window* first_window = NULL;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     if (bar_item->position == POSITION_POPUP) continue;
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
-
     window_set_level(window, g_bar_manager.window_level);
 
+    if (!first_window) first_window = window;
+
     if (bar_item->type == BAR_COMPONENT_GROUP) {
-      window_order(window, &bar->window, W_ABOVE);
+      if (first_window)
+        window_order(window, first_window, W_BELOW);
+      else
+        window_order(window, &bar->window, W_ABOVE);
       continue;
     }
 

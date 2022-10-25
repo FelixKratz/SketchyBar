@@ -44,14 +44,19 @@ static void popup_order_windows(struct popup* popup) {
   window_order(&popup->window, NULL, W_ABOVE);
 
   struct window* previous_window = NULL;
+  struct window* first_window = NULL;
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
 
     struct window* window = bar_item_get_window(bar_item, popup->adid);
     window_set_level(window, kCGScreenSaverWindowLevel);
+    if (!first_window) first_window = window;
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
-      window_order(window, &popup->window, W_ABOVE);
+      if (first_window)
+        window_order(window, first_window, W_BELOW);
+      else
+        window_order(window, &popup->window, W_ABOVE);
       continue;
     }
 
