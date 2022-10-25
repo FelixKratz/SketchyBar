@@ -770,10 +770,11 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool forced) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);
-  char info[18 * bar_manager->bar_count + 4];
+  char info[19 * bar_manager->bar_count + 4];
   info[0] = '{';
   info[1] = '\n';
   uint32_t cursor = 2;
+  char separator[] = ",";
   bar_manager_freeze(bar_manager);
   for (int i = 0; i < bar_manager->bar_count; i++) {
     uint64_t dsid = display_space_id(bar_manager->bars[i]->did);
@@ -784,11 +785,14 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
       if (!bar_manager->sticky && bar_manager->bars[i]->shown)
         bar_change_space(bar_manager->bars[i], dsid);
     }
+    if (i == bar_manager->bar_count - 1)
+      separator[0] = '\0';
 
-    snprintf(info + cursor, 18 * bar_manager->bar_count + 4 - cursor,
-                            "\t\"display-%d\": %d\n",
+    snprintf(info + cursor, 19 * bar_manager->bar_count + 4 - cursor,
+                            "\t\"display-%d\": %d%s\n",
                             bar_manager->bars[i]->adid,
-                            bar_manager->bars[i]->sid                );
+                            bar_manager->bars[i]->sid,
+                            separator                                );
     cursor = strlen(info);
   }
 
