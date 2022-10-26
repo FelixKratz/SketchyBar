@@ -678,9 +678,10 @@ void handle_message_mach(struct mach_buffer* buffer) {
 out:
   if (rsp) fclose(rsp);
 
+  response[length] = '\0';
   mach_send_message(buffer->message.header.msgh_remote_port, response,
-                                                             length,
-                                                             false    );
+                                                             length + 1,
+                                                             false      );
   if (response) free(response);
 }
 

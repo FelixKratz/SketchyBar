@@ -91,7 +91,7 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   msg.descriptor.address = message;
   msg.descriptor.size = len * sizeof(char);
   msg.descriptor.copy = MACH_MSG_VIRTUAL_COPY;
-  msg.descriptor.deallocate = await_response;
+  msg.descriptor.deallocate = false;
   msg.descriptor.type = MACH_MSG_OOL_DESCRIPTOR;
 
   mach_msg(&msg.header,
