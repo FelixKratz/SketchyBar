@@ -49,7 +49,6 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
 
 char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response) {
   if (!message || !port) {
-    if (message) free(message);
     return NULL;
   }
 
