@@ -156,7 +156,7 @@ bool background_clips_bar(struct background* background) {
 }
 
 void background_clip_bar(struct background* background, int offset, struct bar* bar) {
-  if (!background->enabled || background->clip == 0.f) return;
+  if (!background_clips_bar(background)) return;
 
   struct background* clip = background_get_clip(background, bar->adid);
   background_update_clip(background, clip);
