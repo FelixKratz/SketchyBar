@@ -16,7 +16,6 @@ struct bar_item {
   // Update Modifiers
   uint32_t counter;
   bool needs_update;
-  bool bar_needs_update;
   bool updates;
   bool updates_only_when_shown;
   bool lazy;
@@ -121,6 +120,9 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
 CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
+bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar);
+void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar);
+bool bar_item_clips_bar(struct bar_item* bar_item);
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid);
 

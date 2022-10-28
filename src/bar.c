@@ -113,8 +113,31 @@ void bar_order_item_windows(struct bar* bar) {
 void bar_draw(struct bar* bar) {
   if (bar->sid < 1 || bar->adid < 1) return;
 
-  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
-    g_bar_manager.bar_needs_update |= g_bar_manager.bar_items[i]->bar_needs_update;
+  if (!g_bar_manager.bar_needs_update) {
+    for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+      struct bar_item* bar_item = g_bar_manager.bar_items[i];
+      struct window* window = bar_item_get_window(bar_item, bar->adid);
+
+      bool clips_bar = bar_item_clips_bar(bar_item);
+      if (!clips_bar || (!bar_draws_item(bar, bar_item)
+          || (bar_item->type == BAR_COMPONENT_GROUP
+              && !bar_draws_item(bar, group_get_first_member(bar_item->group))))) {
+
+        if (clips_bar && !CGPointEqualToPoint(window->origin, g_nirvana)) {
+          g_bar_manager.bar_needs_update = true;
+          break;
+        }
+
+        continue;
+      }
+
+      g_bar_manager.bar_needs_update
+                       |= window->needs_move
+                          || window->needs_resize
+                          || bar_item_clip_needs_update_for_bar(bar_item, bar);
+
+      if (g_bar_manager.bar_needs_update) break;
+    }
   }
 
   if (g_bar_manager.bar_needs_update) {
@@ -135,9 +158,7 @@ void bar_draw(struct bar* bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-    if (bar_draws_item(bar, bar_item)) {
-      background_clip(&bar_item->background, window->origin, bar->window.origin, bar->window.context);
-    } else if (!bar_draws_item(bar, bar_item)
+    if (!bar_draws_item(bar, bar_item)
         || (bar_item->type == BAR_COMPONENT_GROUP
             && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
 
@@ -154,6 +175,12 @@ void bar_draw(struct bar* bar) {
     if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
       popup_draw(&bar_item->popup);
 
+    if (g_bar_manager.bar_needs_update) {
+      bar_item_clip_bar(bar_item,
+                        window->origin.x - bar->window.origin.x,
+                        bar                                     );
+    }
+
     if (!window_apply_frame(window) && !bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
@@ -167,9 +194,8 @@ void bar_draw(struct bar* bar) {
     CGContextFlush(window->context);
   }
 
-  if (g_bar_manager.bar_needs_update) {
+  if (g_bar_manager.bar_needs_update)
     CGContextFlush(bar->window.context);
-  }
 }
 
 static void bar_calculate_bounds_top_bottom(struct bar* bar) {

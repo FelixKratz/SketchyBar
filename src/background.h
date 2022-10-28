@@ -1,6 +1,8 @@
 #pragma once
 #include "image.h"
 
+struct bar;
+
 struct background {
   bool enabled;
   float clip;
@@ -17,6 +19,9 @@ struct background {
   struct shadow shadow;
   struct rgba_color color;
   struct rgba_color border_color;
+
+  struct background** clips;
+  uint32_t num_clips;
 };
 
 void background_init(struct background* background);
@@ -24,8 +29,11 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
 
 bool background_set_height(struct background* background, uint32_t height);
 
-void background_clip(struct background* background, CGPoint bar_item_origin, CGPoint bar_window_origin, CGContextRef context);
 void background_draw(struct background* background, CGContextRef context);
+struct background* background_get_clip(struct background* background, uint32_t adid);
+void background_clip_bar(struct background* background, int offset, struct bar* bar);
+bool background_clip_needs_update(struct background* background, struct bar* bar);
+bool background_clips_bar(struct background* background);
 
 void background_clear_pointers(struct background* background);
 void background_destroy(struct background* background);
