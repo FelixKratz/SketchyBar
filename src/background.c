@@ -95,9 +95,11 @@ static bool background_set_yoffset(struct background* background, int offset) {
   return true;
 }
 
-void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y) {
+void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
   background->bounds.origin.x = x;
   background->bounds.origin.y = y - background->bounds.size.height / 2;
+  background->bounds.size.width = width;
+  background->bounds.size.height = height;
 
   if (background->image.enabled)
     image_calculate_bounds(&background->image, x, y);

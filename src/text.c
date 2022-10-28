@@ -253,11 +253,15 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
                                           - text->line.descent) / 2));
 
   if (text->background.enabled) {
-    text->background.bounds.size.width = text_get_length(text, false);
-    text->background.bounds.size.height = text->background.overrides_height
-                                          ? text->background.bounds.size.height
-                                          : text->bounds.size.height;
-    background_calculate_bounds(&text->background, x, y);
+    uint32_t height = text->background.overrides_height
+                      ? text->background.bounds.size.height
+                      : text->bounds.size.height;
+
+    background_calculate_bounds(&text->background,
+                                x,
+                                y,
+                                text_get_length(text, false),
+                                height                       );
   }
 }
 

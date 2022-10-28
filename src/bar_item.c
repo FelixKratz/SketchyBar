@@ -593,15 +593,16 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   if (bar_item->background.enabled) {
-    bar_item->background.bounds.size.height = bar_item->background.overrides_height
-                                              ? bar_item->background.bounds.size.height
-                                              : (bar_height
-                                                 - (g_bar_manager.background.border_width + 1));
+    uint32_t height = bar_item->background.overrides_height
+                      ? bar_item->background.bounds.size.height
+                      : (bar_height
+                         - (g_bar_manager.background.border_width + 1));
 
-    bar_item->background.bounds.size.width = bar_item_length;
     background_calculate_bounds(&bar_item->background,
                                 x,
-                                content_y + bar_item->y_offset        );
+                                content_y + bar_item->y_offset,
+                                bar_item_length,
+                                height                         );
   }
 
   return bar_item_length;
