@@ -582,18 +582,41 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   }
 
   if (bar_item->background.enabled) {
-    bar_item->background.bounds.size.height = bar_item->background.overrides_height
-                                              ? bar_item->background.bounds.size.height
-                                              : (bar_height
-                                                 - (g_bar_manager.background.border_width + 1));
+    uint32_t height = bar_item->background.overrides_height
+                      ? bar_item->background.bounds.size.height
+                      : (bar_height
+                         - (g_bar_manager.background.border_width + 1));
 
-    bar_item->background.bounds.size.width = bar_item_length;
     background_calculate_bounds(&bar_item->background,
                                 x,
-                                content_y + bar_item->y_offset        );
+                                content_y + bar_item->y_offset,
+                                bar_item_length,
+                                height                         );
   }
 
   return bar_item_length;
+}
+
+bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar) {
+  bool needs_update = false;
+
+  needs_update |= background_clip_needs_update(&bar_item->background, bar)
+               | background_clip_needs_update(&bar_item->icon.background, bar)
+               | background_clip_needs_update(&bar_item->label.background, bar);
+
+  return needs_update;
+}
+
+bool bar_item_clips_bar(struct bar_item* bar_item) {
+  return background_clips_bar(&bar_item->background)
+         || background_clips_bar(&bar_item->icon.background)
+         || background_clips_bar(&bar_item->label.background);
+}
+
+void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
+  background_clip_bar(&bar_item->background, offset, bar);
+  background_clip_bar(&bar_item->icon.background, offset, bar);
+  background_clip_bar(&bar_item->label.background, offset, bar);
 }
 
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
@@ -829,9 +852,8 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                              entry,
                                              message          );
 
-    else {
+    else
       respond(rsp, "[!] Item (%s): Invalid subdomain '%s'\n", bar_item->name, subdom.text);
-    }
   }
   else if (token_equals(property, PROPERTY_ICON)) {
     needs_refresh = text_set_string(&bar_item->icon,

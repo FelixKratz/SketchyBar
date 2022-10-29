@@ -7,6 +7,9 @@
 
 void background_init(struct background* background) {
   background->enabled = false;
+  background->clip = 0.f;
+  background->clips = NULL;
+  background->num_clips = 0;
   background->overrides_height = false;
 
   background->bounds.size.height = 25;
@@ -30,9 +33,34 @@ bool background_set_height(struct background* background, uint32_t height) {
   return true;
 }
 
+static void background_reset_clip(struct background* background) {
+  for (uint32_t i = 0; i < background->num_clips; i++)
+    free(background->clips[i]);
+
+  if (background->clips) free(background->clips);
+  background->clips = NULL;
+  background->num_clips = 0;
+}
+
 static bool background_set_enabled(struct background* background, bool enabled) {
   if (background->enabled == enabled) return false;
+
+  if (background_clips_bar(background)) {
+    background_reset_clip(background);
+    g_bar_manager.bar_needs_update = true;
+  }
+
   background->enabled = enabled;
+
+  return true;
+}
+
+static bool background_set_clip(struct background* background, float clip) {
+  if (background->clip == clip) return false;
+  background->clip = clip;
+  g_bar_manager.bar_needs_update = true;
+  g_bar_manager.might_need_clipping = true;
+  if (clip > 0.f) background_set_enabled(background, true);
   return true;
 }
 
@@ -87,9 +115,68 @@ static bool background_set_yoffset(struct background* background, int offset) {
   return true;
 }
 
-void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y) {
+bool background_clip_needs_update(struct background* background, struct bar* bar) {
+  if (background->clip == 0.f || !background->enabled) return false;
+  struct background* clip = background_get_clip(background, bar->adid);
+  if (!CGRectEqualToRect(background->bounds, clip->bounds)) return true;
+  if (background->corner_radius != clip->corner_radius) return true;
+  if (background->y_offset != clip->y_offset) return true;
+  return false;
+}
+
+static void background_update_clip(struct background* background, struct background* clip) {
+  memcpy(clip, background, sizeof(struct background));
+  background_clear_pointers(clip);
+}
+
+struct background* background_get_clip(struct background* background, uint32_t adid) {
+  if (adid < 1) return NULL;
+  if (background->num_clips < adid) {
+    background->clips = (struct background**) realloc(background->clips,
+                                                sizeof(struct background*)*adid);
+    memset(background->clips + background->num_clips,
+           0,
+           sizeof(struct background*) * (adid - background->num_clips));
+
+    background->num_clips = adid;
+  }
+
+  if (!background->clips[adid - 1]) {
+    struct background* clip = malloc(sizeof(struct background));
+    background->clips[adid - 1] = clip;
+    background_init(clip);
+    background_update_clip(background, clip);
+    clip->bounds.origin = g_nirvana;
+  }
+
+  return background->clips[adid - 1];
+}
+
+bool background_clips_bar(struct background* background) {
+  return background->enabled && (background->clip > 0.f);
+}
+
+void background_clip_bar(struct background* background, int offset, struct bar* bar) {
+  if (!background_clips_bar(background)) return;
+
+  struct background* clip = background_get_clip(background, bar->adid);
+  background_update_clip(background, clip);
+
+  CGRect background_bounds = background->bounds;
+  background_bounds.origin.x += offset;
+  background_bounds.origin.y += background->y_offset;
+
+  clip_rect(bar->window.context,
+            background_bounds,
+            background->clip,
+            background->corner_radius);
+}
+
+void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
   background->bounds.origin.x = x;
   background->bounds.origin.y = y - background->bounds.size.height / 2;
+  background->bounds.size.width = width;
+  background->bounds.size.height = height;
 
   if (background->image.enabled)
     image_calculate_bounds(&background->image, x, y);
@@ -123,10 +210,17 @@ void background_draw(struct background* background, CGContextRef context) {
 }
 
 void background_clear_pointers(struct background* background) {
+  background->clips = NULL;
+  background->num_clips = 0;
   image_clear_pointers(&background->image);
 }
 
 void background_destroy(struct background* background) {
+  for (uint32_t i = 0; i < background->num_clips; i++)
+    free(background->clips[i]);
+
+  if (background->clips) free(background->clips);
+
   image_destroy(&background->image);
   background_clear_pointers(background);
 }
@@ -140,7 +234,8 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                "%s\"corner_radius\": %u,\n"
                "%s\"padding_left\": %d,\n"
                "%s\"padding_right\": %d,\n"
-               "%s\"y_offset\": %d,\n",
+               "%s\"y_offset\": %d,\n"
+               "%s\"clip\": %f,\n",
                indent, format_bool(background->enabled),
                indent, hex_from_rgba_color(background->color),
                indent, hex_from_rgba_color(background->border_color),
@@ -149,7 +244,8 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                indent, background->corner_radius,
                indent, background->padding_left,
                indent, background->padding_right,
-               indent, background->y_offset                                                    );
+               indent, background->y_offset,
+               indent, background->clip                                                       );
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
@@ -171,7 +267,13 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
     return background_set_enabled(background,
                                   evaluate_boolean_state(get_token(&message),
                                                          background->enabled));
-  else if (token_equals(property, PROPERTY_HEIGHT)) {
+  else if (token_equals(property, PROPERTY_CLIP)) {
+    struct token token = get_token(&message);
+    ANIMATE_FLOAT(background_set_clip,
+                  background,
+                  background->clip,
+                  token_to_float(token));
+  } else if (token_equals(property, PROPERTY_HEIGHT)) {
     struct token token = get_token(&message);
     ANIMATE(background_set_height,
             background,

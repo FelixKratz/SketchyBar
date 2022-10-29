@@ -106,6 +106,7 @@ bool bar_item_set_width(struct bar_item* bar_item, int width);
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);
 uint32_t bar_item_get_height(struct bar_item* bar_item);
 
+void bar_item_bar_needs_update(struct bar_item* bar_item, bool force);
 void bar_item_needs_update(struct bar_item* bar_item);
 
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier);
@@ -119,6 +120,9 @@ CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item);
 CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
+bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar);
+void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar);
+bool bar_item_clips_bar(struct bar_item* bar_item);
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid);
 

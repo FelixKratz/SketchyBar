@@ -34,6 +34,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_arrangement(display_active_display_id());
+  bar_manager->might_need_clipping = false;
 
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;

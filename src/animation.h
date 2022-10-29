@@ -22,6 +22,28 @@ extern struct bar_manager g_bar_manager;
   } \
 }
 
+#define ANIMATE_FLOAT(f, o, p, t) \
+{\
+  if (g_bar_manager.animator.duration > 0) { \
+    animator_cancel_locked(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
+    struct animation* animation = animation_create(); \
+    float initial_value = p; \
+    float final_value = t; \
+    animation_setup(animation, \
+                    (void*)o, \
+                    (bool (*)(void*, int))&f, \
+                    *(int*)&initial_value, \
+                    *(int*)&final_value, \
+                    g_bar_manager.animator.duration, \
+                    g_bar_manager.animator.interp_function ); \
+    animation->as_float = true; \
+    animator_add(&g_bar_manager.animator, animation); \
+  } else { \
+    needs_refresh = animator_cancel(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
+    needs_refresh |= f(o, t); \
+  } \
+}
+
 #define ANIMATE_BYTES(f, o, p, t) \
 {\
   if (g_bar_manager.animator.duration > 0) { \
@@ -59,6 +81,7 @@ typedef ANIMATION_FUNCTION(animation_function);
 
 struct animation {
   bool seperate_bytes;
+  bool as_float;
   bool locked;
 
   uint32_t duration;

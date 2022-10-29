@@ -53,6 +53,7 @@
 #define PROPERTY_LINE_WIDTH                                 "line_width"
 #define PROPERTY_BLUR_RADIUS                                "blur_radius"
 #define PROPERTY_DRAWING                                    "drawing"
+#define PROPERTY_CLIP                                       "clip"
 #define PROPERTY_DISTANCE                                   "distance"
 #define PROPERTY_ANGLE                                      "angle"
 #define PROPERTY_SCALE                                      "scale"
