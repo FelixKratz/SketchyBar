@@ -59,7 +59,8 @@ static bool background_set_clip(struct background* background, float clip) {
   if (background->clip == clip) return false;
   background->clip = clip;
   g_bar_manager.bar_needs_update = true;
-  background_set_enabled(background, clip > 0.f);
+  g_bar_manager.might_need_clipping = true;
+  if (clip > 0.f) background_set_enabled(background, true);
   return true;
 }
 
@@ -226,7 +227,6 @@ void background_destroy(struct background* background) {
 
 void background_serialize(struct background* background, char* indent, FILE* rsp, bool detailed) {
   fprintf(rsp, "%s\"drawing\": \"%s\",\n"
-               "%s\"clip\": \"%f\",\n"
                "%s\"color\": \"0x%x\",\n"
                "%s\"border_color\": \"0x%x\",\n"
                "%s\"border_width\": %u,\n"
@@ -234,9 +234,9 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                "%s\"corner_radius\": %u,\n"
                "%s\"padding_left\": %d,\n"
                "%s\"padding_right\": %d,\n"
-               "%s\"y_offset\": %d,\n",
+               "%s\"y_offset\": %d,\n"
+               "%s\"clip\": %f,\n",
                indent, format_bool(background->enabled),
-               indent, background->clip,
                indent, hex_from_rgba_color(background->color),
                indent, hex_from_rgba_color(background->border_color),
                indent, background->border_width,
@@ -244,7 +244,8 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                indent, background->corner_radius,
                indent, background->padding_left,
                indent, background->padding_right,
-               indent, background->y_offset                                                    );
+               indent, background->y_offset,
+               indent, background->clip                                                       );
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);

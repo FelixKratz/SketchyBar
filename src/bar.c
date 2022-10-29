@@ -110,9 +110,7 @@ void bar_order_item_windows(struct bar* bar) {
   }
 }
 
-void bar_draw(struct bar* bar) {
-  if (bar->sid < 1 || bar->adid < 1) return;
-
+static void bar_check_for_clip_updates(struct bar* bar) {
   if (!g_bar_manager.bar_needs_update) {
     for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
       struct bar_item* bar_item = g_bar_manager.bar_items[i];
@@ -139,6 +137,13 @@ void bar_draw(struct bar* bar) {
       if (g_bar_manager.bar_needs_update) break;
     }
   }
+}
+
+void bar_draw(struct bar* bar) {
+  if (bar->sid < 1 || bar->adid < 1) return;
+
+  if (g_bar_manager.might_need_clipping)
+    bar_check_for_clip_updates(bar);
 
   if (g_bar_manager.bar_needs_update) {
     draw_rect(bar->window.context,
