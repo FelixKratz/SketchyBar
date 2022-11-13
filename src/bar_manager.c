@@ -777,10 +777,17 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
   uint32_t cursor = 2;
   char separator[] = ",";
   bar_manager_freeze(bar_manager);
+  bool force_refresh = false;
   for (int i = 0; i < bar_manager->bar_count; i++) {
     uint64_t dsid = display_space_id(bar_manager->bars[i]->did);
     bar_manager->bars[i]->sid = mission_control_index(dsid);
+
+    bool was_shown = bar_manager->bars[i]->shown;
     bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
+
+    bar_manager->needs_ordering |= !was_shown && bar_manager->bars[i]->shown;
+    force_refresh |= !was_shown && bar_manager->bars[i]->shown;
+
     if (bar_manager->bars[i]->dsid != dsid) {
       bar_manager->bars[i]->dsid = dsid;
       if (!bar_manager->sticky && bar_manager->bars[i]->shown)
@@ -808,7 +815,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
 
 
   bar_manager->frozen = false;
-  bar_manager_refresh(bar_manager, false);
+  bar_manager_refresh(bar_manager, force_refresh);
   bar_manager_unfreeze(bar_manager);
   env_vars_destroy(&env_vars);
 }

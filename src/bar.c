@@ -81,6 +81,7 @@ static void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_
 }
 
 void bar_order_item_windows(struct bar* bar) {
+  if (bar->sid < 1 || bar->adid < 1 || !bar->shown) return;
   window_set_level(&bar->window, g_bar_manager.window_level);
   window_order(&bar->window, NULL, W_ABOVE);
 
