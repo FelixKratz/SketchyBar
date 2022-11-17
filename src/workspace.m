@@ -106,7 +106,12 @@ CGImageRef workspace_icon_for_app(char* app) {
     notification->name = string_copy((char*)[[note name] UTF8String]);
     if (note.userInfo && [NSJSONSerialization isValidJSONObject:note.userInfo]) {
       NSData* data = [NSJSONSerialization dataWithJSONObject:note.userInfo options:NSJSONWritingPrettyPrinted error:NULL];
-      if (data) notification->info = string_copy((char*)[data bytes]);
+      if (data && [data length] > 0) {
+        char* info = malloc([data length] + 1);
+        memcpy(info, [data bytes], [data length]);
+        info[[data length]] = '\0';
+        notification->info = info;
+      }
     }
 
     struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, notification);
