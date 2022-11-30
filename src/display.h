@@ -21,6 +21,8 @@ extern CFStringRef SLSCopyActiveMenuBarDisplayIdentifier(int cid);
 extern CGError SLSGetMenuBarAutohideEnabled(int cid, int *enabled);
 extern CGError SLSGetRevealedMenuBarBounds(CGRect *rect, int cid, uint64_t sid);
 extern CFStringRef SLSCopyBestManagedDisplayForPoint(int cid, CGPoint point);
+extern CGError SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool override);
+extern CGError SLSSetMenuBarAutohideEnabled(int cid, bool enabled);
 
 uint32_t display_main_display_id(void);
 uint32_t display_active_display_id(void);
