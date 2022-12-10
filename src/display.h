@@ -7,9 +7,14 @@
 typedef DISPLAY_EVENT_HANDLER(display_callback);
 
 extern CGError DisplayServicesRegisterForBrightnessChangeNotifications(uint32_t did, uint32_t passthrough, void* callback);
+extern CGError DisplayServicesRegisterForAmbientLightCompensationNotifications(uint32_t did, uint32_t passthrough, void* callback);
+
 extern CGError DisplayServicesUnregisterForBrightnessChangeNotifications(uint32_t did, uint32_t passthrough);
+extern CGError DisplayServicesUnregisterForAmbientLightCompensationNotifications(uint32_t did, uint32_t passthrough);
+
 extern CGError DisplayServicesGetBrightness(uint32_t did, float* brightness);
 extern CGError DisplayServicesCanChangeBrightness(uint32_t did);
+extern CGError DisplayServicesAmbientLightCompensationEnabled(uint32_t did, bool* out);
 
 extern CFUUIDRef CGDisplayCreateUUIDFromDisplayID(uint32_t did);
 extern CFArrayRef SLSCopyManagedDisplays(int cid);
