@@ -1,6 +1,13 @@
 #pragma once
 #include "misc/helpers.h"
 
+// CFTypeRef SLSTransactionCreate(int cid);
+// extern CGError SLSTransactionSetWindowShape(CFTypeRef transaction, uint32_t wid, float x_offset, float y_offset, CFTypeRef region);
+// extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int mode, uint32_t relativeToWID);
+// extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
+// extern CGError SLSTransactionCommitUsingMethod(CFTypeRef transaction, uint32_t method);
+// extern CGError SLSTransactionCommit(CFTypeRef transaction, uint32_t async);
+
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
 extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint64_t *wid);
@@ -8,6 +15,7 @@ extern CGError SLSReleaseWindow(int cid, uint32_t wid);
 extern CGError SLSSetWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
 extern CGError SLSClearWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
 extern CGError SLSSetWindowShape(int cid, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
+extern CGError SLSSetWindowOpaqueShape(int cid, uint32_t wid, float x_offset, float y_offset, CFTypeRef region);
 extern CGError SLSSetWindowResolution(int cid, uint32_t wid, double res);
 extern CGError SLSSetWindowOpacity(int cid, uint32_t wid, bool isOpaque);
 extern CGError SLSSetWindowAlpha(int cid, uint32_t wid, float alpha);

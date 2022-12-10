@@ -10,71 +10,6 @@ struct bar_item* bar_item_create() {
   return bar_item;
 }
 
-static void bar_item_clear_pointers(struct bar_item* bar_item) {
-  bar_item->name = NULL;
-  bar_item->script = NULL;
-  bar_item->click_script = NULL;
-  bar_item->group = NULL;
-  bar_item->signal_args.env_vars.vars = NULL;
-  bar_item->signal_args.env_vars.count = 0;
-  bar_item->windows = NULL;
-  bar_item->popup.host = bar_item;
-  bar_item->num_windows = 0;
-  text_clear_pointers(&bar_item->icon);
-  text_clear_pointers(&bar_item->label);
-  background_clear_pointers(&bar_item->background);
-}
-
-void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
-  text_destroy(&bar_item->icon);
-  text_destroy(&bar_item->label);
-  
-  char* name = bar_item->name;
-  char* script = bar_item->script;
-  char* click_script = bar_item->click_script;
-
-  memcpy(bar_item, ancestor, sizeof(struct bar_item));
-
-  bar_item_clear_pointers(bar_item);
-  bar_item->name = name;
-  bar_item->script = script;
-  bar_item->click_script = click_script;
-
-  text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
-  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name),true);
-  text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
-  text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
-
-  if (ancestor->script)
-    bar_item_set_script(bar_item, string_copy(ancestor->script));
-  if (ancestor->click_script)
-    bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
-
-  image_copy(&bar_item->background.image,
-             ancestor->background.image.image_ref);
-
-  image_copy(&bar_item->icon.background.image,
-             ancestor->icon.background.image.image_ref);
-
-  image_copy(&bar_item->label.background.image,
-             ancestor->label.background.image.image_ref);
-
-  if (bar_item->type == BAR_COMPONENT_SPACE) {
-    env_vars_set(&bar_item->signal_args.env_vars,
-                 string_copy("SELECTED"),
-                 string_copy("false")            );
-
-    env_vars_set(&bar_item->signal_args.env_vars,
-                 string_copy("SID"),
-                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
-                                                        "DID")                          ));
-    env_vars_set(&bar_item->signal_args.env_vars,
-                 string_copy("DID"),
-                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
-                                                        "DID")                          ));
-  }
-}
-
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->needs_update = true;
   bar_item->lazy = true;
@@ -239,6 +174,107 @@ void bar_item_needs_update(struct bar_item* bar_item) {
   bar_item->needs_update = true;
 }
 
+void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
+  if (!bar_item) return;
+
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("BUTTON"),
+               string_copy(get_type_description(type)));
+
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("MODIFIER"),
+               string_copy(get_modifier_description(modifier)));
+
+  if (bar_item->click_script && strlen(bar_item->click_script) > 0)
+    fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
+  if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
+}
+
+void bar_item_mouse_entered(struct bar_item* bar_item) {
+  bar_item->mouse_over = true;
+  if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
+}
+
+void bar_item_mouse_exited(struct bar_item* bar_item) {
+  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED))
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
+
+  bar_item->mouse_over = false;
+}
+
+static bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
+  if (bar_item->drawing == state) return false;
+  bar_item->drawing = state;
+  return true;
+}
+
+static void bar_item_set_script(struct bar_item* bar_item, char* script) {
+  if (!script) return;
+
+  if (bar_item->script && strcmp(bar_item->script, script) == 0) {
+    free(script);
+    return;
+  }
+
+  if (script != bar_item->script && bar_item->script)
+    free(bar_item->script);
+
+  char* path = resolve_path(script);
+  bar_item->script = path;
+}
+
+static void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
+  if (!script) return;
+
+  if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) {
+    free(script);
+    return;
+  }
+
+  if (script != bar_item->click_script && bar_item->click_script)
+    free(bar_item->click_script);
+
+  char* path = resolve_path(script);
+  bar_item->click_script = path;
+}
+
+static bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
+  if (bar_item->y_offset == offset) return false;
+  bar_item->y_offset = offset;
+  return true;
+}
+
+static bool bar_item_set_blur_radius(struct bar_item* bar_item, uint32_t radius) {
+  if (bar_item->blur_radius == radius) return false;
+  bar_item->blur_radius = radius;
+  for (int i = 0; i < bar_item->num_windows; i++) {
+    if (!bar_item->windows[i]) continue;
+    window_set_blur_radius(bar_item->windows[i], radius);
+  }
+  return true;
+}
+
+static bool bar_item_set_width(struct bar_item* bar_item, int width) {
+  if (width < 0) {
+    bool prev = bar_item->has_const_width;
+    bar_item->has_const_width = false;
+    return prev != bar_item->has_const_width;
+  }
+  if (bar_item->custom_width == width && bar_item->has_const_width)
+    return false;
+
+  bar_item->custom_width = width;
+  bar_item->has_const_width = true;
+  return true;
+}
+
+static void bar_item_set_event_port(struct bar_item* bar_item, char* bs_name) {
+  mach_port_t port = mach_get_bs_port(bs_name);
+  bar_item->event_port = port;
+}
+
 void bar_item_set_name(struct bar_item* bar_item, char* name) {
   if (!name) return;
 
@@ -298,108 +334,7 @@ void bar_item_set_position(struct bar_item* bar_item, char position) {
     bar_item->align = position;
 }
 
-void bar_item_set_script(struct bar_item* bar_item, char* script) {
-  if (!script) return;
-
-  if (bar_item->script && strcmp(bar_item->script, script) == 0) {
-    free(script);
-    return;
-  }
-
-  if (script != bar_item->script && bar_item->script)
-    free(bar_item->script);
-
-  char* path = resolve_path(script);
-  bar_item->script = path;
-}
-
-void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
-  if (!script) return;
-
-  if (bar_item->click_script && strcmp(bar_item->click_script, script) == 0) {
-    free(script);
-    return;
-  }
-
-  if (script != bar_item->click_script && bar_item->click_script)
-    free(bar_item->click_script);
-
-  char* path = resolve_path(script);
-  bar_item->click_script = path;
-}
-
-bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
-  if (bar_item->drawing == state) return false;
-  bar_item->drawing = state;
-  return true;
-}
-
-void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
-  if (!bar_item) return;
-
-  env_vars_set(&bar_item->signal_args.env_vars,
-               string_copy("BUTTON"),
-               string_copy(get_type_description(type)));
-
-  env_vars_set(&bar_item->signal_args.env_vars,
-               string_copy("MODIFIER"),
-               string_copy(get_modifier_description(modifier)));
-
-  if (bar_item->click_script && strlen(bar_item->click_script) > 0)
-    fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
-  if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
-}
-
-void bar_item_mouse_entered(struct bar_item* bar_item) {
-  bar_item->mouse_over = true;
-  if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
-}
-
-void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED))
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
-
-  bar_item->mouse_over = false;
-}
-
-bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
-  if (bar_item->y_offset == offset) return false;
-  bar_item->y_offset = offset;
-  return true;
-}
-
-bool bar_item_set_blur_radius(struct bar_item* bar_item, uint32_t radius) {
-  if (bar_item->blur_radius == radius) return false;
-  bar_item->blur_radius = radius;
-  for (int i = 0; i < bar_item->num_windows; i++) {
-    if (!bar_item->windows[i]) continue;
-    window_set_blur_radius(bar_item->windows[i], radius);
-  }
-  return true;
-}
-
-bool bar_item_set_width(struct bar_item* bar_item, int width) {
-  if (width < 0) {
-    bool prev = bar_item->has_const_width;
-    bar_item->has_const_width = false;
-    return prev != bar_item->has_const_width;
-  }
-  if (bar_item->custom_width == width && bar_item->has_const_width)
-    return false;
-
-  bar_item->custom_width = width;
-  bar_item->has_const_width = true;
-  return true;
-}
-
-void bar_item_set_event_port(struct bar_item* bar_item, char* bs_name) {
-  mach_port_t port = mach_get_bs_port(bs_name);
-  bar_item->event_port = port;
-}
-
-uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
+static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
   int length = text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)
          + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
@@ -517,22 +452,6 @@ CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item) {
   return offset;
 }
 
-CGRect bar_item_construct_bounding_rect(struct bar_item* bar_item) {
-  CGRect bounding_rect;
-  bounding_rect.origin = bar_item->icon.bounds.origin;
-  bounding_rect.origin.y = min(bar_item->icon.bounds.origin.y, bar_item->label.bounds.origin.y);
-
-  if (bar_item->has_alias
-      && bounding_rect.origin.y > bar_item->alias.image.bounds.origin.y) {
-    bounding_rect.origin.y = bar_item->alias.image.bounds.origin.y;
-  }
-
-  bounding_rect.size.width = bar_item_get_length(bar_item, true);
-  bounding_rect.size.height = bar_item_get_height(bar_item);
-  
-  return bounding_rect;
-}
-
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y) {
   uint32_t content_x = x;
   uint32_t content_y = y;
@@ -637,6 +556,71 @@ void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t ad
     window_send_to_space(bar_item->windows[adid - 1], dsid);
   }
   popup_change_space(&bar_item->popup, dsid, adid);
+}
+
+static void bar_item_clear_pointers(struct bar_item* bar_item) {
+  bar_item->name = NULL;
+  bar_item->script = NULL;
+  bar_item->click_script = NULL;
+  bar_item->group = NULL;
+  bar_item->signal_args.env_vars.vars = NULL;
+  bar_item->signal_args.env_vars.count = 0;
+  bar_item->windows = NULL;
+  bar_item->popup.host = bar_item;
+  bar_item->num_windows = 0;
+  text_clear_pointers(&bar_item->icon);
+  text_clear_pointers(&bar_item->label);
+  background_clear_pointers(&bar_item->background);
+}
+
+void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
+  text_destroy(&bar_item->icon);
+  text_destroy(&bar_item->label);
+  
+  char* name = bar_item->name;
+  char* script = bar_item->script;
+  char* click_script = bar_item->click_script;
+
+  memcpy(bar_item, ancestor, sizeof(struct bar_item));
+
+  bar_item_clear_pointers(bar_item);
+  bar_item->name = name;
+  bar_item->script = script;
+  bar_item->click_script = click_script;
+
+  text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
+  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name),true);
+  text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
+  text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
+
+  if (ancestor->script)
+    bar_item_set_script(bar_item, string_copy(ancestor->script));
+  if (ancestor->click_script)
+    bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+
+  image_copy(&bar_item->background.image,
+             ancestor->background.image.image_ref);
+
+  image_copy(&bar_item->icon.background.image,
+             ancestor->icon.background.image.image_ref);
+
+  image_copy(&bar_item->label.background.image,
+             ancestor->label.background.image.image_ref);
+
+  if (bar_item->type == BAR_COMPONENT_SPACE) {
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SELECTED"),
+                 string_copy("false")            );
+
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("SID"),
+                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
+                                                        "DID")                          ));
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("DID"),
+                 string_copy(env_vars_get_value_for_key(&ancestor->signal_args.env_vars,
+                                                        "DID")                          ));
+  }
 }
 
 void bar_item_destroy(struct bar_item* bar_item) {

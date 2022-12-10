@@ -696,8 +696,8 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_arrangement(display_active_display_id());
 
-  bar_manager_reset(bar_manager);
   bar_manager_freeze(bar_manager);
+  bar_manager_reset(bar_manager);
   bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);

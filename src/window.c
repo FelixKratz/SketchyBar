@@ -118,12 +118,7 @@ bool window_apply_frame(struct window* window) {
       window_order(window, window->parent, W_OUT);
     }
 
-    SLSSetWindowShape(g_connection,
-                      window->id,
-                      0,
-                      0,
-                      frame_region );
-
+    SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
     CFRelease(frame_region);
     window_move(window, window->origin);
 
