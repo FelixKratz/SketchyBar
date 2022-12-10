@@ -31,6 +31,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->associated_bar = 0;
   bar_item->blur_radius = 0;
   bar_item->event_port = 0;
+  bar_item->shadow = false;
 
   bar_item->has_const_width = false;
   bar_item->custom_width = 0;
@@ -399,10 +400,11 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
     window_init(bar_item->windows[adid - 1]);
     window_create(bar_item->windows[adid - 1],
                   (CGRect){{g_nirvana.x,g_nirvana.y}, {1, 1}});
-    window_disable_shadow(bar_item->windows[adid - 1]);
+    if (!bar_item->shadow) window_disable_shadow(bar_item->windows[adid - 1]);
     window_set_blur_radius(bar_item->windows[adid - 1], bar_item->blur_radius);
     context_set_font_smoothing(bar_item->windows[adid - 1]->context,
                                g_bar_manager.font_smoothing         );
+    g_bar_manager.needs_ordering = true;
   }
 
   return bar_item->windows[adid - 1];
@@ -978,6 +980,16 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
             bar_item->blur_radius,
             token_to_int(token)      );
 
+  } else if (token_equals(property, PROPERTY_SHADOW)) {
+    bool prev = bar_item->shadow;
+    bar_item->shadow = evaluate_boolean_state(get_token(&message),
+                                              bar_item->shadow    );
+    if (prev != bar_item->shadow) {
+      for (int i = 1; i <= bar_item->num_windows; i++) {
+        bar_item_remove_window(bar_item, i);
+      }
+      needs_refresh = true;
+    }
   } else if (token_equals(property, PROPERTY_IGNORE_ASSOCIATION)) {
     bar_item->ignore_association = evaluate_boolean_state(get_token(&message),
                                                           bar_item->ignore_association);

@@ -26,6 +26,7 @@ struct bar_item {
 
   // Drawing Modifiers
   bool drawing;
+  bool shadow;
   bool has_const_width;
   char align;
   uint32_t custom_width;
