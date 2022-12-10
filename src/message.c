@@ -144,7 +144,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   bar_item_set_position(bar_item, position.text[0]);
   bar_item_set_name(bar_item, token_to_string(name));
 
-  if (!token_equals(command, COMMAND_ADD_ITEM) && command.length > 0) {
+  if (token_equals(command, COMMAND_ADD_ITEM)) {
+  } else if (command.length > 0) {
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
       graph_setup(&bar_item->graph, token_to_uint32t(width));
