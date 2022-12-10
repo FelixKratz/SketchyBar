@@ -34,4 +34,4 @@ struct mach_server {
 
 bool mach_server_begin(struct mach_server* mach_server, mach_handler handler);
 char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response);
-mach_port_t mach_get_bs_port();
+mach_port_t mach_get_bs_port(char* bs_name);

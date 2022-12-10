@@ -15,7 +15,7 @@ mach_port_t mach_get_bs_port(char* bs_name) {
   mach_port_t port;
   if (bootstrap_look_up(bs_port,
                         bs_name,
-                        &port                  ) != KERN_SUCCESS) {
+                        &port   ) != KERN_SUCCESS) {
     return 0;
   }
 
@@ -27,20 +27,19 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
   mach_msg_return_t msg_return;
   if (timeout)
     msg_return = mach_msg(&buffer->message.header,
-                                          MACH_RCV_MSG | MACH_RCV_TIMEOUT,
-                                          0,
-                                          sizeof(struct mach_buffer),
-                                          port,
-                                          100,
-                                          MACH_PORT_NULL             );
+                                             MACH_RCV_MSG | MACH_RCV_TIMEOUT,
+                                             0,
+                                             sizeof(struct mach_buffer),
+                                             port,
+                                             100,
+                                             MACH_PORT_NULL                  );
   else 
-    msg_return = mach_msg(&buffer->message.header,
-                                          MACH_RCV_MSG,
-                                          0,
-                                          sizeof(struct mach_buffer),
-                                          port,
-                                          MACH_MSG_TIMEOUT_NONE,
-                                          MACH_PORT_NULL             );
+    msg_return = mach_msg(&buffer->message.header, MACH_RCV_MSG,
+                                                   0,
+                                                   sizeof(struct mach_buffer),
+                                                   port,
+                                                   MACH_MSG_TIMEOUT_NONE,
+                                                   MACH_PORT_NULL            );
 
   if (msg_return != MACH_MSG_SUCCESS) {
     buffer->message.descriptor.address = NULL;
@@ -75,7 +74,7 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
     msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND,
                                               MACH_MSG_TYPE_MAKE_SEND,
                                               0,
-                                              MACH_MSGH_BITS_COMPLEX       );
+                                              MACH_MSGH_BITS_COMPLEX  );
   } else {
     msg.header.msgh_bits = MACH_MSGH_BITS_SET(MACH_MSG_TYPE_COPY_SEND
                                               & MACH_MSGH_BITS_REMOTE_MASK,
@@ -99,7 +98,7 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
            0,
            MACH_PORT_NULL,
            MACH_MSG_TIMEOUT_NONE,
-           MACH_PORT_NULL              );
+           MACH_PORT_NULL             );
 
   if (await_response) {
     struct mach_buffer buffer = { 0 };
