@@ -145,7 +145,7 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
     struct bar_item* bar_item = NULL;
     bar_item = popup->items[j];
     if (!bar_item->drawing) continue;
-      if (bar_item->type == BAR_COMPONENT_GROUP) continue;
+    if (bar_item->type == BAR_COMPONENT_GROUP) continue;
 
     uint32_t cell_height = max(bar_item_get_height(bar_item),
                                popup->cell_size              );
@@ -169,22 +169,6 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
                        item_height             }  };
 
       window_set_frame(bar_item_get_window(bar_item, popup->adid), frame);
-
-      if (bar_item->group
-          && group_is_first_member(bar_item->group, bar_item)) {
-
-        group_calculate_bounds(bar_item->group, bar, 0, item_y, false);
-
-        uint32_t group_length = group_get_length(bar_item->group, bar);
-        CGRect group_frame = {{frame.origin.x,
-                               frame.origin.y },
-                              {group_length,
-                               frame.size.height}              };
-        
-        window_set_frame(bar_item_get_window(bar_item->group->members[0],
-                                             popup->adid                 ),
-                         group_frame                                       );
-      }
     }
 
     if (bar_item->popup.drawing)
@@ -194,6 +178,30 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
     if (popup->horizontal) x += item_width;
     else y += cell_height;
   }
+
+  for (int j = 0; j < popup->num_items; j++) {
+    if (popup->adid <= 0) break;
+    struct bar_item* bar_item = NULL;
+    bar_item = popup->items[j];
+    if (!bar_item->drawing) continue;
+    if (bar_item->type != BAR_COMPONENT_GROUP) continue;
+
+    uint32_t cell_height = popup->cell_size;
+    if (bar_item->group->num_members > 2) {
+      cell_height = max(bar_item_get_height(bar_item->group->members[1]),
+                        popup->cell_size                                 );
+    }
+
+    uint32_t item_height = popup->horizontal ? height : cell_height;
+    uint32_t item_y = item_height / 2;
+
+    group_calculate_bounds(bar_item->group, bar, item_y);
+
+    window_set_frame(bar_item_get_window(bar_item->group->members[0],
+                                         popup->adid                 ),
+                     bar_item->group->bounds                           );
+  }
+
 
   if (popup->horizontal) {
     if (!popup->background.enabled || !popup->background.image.enabled) {

@@ -166,10 +166,8 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
 }
 
 void bar_item_needs_update(struct bar_item* bar_item) {
-  if (bar_item->group) {
-    struct bar_item* first_member = group_get_first_member(bar_item->group);
-    if (first_member && first_member != bar_item)
-      bar_item_needs_update(first_member);
+  if (bar_item->group && bar_item != bar_item->group->members[0]) {
+      bar_item_needs_update(bar_item->group->members[0]);
   }
     
   bar_item->needs_update = true;
@@ -384,7 +382,7 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
 }
 
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
-  if (adid < 1) return NULL;
+  if (adid < 1 || !bar_item) return NULL;
   if (bar_item->num_windows < adid) {
     bar_item->windows = (struct window**) realloc(bar_item->windows,
                                                   sizeof(struct window*)*adid);

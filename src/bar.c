@@ -118,9 +118,7 @@ static void bar_check_for_clip_updates(struct bar* bar) {
       struct window* window = bar_item_get_window(bar_item, bar->adid);
 
       bool clips_bar = bar_item_clips_bar(bar_item);
-      if (!clips_bar || (!bar_draws_item(bar, bar_item)
-          || (bar_item->type == BAR_COMPONENT_GROUP
-              && !bar_draws_item(bar, group_get_first_member(bar_item->group))))) {
+      if (!clips_bar || (!bar_draws_item(bar, bar_item))) {
 
         if (clips_bar && !CGPointEqualToPoint(window->origin, g_nirvana)) {
           g_bar_manager.bar_needs_update = true;
@@ -164,10 +162,7 @@ void bar_draw(struct bar* bar) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-    if (!bar_draws_item(bar, bar_item)
-        || (bar_item->type == BAR_COMPONENT_GROUP
-            && !bar_draws_item(bar, group_get_first_member(bar_item->group)))){
-
+    if (!bar_draws_item(bar, bar_item)){
       if (!CGPointEqualToPoint(window->origin, g_nirvana)) {
         window_move(window, g_nirvana);
       }
@@ -287,37 +282,6 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
 
     window_set_frame(bar_item_get_window(bar_item, bar->adid), frame);
 
-    if (bar_item->group && group_is_first_member(bar_item->group, bar_item)) {
-      group_calculate_bounds(bar_item->group,
-                             bar,
-                             max(shadow_offsets.x, 0),
-                             y,
-                             bar_item->position == POSITION_RIGHT
-                             || bar_item->position == POSITION_CENTER_LEFT);
-
-      CGPoint shadow_offsets =
-                bar_item_calculate_shadow_offsets(bar_item->group->members[0]);
-
-      uint32_t group_length = group_get_length(bar_item->group, bar);
-      int group_offset = (bar_item->position == POSITION_RIGHT
-                          || bar_item->position == POSITION_CENTER_LEFT)
-                          ? group_length
-                            - bar_item_get_length(bar_item, false)
-                            - bar_item->background.padding_right
-                          : bar_item->background.padding_left;
-
-      CGRect group_frame = {{frame.origin.x - group_offset,
-                             frame.origin.y},
-                            {group_length
-                              + shadow_offsets.x
-                              + shadow_offsets.y,
-                             frame.size.height}            };
-      
-      window_set_frame(bar_item_get_window(bar_item->group->members[0],
-                                           bar->adid                   ),
-                       group_frame                                       );
-    }
-
     if (bar_item->popup.drawing)
       bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
 
@@ -335,6 +299,21 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                         : (bar_item_length
                            + bar_item->background.padding_right);
     }
+  }
+
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+    if (!bar_draws_item(bar, bar_item)
+        || bar_item->type != BAR_COMPONENT_GROUP
+        || bar_item->position == POSITION_POPUP ) {
+      continue;
+    }
+
+    group_calculate_bounds(bar_item->group, bar, y);
+    window_set_frame(bar_item_get_window(bar_item->group->members[0],
+                                         bar->adid                   ),
+                     bar_item->group->bounds                           );
   }
 }
 

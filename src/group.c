@@ -34,43 +34,54 @@ void group_add_member(struct group* group, struct bar_item* item) {
   }
 }
 
-struct bar_item* group_get_first_member(struct group* group) {
-  if (group->num_members > 1) return group->members[1];
-  return NULL;
+static struct bar_item* group_get_first_member(struct group* group, struct bar* bar) {
+  if (group->num_members == 1) return NULL;
+
+  int min = INT32_MAX;
+  struct bar_item* first_item = NULL;
+
+  for (int i = 1; i < group->num_members; i++) {
+    struct bar_item* member = group->members[i];
+    if (bar_draws_item(bar, member)) {
+      struct window* window = bar_item_get_window(member, bar->adid);
+      if (window->origin.x < min) {
+        min = window->origin.x;
+        first_item = member;
+      }
+    }
+  }
+
+  return first_item;
 }
 
-bool group_is_first_member(struct group* group, struct bar_item* item) {
-  if (!group_is_item_member(group, item)) return false;
-  if (group->num_members > 1) {return group->members[1] == item; }
-  return false;
+static struct bar_item* group_get_last_member(struct group* group, struct bar* bar) {
+  if (group->num_members == 1) return NULL;
+
+  int max = INT32_MIN;
+  struct bar_item* last_item = NULL;
+
+  for (int i = 1; i < group->num_members; i++) {
+    struct bar_item* member = group->members[i];
+    if (bar_draws_item(bar, member)) {
+      struct window* window = bar_item_get_window(member, bar->adid);
+      if (window->origin.x + window->frame.size.width > max) {
+        max = window->origin.x + window->frame.size.width;
+        last_item = member;
+      }
+    }
+  }
+
+  return last_item;
 }
 
 uint32_t group_get_length(struct group* group, struct bar* bar) {
-  uint32_t length = 0;
-  for (int i = 1; i < group->num_members; i++) {
-    if (bar_draws_item(bar, group->members[i])) {
-      if (!group->members[i]->has_const_width)
-        length += group->members[i]->background.padding_left
-                  + group->members[i]->background.padding_right;
+  int len = group->last_window->origin.x
+            + group->last_window->frame.size.width
+            + group->last_item->background.padding_right
+            + group->first_item->background.padding_left
+            - group->first_window->origin.x;
 
-      length += bar_item_get_length(group->members[i], false);
-    }
-  }
-  return length;
-}
-
-uint32_t group_get_height(struct group* group, struct bar* bar) {
-  uint32_t height = 0;
-  for (int i = 1; i < group->num_members; i++) {
-    if (bar_draws_item(bar, group->members[i])) {
-      if (!group->members[i]->has_const_width)
-        height += group->members[i]->background.padding_left
-                  + group->members[i]->background.padding_right;
-
-      height += bar_item_get_height(group->members[i]);
-    }
-  }
-  return height;
+  return max(len, 0);
 }
 
 void group_remove_member(struct group* group, struct bar_item* bar_item) {
@@ -95,9 +106,31 @@ void group_destroy(struct group* group) {
   free(group);
 }
 
-void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t x, uint32_t y, bool rtl) {
+void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y) {
+  group->first_item = group_get_first_member(group, bar);
+  group->first_window = bar_item_get_window(group->first_item, bar->adid);
+
+  group->last_item = group_get_last_member(group, bar);
+  group->last_window = bar_item_get_window(group->last_item, bar->adid);
+
+  if (!group->first_window || !group->last_window) {
+    return;
+  }
+
+  uint32_t group_length = group_get_length(group, bar);
+  CGPoint shadow_offsets = bar_item_calculate_shadow_offsets(group->members[0]);
+  
+
+  group->bounds = (CGRect){{group->first_window->origin.x
+                            - group->first_item->background.padding_left,
+                            group->first_window->origin.y},
+                           {group_length
+                            + shadow_offsets.x
+                            + shadow_offsets.y,
+                           group->first_window->frame.size.height}};
+  
   background_calculate_bounds(&group->members[0]->background,
-                              x,
+                              max(shadow_offsets.x, 0),
                               y + group->members[0]->y_offset,
                               group_get_length(group, bar),
                               group->members[0]->background.bounds.size.height);
