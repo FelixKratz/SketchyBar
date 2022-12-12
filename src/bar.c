@@ -299,12 +299,12 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                 bar_item_calculate_shadow_offsets(bar_item->group->members[0]);
 
       uint32_t group_length = group_get_length(bar_item->group, bar);
-      uint32_t group_offset = (bar_item->position == POSITION_RIGHT
-                               || bar_item->position == POSITION_CENTER_LEFT)
-                              ? group_length
-                                - bar_item_get_length(bar_item, false)
-                                - bar_item->background.padding_right
-                              : bar_item->background.padding_left;
+      int group_offset = (bar_item->position == POSITION_RIGHT
+                          || bar_item->position == POSITION_CENTER_LEFT)
+                          ? group_length
+                            - bar_item_get_length(bar_item, false)
+                            - bar_item->background.padding_right
+                          : bar_item->background.padding_left;
 
       CGRect group_frame = {{frame.origin.x - group_offset,
                              frame.origin.y},
