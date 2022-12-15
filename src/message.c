@@ -5,6 +5,44 @@ extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 extern bool g_verbose;
 
+static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp, uint32_t* count) {
+  struct bar_item** bar_items = NULL;
+
+  char* regstring = malloc(sizeof(char)*(reg.length - 1));
+  memcpy(regstring, &reg.text[1], reg.length - 2);
+  regstring[reg.length - 2] = '\0';
+  regex_t regex;
+  int reti;
+  reti = regcomp(&regex, regstring, 0);
+  free(regstring);
+  if (reti) {
+    respond(rsp, "[!] Regex: Could not compile regex '%s'\n", reg.text);
+    return NULL;
+  }
+
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+
+    reti = regexec(&regex, bar_item->name, 0, NULL, 0);
+    if (!reti) {
+      ++*count;
+      bar_items = realloc(bar_items, sizeof(struct bar_item*)* *count);
+      bar_items[*count - 1] = bar_item;
+    }
+    else if (reti != REG_NOMATCH) {
+      char buf[1024];
+      regerror(reti, &regex, buf, sizeof(buf));
+      respond(rsp, "[!] Regex: Regex match failed '%s'\n", buf);
+      return NULL;
+    }
+  }
+  if (!bar_items) {
+    respond(rsp, "[?] Regex: No match found for regex '%s'\n", reg.text);
+  }
+  regfree(&regex);
+  return bar_items;
+}
+
 static void handle_domain_subscribe(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
 
@@ -164,33 +202,45 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     }
     else if (bar_item->type == BAR_COMPONENT_GROUP) {
       struct token member = position;
-
-      int index = bar_manager_get_item_index_for_name(&g_bar_manager,
-                                                      member.text    );
-
-      if (index >= 0
-          && g_bar_manager.bar_items[index]->position == POSITION_POPUP) {
-
-        popup_add_item(&g_bar_manager.bar_items[index]->parent->popup,
-                       bar_item                                       );
-        bar_item->position = POSITION_POPUP;
-      }
-      if (index >= 0)
-        group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
-      else {
-        respond(rsp, "[!] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
-        bar_manager_remove_item(&g_bar_manager, bar_item);
-        return;
-      }
-      member = get_token(&message);
+      bool first = true;
       while (member.text && member.length > 0) {
-        
-        int index = bar_manager_get_item_index_for_name(&g_bar_manager,
-                                                        member.text    );
-        if (index >= 0)
-          group_add_member(bar_item->group, g_bar_manager.bar_items[index]);
+
+        uint32_t count = 0;
+        struct bar_item** bar_items = NULL;
+
+        if (member.length > 1 && member.text[0] == REGEX_DELIMITER
+            && member.text[member.length - 1] == REGEX_DELIMITER  ) {
+          bar_items = get_bar_items_for_regex(member, rsp, &count);
+        }
         else {
-          respond(rsp, "[?] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
+          int index = bar_manager_get_item_index_for_name(&g_bar_manager,
+                                                          member.text    );
+
+          if (index >= 0) {
+            bar_items = realloc(bar_items, sizeof(struct bar_item*));
+            bar_items[0] = g_bar_manager.bar_items[index];
+            count = 1;
+          }
+          else {
+            respond(rsp, "[?] Add (Group) %s: Failed to add member '%s', item not found\n", bar_item->name, member.text);
+          }
+        }
+
+        if (bar_items && count > 0) {
+          for (int i = 0; i < count; i++) {
+            if (first) {
+              if (bar_items[i]->position == POSITION_POPUP) {
+                popup_add_item(&bar_items[i]->parent->popup, bar_item);
+                bar_item->position = POSITION_POPUP;
+              }
+              first = false;
+            }
+            group_add_member(bar_item->group, bar_items[i]);
+          }
+          free(bar_items);
+        } else if (first) {
+          bar_manager_remove_item(&g_bar_manager, bar_item);
+          break;
         }
         member = get_token(&message);
       }
@@ -391,44 +441,6 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
     }
     bar_item_serialize(g_bar_manager.bar_items[item_index_for_name], rsp);
   }
-}
-
-static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp, uint32_t* count) {
-  struct bar_item** bar_items = NULL;
-
-  char* regstring = malloc(sizeof(char)*(reg.length - 1));
-  memcpy(regstring, &reg.text[1], reg.length - 2);
-  regstring[reg.length - 2] = '\0';
-  regex_t regex;
-  int reti;
-  reti = regcomp(&regex, regstring, 0);
-  free(regstring);
-  if (reti) {
-    respond(rsp, "[!] Regex: Could not compile regex '%s'\n", reg.text);
-    return NULL;
-  }
-
-  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
-    struct bar_item* bar_item = g_bar_manager.bar_items[i];
-
-    reti = regexec(&regex, bar_item->name, 0, NULL, 0);
-    if (!reti) {
-      ++*count;
-      bar_items = realloc(bar_items, sizeof(struct bar_item*)* *count);
-      bar_items[*count - 1] = bar_item;
-    }
-    else if (reti != REG_NOMATCH) {
-      char buf[1024];
-      regerror(reti, &regex, buf, sizeof(buf));
-      respond(rsp, "[!] Regex: Regex match failed '%s'\n", buf);
-      return NULL;
-    }
-  }
-  if (!bar_items) {
-    respond(rsp, "[?] Regex: No match found for regex '%s'\n", reg.text);
-  }
-  regfree(&regex);
-  return bar_items;
 }
 
 static void handle_domain_remove(FILE* rsp, struct token domain, char* message) {
