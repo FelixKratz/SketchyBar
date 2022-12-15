@@ -74,24 +74,31 @@ For performance reasons the space script is only run on a change in the
 or has resigned being active.
 
 ### Item Bracket -- Group Items in e.g. colored sections
-It is possible to bracket together items via the command (see [this](https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842) discussion for an example):
+It is possible to create a common background for any number of items, i.e. to bracket together items, via the command:
 ```bash
-sketchybar --add bracket <name> <first item name> ... <n-th item name>
+sketchybar --add bracket <name> <member name> ... <member name>
 ```
-The first item must always be the one listed earliest in the config. It is now possible to
-set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
-E.g., if I wanted a colored background around *all* my space components (which are named *code*, *writing*, *reading* and *entertainment*) I would set it up like this:
+The `<member name>` is a name of any item in the bar that should be added to the bracket.
+The `<member name>` can also be a `/<regex>/` expression.
+It is now possible to set properties for the bracket, just as for any item or component. Brackets currently only support all background features.
+E.g., if I wanted a colored background around my space components (which are named *space.1*, *space.2*, *space.3*) I would set it up like this:
 ```bash
-sketchybar --add bracket primary_spaces code                        \
-                                        writing                     \
-                                        reading                     \
-                                        entertainment               \
-                                                                    \
-           --set         primary_spaces background.color=0xffffffff \
-                                        background.corner_radius=4  \
-                                        background.height=20
+sketchybar --add bracket spaces space.1 space.2 space.3     \
+           --set         spaces background.color=0xffffffff \
+                                background.corner_radius=4  \
+                                background.height=20
+```
+Alternatively, if I had a number of spaces, called *space.1*, *space.2*, etc. the regex syntax comes in handy:
+```bash
+sketchybar --add bracket spaces 'space\..*'                 \
+           --set         spaces background.color=0xffffffff \
+                                background.corner_radius=4  \
+                                background.height=20
 ```
 this draws a white background below all my space components.
+
+Brackets are very flexible with their members, i.e. it is no problem to bracket together a `left` and a `center` item,
+the background will span all the way between those items.
 
 ### Item Alias -- Mirror items of the original macOS status bar into sketchybar
 It is possible to create an alias for default menu bar items
