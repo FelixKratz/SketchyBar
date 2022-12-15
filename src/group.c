@@ -114,6 +114,7 @@ void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y) {
   group->last_window = bar_item_get_window(group->last_item, bar->adid);
 
   if (!group->first_window || !group->last_window) {
+    group->bounds.origin = g_nirvana;
     return;
   }
 
