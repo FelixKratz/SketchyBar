@@ -393,8 +393,7 @@ static void handle_domain_query(FILE* rsp, struct token domain, char* message) {
   }
 }
 
-static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp) {
-  uint32_t count = 0;
+static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp, uint32_t* count) {
   struct bar_item** bar_items = NULL;
 
   char* regstring = malloc(sizeof(char)*(reg.length - 1));
@@ -414,9 +413,9 @@ static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp) {
 
     reti = regexec(&regex, bar_item->name, 0, NULL, 0);
     if (!reti) {
-      count++;
-      bar_items = realloc(bar_items, sizeof(struct bar_item*)*count);
-      bar_items[count - 1] = bar_item;
+      ++*count;
+      bar_items = realloc(bar_items, sizeof(struct bar_item*)* *count);
+      bar_items[*count - 1] = bar_item;
     }
     else if (reti != REG_NOMATCH) {
       char buf[1024];
@@ -439,7 +438,7 @@ static void handle_domain_remove(FILE* rsp, struct token domain, char* message) 
 
   if (name.length > 1 && name.text[0] == REGEX_DELIMITER
       && name.text[name.length - 1] == REGEX_DELIMITER  ) {
-    bar_items = get_bar_items_for_regex(name, rsp);
+    bar_items = get_bar_items_for_regex(name, rsp, &count);
   }
   else {
     int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
@@ -529,7 +528,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
 
       if (name.length > 1 && name.text[0] == REGEX_DELIMITER
           && name.text[name.length - 1] == REGEX_DELIMITER  ) {
-        bar_items = get_bar_items_for_regex(name, rsp);
+        bar_items = get_bar_items_for_regex(name, rsp, &count);
       }
       else {
         int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager, name.text);
