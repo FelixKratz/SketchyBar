@@ -90,7 +90,7 @@ sketchybar --add bracket spaces space.1 space.2 space.3     \
 ```
 Alternatively, if I had a number of spaces, called *space.1*, *space.2*, etc. the regex syntax comes in handy:
 ```bash
-sketchybar --add bracket spaces 'space\..*'                 \
+sketchybar --add bracket spaces '/space\..*/'               \
            --set         spaces background.color=0xffffffff \
                                 background.corner_radius=4  \
                                 background.height=20
