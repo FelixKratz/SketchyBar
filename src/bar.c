@@ -304,9 +304,9 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
 
-    if (!bar_draws_item(bar, bar_item)
-        || bar_item->type != BAR_COMPONENT_GROUP
-        || bar_item->position == POSITION_POPUP ) {
+    if (bar_item->type != BAR_COMPONENT_GROUP
+        || bar_item->position == POSITION_POPUP
+        || !bar_draws_item(bar, bar_item)) {
       continue;
     }
 

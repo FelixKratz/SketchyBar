@@ -567,8 +567,9 @@ static inline CGImageRef space_capture(uint32_t sid) {
     CFArrayRef result = SLSHWCaptureSpace(g_connection, dsid, 0);
     uint32_t count = CFArrayGetCount(result);
     if (count > 0) {
-      image = (CGImageRef)CFArrayGetValueAtIndex(result, 0);
+      image = (CGImageRef)CFRetain(CFArrayGetValueAtIndex(result, 0));
     }
+    CFRelease(result);
   }
   return image;
 }

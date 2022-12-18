@@ -22,6 +22,7 @@ bool image_set_enabled(struct image* image, bool enabled) {
 
 bool image_load(struct image* image, char* path, FILE* rsp) {
   char* app = string_copy(path);
+  if (image->path) free(image->path);
   image->path = string_copy(path);
   char* res_path = resolve_path(path);
   CGImageRef new_image_ref = NULL;
@@ -62,7 +63,12 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
 
     if (data_provider) CFRelease(data_provider);
   }
-  else {
+  else if (strlen(res_path) == 0) {
+    image_destroy(image);
+    free(res_path);
+    free(app);
+    return false;
+  } else {
     respond(rsp, "[!] Image: File '%s' not found\n", res_path);
     free(res_path);
     free(app);
