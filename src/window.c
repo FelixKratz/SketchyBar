@@ -119,8 +119,6 @@ bool window_apply_frame(struct window* window) {
     }
 
     SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
-    CFRelease(frame_region);
-    window_move(window, window->origin);
 
     if (window->parent) {
       CGContextClearRect(window->context, window->frame);
@@ -130,6 +128,9 @@ bool window_apply_frame(struct window* window) {
         window_order(window, window->parent, window->order_mode);
       }
     }
+
+    CFRelease(frame_region);
+    window_move(window, window->origin);
 
     window->needs_move = false;
     window->needs_resize = false;
