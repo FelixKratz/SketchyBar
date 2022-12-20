@@ -177,15 +177,10 @@ void window_set_level(struct window* window, uint32_t level) {
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
-  SLSTransactionClearWindowOrderingGroup(g_transaction, window->id);
   if (parent) {
     window->parent = parent;
     if (mode != W_OUT) window->order_mode = mode;
-
     SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
-    SLSTransactionAddWindowToWindowOrderingGroup(g_transaction, parent->id,
-                                                                window->id,
-                                                                mode       );
   } else {
     window->parent = NULL;
     SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
