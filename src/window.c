@@ -15,7 +15,6 @@ void window_init(struct window* window) {
   window->order_mode = W_ABOVE;
 }
 
-
 static CFTypeRef window_create_region(struct window *window, CGRect frame) {
   CFTypeRef frame_region;
   CGSNewRegionWithRect(&frame, &frame_region);
@@ -23,11 +22,11 @@ static CFTypeRef window_create_region(struct window *window, CGRect frame) {
 }
 
 void window_create(struct window* window, CGRect frame) {
-  uint64_t set_tags = 0;
+  uint64_t set_tags = kCGSExposeFadeTagBit;
   uint64_t clear_tags = 0;
 
   if (g_bar_manager.sticky) {
-    set_tags = kCGSStickyTagBit | kCGSHighQualityResamplingTagBit;
+    set_tags |= kCGSStickyTagBit;
     clear_tags = kCGSSuperStickyTagBit;
   }
 
@@ -43,7 +42,6 @@ void window_create(struct window* window, CGRect frame) {
                                                   &id              );
 
   window->id = (uint32_t)id;
-
   CFRelease(frame_region);
 
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
@@ -70,17 +68,13 @@ void window_create(struct window* window, CGRect frame) {
 
 void windows_freeze() {
   SLSDisableUpdate(g_connection);
-  if (__builtin_available(macOS 13.0, *)) {
-    g_transaction = SLSTransactionCreate(g_connection);
-  }
+  g_transaction = SLSTransactionCreate(g_connection);
 }
 
 void windows_unfreeze() {
-  if (__builtin_available(macOS 13.0, *)) {
-    SLSTransactionCommit(g_transaction, 0);
-    CFRelease(g_transaction);
-    g_transaction = NULL;
-  }
+  SLSTransactionCommit(g_transaction, 0);
+  CFRelease(g_transaction);
+  g_transaction = NULL;
   SLSReenableUpdate(g_connection);
 }
 
@@ -104,15 +98,8 @@ void window_move(struct window* window, CGPoint point) {
   window->origin = point;
 
   if (__builtin_available(macOS 12.0, *)) {
-    if (__builtin_available(macOS 13.0, *)) {
-      // Ventura
-      SLSTransactionMoveWindowWithGroup(g_transaction, window->id,
-                                                       point      );
-    }
-    else {
-      // Monterey
-      SLSMoveWindow(g_connection, window->id, &point);
-    }
+    // Monterey and later
+    SLSTransactionMoveWindowWithGroup(g_transaction, window->id, point);
   } else {
     // Big Sur and Previous
     SLSMoveWindow(g_connection, window->id, &point);
@@ -131,28 +118,23 @@ void window_move(struct window* window, CGPoint point) {
 bool window_apply_frame(struct window* window) {
   if (window->needs_resize) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
+    CFTypeRef transaction = SLSTransactionCreate(g_connection);
 
     if (__builtin_available(macOS 13.0, *)) {
-      CFTypeRef transaction = SLSTransactionCreate(g_connection);
-      SLSTransactionSetWindowShape(transaction, window->id,
-                                                0,
-                                                0,
-                                                frame_region);
-      SLSTransactionCommit(transaction, 1);
-      CFRelease(transaction);
-    } else {
-      if (window->parent) window_order(window, window->parent, W_OUT);
-      SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
+    } else if (window->parent) {
+      SLSTransactionOrderWindow(transaction, window->id, W_OUT, 0);
     }
 
+    SLSTransactionSetWindowShape(transaction, window->id,
+                                              0,
+                                              0,
+                                              frame_region);
+    SLSTransactionCommit(transaction, 1);
+    CFRelease(transaction);
 
-    if (window->parent) {
-      CGContextClearRect(window->context, window->frame);
-      CGContextFlush(window->context);
-      if (__builtin_available(macOS 13.0, *)) {
-      } else {
-        window_order(window, window->parent, window->order_mode);
-      }
+    if (__builtin_available(macOS 13.0, *)) {
+    } else if (window->parent) {
+      window_order(window, window->parent, window->order_mode);
     }
 
     CFRelease(frame_region);
@@ -191,43 +173,22 @@ void window_close(struct window* window) {
 }
 
 void window_set_level(struct window* window, uint32_t level) {
-  if (__builtin_available(macOS 13.0, *)) {
-    SLSTransactionSetWindowLevel(g_transaction, window->id, level);
-  } else {
-    SLSSetWindowLevel(g_connection, window->id, level);
-  }
+  SLSTransactionSetWindowLevel(g_transaction, window->id, level);
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
-  if (__builtin_available(macOS 13.0, *)) {
-    // SLSTransactionClearWindowOrderingGroup(g_transaction, window->id);
-  } else {
-    SLSRemoveFromOrderingGroup(g_connection, window->id);
-  }
+  SLSTransactionClearWindowOrderingGroup(g_transaction, window->id);
   if (parent) {
     window->parent = parent;
     if (mode != W_OUT) window->order_mode = mode;
 
-    if (__builtin_available(macOS 13.0, *)) {
-      SLSTransactionOrderWindow(g_transaction, window->id,
-                                               mode,
-                                               parent->id );
-      // SLSTransactionAddWindowToWindowOrderingGroup(g_transaction, parent->id,
-      //                                                             window->id,
-      //                                                             mode       );
-    } else {
-      SLSOrderWindow(g_connection, window->id, mode, parent->id);
-      SLSAddWindowToWindowOrderingGroup(g_connection, parent->id,
-                                                      window->id,
-                                                      mode       );
-    }
+    SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
+    SLSTransactionAddWindowToWindowOrderingGroup(g_transaction, parent->id,
+                                                                window->id,
+                                                                mode       );
   } else {
     window->parent = NULL;
-    if (__builtin_available(macOS 13.0, *)) {
-      SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
-    } else {
-      SLSOrderWindow(g_connection, window->id, mode, 0);
-    }
+    SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
   }
 }
 
