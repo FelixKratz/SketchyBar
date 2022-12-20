@@ -2,11 +2,10 @@
 #include "misc/helpers.h"
 
 CFTypeRef SLSTransactionCreate(int cid);
-extern CGError SLSTransactionSetWindowShape(CFTypeRef transaction, uint32_t wid, float x_offset, float y_offset, CFTypeRef region);
 extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
 extern CGError SLSTransactionSetWindowShape(CFTypeRef transaction, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
-extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint* point);
+extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint point);
 extern CGError SLSTransactionAddWindowToWindowOrderingGroup(CFTypeRef transaction, uint32_t parent_wid, uint32_t child_wid, int order);
 extern CGError SLSTransactionClearWindowOrderingGroup(CFTypeRef transaction, uint32_t wid);
 extern CGError SLSTransactionCommitUsingMethod(CFTypeRef transaction, uint32_t method);
@@ -38,6 +37,7 @@ extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, u
 extern CGError SLSRemoveFromOrderingGroup(int cid, uint32_t wid);
 extern CGError SLSReassociateWindowsSpacesByGeometry(int cid, CFArrayRef wids);
 extern CGError SLSMoveWindowsToManagedSpace(int cid, CFArrayRef window_list, uint64_t sid);
+extern CGError SLSMoveWindowWithGroup(int cid, uint32_t wid, CGPoint* point);
 
 extern void SLSCaptureWindowsContentsToRectWithOptions(uint32_t cid, uint64_t* wid, bool meh, CGRect bounds, uint32_t flags, CGImageRef* image);
 extern int SLSGetScreenRectForWindow(uint32_t cid, uint32_t wid, CGRect* out);
@@ -61,6 +61,8 @@ extern CGError SLSSetSurfaceColorSpace(int cid, uint32_t wid, uint32_t surface, 
 #define W_ABOVE  1
 #define W_OUT    0
 #define W_BELOW -1
+
+extern CFTypeRef g_transaction;
 
 struct window {
   struct window* parent;

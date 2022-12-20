@@ -64,7 +64,9 @@ static void *event_loop_run(void *context) {
 #ifdef STATS
             uint64_t begin_cycles = __rdtsc();
 #endif
+            windows_freeze();
             uint32_t result = event_handler[event->type](event->context);
+            windows_unfreeze();
 #ifdef STATS
             cycle_counter_tick(event_type_str[event->type], &event_counters[event->type], __rdtsc() - begin_cycles);
 #endif

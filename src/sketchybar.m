@@ -24,6 +24,7 @@ extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
 
 int g_connection;
+CFTypeRef g_transaction;
 
 struct bar_manager g_bar_manager;
 struct event_loop g_event_loop;

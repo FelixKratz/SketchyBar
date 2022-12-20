@@ -282,12 +282,10 @@ bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky) {
 
 void bar_manager_freeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = true;
-  windows_freeze();
 }
 
 void bar_manager_unfreeze(struct bar_manager *bar_manager) {
   bar_manager->frozen = false;
-  windows_unfreeze();
 }
 
 uint32_t bar_manager_length_for_bar_side(struct bar_manager* bar_manager, struct bar* bar, char side) {
@@ -494,7 +492,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
 void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
   bar_manager_freeze(bar_manager);
   if (animator_update(&bar_manager->animator)) {
-    bar_manager->frozen = false;
+    bar_manager_unfreeze(bar_manager);
 
     if (bar_manager->bar_needs_resize) bar_manager_resize(bar_manager);
     bar_manager_refresh(bar_manager, false);
@@ -512,12 +510,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
                                      NULL                      );
   }
 
-  if (needs_refresh) {
-    bar_manager_freeze(bar_manager);
-    bar_manager->frozen = false;
-    bar_manager_refresh(bar_manager, false);
-    bar_manager_unfreeze(bar_manager);
-  }
+  if (needs_refresh) bar_manager_refresh(bar_manager, false);
 }
 
 void bar_manager_reset(struct bar_manager* bar_manager) {
@@ -698,9 +691,8 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
 
   bar_manager_freeze(bar_manager);
   bar_manager_reset(bar_manager);
-  bar_manager->frozen = false;
-  bar_manager_refresh(bar_manager, true);
   bar_manager_unfreeze(bar_manager);
+  bar_manager_refresh(bar_manager, true);
 
   bar_manager_handle_space_change(bar_manager, true);
 }
@@ -814,9 +806,8 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
                                     &env_vars                      );
 
 
-  bar_manager->frozen = false;
-  bar_manager_refresh(bar_manager, force_refresh);
   bar_manager_unfreeze(bar_manager);
+  bar_manager_refresh(bar_manager, force_refresh);
   env_vars_destroy(&env_vars);
 }
 
@@ -832,10 +823,7 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_DISPLAY_CHANGE,
                                     &env_vars                        );
 
-  bar_manager_freeze(bar_manager);
-  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, false);
-  bar_manager_unfreeze(bar_manager);
   env_vars_destroy(&env_vars);
 }
 
@@ -852,11 +840,7 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                     NULL                          );
 
-  bar_manager_freeze(bar_manager);
-  bar_manager->frozen = false;
   bar_manager_refresh(bar_manager, true);
-  bar_manager_unfreeze(bar_manager);
-
   bar_manager_handle_space_change(bar_manager, true);
 }
 
