@@ -68,13 +68,17 @@ void window_create(struct window* window, CGRect frame) {
 
 void windows_freeze() {
   SLSDisableUpdate(g_connection);
-  g_transaction = SLSTransactionCreate(g_connection);
+  if (__builtin_available(macOS 13.0, *)) {
+    g_transaction = SLSTransactionCreate(g_connection);
+  }
 }
 
 void windows_unfreeze() {
-  SLSTransactionCommit(g_transaction, 0);
-  CFRelease(g_transaction);
-  g_transaction = NULL;
+  if (__builtin_available(macOS 13.0, *)) {
+    SLSTransactionCommit(g_transaction, 0);
+    CFRelease(g_transaction);
+    g_transaction = NULL;
+  }
   SLSReenableUpdate(g_connection);
 }
 
@@ -97,21 +101,24 @@ void window_set_frame(struct window* window, CGRect frame) {
 void window_move(struct window* window, CGPoint point) {
   window->origin = point;
 
-  if (__builtin_available(macOS 12.0, *)) {
-    // Monterey and later
+  if (__builtin_available(macOS 13.0, *)) {
+    // Ventura and later
     SLSTransactionMoveWindowWithGroup(g_transaction, window->id, point);
   } else {
-    // Big Sur and Previous
+    // Monterey and Previous
     SLSMoveWindow(g_connection, window->id, &point);
-    CFNumberRef number = CFNumberCreate(NULL,
-                                        kCFNumberSInt32Type,
-                                        &window->id         );
+    if (__builtin_available(macOS 12.0, *)) {
+    } else {
+      CFNumberRef number = CFNumberCreate(NULL,
+                                          kCFNumberSInt32Type,
+                                          &window->id         );
 
-    const void* values[1] = { number };
-    CFArrayRef array = CFArrayCreate(NULL, values , 1, &kCFTypeArrayCallBacks);
-    SLSReassociateWindowsSpacesByGeometry(g_connection, array);
-    CFRelease(array);
-    CFRelease(number);
+      const void* values[1] = { number };
+      CFArrayRef array = CFArrayCreate(NULL, values , 1, &kCFTypeArrayCallBacks);
+      SLSReassociateWindowsSpacesByGeometry(g_connection, array);
+      CFRelease(array);
+      CFRelease(number);
+    }
   }
 }
 
@@ -174,7 +181,11 @@ void window_close(struct window* window) {
 }
 
 void window_set_level(struct window* window, uint32_t level) {
-  SLSTransactionSetWindowLevel(g_transaction, window->id, level);
+  if (__builtin_available(macOS 13.0, *)) {
+    SLSTransactionSetWindowLevel(g_transaction, window->id, level);
+  } else {
+    SLSSetWindowLevel(g_connection, window->id, level);
+  }
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
