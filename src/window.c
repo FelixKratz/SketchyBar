@@ -118,23 +118,24 @@ void window_move(struct window* window, CGPoint point) {
 bool window_apply_frame(struct window* window) {
   if (window->needs_resize) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
-    CFTypeRef transaction = SLSTransactionCreate(g_connection);
 
     if (__builtin_available(macOS 13.0, *)) {
-    } else if (window->parent) {
-      SLSTransactionOrderWindow(transaction, window->id, W_OUT, 0);
-    }
+      CFTypeRef transaction = SLSTransactionCreate(g_connection);
+      SLSTransactionSetWindowShape(transaction, window->id,
+                                                0,
+                                                0,
+                                                frame_region);
+      SLSTransactionCommit(transaction, 1);
+      CFRelease(transaction);
+    } else {
+      if (window->parent) window_order(window, window->parent, W_OUT);
+      SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
 
-    SLSTransactionSetWindowShape(transaction, window->id,
-                                              0,
-                                              0,
-                                              frame_region);
-    SLSTransactionCommit(transaction, 1);
-    CFRelease(transaction);
-
-    if (__builtin_available(macOS 13.0, *)) {
-    } else if (window->parent) {
-      window_order(window, window->parent, window->order_mode);
+      if (window->parent) {
+        CGContextClearRect(window->context, window->frame);
+        CGContextFlush(window->context);
+        window_order(window, window->parent, window->order_mode);
+      }
     }
 
     CFRelease(frame_region);
@@ -180,10 +181,18 @@ void window_order(struct window* window, struct window* parent, int mode) {
   if (parent) {
     window->parent = parent;
     if (mode != W_OUT) window->order_mode = mode;
-    SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
+    if (__builtin_available(macOS 13.0, *)) {
+      SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
+    } else {
+      SLSOrderWindow(g_connection, window->id, mode, parent->id);
+    }
   } else {
     window->parent = NULL;
-    SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
+    if (__builtin_available(macOS 13.0, *)) {
+      SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
+    } else {
+      SLSOrderWindow(g_connection, window->id, mode, 0);
+    }
   }
 }
 
