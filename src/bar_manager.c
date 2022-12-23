@@ -454,7 +454,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
         bar_item->drawing = true;
       }
       else {
-        bar_item->associated_display = 1 << 31;
+        bar_item->associated_display = 1 << 30;
         bar_item->drawing = false;
       }
     }

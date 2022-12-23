@@ -65,7 +65,7 @@ void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit) {
   if (bar_item->type == BAR_COMPONENT_SPACE) {
     bar_item->associated_space = bit;
     char sid_str[32];
-    sprintf(sid_str, "%u", get_set_bit_position(bit));
+    snprintf(sid_str, 32, "%u", get_set_bit_position(bit));
     env_vars_set(&bar_item->signal_args.env_vars,
                  string_copy("SID"),
                  string_copy(sid_str)            );
@@ -79,7 +79,7 @@ void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit)
     bar_item->overrides_association = true;
     bar_item->associated_display = bit;
     char did_str[32];
-    sprintf(did_str, "%u", get_set_bit_position(bit));
+    snprintf(did_str, 32, "%u", get_set_bit_position(bit));
     env_vars_set(&bar_item->signal_args.env_vars,
                  string_copy("DID"),
                  string_copy(did_str)            );
