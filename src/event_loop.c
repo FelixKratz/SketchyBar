@@ -7,9 +7,6 @@ static bool queue_init(struct queue *queue) {
     queue->head->data = NULL;
     queue->head->next = NULL;
     queue->tail = queue->head;
-#ifdef DEBUG
-    queue->count = 0;
-#endif
     return true;
 };
 
@@ -33,23 +30,10 @@ static void queue_push(struct queue *queue, struct event *event) {
 static struct event *queue_pop(struct queue *queue) {
     struct queue_item *head;
 
-#ifdef STATS
-    uint64_t begin_cycles = __rdtsc();
-#endif
-
     do {
         head = queue->head;
         if (!head->next) return NULL;
     } while (!__sync_bool_compare_and_swap(&queue->head, head, head->next));
-
-#ifdef DEBUG
-    uint64_t count = __sync_sub_and_fetch(&queue->count, 1);
-    assert(count >= 0 && count < QUEUE_MAX_COUNT);
-#endif
-
-#ifdef STATS
-    cycle_counter_tick(__FUNCTION__, &queue_counters[1], __rdtsc() - begin_cycles);
-#endif
 
     return head->next->data;
 }
@@ -61,15 +45,9 @@ static void *event_loop_run(void *context) {
     while (event_loop->is_running) {
         struct event *event = queue_pop(queue);
         if (event) {
-#ifdef STATS
-            uint64_t begin_cycles = __rdtsc();
-#endif
             windows_freeze();
             uint32_t result = event_handler[event->type](event->context);
             windows_unfreeze();
-#ifdef STATS
-            cycle_counter_tick(event_type_str[event->type], &event_counters[event->type], __rdtsc() - begin_cycles);
-#endif
             if (event->info) *event->info = (result << 0x1) | EVENT_PROCESSED;
 
         } else {
@@ -90,12 +68,6 @@ bool event_loop_init(struct event_loop *event_loop) {
     if (!queue_init(&event_loop->queue)) return false;
     if (!memory_pool_init(&event_loop->pool, EVENT_POOL_SIZE)) return false;
     event_loop->is_running = false;
-#ifdef DEBUG
-    event_loop->count = 0;
-#endif
-#ifdef STATS
-    setlocale(LC_ALL, ""); // For fprintf digit grouping
-#endif
     event_loop->semaphore = sem_open("skybar_event_loop_semaphore", O_CREAT, 0600, 0);
     sem_unlink("skybar_event_loop_semaphore");
     return event_loop->semaphore != SEM_FAILED;
