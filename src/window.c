@@ -127,13 +127,7 @@ bool window_apply_frame(struct window* window) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
     if (__builtin_available(macOS 13.0, *)) {
-      CFTypeRef transaction = SLSTransactionCreate(g_connection);
-      SLSTransactionSetWindowShape(transaction, window->id,
-                                                0,
-                                                0,
-                                                frame_region);
-      SLSTransactionCommit(transaction, 1);
-      CFRelease(transaction);
+      SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
     } else {
       if (window->parent) window_order(window, window->parent, W_OUT);
       SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
