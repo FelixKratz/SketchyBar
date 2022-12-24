@@ -68,17 +68,13 @@ void window_create(struct window* window, CGRect frame) {
 
 void windows_freeze() {
   SLSDisableUpdate(g_connection);
-  if (__builtin_available(macOS 13.0, *)) {
-    g_transaction = SLSTransactionCreate(g_connection);
-  }
+  g_transaction = SLSTransactionCreate(g_connection);
 }
 
 void windows_unfreeze() {
-  if (__builtin_available(macOS 13.0, *)) {
-    SLSTransactionCommit(g_transaction, 0);
-    CFRelease(g_transaction);
-    g_transaction = NULL;
-  }
+  SLSTransactionCommit(g_transaction, 0);
+  CFRelease(g_transaction);
+  g_transaction = NULL;
   SLSReenableUpdate(g_connection);
 }
 
@@ -101,24 +97,21 @@ void window_set_frame(struct window* window, CGRect frame) {
 void window_move(struct window* window, CGPoint point) {
   window->origin = point;
 
-  if (__builtin_available(macOS 13.0, *)) {
-    // Ventura and later
+  if (__builtin_available(macOS 12.0, *)) {
+    // Monterey and later
     SLSTransactionMoveWindowWithGroup(g_transaction, window->id, point);
   } else {
-    // Monterey and Previous
+    // Big Sur and Previous
     SLSMoveWindow(g_connection, window->id, &point);
-    if (__builtin_available(macOS 12.0, *)) {
-    } else {
-      CFNumberRef number = CFNumberCreate(NULL,
-                                          kCFNumberSInt32Type,
-                                          &window->id         );
+    CFNumberRef number = CFNumberCreate(NULL,
+                                        kCFNumberSInt32Type,
+                                        &window->id         );
 
-      const void* values[1] = { number };
-      CFArrayRef array = CFArrayCreate(NULL, values , 1, &kCFTypeArrayCallBacks);
-      SLSReassociateWindowsSpacesByGeometry(g_connection, array);
-      CFRelease(array);
-      CFRelease(number);
-    }
+    const void* values[1] = { number };
+    CFArrayRef array = CFArrayCreate(NULL, values , 1, &kCFTypeArrayCallBacks);
+    SLSReassociateWindowsSpacesByGeometry(g_connection, array);
+    CFRelease(array);
+    CFRelease(number);
   }
 }
 
@@ -129,7 +122,10 @@ bool window_apply_frame(struct window* window) {
     if (__builtin_available(macOS 13.0, *)) {
       SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
     } else {
-      if (window->parent) window_order(window, window->parent, W_OUT);
+      if (window->parent) {
+        SLSOrderWindow(g_connection, window->id, 0, window->parent->id);
+      }
+
       SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
 
       if (window->parent) {
@@ -175,29 +171,17 @@ void window_close(struct window* window) {
 }
 
 void window_set_level(struct window* window, uint32_t level) {
-  if (__builtin_available(macOS 13.0, *)) {
-    SLSTransactionSetWindowLevel(g_transaction, window->id, level);
-  } else {
-    SLSSetWindowLevel(g_connection, window->id, level);
-  }
+  SLSTransactionSetWindowLevel(g_transaction, window->id, level);
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
   if (parent) {
     window->parent = parent;
     if (mode != W_OUT) window->order_mode = mode;
-    if (__builtin_available(macOS 13.0, *)) {
-      SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
-    } else {
-      SLSOrderWindow(g_connection, window->id, mode, parent->id);
-    }
+    SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
   } else {
     window->parent = NULL;
-    if (__builtin_available(macOS 13.0, *)) {
-      SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
-    } else {
-      SLSOrderWindow(g_connection, window->id, mode, 0);
-    }
+    SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
   }
 }
 
