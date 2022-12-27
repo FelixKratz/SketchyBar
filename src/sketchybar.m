@@ -73,9 +73,13 @@ static int client_send_message(int argc, char **argv) {
     free(message);
     if (!rsp) return EXIT_SUCCESS;
 
-    printf("%s", rsp);
+    if (strlen(rsp) > 2 && rsp[1] == '!') {
+      fprintf(stderr, "%s", rsp);
+      return EXIT_FAILURE;
+    } else {
+      fprintf(stdout, "%s", rsp);
+    }
 
-    if (strlen(rsp) > 2 && rsp[1] == '!') return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
 
