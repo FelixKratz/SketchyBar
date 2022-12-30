@@ -61,7 +61,7 @@ extern CGError SLSSetSurfaceColorSpace(int cid, uint32_t wid, uint32_t surface, 
 
 #define W_ABOVE  1
 #define W_OUT    0
-#define W_BELOW -1
+#define W_BELOW  -1
 
 extern CFTypeRef g_transaction;
 
