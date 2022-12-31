@@ -27,6 +27,8 @@ struct background {
 void background_init(struct background* background);
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
+bool background_set_enabled(struct background* background, bool enabled);
+bool background_set_color(struct background* background, uint32_t color);
 bool background_set_height(struct background* background, uint32_t height);
 
 void background_draw(struct background* background, CGContextRef context);

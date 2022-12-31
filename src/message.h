@@ -7,6 +7,7 @@
 #include "bar_manager.h"
 #include "display.h"
 #include "group.h"
+#include "slider.h"
 #include "mach.h"
 #include "event.h"
 #include "event_loop.h"

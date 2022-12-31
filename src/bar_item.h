@@ -8,6 +8,15 @@
 #include "misc/helpers.h"
 #include "popup.h"
 #include "text.h"
+#include "slider.h"
+
+#define BAR_ITEM             'i'
+#define BAR_COMPONENT_GRAPH  'g'
+#define BAR_COMPONENT_SPACE  's'
+#define BAR_COMPONENT_ALIAS  'a'
+#define BAR_COMPONENT_GROUP  'b'
+#define BAR_COMPONENT_SLIDER 't'
+#define BAR_PLUGIN           'p'
 
 struct bar_item {
   char type;
@@ -64,6 +73,10 @@ struct bar_item {
   bool has_alias;
   struct alias alias;
 
+  // Slider Properties
+  bool has_slider;
+  struct slider slider;
+
   // Group Properties
   struct group* group;
 
@@ -103,7 +116,7 @@ void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid);
 void bar_item_reset_associated_bar(struct bar_item* bar_item);
 
 void bar_item_set_name(struct bar_item* bar_item, char* name);
-void bar_item_set_type(struct bar_item* bar_item, char type);
+void bar_item_set_type(struct bar_item* bar_item, char* type);
 void bar_item_set_position(struct bar_item* bar_item, char position);
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);

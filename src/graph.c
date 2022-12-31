@@ -107,9 +107,9 @@ void graph_draw(struct graph* graph, CGContextRef context) {
 }
 
 void graph_serialize(struct graph* graph, char* indent, FILE* rsp) {
-    fprintf(rsp, "%s\"graph.color\": \"0x%x\",\n"
-                 "%s\"graph.fill_color\": \"0x%x\",\n"
-                 "%s\"graph.line_width\": \"%f\",\n"
+    fprintf(rsp, "%s\"color\": \"0x%x\",\n"
+                 "%s\"fill_color\": \"0x%x\",\n"
+                 "%s\"line_width\": \"%f\",\n"
                  "%s\"data\": [\n",
                  indent, hex_from_rgba_color(graph->line_color),
                  indent, hex_from_rgba_color(graph->fill_color),

@@ -178,7 +178,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   } 
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
-  bar_item_set_type(bar_item, command.text[0]);
+  bar_item_set_type(bar_item, command.text);
   bar_item_set_position(bar_item, position.text[0]);
   bar_item_set_name(bar_item, token_to_string(name));
 
@@ -187,8 +187,24 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
       graph_setup(&bar_item->graph, token_to_uint32t(width));
+    } 
+    else if (bar_item->type == BAR_COMPONENT_SLIDER) {
+      struct token width = get_token(&message);
+      slider_setup(&bar_item->slider, token_to_uint32t(width));
     }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
+      char* tmp_name = string_copy(name.text);
+      struct key_value_pair key_value_pair = get_key_value_pair(tmp_name, ',');
+      if (!key_value_pair.key || !key_value_pair.value)
+        alias_setup(&bar_item->alias, token_to_string(name), NULL);
+      else
+        alias_setup(&bar_item->alias,
+                    string_copy(key_value_pair.key),
+                    string_copy(key_value_pair.value));
+
+      free(tmp_name);
+    }
+    else if (bar_item->type == BAR_COMPONENT_SLIDER) {
       char* tmp_name = string_copy(name.text);
       struct key_value_pair key_value_pair = get_key_value_pair(tmp_name, ',');
       if (!key_value_pair.key || !key_value_pair.value)

@@ -55,6 +55,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   popup_init(&bar_item->popup, bar_item);
   graph_init(&bar_item->graph);
   alias_init(&bar_item->alias);
+  slider_init(&bar_item->slider);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 }
@@ -289,10 +290,22 @@ void bar_item_set_name(struct bar_item* bar_item, char* name) {
                string_copy(name)               );
 }
 
-void bar_item_set_type(struct bar_item* bar_item, char type) {
-  bar_item->type = type;
+void bar_item_set_type(struct bar_item* bar_item, char* type) {
+  if (string_equals(type, TYPE_SPACE)) {
+    bar_item->type = BAR_COMPONENT_SPACE;
+  } else if (string_equals(type, TYPE_ALIAS)) {
+    bar_item->type = BAR_COMPONENT_ALIAS;
+  } else if (string_equals(type, TYPE_GROUP)) {
+    bar_item->type = BAR_COMPONENT_GROUP;
+  } else if (string_equals(type, TYPE_GRAPH)) {
+    bar_item->type = BAR_COMPONENT_GRAPH;
+  } else if (string_equals(type, TYPE_SLIDER)) {
+    bar_item->type = BAR_COMPONENT_SLIDER;
+  } else {
+    bar_item->type = BAR_ITEM;
+  }
 
-  if (type == BAR_COMPONENT_SPACE) {
+  if (bar_item->type == BAR_COMPONENT_SPACE) {
     if (!bar_item->script) { 
         bar_item_set_script(bar_item,
             string_copy("sketchybar -m --set $NAME icon.highlight=$SELECTED"));
@@ -312,15 +325,18 @@ void bar_item_set_type(struct bar_item* bar_item, char type) {
                  string_copy("DID"),
                  string_copy("0")                );
   }
-  else if (type == BAR_COMPONENT_ALIAS) {
+  else if (bar_item->type == BAR_COMPONENT_ALIAS) {
     bar_item->update_frequency = 1;
     bar_item->has_alias = true;
     bar_item->updates_only_when_shown = true;
   }
-  else if (type == BAR_COMPONENT_GRAPH) {
+  else if (bar_item->type == BAR_COMPONENT_GRAPH) {
     bar_item->has_graph = true;
   }
-  else if (type == BAR_COMPONENT_GROUP) {
+  else if (bar_item->type == BAR_COMPONENT_SLIDER) {
+    bar_item->has_slider = true;
+  }
+  else if (bar_item->type == BAR_COMPONENT_GROUP) {
     bar_item->group = group_create();
     group_init(bar_item->group);
     group_add_member(bar_item->group, bar_item);
@@ -336,8 +352,9 @@ void bar_item_set_position(struct bar_item* bar_item, char position) {
 static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
   int length = text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)
-         + (bar_item->has_graph ? graph_get_length(&bar_item->graph) : 0)
-         + (bar_item->has_alias ? alias_get_length(&bar_item->alias) : 0);
+         + (bar_item->has_graph  ? graph_get_length(&bar_item->graph) : 0)
+         + (bar_item->has_slider ? slider_get_length(&bar_item->slider) : 0)
+         + (bar_item->has_alias  ? alias_get_length(&bar_item->alias) : 0);
  
   return max(length, 0);
 }
@@ -474,7 +491,10 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     label_position += graph_get_length(&bar_item->graph);
   } else if (bar_item->has_alias) {
     label_position += alias_get_length(&bar_item->alias); 
+  } else if (bar_item->has_slider) {
+    label_position += slider_get_length(&bar_item->slider); 
   }
+
 
   text_calculate_bounds(&bar_item->icon,
                         icon_position,
@@ -488,6 +508,11 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
     alias_calculate_bounds(&bar_item->alias,
                            sandwich_position,
                            content_y + bar_item->y_offset);
+
+  if (bar_item->has_slider)
+    slider_calculate_bounds(&bar_item->slider,
+                            sandwich_position,
+                            content_y + bar_item->y_offset);
 
   if (bar_item->has_graph) {
     bar_item->graph.bounds.size.height = bar_item->background.enabled
@@ -520,8 +545,8 @@ bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* b
   bool needs_update = false;
 
   needs_update |= background_clip_needs_update(&bar_item->background, bar)
-               | background_clip_needs_update(&bar_item->icon.background, bar)
-               | background_clip_needs_update(&bar_item->label.background, bar);
+               || background_clip_needs_update(&bar_item->icon.background, bar)
+               || background_clip_needs_update(&bar_item->label.background, bar);
 
   return needs_update;
 }
@@ -549,6 +574,8 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
     alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph)
     graph_draw(&bar_item->graph, context);
+  if (bar_item->has_slider)
+    slider_draw(&bar_item->slider, context);
 }
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid) {
@@ -667,6 +694,9 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
       break;
     case BAR_COMPONENT_GROUP:
       snprintf(type, 32, "bracket");
+      break;
+    case BAR_COMPONENT_SLIDER:
+      snprintf(type, 32, "slider");
       break;
     case BAR_COMPONENT_GRAPH:
       snprintf(type, 32, "graph");
@@ -787,6 +817,10 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
     fprintf(rsp, ",\n\t\"graph\": {\n");
     graph_serialize(&bar_item->graph, "\t\t", rsp);
     fprintf(rsp, "\n\t}");
+  } else if (bar_item->type == BAR_COMPONENT_SLIDER) {
+    fprintf(rsp, ",\n\t\"slider\": {\n");
+    slider_serialize(&bar_item->slider, "\t\t", rsp);
+    fprintf(rsp, "\n\t}");
   }
 
   fprintf(rsp, "\n}\n");
@@ -800,44 +834,63 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   if (key_value_pair.key && key_value_pair.value) {
     struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
     struct token entry = { key_value_pair.value, strlen(key_value_pair.value)};
-    if (token_equals(subdom, SUB_DOMAIN_ICON))
+    if (token_equals(subdom, SUB_DOMAIN_ICON)) {
       needs_refresh = text_parse_sub_domain(&bar_item->icon,
                                             rsp,
                                             entry,
                                             message         );
-
-    else if (token_equals(subdom, SUB_DOMAIN_LABEL))
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_LABEL)) {
       needs_refresh = text_parse_sub_domain(&bar_item->label,
                                             rsp,
                                             entry,
                                             message          );
-
-    else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND)) {
       needs_refresh = background_parse_sub_domain(&bar_item->background,
                                                   rsp,
                                                   entry,
                                                   message               );
-
-    else if (token_equals(subdom, SUB_DOMAIN_GRAPH))
-      needs_refresh = graph_parse_sub_domain(&bar_item->graph,
-                                             rsp,
-                                             entry,
-                                             message          );
-
-    else if (token_equals(subdom, SUB_DOMAIN_POPUP))
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_POPUP)) {
       needs_refresh = popup_parse_sub_domain(&bar_item->popup,
                                              rsp,
                                              entry,
                                              message          );
-
-    else if (token_equals(subdom, SUB_DOMAIN_ALIAS))
-      needs_refresh = alias_parse_sub_domain(&bar_item->alias,
-                                             rsp,
-                                             entry,
-                                             message          );
-
-    else
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_GRAPH)) {
+      if (bar_item->has_graph) {
+        needs_refresh = graph_parse_sub_domain(&bar_item->graph,
+                                               rsp,
+                                               entry,
+                                               message          );
+      } else {
+        respond(rsp, "[!] Item (%s): Trying to set a graph property on a non-graph item\n", bar_item->name);
+      }
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_ALIAS)) {
+      if (bar_item->has_alias) {
+        needs_refresh = alias_parse_sub_domain(&bar_item->alias,
+                                               rsp,
+                                               entry,
+                                               message          );
+      } else {
+        respond(rsp, "[!] Item (%s): Trying to set an alias property on a non-alias item\n", bar_item->name);
+      }
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_SLIDER)) {
+      if (bar_item->has_slider) {
+        needs_refresh = slider_parse_sub_domain(&bar_item->slider,
+                                                rsp,
+                                                entry,
+                                                message           );
+      } else {
+        respond(rsp, "[!] Item (%s): Trying to set a slider property on a non-slider item\n", bar_item->name);
+      }
+    }
+    else {
       respond(rsp, "[!] Item (%s): Invalid subdomain '%s'\n", bar_item->name, subdom.text);
+    }
   }
   else if (token_equals(property, PROPERTY_ICON)) {
     needs_refresh = text_set_string(&bar_item->icon,

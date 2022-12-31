@@ -42,7 +42,7 @@ static void background_reset_clip(struct background* background) {
   background->num_clips = 0;
 }
 
-static bool background_set_enabled(struct background* background, bool enabled) {
+bool background_set_enabled(struct background* background, bool enabled) {
   if (background->enabled == enabled) return false;
 
   if (background_clips_bar(background)) {
@@ -55,16 +55,7 @@ static bool background_set_enabled(struct background* background, bool enabled) 
   return true;
 }
 
-static bool background_set_clip(struct background* background, float clip) {
-  if (background->clip == clip) return false;
-  background->clip = clip;
-  g_bar_manager.bar_needs_update = true;
-  g_bar_manager.might_need_clipping = true;
-  if (clip > 0.f) background_set_enabled(background, true);
-  return true;
-}
-
-static bool background_set_color(struct background* background, uint32_t color) {
+bool background_set_color(struct background* background, uint32_t color) {
   struct rgba_color target_color = rgba_color_from_hex(color);
   if (background->color.r == target_color.r 
       && background->color.g == target_color.g 
@@ -72,6 +63,15 @@ static bool background_set_color(struct background* background, uint32_t color) 
       && background->color.a == target_color.a) return false;
   background->color = target_color;
   background_set_enabled(background, true);
+  return true;
+}
+
+static bool background_set_clip(struct background* background, float clip) {
+  if (background->clip == clip) return false;
+  background->clip = clip;
+  g_bar_manager.bar_needs_update = true;
+  g_bar_manager.might_need_clipping = true;
+  if (clip > 0.f) background_set_enabled(background, true);
   return true;
 }
 
