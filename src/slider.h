@@ -7,7 +7,6 @@ struct slider {
   uint32_t percentage;
   uint32_t foreground_color;
 
-  CGRect bounds;
   struct text knob;
   struct background background;
   struct background foreground;

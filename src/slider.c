@@ -23,7 +23,6 @@ static bool slider_set_foreground_color(struct slider* slider, uint32_t color) {
 void slider_init(struct slider* slider) {
   slider->percentage = 0;
 
-  slider->bounds = CGRectNull;
   slider->foreground_color = 0xff0000ff;
   text_init(&slider->knob);
   background_init(&slider->background);
@@ -77,9 +76,11 @@ void slider_destroy(struct slider* slider) {
 
 void slider_serialize(struct slider* slider, char* indent, FILE* rsp) {
   fprintf(rsp, "%s\"highlight_color\": \"0x%x\",\n"
-               "%s\"percentage\": \"%d\",\n",
+               "%s\"percentage\": \"%d\",\n"
+               "%s\"width\": \"%d\",\n",
                indent, slider->foreground_color,
-               indent, slider->percentage);
+               indent, slider->percentage,
+               indent, (int)slider->background.bounds.size.width);
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
@@ -96,8 +97,11 @@ void slider_serialize(struct slider* slider, char* indent, FILE* rsp) {
 bool slider_parse_sub_domain(struct slider* slider, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_PERCENTAGE)) {
-    needs_refresh = slider_set_percentage(slider,
-                                          token_to_uint32t(get_token(&message)));
+    struct token token = get_token(&message);
+    ANIMATE(slider_set_percentage,
+            slider,
+            slider->percentage,
+            token_to_uint32t(token));
   }
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     struct token token = get_token(&message);
@@ -110,8 +114,8 @@ bool slider_parse_sub_domain(struct slider* slider, FILE* rsp, struct token prop
     struct token token = get_token(&message);
     ANIMATE(slider_set_width,
             slider,
-            slider->bounds.size.width,
-            token_to_uint32t(token)   );
+            slider->background.bounds.size.width,
+            token_to_uint32t(token)              );
   }
   else if (token_equals(property, SUB_DOMAIN_KNOB)) {
     needs_refresh = text_set_string(&slider->knob,

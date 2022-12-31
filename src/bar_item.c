@@ -745,6 +745,8 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"ignore_association\": \"%s\",\n"
                "\t\t\"y_offset\": %d,\n"
                "\t\t\"width\": %d,\n"
+               "\t\t\"padding_left\": %d,\n"
+               "\t\t\"padding_right\": %d,\n"
                "\t\t\"background\": {\n",
                bar_item->name,
                type,
@@ -754,6 +756,8 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->associated_display,
                format_bool(bar_item->ignore_association),
                bar_item->y_offset,
+               bar_item->background.padding_left,
+               bar_item->background.padding_right,
                bar_item->has_const_width ? bar_item->custom_width : -1);
 
   background_serialize(&bar_item->background, "\t\t\t", rsp, true);
@@ -1023,6 +1027,20 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
             bar_item,
             bar_item->y_offset,
             token_to_int(token)  );
+
+  } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_padding_left,
+            &bar_item->background,
+            bar_item->background.padding_left,
+            token_to_int(token)               );
+
+  } else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_padding_right,
+            &bar_item->background,
+            bar_item->background.padding_right,
+            token_to_int(token)                );
 
   } else if (token_equals(property, PROPERTY_BLUR_RADIUS)) {
     struct token token = get_token(&message);

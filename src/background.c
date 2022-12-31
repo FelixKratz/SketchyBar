@@ -97,21 +97,21 @@ static bool background_set_corner_radius(struct background* background, uint32_t
   return true;
 }
 
-static bool background_set_padding_left(struct background* background, uint32_t pad) {
+static bool background_set_yoffset(struct background* background, int offset) {
+  if (background->y_offset == offset) return false;
+  background->y_offset = offset;
+  return true;
+}
+
+bool background_set_padding_left(struct background* background, uint32_t pad) {
   if (background->padding_left == pad) return false;
   background->padding_left = pad;
   return true;
 }
 
-static bool background_set_padding_right(struct background* background, uint32_t pad) {
+bool background_set_padding_right(struct background* background, uint32_t pad) {
   if (background->padding_right == pad) return false;
   background->padding_right = pad;
-  return true;
-}
-
-static bool background_set_yoffset(struct background* background, int offset) {
-  if (background->y_offset == offset) return false;
-  background->y_offset = offset;
   return true;
 }
 
