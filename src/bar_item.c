@@ -197,6 +197,8 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
       env_vars_set(&bar_item->signal_args.env_vars,
                    string_copy("PERCENTAGE"),
                    string_copy(perc_str)           );
+    } else {
+      return;
     }
   }
 
