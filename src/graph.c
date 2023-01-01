@@ -36,7 +36,8 @@ uint32_t graph_get_length(struct graph* graph) {
   return 0;
 }
 
-void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y) {
+void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y, uint32_t height) {
+  graph->bounds.size.height = height;
   graph->bounds.origin.x = x;
   graph->bounds.origin.y = y - graph->bounds.size.height / 2
                            + graph->line_width;

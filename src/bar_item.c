@@ -515,14 +515,16 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
                             content_y + bar_item->y_offset);
 
   if (bar_item->has_graph) {
-    bar_item->graph.bounds.size.height = bar_item->background.enabled
-                                         ? (bar_item->background.bounds.size.height
-                                            - bar_item->background.border_width - 1)
-                                         : (bar_height
-                                            - (g_bar_manager.background.border_width + 1));
+    uint32_t height = bar_item->background.enabled
+                      ? (bar_item->background.bounds.size.height
+                         - bar_item->background.border_width - 1)
+                      : (bar_height
+                         - (g_bar_manager.background.border_width + 1));
 
-    graph_calculate_bounds(&bar_item->graph, sandwich_position,
-                                             content_y + bar_item->y_offset);
+    graph_calculate_bounds(&bar_item->graph,
+                           sandwich_position,
+                           content_y + bar_item->y_offset,
+                           height                         );
   }
 
   if (bar_item->background.enabled) {

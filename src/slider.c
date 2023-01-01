@@ -38,7 +38,10 @@ void slider_setup(struct slider* slider, uint32_t width) {
 }
 
 uint32_t slider_get_length(struct slider* slider) {
-  return slider->background.bounds.size.width;
+  int32_t knob_width = slider->knob.bounds.size.width
+                         + slider->knob.bounds.origin.x;
+
+  return max(slider->background.bounds.size.width, knob_width);
 }
 
 void slider_calculate_bounds(struct slider* slider, uint32_t x, uint32_t y) {

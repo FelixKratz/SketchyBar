@@ -23,7 +23,7 @@ void graph_push_back(struct graph* graph, float y);
 float graph_get_y(struct graph* graph, uint32_t i);
 uint32_t graph_get_length(struct graph* graph);
 
-void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y);
+void graph_calculate_bounds(struct graph* graph, uint32_t x, uint32_t y, uint32_t height);
 void graph_draw(struct graph* graph, CGContextRef context);
 void graph_destroy(struct graph* graph);
 
