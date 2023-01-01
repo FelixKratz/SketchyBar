@@ -117,6 +117,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     debug("%s\n", __FUNCTION__);
     debug("EVENT_HANDLER_MOUSE_UP\n");
 
+    CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_window_id_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
     uint32_t modifier_keys = CGEventGetFlags(context);
@@ -127,13 +128,21 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
                                                             adid           );
 
     if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
-      CGPoint point = CGEventGetLocation(context);
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
     }
 
+    struct window* window = NULL;
+    CGPoint point_in_window_coords = CGPointZero;
+    if (bar_item) {
+      window = bar_item_get_window(bar_item, adid);
+      if (window) {
+        point_in_window_coords.x = point.x - window->origin.x;
+        point_in_window_coords.y = point.y - window->origin.y;
+      }
+    }
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
-    bar_item_on_click(bar_item, type, modifier_keys);
+    bar_item_on_click(bar_item, type, modifier_keys, point_in_window_coords);
     CFRelease(context);
     return EVENT_SUCCESS;
 }

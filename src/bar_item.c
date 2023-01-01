@@ -174,7 +174,7 @@ void bar_item_needs_update(struct bar_item* bar_item) {
   bar_item->needs_update = true;
 }
 
-void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier) {
+void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier, CGPoint point) {
   if (!bar_item) return;
 
   env_vars_set(&bar_item->signal_args.env_vars,
@@ -184,6 +184,21 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
   env_vars_set(&bar_item->signal_args.env_vars,
                string_copy("MODIFIER"),
                string_copy(get_modifier_description(modifier)));
+
+  if (bar_item->has_slider) {
+    if (CGRectContainsPoint(bar_item->slider.background.bounds, point)) {
+      float delta = point.x - bar_item->slider.background.bounds.origin.x;
+      uint32_t percentage = delta
+                            / bar_item->slider.background.bounds.size.width
+                            * 100.f + 0.5f;
+
+      char perc_str[8];
+      snprintf(perc_str, 8, "%d", percentage);
+      env_vars_set(&bar_item->signal_args.env_vars,
+                   string_copy("PERCENTAGE"),
+                   string_copy(perc_str)           );
+    }
+  }
 
   if (bar_item->click_script && strlen(bar_item->click_script) > 0)
     fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
