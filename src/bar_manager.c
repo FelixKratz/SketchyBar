@@ -451,11 +451,9 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
       uint32_t space_did = display_id_for_space(space);
       if (space_did) {
         bar_item->associated_display = 1 << (display_arrangement(space_did));
-        bar_item->drawing = true;
       }
       else {
         bar_item->associated_display = 1 << 30;
-        bar_item->drawing = false;
       }
     }
     for (int j = 0; j < bar_manager->bar_count; j++) {
