@@ -882,7 +882,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                              message          );
     }
     else if (token_equals(subdom, SUB_DOMAIN_GRAPH)) {
-      if (bar_item->has_graph) {
+      if (bar_item->has_graph || bar_item == &g_bar_manager.default_item) {
         needs_refresh = graph_parse_sub_domain(&bar_item->graph,
                                                rsp,
                                                entry,
@@ -892,7 +892,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       }
     }
     else if (token_equals(subdom, SUB_DOMAIN_ALIAS)) {
-      if (bar_item->has_alias) {
+      if (bar_item->has_alias || bar_item == &g_bar_manager.default_item) {
         needs_refresh = alias_parse_sub_domain(&bar_item->alias,
                                                rsp,
                                                entry,
@@ -902,7 +902,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       }
     }
     else if (token_equals(subdom, SUB_DOMAIN_SLIDER)) {
-      if (bar_item->has_slider) {
+      if (bar_item->has_slider || bar_item == &g_bar_manager.default_item) {
         needs_refresh = slider_parse_sub_domain(&bar_item->slider,
                                                 rsp,
                                                 entry,
