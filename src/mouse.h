@@ -5,6 +5,7 @@
 static const EventTypeSpec mouse_events [] = {
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
+    { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseEntered },
     { kEventClassMouse, kEventMouseExited }
 };

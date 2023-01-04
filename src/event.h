@@ -27,6 +27,7 @@ EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH);
 EVENT_CALLBACK(EVENT_HANDLER_ANIMATOR_REFRESH);
 EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED);
 EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED);
@@ -59,6 +60,7 @@ enum event_type {
     ANIMATOR_REFRESH,
     MACH_MESSAGE,
     MOUSE_UP,
+    MOUSE_DRAGGED,
     MOUSE_ENTERED,
     MOUSE_EXITED,
     VOLUME_CHANGED,
@@ -85,6 +87,7 @@ static const char *event_type_str[] = {
     [ANIMATOR_REFRESH]               = "animator_refresh",
     [MACH_MESSAGE]                   = "mach_message",
     [MOUSE_UP]                       = "mouse_up",
+    [MOUSE_DRAGGED]                  = "mouse_dragged",
     [MOUSE_ENTERED]                  = "mouse_entered",
     [MOUSE_EXITED]                   = "mouse_exited",
     [VOLUME_CHANGED]                 = "volume_changed",
@@ -103,6 +106,7 @@ static event_callback *event_handler[] = {
     [DISPLAY_RESIZED]                = EVENT_HANDLER_DISPLAY_RESIZED,
     [DISPLAY_CHANGED]                = EVENT_HANDLER_DISPLAY_CHANGED,
     [MOUSE_UP]                       = EVENT_HANDLER_MOUSE_UP,
+    [MOUSE_DRAGGED]                  = EVENT_HANDLER_MOUSE_DRAGGED,
     [MOUSE_ENTERED]                  = EVENT_HANDLER_MOUSE_ENTERED,
     [MOUSE_EXITED]                   = EVENT_HANDLER_MOUSE_EXITED,
     [VOLUME_CHANGED]                 = EVENT_HANDLER_VOLUME_CHANGED,

@@ -22,6 +22,7 @@ static bool slider_set_foreground_color(struct slider* slider, uint32_t color) {
 
 void slider_init(struct slider* slider) {
   slider->percentage = 0;
+  slider->prev_drag_percentage = NO_DRAG;
 
   slider->foreground_color = 0xff0000ff;
   text_init(&slider->knob);

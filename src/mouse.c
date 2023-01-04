@@ -12,6 +12,14 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
       event_loop_post(&g_event_loop, event);
       break;
     }
+    case kEventMouseDragged: {
+      struct event *event = event_create(&g_event_loop,
+                                         MOUSE_DRAGGED,
+                                         (void *) CFRetain(CopyEventCGEvent(e)));
+
+      event_loop_post(&g_event_loop, event);
+      break;
+    }
     case kEventMouseEntered: {
       struct event *event = event_create(&g_event_loop,
                                          MOUSE_ENTERED,

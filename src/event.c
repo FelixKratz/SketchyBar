@@ -147,6 +147,44 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     return EVENT_SUCCESS;
 }
 
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
+    debug("%s\n", __FUNCTION__);
+    debug("EVENT_HANDLER_MOUSE_DRAGGED\n");
+
+    CGPoint point = CGEventGetLocation(context);
+    uint32_t wid = get_window_id_from_cg_event(context);
+    uint32_t adid = display_arrangement(display_active_display_id());
+
+    struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
+                                                            wid,
+                                                            adid           );
+
+    if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
+      bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    }
+
+    if (!bar_item->has_slider) {
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
+
+    struct window* window = NULL;
+    CGPoint point_in_window_coords = CGPointZero;
+    if (bar_item) {
+      window = bar_item_get_window(bar_item, adid);
+      if (window) {
+        point_in_window_coords.x = point.x - window->origin.x;
+        point_in_window_coords.y = point.y - window->origin.y;
+      }
+    }
+
+    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
+    bar_item_on_drag(bar_item, point_in_window_coords);
+
+    CFRelease(context);
+    return EVENT_SUCCESS;
+}
+
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     debug("%s\n", __FUNCTION__);
     debug("EVENT_HANDLER_MOUSE_ENTERED\n");

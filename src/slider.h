@@ -3,9 +3,13 @@
 #include "background.h"
 #include "text.h"
 
+#define NO_DRAG -1
+
 struct slider {
   uint32_t percentage;
   uint32_t foreground_color;
+
+  int32_t prev_drag_percentage;
 
   struct text knob;
   struct background background;

@@ -174,6 +174,27 @@ void bar_item_needs_update(struct bar_item* bar_item) {
   bar_item->needs_update = true;
 }
 
+void bar_item_on_drag(struct bar_item* bar_item, CGPoint point) {
+  if (!bar_item->has_slider) return;
+
+  float delta = point.x - bar_item->slider.background.bounds.origin.x;
+  if (delta < 0) delta = 0;
+  uint32_t percentage = min(delta
+                            / bar_item->slider.background.bounds.size.width
+                            * 100.f + 0.5f, 100);
+
+  if (percentage == bar_item->slider.prev_drag_percentage) return;
+  bar_item->slider.prev_drag_percentage = percentage;
+  char perc_str[8];
+  snprintf(perc_str, 8, "%d", percentage);
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("PERCENTAGE"),
+               string_copy(perc_str)           );
+
+  if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
+}
+
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier, CGPoint point) {
   if (!bar_item) return;
 
@@ -188,15 +209,17 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
   if (bar_item->has_slider) {
     if (CGRectContainsPoint(bar_item->slider.background.bounds, point)) {
       float delta = point.x - bar_item->slider.background.bounds.origin.x;
-      uint32_t percentage = delta
-                            / bar_item->slider.background.bounds.size.width
-                            * 100.f + 0.5f;
+      if (delta < 0) delta = 0;
+      uint32_t percentage = min(delta
+                                / bar_item->slider.background.bounds.size.width
+                                * 100.f + 0.5f, 100);
 
       char perc_str[8];
       snprintf(perc_str, 8, "%d", percentage);
       env_vars_set(&bar_item->signal_args.env_vars,
                    string_copy("PERCENTAGE"),
                    string_copy(perc_str)           );
+      bar_item->slider.prev_drag_percentage = NO_DRAG;
     } else {
       return;
     }
