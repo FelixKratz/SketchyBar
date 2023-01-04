@@ -292,22 +292,27 @@ static void bar_item_set_event_port(struct bar_item* bar_item, char* bs_name) {
   bar_item->event_port = port;
 }
 
-void bar_item_set_name(struct bar_item* bar_item, char* name) {
-  if (!name) return;
+bool bar_item_set_name(struct bar_item* bar_item, char* name) {
+  if (!name) return false;
 
   if (bar_item->name && strcmp(bar_item->name, name) == 0) {
     free(name);
-    return;
+    return true;
   }
+
+  if (strlen(name) == 0) return false;
 
   if (name != bar_item->name && bar_item->name) free(bar_item->name);
   bar_item->name = name;
   env_vars_set(&bar_item->signal_args.env_vars,
                string_copy("NAME"),
                string_copy(name)               );
+  return true;
 }
 
-void bar_item_set_type(struct bar_item* bar_item, char* type) {
+bool bar_item_set_type(struct bar_item* bar_item, char* type) {
+  bool success = true;
+
   if (string_equals(type, TYPE_SPACE)) {
     bar_item->type = BAR_COMPONENT_SPACE;
   } else if (string_equals(type, TYPE_ALIAS)) {
@@ -320,6 +325,7 @@ void bar_item_set_type(struct bar_item* bar_item, char* type) {
     bar_item->type = BAR_COMPONENT_SLIDER;
   } else {
     bar_item->type = BAR_ITEM;
+    success = string_equals(type, TYPE_ITEM);
   }
 
   if (bar_item->type == BAR_COMPONENT_SPACE) {
@@ -358,12 +364,33 @@ void bar_item_set_type(struct bar_item* bar_item, char* type) {
     group_init(bar_item->group);
     group_add_member(bar_item->group, bar_item);
   }
+  return success;
 }
 
-void bar_item_set_position(struct bar_item* bar_item, char position) {
-  bar_item->position = position;
-  if (position != POSITION_POPUP)
-    bar_item->align = position;
+bool bar_item_set_position(struct bar_item* bar_item, char* position) {
+  if (!position || strlen(position) == 0) return false;
+
+  switch (position[0]) {
+    case POSITION_LEFT:
+      break;
+    case POSITION_CENTER_LEFT:
+      break;
+    case POSITION_CENTER:
+      break;
+    case POSITION_CENTER_RIGHT:
+      break;
+    case POSITION_RIGHT:
+      break;
+    case POSITION_POPUP:
+      break;
+    default:
+      return false;
+  }
+
+  bar_item->position = position[0];
+  if (position[0] != POSITION_POPUP)
+    bar_item->align = position[0];
+  return true;
 }
 
 static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
@@ -977,7 +1004,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {
     struct token position = get_token(&message);
-    bar_item_set_position(bar_item, position.text[0]);
+    bar_item_set_position(bar_item, position.text);
     struct key_value_pair key_value_pair = get_key_value_pair(position.text,
                                                               '.'           );
 

@@ -178,9 +178,24 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   } 
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
-  bar_item_set_type(bar_item, command.text);
-  bar_item_set_position(bar_item, position.text[0]);
-  bar_item_set_name(bar_item, token_to_string(name));
+  if (!bar_item_set_type(bar_item, command.text)) {
+    respond(rsp, "[?] Add ('%s'): Invalid type '%s', assuming 'item'\n",
+                 name.text,
+                 command.text                                           );
+  }
+
+  if (!bar_item_set_position(bar_item, position.text)
+      && bar_item->type != BAR_COMPONENT_GROUP) {
+    respond(rsp, "[!] Add: Illegal position '%s'\n", position.text);
+    bar_manager_remove_item(&g_bar_manager, bar_item);
+    return;
+  }
+
+  if (!bar_item_set_name(bar_item, token_to_string(name))) {
+    respond(rsp, "[!] Add: Illegal name '%s'\n", name.text);
+    bar_manager_remove_item(&g_bar_manager, bar_item);
+    return;
+  }
 
   if (token_equals(command, COMMAND_ADD_ITEM)) {
   } else if (command.length > 0) {
@@ -261,9 +276,6 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
         member = get_token(&message);
       }
     }
-  } else {
-    respond(rsp, "[!] Add %s: Invalid item type '%s'\n", bar_item->name, command.text);
-    return;
   }
 
   if (position.text[0] == POSITION_POPUP) {
@@ -276,11 +288,10 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
         respond(rsp,
                 "[!] Add (Popup) %s: Item '%s' is not a valid popup host\n",
                 bar_item->name,
-                key_value_pair.value,
-                bar_item->name                                                          );
+                key_value_pair.value);
 
         free(pair);
-        bar_item_set_position(bar_item, POSITION_LEFT);
+        bar_manager_remove_item(&g_bar_manager, bar_item);
         return;
       }
       struct bar_item* target_item = g_bar_manager.bar_items[item_index_for_name];

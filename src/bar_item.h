@@ -115,9 +115,9 @@ void bar_item_append_associated_bar(struct bar_item* bar_item, uint32_t adid);
 void bar_item_remove_associated_bar(struct bar_item* bar_item, uint32_t adid);
 void bar_item_reset_associated_bar(struct bar_item* bar_item);
 
-void bar_item_set_name(struct bar_item* bar_item, char* name);
-void bar_item_set_type(struct bar_item* bar_item, char* type);
-void bar_item_set_position(struct bar_item* bar_item, char position);
+bool bar_item_set_name(struct bar_item* bar_item, char* name);
+bool bar_item_set_type(struct bar_item* bar_item, char* type);
+bool bar_item_set_position(struct bar_item* bar_item, char* position);
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);
 uint32_t bar_item_get_height(struct bar_item* bar_item);
