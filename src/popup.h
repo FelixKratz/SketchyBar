@@ -12,6 +12,7 @@ struct popup {
   bool overrides_cell_size;
   bool mouse_over;
   bool needs_ordering;
+  bool topmost;
 
   char align;
 

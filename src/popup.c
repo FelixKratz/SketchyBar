@@ -15,6 +15,7 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   popup->adid = 0;
   popup->align = POSITION_LEFT;
   popup->blur_radius = 0;
+  popup->topmost = true;
   
   popup->num_items = 0;
   popup->cell_size = 30;
@@ -40,7 +41,10 @@ static bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
 }
 
 static void popup_order_windows(struct popup* popup) {
-  window_set_level(&popup->window, kCGScreenSaverWindowLevel);
+  int level = popup->topmost
+              ? kCGScreenSaverWindowLevel
+              : kCGNormalWindowLevel;
+  window_set_level(&popup->window, level);
   window_order(&popup->window, NULL, W_ABOVE);
 
   struct window* previous_window = NULL;
@@ -49,7 +53,7 @@ static void popup_order_windows(struct popup* popup) {
     struct bar_item* bar_item = popup->items[i];
 
     struct window* window = bar_item_get_window(bar_item, popup->adid);
-    window_set_level(window, kCGScreenSaverWindowLevel);
+    window_set_level(window, level);
     if (!first_window) first_window = window;
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
@@ -408,6 +412,13 @@ static bool popup_set_cell_size(struct popup* popup, int size) {
   return true;
 }
 
+static bool popup_set_topmost(struct popup* popup, bool topmost) {
+  if (topmost == popup->topmost) return false;
+  popup->topmost = topmost;
+  popup->needs_ordering = true;
+  return true;
+}
+
 bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_YOFFSET)) {
@@ -434,7 +445,11 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
             popup->blur_radius,
             token_to_int(get_token(&message)));
     return false;
-  } 
+  } else if (token_equals(property, PROPERTY_TOPMOST)) {
+    return popup_set_topmost(popup,
+                             evaluate_boolean_state(get_token(&message),
+                                                    popup->topmost      ));
+  }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text,
                                                               '.'           );
