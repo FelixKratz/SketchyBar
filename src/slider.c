@@ -23,6 +23,7 @@ static bool slider_set_foreground_color(struct slider* slider, uint32_t color) {
 void slider_init(struct slider* slider) {
   slider->percentage = 0;
   slider->prev_drag_percentage = NO_DRAG;
+  slider->background.bounds.size.width = 100;
 
   slider->foreground_color = 0xff0000ff;
   text_init(&slider->knob);
@@ -32,6 +33,12 @@ void slider_init(struct slider* slider) {
   background_set_color(&slider->foreground, slider->foreground_color);
 }
 
+void slider_clear_pointers(struct slider* slider) {
+  background_clear_pointers(&slider->background);
+  background_clear_pointers(&slider->foreground);
+  text_clear_pointers(&slider->knob);
+}
+
 void slider_setup(struct slider* slider, uint32_t width) {
   slider->background.bounds.size.width = width;
   background_set_enabled(&slider->background, true);
@@ -39,10 +46,7 @@ void slider_setup(struct slider* slider, uint32_t width) {
 }
 
 uint32_t slider_get_length(struct slider* slider) {
-  int32_t knob_width = slider->knob.bounds.size.width
-                         + slider->knob.bounds.origin.x;
-
-  return max(slider->background.bounds.size.width, knob_width);
+  return slider->background.bounds.size.width;
 }
 
 void slider_calculate_bounds(struct slider* slider, uint32_t x, uint32_t y) {
@@ -59,11 +63,13 @@ void slider_calculate_bounds(struct slider* slider, uint32_t x, uint32_t y) {
                               * ((float)slider->percentage)/100.f,
                               slider->background.bounds.size.height);
 
-  text_calculate_bounds(&slider->knob,
-                        x + ((float)slider->percentage)/100.f
-                        * slider->background.bounds.size.width
-                        - slider->knob.bounds.size.width / 2.,
-                        y                                      );
+  uint32_t knob_offset = max(min(((float)slider->percentage)/100.f
+                                  * slider->background.bounds.size.width,
+                                  slider->background.bounds.size.width
+                                  - (slider->knob.bounds.size.width / 2.f + 1.f)
+                             - slider->knob.bounds.size.width / 2.), 0.f);
+
+  text_calculate_bounds(&slider->knob, x + knob_offset, y);
 }
 
 void slider_draw(struct slider* slider, CGContextRef context) {

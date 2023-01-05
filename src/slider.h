@@ -17,6 +17,7 @@ struct slider {
 };
 
 void slider_init(struct slider* slider);
+void slider_clear_pointers(struct slider* slider);
 void slider_setup(struct slider* slider, uint32_t width);
 void slider_calculate_bounds(struct slider* slider, uint32_t x, uint32_t y);
 void slider_draw(struct slider* slider, CGContextRef context);

@@ -667,6 +667,7 @@ static void bar_item_clear_pointers(struct bar_item* bar_item) {
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
   background_clear_pointers(&bar_item->background);
+  slider_clear_pointers(&bar_item->slider);
 }
 
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
@@ -688,6 +689,12 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_set_font(&bar_item->label, string_copy(ancestor->label.font_name),true);
   text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
   text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
+
+  text_set_font(&bar_item->slider.knob,
+                string_copy(ancestor->slider.knob.font_name), true);
+
+  text_set_string(&bar_item->slider.knob,
+                  string_copy(ancestor->slider.knob.string), true);
 
   if (ancestor->script)
     bar_item_set_script(bar_item, string_copy(ancestor->script));

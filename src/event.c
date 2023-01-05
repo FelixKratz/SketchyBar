@@ -159,11 +159,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
                                                             wid,
                                                             adid           );
 
-    if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
-      bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
-    }
-
-    if (!bar_item->has_slider) {
+    if (!bar_item || !bar_item->has_slider) {
       CFRelease(context);
       return EVENT_SUCCESS;
     }
