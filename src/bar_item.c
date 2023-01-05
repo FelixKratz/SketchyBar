@@ -196,15 +196,16 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifi
   if (bar_item->has_slider) {
     if (bar_item->slider.is_dragged
         || CGRectContainsPoint(bar_item->slider.background.bounds, point)) {
-      slider_handle_drag(&bar_item->slider, point);
-      char perc_str[8];
+      if (slider_handle_drag(&bar_item->slider, point)) {
+        bar_item_needs_update(bar_item);
+      }
 
+      char perc_str[8];
       snprintf(perc_str, 8, "%d", bar_item->slider.percentage);
       env_vars_set(&bar_item->signal_args.env_vars,
                    string_copy("PERCENTAGE"),
                    string_copy(perc_str)           );
       bar_item->slider.is_dragged = false;
-
     } else {
       return;
     }

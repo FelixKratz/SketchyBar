@@ -78,11 +78,13 @@ void slider_calculate_bounds(struct slider* slider, uint32_t x, uint32_t y) {
                               * ((float)slider->percentage)/100.f,
                               slider->background.bounds.size.height);
 
-  uint32_t knob_offset = max(min(((float)slider->percentage)/100.f
-                                  * slider->background.bounds.size.width,
-                                  slider->background.bounds.size.width
-                                  - (slider->knob.bounds.size.width / 2.f + 1.f)
-                             - slider->knob.bounds.size.width / 2.), 0.f);
+  int32_t raw_offset = ((float)slider->percentage)/100.f
+                        * slider->background.bounds.size.width
+                        - slider->knob.bounds.size.width / 2.;
+
+  uint32_t knob_offset = max(min(raw_offset,
+                                 slider->background.bounds.size.width
+                                 - (slider->knob.bounds.size.width + 1.f)), 0.f);
 
   text_calculate_bounds(&slider->knob, x + knob_offset, y);
 }

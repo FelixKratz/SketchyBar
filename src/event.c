@@ -143,6 +143,10 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item, type, modifier_keys, point_in_window_coords);
+
+    if (bar_item->needs_update)
+      bar_manager_refresh(&g_bar_manager, false);
+
     CFRelease(context);
     return EVENT_SUCCESS;
 }
@@ -176,7 +180,9 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_drag(bar_item, point_in_window_coords);
-    bar_manager_refresh(&g_bar_manager, false);
+
+    if (bar_item->needs_update)
+      bar_manager_refresh(&g_bar_manager, false);
 
     CFRelease(context);
     return EVENT_SUCCESS;
