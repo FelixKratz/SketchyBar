@@ -659,6 +659,7 @@ static void bar_item_clear_pointers(struct bar_item* bar_item) {
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
+  text_destroy(&bar_item->slider.knob);
   
   char* name = bar_item->name;
   char* script = bar_item->script;
@@ -720,13 +721,9 @@ void bar_item_destroy(struct bar_item* bar_item) {
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
 
-  if (bar_item->has_graph) {
-    graph_destroy(&bar_item->graph);
-  }
-
-  if (bar_item->has_alias) {
-    alias_destroy(&bar_item->alias);
-  }
+  graph_destroy(&bar_item->graph);
+  alias_destroy(&bar_item->alias);
+  slider_destroy(&bar_item->slider);
 
   if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP)
     group_destroy(bar_item->group);

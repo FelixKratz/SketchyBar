@@ -99,6 +99,7 @@ void slider_destroy(struct slider* slider) {
   background_destroy(&slider->background);
   background_destroy(&slider->foreground);
   text_destroy(&slider->knob);
+  slider_clear_pointers(slider);
 }
 
 void slider_serialize(struct slider* slider, char* indent, FILE* rsp) {

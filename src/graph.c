@@ -125,7 +125,8 @@ void graph_serialize(struct graph* graph, char* indent, FILE* rsp) {
 
 void graph_destroy(struct graph* graph) {
   if (!graph->enabled) return;
-  free(graph->y);
+  if (graph->y) free(graph->y);
+  graph->y = NULL;
 }
 
 bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {
