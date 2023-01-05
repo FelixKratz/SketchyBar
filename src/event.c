@@ -176,6 +176,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
 
     debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_drag(bar_item, point_in_window_coords);
+    bar_manager_refresh(&g_bar_manager, false);
 
     CFRelease(context);
     return EVENT_SUCCESS;

@@ -2,12 +2,6 @@
 #include "bar_manager.h"
 #include "animation.h"
 
-static bool slider_set_percentage(struct slider* slider, uint32_t percentage) {
-  if (percentage == slider->percentage) return false;
-  slider->percentage = min(percentage, 100);
-  return true;
-}
-
 static bool slider_set_width(struct slider* slider, uint32_t width) {
   if (width == slider->background.bounds.size.width) return false;
   slider->background.bounds.size.width = width;
@@ -20,10 +14,31 @@ static bool slider_set_foreground_color(struct slider* slider, uint32_t color) {
   return background_set_color(&slider->foreground, color);
 }
 
+static bool slider_set_percentage(struct slider* slider, uint32_t percentage) {
+  if (percentage == slider->percentage) return false;
+  slider->percentage = max(min(percentage, 100), 0);
+  return true;
+}
+
+uint32_t slider_get_percentage_for_point(struct slider* slider, CGPoint point) {
+  float delta = point.x - slider->background.bounds.origin.x;
+  if (delta < 0) delta = 0;
+  uint32_t percentage = delta / slider->background.bounds.size.width * 100.f
+                        + 0.5f;
+
+  return min(percentage, 100);
+}
+
+bool slider_handle_drag(struct slider* slider, CGPoint point) {
+  uint32_t percentage = slider_get_percentage_for_point(slider, point);
+  slider->is_dragged = true;
+  return slider_set_percentage(slider, percentage);
+}
+
 void slider_init(struct slider* slider) {
   slider->percentage = 0;
-  slider->prev_drag_percentage = NO_DRAG;
   slider->background.bounds.size.width = 100;
+  slider->is_dragged = false;
 
   slider->foreground_color = 0xff0000ff;
   text_init(&slider->knob);
@@ -108,10 +123,12 @@ bool slider_parse_sub_domain(struct slider* slider, FILE* rsp, struct token prop
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_PERCENTAGE)) {
     struct token token = get_token(&message);
-    ANIMATE(slider_set_percentage,
-            slider,
-            slider->percentage,
-            token_to_uint32t(token));
+    if (!slider->is_dragged) {
+      ANIMATE(slider_set_percentage,
+              slider,
+              slider->percentage,
+              token_to_uint32t(token));
+    }
   }
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     struct token token = get_token(&message);
