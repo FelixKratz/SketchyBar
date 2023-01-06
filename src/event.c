@@ -312,3 +312,9 @@ EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED) {
   free(context);
   return EVENT_SUCCESS;
 }
+
+EVENT_CALLBACK(EVENT_HANDLER_POWER_SOURCE_CHANGED) {
+  bar_manager_handle_power_source_change(&g_bar_manager, (char*)context);
+  free(context);
+  return EVENT_SUCCESS;
+}

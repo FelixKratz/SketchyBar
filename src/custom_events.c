@@ -31,6 +31,7 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_VOLUME_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE), NULL);
 }
 
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification) {

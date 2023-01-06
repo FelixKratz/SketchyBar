@@ -99,6 +99,7 @@
 #define COMMAND_SUBSCRIBE_SYSTEM_WILL_SLEEP    "system_will_sleep"
 #define COMMAND_SUBSCRIBE_VOLUME_CHANGE        "volume_change"
 #define COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE    "brightness_change"
+#define COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE  "power_source_change"
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED        "mouse.entered"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED         "mouse.exited"
 #define COMMAND_SUBSCRIBE_MOUSE_CLICKED        "mouse.clicked"

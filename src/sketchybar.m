@@ -4,7 +4,7 @@
 #include "mach.h"
 #include "mouse.h"
 #include "message.h"
-#include "volume.h"
+#include "power.h"
 
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
@@ -203,6 +203,7 @@ int main(int argc, char **argv) {
   windows_freeze();
   bar_manager_begin(&g_bar_manager);
   windows_unfreeze();
+  begin_receiving_power_events();
 
   if (!mach_server_begin(&g_mach_server, mach_message_handler))
     error("sketchybar: could not initialize daemon! abort..\n");

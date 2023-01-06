@@ -3,6 +3,7 @@
 #include "event_loop.h"
 #include "event.h"
 #include "volume.h"
+#include "power.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
