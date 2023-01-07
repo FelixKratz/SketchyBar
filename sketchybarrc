@@ -82,14 +82,14 @@ sketchybar --add item space_separator left                         \
 # Additional position (e.g. center) are available, see:
 # https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
 
-sketchybar --add item clock right                        \
-           --set clock   update_freq=10                  \
-                         script="$PLUGIN_DIR/clock.sh"   \
-                                                         \
-           --add item battery right                      \
-           --set battery script="$PLUGIN_DIR/battery.sh" \
-                         update_freq=10                  \
-           --subscribe battery system_woke
+sketchybar --add item clock right                              \
+           --set clock   update_freq=10                        \
+                         script="$PLUGIN_DIR/clock.sh"         \
+                                                               \
+           --add item battery right                            \
+           --set battery script="$PLUGIN_DIR/battery.sh"       \
+                         update_freq=120                       \
+           --subscribe battery system_woke power_source_change
 
 ##### Finalizing Setup #####
 # The below command is only needed at the end of the initial configuration and

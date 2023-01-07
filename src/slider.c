@@ -142,10 +142,12 @@ bool slider_parse_sub_domain(struct slider* slider, FILE* rsp, struct token prop
   }
   else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    ANIMATE(slider_set_width,
-            slider,
-            slider->background.bounds.size.width,
-            token_to_uint32t(token)              );
+    if (!slider->is_dragged) {
+      ANIMATE(slider_set_width,
+              slider,
+              slider->background.bounds.size.width,
+              token_to_uint32t(token)              );
+    }
   }
   else if (token_equals(property, SUB_DOMAIN_KNOB)) {
     needs_refresh = text_set_string(&slider->knob,

@@ -11,14 +11,12 @@
 #define CLIENT_OPT_LONG         "--message"
 #define CLIENT_OPT_SHRT         "-m"
 
-#define DEBUG_VERBOSE_OPT_LONG  "--verbose"
-#define DEBUG_VERBOSE_OPT_SHRT  "-V"
 #define VERSION_OPT_LONG        "--version"
 #define VERSION_OPT_SHRT        "-v"
 
 #define MAJOR 2
-#define MINOR 12
-#define PATCH 3
+#define MINOR 13
+#define PATCH 0
 
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
@@ -203,10 +201,11 @@ int main(int argc, char **argv) {
   windows_freeze();
   bar_manager_begin(&g_bar_manager);
   windows_unfreeze();
-  begin_receiving_power_events();
 
   if (!mach_server_begin(&g_mach_server, mach_message_handler))
     error("sketchybar: could not initialize daemon! abort..\n");
+
+  begin_receiving_power_events();
 
   exec_config_file();
   RunApplicationEventLoop();
