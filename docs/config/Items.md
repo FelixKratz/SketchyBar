@@ -39,6 +39,8 @@ A list of properties available to the *set* command is listed below (components 
 | `associated_display`               | `<positive_integer list>`, `active` | `0`       | Displays to show this item on                         |
 | `ignore_association`               | `<boolean>`                         | `off`     | Ignores all space / display associations while on     |
 | `y_offset`                         | `<integer>`                         | `0`       | Vertical offset applied to the item                   |
+| `padding_left`                     | `<integer>`                         | `0`       | The padding applied left of the item                  |
+| `padding_right`                    | `<integer>`                         | `0`       | The padding applied right of the item                 |
 | `width`                            | `<positive_integer>` or `dynamic`   | `dynamic` | Makes the *item* use a fixed *width* given in points  |
 | `blur_radius`                      | `<positive_integer>`                | `0`       | The blur radius applied to the background of the item |
 | `background.<background_property>` |                                     |           | Items support all `background` properties             |

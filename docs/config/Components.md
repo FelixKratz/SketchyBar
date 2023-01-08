@@ -10,6 +10,7 @@ Currently there are the components (more details in the corresponding sections b
 * *space*: representing a mission control space
 * *bracket*: brackets together other items
 * *alias*: an alias of a menu bar item from the macOS bar
+* *slider*: a slider that shows a progression and can be clicked/dragged to set a new value
 
 ### Data Graph -- Draws an arbitrary graph into the bar
 ```bash
@@ -142,3 +143,28 @@ sketchybar --set <name> alias.color=<argb_hex>
 
 Aliases currently are not clickable but can be modified with all the options
 available for simple items.
+
+### Slider -- A draggable progression indicator
+A slider can be added to the bar via the command:
+```bash
+sketchybar --add slider <name> <position> <width>
+```
+Like all components, the slider only adds some additional properties and
+functionality to a regular item. Thus all properties of regular items are
+available for the slider. Additionally the slider exposes the additional
+properties:
+
+| <property\>                    | <value\>             | default      | description                                         |
+| :-------:                      | :------:             | :-------:    | -----------                                         |
+| `slider.width`                 | `<positive_integer>` | `100`        | Total width of the slider in points                 |
+| `slider.percentage`            | `<positive_integer>` | `0`          | Progression of the slider in percent (0-100)        |
+| `slider.highlight_color`       | `<argb_hex>`         | `0xff0000ff` | Color that highlights the progression of the slider |
+| `slider.knob`                  | `<string>`           |              | Knob of the slider                                  |
+| `slider.knob.<text_property>`  |                      |              | The slider knob supports all `<text_property>`s     |
+| `slider.<background_property>` |                      |              | The slider supports all `<background_property>`s    |
+
+The slider can be enabled to receive `mouse.clicked` events by subscribing to this event.
+A slider will receive the additional environment variable `$PERCENTAGE` on a click in its
+script, which represents the percentage corresponding to the click location.
+If a slider is dragged by the mouse it will only send a single event on drag release and
+track the mouse during the drag.

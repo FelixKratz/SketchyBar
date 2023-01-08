@@ -20,6 +20,7 @@ where the events are:
 | `display_change`       | When the active display is changed                                                                  | new active display id                  |
 | `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
 | `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
+| `power_source_change`  | When the devices power source is changed                                                            | new power source (`AC` or `BATTERY`)   |
 | `system_will_sleep`    | When the system prepares to sleep                                                                   |                                        |
 | `system_woke`          | When the system has awaken from sleep                                                               |                                        |
 | `mouse.entered`        | When the mouse enters over an item                                                                  |                                        |

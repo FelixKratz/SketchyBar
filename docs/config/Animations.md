@@ -16,7 +16,7 @@ sketchybar --animate <curve> <duration> \
 where the `<curve>` is any of the animation curves:
 - `linear`, `quadratic`, `tanh`, `sin`, `exp`
 
-and the `<duration>` is a positive integer quantifying the number of animation
+The `<duration>` is a positive integer quantifying the number of animation
 steps.
 
 The animation system *always* animates between all *current* values and the
@@ -24,7 +24,7 @@ values specified in a configuration command (i.e. `--bar` or `--set` commands).
 
 ### Perform multiple animations chained together
 If you want to chain two or more animations together, you can do so by simply
-changing the property multiple times in a single call, e.g.:
+changing the property multiple times in a single call, e.g.
 ```bash
 sketchybar --animate sin 30 --bar y_offset=10 y_offset=0
 ```

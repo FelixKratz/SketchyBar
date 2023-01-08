@@ -47,19 +47,15 @@ Have a look at the [discussion](https://github.com/FelixKratz/SketchyBar/discuss
 You should of course vet the code from all plugins before executing them to make sure they are not harming your computer.
 
 ### Hiding the original macOS bar
-If you have a notched MacBook, SketchyBar will (with the default config) appear
-*below* the original macOS bar. You can do a few things to make SketchyBar visible:
-- Give SketchyBar a `y_offset`
-```bash
-sketchybar --bar y_offset=32
-```
-- Hide the default macOS menu bar in *System Preferences* -> *Dock & Menu Bar*:
+- (Pre macOS Ventura) Hide the default macOS menu bar in *System Preferences* -> *Dock & Menu Bar*:
 ![hide_macOS_bar](/img/hide_menubar.png)
+- (Post macOS Ventura) Hide the default macOS menu bar in *System Settings* -> *Desktop & Dock* -> *Automatically hide and show the menu bar* -> *Always*:
+![hide_macOS_bar_ventura](/img/hide_macos_bar_ventura.png)
 
 ### Compile from source
 It is easy to compile the project from source:
 
-- Install xCode commandline tools:
+- Install Xcode commandline tools:
 ```bash
 xcode-select --install
 ```
@@ -75,15 +71,7 @@ make
 ```
 
 This will generate a universal binary with arm64 and x86 instructions. It is
-possible to generate an arm64/x86 only binary via:
-
-```bash
-make arm64
-```
-or
-```bash
-make x86
-```
+possible to generate an arm64/x86 only binary via `make arm64` or `make x86`.
 Compiling on older macOS (pre Big Sur) versions should always be done via `make x86`.
 
 ## Uninstall
