@@ -3,7 +3,6 @@
 #include <mach/mach.h>
 #include "misc/memory_pool.h"
 #include "bar_manager.h"
-#include "misc/log.h"
 #include "message.h"
 
 struct event_loop;

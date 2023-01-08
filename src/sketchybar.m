@@ -31,7 +31,6 @@ void *g_workspace_context;
 
 char g_config_file[4096];
 char g_lock_file[MAXLEN];
-bool g_verbose;
 bool g_volume_events;
 bool g_brightness_events;
 
@@ -170,9 +169,6 @@ static void parse_arguments(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
   
-  if ((string_equals(argv[1], DEBUG_VERBOSE_OPT_LONG) || string_equals(argv[1], DEBUG_VERBOSE_OPT_SHRT)))
-    g_verbose = true;
-
   if ((string_equals(argv[1], CLIENT_OPT_LONG)) || (string_equals(argv[1], CLIENT_OPT_SHRT)))
     exit(client_send_message(argc-1, argv+1));
 

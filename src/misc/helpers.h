@@ -588,3 +588,12 @@ static inline uint32_t display_id_for_space(uint32_t sid) {
 
   return id;
 }
+
+static inline void error(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    exit(EXIT_FAILURE);
+}
+

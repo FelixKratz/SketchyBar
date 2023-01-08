@@ -21,59 +21,50 @@ struct event *event_create(struct event_loop *event_loop, enum event_type type, 
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {
-    debug("%s\n", context);
     bar_manager_handle_notification(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_front_app_switch(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_space_change(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_handle_display_change(&g_bar_manager);
     bar_manager_display_changed(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
-    debug("%s:\n", __FUNCTION__);
     bar_manager_resize(&g_bar_manager);
     g_bar_manager.bar_needs_update = true;
     bar_manager_refresh(&g_bar_manager, false);
@@ -81,32 +72,26 @@ EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
-    debug("%s:\n", __FUNCTION__);
     bar_manager_handle_system_woke(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP) {
-    debug("%s:\n", __FUNCTION__);
     bar_manager_handle_system_will_sleep(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_update(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_ANIMATOR_REFRESH) {
-    debug("%s\n", __FUNCTION__);
     bar_manager_animator_refresh(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
-    debug("%s\n", __FUNCTION__);
-
     if (context) handle_message_mach(context);
     mach_msg_destroy(&((struct mach_buffer*) context)->message.header);
     free(context);
@@ -114,9 +99,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
-    debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_UP\n");
-
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_window_id_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
@@ -141,7 +123,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
       }
     }
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_click(bar_item, type, modifier_keys, point_in_window_coords);
 
     if (bar_item->needs_update)
@@ -152,9 +133,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
-    debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_DRAGGED\n");
-
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_window_id_from_cg_event(context);
     uint32_t adid = display_arrangement(display_active_display_id());
@@ -178,7 +156,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
       }
     }
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_item_on_drag(bar_item, point_in_window_coords);
 
     if (bar_item->needs_update)
@@ -189,8 +166,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
-    debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_ENTERED\n");
     uint32_t wid = get_window_id_from_cg_event(context);
     
     uint32_t adid = display_arrangement(display_active_display_id());
@@ -229,15 +204,12 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
     }
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
     CFRelease(context);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
-    debug("%s\n", __FUNCTION__);
-    debug("EVENT_HANDLER_MOUSE_EXITED\n");
     uint32_t adid = display_arrangement(display_active_display_id());
     uint32_t wid = get_window_id_from_cg_event(context);
 
@@ -296,7 +268,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
       bar_item->mouse_over = false;
     }
 
-    debug("item: %s\n", bar_item ? bar_item->name : "NULL");
     CFRelease(context);
     return EVENT_SUCCESS;
 }

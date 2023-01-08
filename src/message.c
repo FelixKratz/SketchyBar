@@ -3,7 +3,6 @@
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
-extern bool g_verbose;
 
 static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp, uint32_t* count) {
   struct bar_item** bar_items = NULL;
