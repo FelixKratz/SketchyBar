@@ -81,7 +81,9 @@ This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* a
 The original idea is based on the status bar that was included in *[yabai](https://github.com/koekeishiya/yabai)* before getting removed.
 
 
-## Demonstration of the animation system
+## Some animation examples
 
-https://user-images.githubusercontent.com/22680421/173958567-c475eaa2-cd56-45c1-86fc-839d697eaad6.mp4
+https://user-images.githubusercontent.com/22680421/211198711-45318f04-e96f-4aa1-a0ba-c7f30f050902.mp4
+
+
 
