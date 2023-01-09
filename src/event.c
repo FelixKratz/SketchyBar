@@ -125,7 +125,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
 
     bar_item_on_click(bar_item, type, modifier_keys, point_in_window_coords);
 
-    if (bar_item->needs_update)
+    if (bar_item && bar_item->needs_update)
       bar_manager_refresh(&g_bar_manager, false);
 
     CFRelease(context);
