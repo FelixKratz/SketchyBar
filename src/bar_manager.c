@@ -502,10 +502,15 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   if ((bar_manager->frozen && !forced) || bar_manager->sleeps) return;
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    needs_refresh |= bar_item_update(bar_manager->bar_items[i],
-                                     NULL,
-                                     forced,
-                                     NULL                      );
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    needs_refresh |= bar_item_update(bar_item, NULL, forced, NULL);
+
+    if (bar_item->has_alias
+        && bar_item_is_shown(bar_item)
+        && alias_update(&bar_item->alias)) {
+      bar_item_needs_update(bar_item);
+      needs_refresh = true;
+    }
   }
 
   if (needs_refresh) bar_manager_refresh(bar_manager, false);

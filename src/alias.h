@@ -8,6 +8,8 @@
 
 struct alias {
   bool permission;
+  uint32_t update_frequency;
+  uint32_t counter;
 
   char* name;
   char* owner;
@@ -29,6 +31,7 @@ uint32_t alias_get_height(struct alias* alias);
 
 void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y);
 void alias_draw(struct alias* alias, CGContextRef context);
+bool alias_update(struct alias* alias);
 void alias_destroy(struct alias* alias);
 
 void print_all_menu_items(FILE* rsp);

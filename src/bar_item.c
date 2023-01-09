@@ -157,12 +157,6 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
       mach_send_message(bar_item->event_port, message, len, false);
       free(message);
     }
-
-    // Alias Update
-    if (bar_item->has_alias && alias_update_image(&bar_item->alias)) {
-      bar_item_needs_update(bar_item);
-      return true;
-    }
   }
   return false;
 }
@@ -359,9 +353,7 @@ bool bar_item_set_type(struct bar_item* bar_item, char* type) {
                  string_copy("0")                );
   }
   else if (bar_item->type == BAR_COMPONENT_ALIAS) {
-    bar_item->update_frequency = 1;
     bar_item->has_alias = true;
-    bar_item->updates_only_when_shown = true;
   }
   else if (bar_item->type == BAR_COMPONENT_GRAPH) {
     bar_item->has_graph = true;
@@ -473,7 +465,11 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
     window_set_blur_radius(bar_item->windows[adid - 1], bar_item->blur_radius);
     context_set_font_smoothing(bar_item->windows[adid - 1]->context,
                                g_bar_manager.font_smoothing         );
-    g_bar_manager.needs_ordering = true;
+    
+    if (bar_item->parent)
+      bar_item->parent->popup.needs_ordering = true;
+    else
+      g_bar_manager.needs_ordering = true;
   }
 
   return bar_item->windows[adid - 1];

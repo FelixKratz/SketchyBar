@@ -79,6 +79,8 @@ void alias_init(struct alias* alias) {
   alias->owner = NULL;
   alias->color_override = false;
   alias->color = rgba_color_from_hex(0xffff0000);
+  alias->update_frequency = 1;
+  alias->counter = 0;
 
   window_init(&alias->window);
   image_init(&alias->image);
@@ -183,6 +185,19 @@ bool alias_update_image(struct alias* alias) {
   return image_set_image(&alias->image, image_ref, alias->window.frame, false);
 }
 
+bool alias_update(struct alias* alias) {
+  if (alias->update_frequency == 0) return false;
+
+  alias->counter++;
+  if (alias->counter >= alias->update_frequency) {
+    alias->counter = 0;
+    if (alias_update_image(alias)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void alias_draw(struct alias* alias, CGContextRef context) {
   if (alias->color_override) {
     CGContextSaveGState(context);
@@ -232,6 +247,9 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
     alias->color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     alias->color_override = true;
     return true;
+  } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
+    alias->update_frequency = token_to_uint32t(get_token(&message));
+    return false;
   } else {
     respond(rsp, "[!] Alias: Invalid property '%s' \n", property.text);
   }
