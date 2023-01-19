@@ -66,6 +66,16 @@ void window_create(struct window* window, CGRect frame) {
   window->needs_resize = false;
 }
 
+void window_clear(struct window* window) {
+  window->context = NULL;
+  window->parent = NULL;
+  window->id = 0;
+  window->origin = CGPointZero;
+  window->frame = CGRectNull;
+  window->needs_move = false;
+  window->needs_resize = false;
+}
+
 void windows_freeze() {
   SLSDisableUpdate(g_connection);
   g_transaction = SLSTransactionCreate(g_connection);
@@ -165,16 +175,13 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
 }
 
 void window_close(struct window* window) {
+  if (!window->id) return;
+
   SLSOrderWindow(g_connection, window->id, 0, 0);
   CGContextRelease(window->context);
   SLSReleaseWindow(g_connection, window->id);
 
-  window->context = NULL;
-  window->id = 0;
-  window->origin = CGPointZero;
-  window->frame = CGRectNull;
-  window->needs_move = false;
-  window->needs_resize = false;
+  window_clear(window);
 }
 
 void window_set_level(struct window* window, uint32_t level) {

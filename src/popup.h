@@ -37,6 +37,8 @@ void popup_add_item(struct popup* popup, struct bar_item* item);
 bool popup_set_drawing(struct popup* popup, bool drawing);
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item);
 
+void popup_clear_pointers(struct popup* popup);
+
 uint32_t popup_get_width(struct popup* popup);
 void popup_calculate_bounds(struct popup* popup, struct bar* bar);
 void popup_draw(struct popup* popup);

@@ -645,12 +645,13 @@ static void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->signal_args.env_vars.vars = NULL;
   bar_item->signal_args.env_vars.count = 0;
   bar_item->windows = NULL;
-  bar_item->popup.host = bar_item;
   bar_item->num_windows = 0;
   text_clear_pointers(&bar_item->icon);
   text_clear_pointers(&bar_item->label);
   background_clear_pointers(&bar_item->background);
   slider_clear_pointers(&bar_item->slider);
+  popup_clear_pointers(&bar_item->popup);
+  bar_item->popup.host = bar_item;
 }
 
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor) {
@@ -663,8 +664,8 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   char* click_script = bar_item->click_script;
 
   memcpy(bar_item, ancestor, sizeof(struct bar_item));
-
   bar_item_clear_pointers(bar_item);
+
   bar_item->name = name;
   bar_item->script = script;
   bar_item->click_script = click_script;

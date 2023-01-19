@@ -82,6 +82,7 @@ struct window {
 void window_init(struct window* window);
 void window_create(struct window* window, CGRect frame);
 void window_close(struct window* window);
+void window_clear(struct window* window);
 
 void window_move(struct window* window, CGPoint point);
 void window_set_frame(struct window* window, CGRect frame);

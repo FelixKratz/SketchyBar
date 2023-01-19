@@ -228,6 +228,10 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
 }
 
 static void popup_create_window(struct popup* popup) {
+  popup->drawing = true;
+
+  if (popup == &g_bar_manager.default_item.popup) return;
+
   window_create(&popup->window,(CGRect){{popup->anchor.x, popup->anchor.y},
                                       {popup->background.bounds.size.width,
                                        popup->background.bounds.size.height}});
@@ -242,12 +246,12 @@ static void popup_create_window(struct popup* popup) {
                              g_bar_manager.font_smoothing);
 
   window_set_blur_radius(&popup->window, popup->blur_radius);
-  popup->drawing = true;
 }
 
 static void popup_close_window(struct popup* popup) {
-  window_close(&popup->window);
   popup->drawing = false;
+  if (popup == &g_bar_manager.default_item.popup) return;
+  window_close(&popup->window);
 }
 
 void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
@@ -256,6 +260,7 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
                          sizeof(struct bar_item*)*popup->num_items);
   popup->items[popup->num_items - 1] = bar_item;
   bar_item->parent = popup->host;
+  popup->needs_ordering = true;
 }
 
 static bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
@@ -301,16 +306,25 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   popup->adid = adid;
 }
 
+void popup_clear_pointers(struct popup* popup) {
+  popup->items = NULL;
+  popup->num_items = 0;
+  popup->host = NULL;
+  window_clear(&popup->window);
+}
+
 bool popup_set_drawing(struct popup* popup, bool drawing) {
   if (popup->drawing == drawing) return false;
-  if (!drawing && popup->drawing) popup_close_window(popup);
-  else if (drawing && !popup->drawing) popup_create_window(popup);
+  if (!drawing) popup_close_window(popup);
+  popup->drawing = drawing;
   popup->adid = 0;
   return true;
 }
 
 void popup_draw(struct popup* popup) {
-  if (!popup->drawing || popup->adid < 1) return;
+  if (!popup->drawing || popup->adid < 1 || popup->num_items == 0) return;
+
+  if (!popup->window.id) popup_create_window(popup);
 
   window_apply_frame(&popup->window);
   CGContextClearRect(popup->window.context, popup->background.bounds);
