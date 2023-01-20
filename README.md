@@ -32,16 +32,21 @@ shell scripts.
 
 
 ## Features
-* Optimized to be *Fast* and *Efficient*
-* Completely *Scriptable*
-* Fully *Configurable*
-* Entirely *Animatable*
-* Support for drawing native macOS menu bar applications (aliases)
-* Powerful event and scripting system
-* Popup Menus
-* Mouse Support
-* Support for graphs
-* Per display and per space individualization
+* Full *configurability* at any time
+* Dynamic *animation* system
+* Powerful *scripting* and *event* system
+* Optimized to be *fast* and *efficient*
+* Interactive *mouse* support
+* Support for displaying macOS menu bar apps (*aliases*)
+* Can draw arbitrary *graphs*
+* On-demand *popup* menus
+
+The main design principle of this project is that *all* elements of the bar can
+be added, removed and freely changed at any point in time. Thus, the
+configuration of the bar is not *static*, rather it is possible to adapt the
+appearance of the bar completely dynamically with the help of a powerful
+event-driven scripting system at any point in time using the highly
+configurable basic building blocks SketchyBar offers.
 
 ## Getting Started
 Refer to the installation guide in the [documentation](https://felixkratz.github.io/SketchyBar/setup) to get the program set up.
