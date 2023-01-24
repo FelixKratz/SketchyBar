@@ -154,14 +154,14 @@ functionality to a regular item. Thus all properties of regular items are
 available for the slider. Additionally the slider exposes the additional
 properties:
 
-| <property\>                    | <value\>             | default      | description                                         |
-| :-------:                      | :------:             | :-------:    | -----------                                         |
-| `slider.width`                 | `<positive_integer>` | `100`        | Total width of the slider in points                 |
-| `slider.percentage`            | `<positive_integer>` | `0`          | Progression of the slider in percent (0-100)        |
-| `slider.highlight_color`       | `<argb_hex>`         | `0xff0000ff` | Color that highlights the progression of the slider |
-| `slider.knob`                  | `<string>`           |              | Knob of the slider                                  |
-| `slider.knob.<text_property>`  |                      |              | The slider knob supports all `<text_property>`s     |
-| `slider.<background_property>` |                      |              | The slider supports all `<background_property>`s    |
+| <property\>                               | <value\>             | default      | description                                         |
+| :-------:                                 | :------:             | :-------:    | -----------                                         |
+| `slider.width`                            | `<positive_integer>` | `100`        | Total width of the slider in points                 |
+| `slider.percentage`                       | `<positive_integer>` | `0`          | Progression of the slider in percent (0-100)        |
+| `slider.highlight_color`                  | `<argb_hex>`         | `0xff0000ff` | Color that highlights the progression of the slider |
+| `slider.knob`                             | `<string>`           |              | Knob of the slider                                  |
+| `slider.knob.<text_property>`             |                      |              | The slider knob supports all `text` properties      |
+| `slider.background.<background_property>` |                      |              | The slider supports all `background` properties     |
 
 The slider can be enabled to receive `mouse.clicked` events by subscribing to this event.
 A slider will receive the additional environment variable `$PERCENTAGE` on a click in its
