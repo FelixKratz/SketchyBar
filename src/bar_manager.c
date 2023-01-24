@@ -542,7 +542,7 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
 
     memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
-    bar_manager->bars[0]->adid = 1;
+    bar_manager->bars[0]->adid = display_arrangement(did);
   } 
   else {
     bar_manager->bar_count = display_active_display_count();
@@ -551,7 +551,7 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
                                 sizeof(struct bar *) * bar_manager->bar_count);
 
     memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
-    for (uint32_t index=1; index <= bar_manager->bar_count; index++) {
+    for (uint32_t index = 1; index <= bar_manager->bar_count; index++) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[index - 1] = bar_create(did);
       bar_manager->bars[index - 1]->adid = index;
@@ -563,6 +563,7 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
     bar_manager->active_displays |= 1 << bar_manager->bars[i]->adid;
   }
 
+  bar_manager->active_adid = display_arrangement(display_active_display_id());
   bar_manager->needs_ordering = true;
 }
 

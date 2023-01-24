@@ -118,7 +118,10 @@ int display_arrangement(uint32_t did) {
     if (!uuid) return 0;
 
     CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
-    if (!displays) return 0;
+    if (!displays) {
+      CFRelease(uuid);
+      return 0;
+    }
 
     int result = 0;
     int displays_count = CFArrayGetCount(displays);
@@ -139,7 +142,9 @@ uint32_t display_main_display_id(void) {
 }
 
 CFStringRef display_active_display_uuid(void) {
-    return SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
+    CFStringRef menubar = SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
+    if (!menubar) return display_uuid(CGMainDisplayID());
+    return menubar;
 }
 
 uint32_t display_active_display_id(void) {
