@@ -114,7 +114,13 @@ uint64_t *display_space_list(uint32_t did, int *count) {
 }
 
 int display_arrangement(uint32_t did) {
-    if (display_active_display_count() == 1) return 1;
+    if (display_active_display_count() == 1) {
+      uint32_t result = 0;
+      uint32_t count = 0;
+      CGGetActiveDisplayList(1, &result, &count);
+      if (did == result && count == 1) return 1;
+      else return 0;
+    }
 
     CFStringRef uuid = display_uuid(did);
     if (!uuid) return 0;
