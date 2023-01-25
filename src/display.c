@@ -114,6 +114,8 @@ uint64_t *display_space_list(uint32_t did, int *count) {
 }
 
 int display_arrangement(uint32_t did) {
+    if (display_active_display_count() == 1) return 1;
+
     CFStringRef uuid = display_uuid(did);
     if (!uuid) return 0;
 
@@ -141,27 +143,26 @@ uint32_t display_main_display_id(void) {
   return CGMainDisplayID();
 }
 
-CFStringRef display_active_display_uuid(void) {
-  if (display_active_display_count() == 1) {
-    uint32_t did = 0;
-    uint32_t count = 0;
-    CGGetActiveDisplayList(1, &did, &count);
-    if (count == 1)
-      return display_uuid(did);
-    else {
-      printf("Error: No active display found!\n");
-    }
-  }
-
+static CFStringRef display_active_display_uuid(void) {
   CFStringRef menubar = SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
   return menubar;
 }
 
 uint32_t display_active_display_id(void) {
-    uint32_t result = 0;
+    if (display_active_display_count() == 1) {
+      uint32_t did = 0;
+      uint32_t count = 0;
+      CGGetActiveDisplayList(1, &did, &count);
+      if (count == 1) return did;
+      else {
+        printf("ERROR (id): No active display detected!\n");
+        return 0;
+      }
+    }
+
     CFStringRef uuid = display_active_display_uuid();
     CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL, uuid);
-    result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
+    uint32_t result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
     CFRelease(uuid_ref);
     CFRelease(uuid);
     return result;
