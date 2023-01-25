@@ -138,13 +138,23 @@ int display_arrangement(uint32_t did) {
 }
 
 uint32_t display_main_display_id(void) {
-    return CGMainDisplayID();
+  return CGMainDisplayID();
 }
 
 CFStringRef display_active_display_uuid(void) {
-    CFStringRef menubar = SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
-    if (!menubar) return display_uuid(CGMainDisplayID());
-    return menubar;
+  if (display_active_display_count() == 1) {
+    uint32_t did = 0;
+    uint32_t count = 0;
+    CGGetActiveDisplayList(1, &did, &count);
+    if (count == 1)
+      return display_uuid(did);
+    else {
+      printf("Error: No active display found!\n");
+    }
+  }
+
+  CFStringRef menubar = SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
+  return menubar;
 }
 
 uint32_t display_active_display_id(void) {
