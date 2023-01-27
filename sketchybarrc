@@ -13,7 +13,7 @@ PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 # https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
 
 sketchybar --bar height=32        \
-                 blur_radius=50   \
+                 blur_radius=30   \
                  position=top     \
                  sticky=off       \
                  padding_left=10  \
@@ -31,6 +31,8 @@ sketchybar --default updates=when_shown                    \
                      icon.color=0xffffffff                 \
                      label.font="Hack Nerd Font:Bold:14.0" \
                      label.color=0xffffffff                \
+                     padding_left=5                        \
+                     padding_right=5                       \
                      label.padding_left=4                  \
                      label.padding_right=4                 \
                      icon.padding_left=4                   \
@@ -49,13 +51,9 @@ do
   sketchybar --add space space.$sid left                                 \
              --set space.$sid associated_space=$sid                      \
                               icon=${SPACE_ICONS[i]}                     \
-                              icon.padding_left=8                        \
-                              icon.padding_right=8                       \
-                              background.padding_left=5                  \
-                              background.padding_right=5                 \
                               background.color=0x44ffffff                \
                               background.corner_radius=5                 \
-                              background.height=22                       \
+                              background.height=20                       \
                               background.drawing=off                     \
                               label.drawing=off                          \
                               script="$PLUGIN_DIR/space.sh"              \
@@ -68,11 +66,11 @@ done
 
 sketchybar --add item space_separator left                         \
            --set space_separator icon=                            \
-                                 background.padding_left=15        \
-                                 background.padding_right=15       \
+                                 padding_left=10                   \
+                                 padding_right=10                  \
                                  label.drawing=off                 \
                                                                    \
-           --add item front_app  left                              \
+           --add item front_app left                               \
            --set front_app       script="$PLUGIN_DIR/front_app.sh" \
                                  icon.drawing=off                  \
            --subscribe front_app front_app_switched
@@ -82,9 +80,20 @@ sketchybar --add item space_separator left                         \
 # Additional position (e.g. center) are available, see:
 # https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
 
+# Some items refresh on a fixed cycle, e.g. the clock runs its script once
+# every 10s. Other items respond to events they subscribe to, e.g. the
+# volume.sh script is only executed once an actual change in system audio
+# volume is registered. More info about the event system can be found here:
+# https://felixkratz.github.io/SketchyBar/config/events
+
 sketchybar --add item clock right                              \
            --set clock   update_freq=10                        \
+                         icon=                                \
                          script="$PLUGIN_DIR/clock.sh"         \
+                                                               \
+           --add item volume right                             \
+           --set volume  script="$PLUGIN_DIR/volume.sh"        \
+           --subscribe volume volume_change                    \
                                                                \
            --add item battery right                            \
            --set battery script="$PLUGIN_DIR/battery.sh"       \
@@ -92,9 +101,7 @@ sketchybar --add item clock right                              \
            --subscribe battery system_woke power_source_change
 
 ##### Finalizing Setup #####
-# The below command is only needed at the end of the initial configuration and
-# should never be run in an item script.
+# The below command is only needed at the end of the initial configuration to
+# force all scripts to run the first time, it should never be run in an item script.
 
 sketchybar --update
-
-echo "sketchybar configuration loaded.."
