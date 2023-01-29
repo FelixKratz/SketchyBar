@@ -278,6 +278,12 @@ EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED) {
   return EVENT_SUCCESS;
 }
 
+EVENT_CALLBACK(EVENT_HANDLER_WIFI_CHANGED) {
+  bar_manager_handle_wifi_change(&g_bar_manager, (char*)context);
+  free(context);
+  return EVENT_SUCCESS;
+}
+
 EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED) {
   bar_manager_handle_brightness_change(&g_bar_manager, *(float*)context);
   free(context);

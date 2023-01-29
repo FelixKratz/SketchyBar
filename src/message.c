@@ -644,7 +644,6 @@ void handle_message_mach(struct mach_buffer* buffer) {
       handle_domain_push(rsp, command, rbr_msg);
       free(rbr_msg);
     } else if (token_equals(command, DOMAIN_UPDATE)) {
-      bar_manager_update_space_components(&g_bar_manager, true);
       bar_manager_update(&g_bar_manager, true);
       bar_needs_refresh = true;
     } else if (token_equals(command, DOMAIN_TRIGGER)) {

@@ -6,7 +6,7 @@ extern int g_connection;
 extern bool g_brightness_events;
 
 
-float g_last_brightness = 0;
+float g_last_brightness = -1;
 static void brightness_handler(void* notification_center, uint32_t did, void* name, const void* sender, CFDictionaryRef info) {
   float* brightness = malloc(sizeof(float));
   memset(brightness, 0, sizeof(float));
@@ -253,6 +253,10 @@ bool display_begin() {
 bool display_end() {
     return CGDisplayRemoveReconfigurationCallback(display_handler, NULL)
             == kCGErrorSuccess;
+}
+
+void forced_brightness_event() {
+  brightness_handler(NULL, display_active_display_id(), NULL, NULL, NULL);
 }
 
 void begin_receiving_brightness_events() {

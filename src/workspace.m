@@ -45,6 +45,15 @@ uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
   return [nsEvent windowNumber];
 }
 
+void forced_front_app_event() {
+  @autoreleasepool {
+    NSString* name = [[[NSWorkspace sharedWorkspace] frontmostApplication] localizedName];
+    const char* front_app = [name cStringUsingEncoding:NSUTF8StringEncoding];
+    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, string_copy((char*)front_app));
+    event_loop_post(&g_event_loop, event);
+  }
+}
+
 CGImageRef workspace_icon_for_app(char* app) {
   NSURL* path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[NSString stringWithUTF8String:app]];
   if (!path) return NULL;

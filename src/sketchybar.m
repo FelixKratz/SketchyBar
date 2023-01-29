@@ -5,6 +5,7 @@
 #include "mouse.h"
 #include "message.h"
 #include "power.h"
+#include "wifi.h"
 
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
@@ -202,6 +203,7 @@ int main(int argc, char **argv) {
     error("sketchybar: could not initialize daemon! abort..\n");
 
   begin_receiving_power_events();
+  begin_receiving_network_events();
 
   exec_config_file();
   RunApplicationEventLoop();

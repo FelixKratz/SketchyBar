@@ -33,6 +33,10 @@ void power_handler(void* context) {
   CFRelease(info);
 }
 
+void forced_power_event() {
+  power_handler(NULL);
+}
+
 void begin_receiving_power_events() {
   CFRunLoopSourceRef source = IOPSNotificationCreateRunLoopSource(power_handler, NULL);
   CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopDefaultMode);

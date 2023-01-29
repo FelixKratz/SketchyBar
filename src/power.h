@@ -8,4 +8,5 @@
 #define POWER_AC 1
 #define POWER_BATTERY 2
 
+void forced_power_event();
 void begin_receiving_power_events();

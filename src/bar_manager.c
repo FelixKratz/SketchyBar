@@ -4,8 +4,12 @@
 #include "event_loop.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
+#include "wifi.h"
+#include "volume.h"
+#include "power.h"
 
 extern struct event_loop g_event_loop;
+extern void forced_front_app_event();
 
 static CLOCK_CALLBACK(clock_handler) {
   struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
@@ -500,6 +504,16 @@ void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   if ((bar_manager->frozen && !forced) || bar_manager->sleeps) return;
+
+  if (forced) {
+    bar_manager_update_space_components(bar_manager, true);
+    forced_network_event();
+    forced_volume_event();
+    forced_brightness_event();
+    forced_power_event();
+    forced_front_app_event();
+  }
+
   bool needs_refresh = false;
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
@@ -513,7 +527,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     }
   }
 
-  if (needs_refresh) bar_manager_refresh(bar_manager, false);
+  if (needs_refresh || forced) bar_manager_refresh(bar_manager, forced);
 }
 
 void bar_manager_reset(struct bar_manager* bar_manager) {
@@ -736,6 +750,16 @@ void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float vol
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_VOLUME_CHANGE,
                                     &env_vars                       );
+  env_vars_destroy(&env_vars);
+}
+
+void bar_manager_handle_wifi_change(struct bar_manager* bar_manager, char* ssid) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(ssid));
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_WIFI_CHANGE,
+                                    &env_vars                     );
   env_vars_destroy(&env_vars);
 }
 

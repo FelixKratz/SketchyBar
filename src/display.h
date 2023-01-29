@@ -44,4 +44,5 @@ uint64_t display_space_id(uint32_t did);
 uint64_t *display_space_list(uint32_t did, int *count);
 int display_arrangement(uint32_t did);
 
+void forced_brightness_event();
 void begin_receiving_brightness_events();
