@@ -6,7 +6,7 @@ extern int g_connection;
 extern bool g_brightness_events;
 
 
-float g_last_brightness = -1;
+float g_last_brightness = -1.f;
 static void brightness_handler(void* notification_center, uint32_t did, void* name, const void* sender, CFDictionaryRef info) {
   float* brightness = malloc(sizeof(float));
   memset(brightness, 0, sizeof(float));
@@ -256,6 +256,7 @@ bool display_end() {
 }
 
 void forced_brightness_event() {
+  g_last_brightness = -1.f;
   brightness_handler(NULL, display_active_display_id(), NULL, NULL, NULL);
 }
 

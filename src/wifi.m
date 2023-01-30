@@ -13,6 +13,9 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
     ssid[[data length]] = '\0'; 
 
     if (!g_current_ssid || strcmp(g_current_ssid, ssid) != 0) {
+      if (g_current_ssid) free(g_current_ssid);
+      g_current_ssid = string_copy(ssid);
+
       struct event *event = event_create(&g_event_loop,
                                          WIFI_CHANGED,
                                          (void *) ssid );
@@ -23,6 +26,8 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
 }
 
 void forced_network_event() {
+  if (g_current_ssid) free(g_current_ssid);
+  g_current_ssid = NULL;
   update_ssid(NULL, NULL, NULL);
 }
 

@@ -152,6 +152,7 @@ OSStatus device_changed(AudioObjectID id, uint32_t address_count, const AudioObj
 }
 
 void forced_volume_event() {
+  g_last_volume = -1.f;
   handler(g_audio_id, 0, 0, 0);
 }
 

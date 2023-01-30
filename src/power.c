@@ -34,6 +34,7 @@ void power_handler(void* context) {
 }
 
 void forced_power_event() {
+  g_power_source = 0;
   power_handler(NULL);
 }
 
