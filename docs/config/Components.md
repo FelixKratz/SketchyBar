@@ -142,7 +142,11 @@ sketchybar --set <name> alias.color=<argb_hex>
 ```
 
 Aliases currently are not clickable but can be modified with all the options
-available for simple items.
+available for simple items. By default, an alias will update once a second, the
+update interval can be adapted via:
+```bash
+sketchybar --set <name> alias.update_freq=<positive_integer>
+```
 
 ### Slider -- A draggable progression indicator
 A slider can be added to the bar via the command:

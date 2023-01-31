@@ -21,6 +21,7 @@ where the events are:
 | `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
 | `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
 | `power_source_change`  | When the devices power source is changed                                                            | new power source (`AC` or `BATTERY`)   |
+| `wifi_change`          | When the device connects of disconnects from wifi                                                   | new WiFi SSID or empty on disconnect   |
 | `system_will_sleep`    | When the system prepares to sleep                                                                   |                                        |
 | `system_woke`          | When the system has awaken from sleep                                                               |                                        |
 | `mouse.entered`        | When the mouse enters over an item                                                                  |                                        |
@@ -81,6 +82,10 @@ sketchybar --trigger demo VAR=Test
 will trigger the demo event and `$VAR` will be available as an environment variable in the scripts that this event invokes.
 
 ### Forcing all shell scripts to run and the bar to refresh
+This command forces all scripts to run and all events to be emitted, it should
+*never* be used in an item script, as this would lead to infinite loops. It
+is prominently needed after the initial configuration to properly initialize
+all items by forcing all their scripts to run
 ```bash
 sketchybar --update
 ```
