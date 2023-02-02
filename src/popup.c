@@ -42,8 +42,8 @@ static bool popup_set_blur_radius(struct popup* popup, uint32_t radius) {
 
 static void popup_order_windows(struct popup* popup) {
   int level = popup->topmost
-              ? kCGScreenSaverWindowLevel + 1
-              : kCGBackstopMenuLevel + 1;
+              ? (kCGScreenSaverWindowLevel + 1)
+              : (kCGBackstopMenuLevel + 1);
   window_set_level(&popup->window, level);
   window_order(&popup->window, NULL, W_ABOVE);
 
