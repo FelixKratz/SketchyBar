@@ -27,6 +27,33 @@ sketchybar --bar position=top           \
 ```
 The backslash at the end of the first 4 lines is the default bash way to join lines together and should not be followed by a whitespace.  
 
+### Using bash arrays for cleaner configuration
+Lets assume this bar configuration command (from the default config):
+```bash
+sketchybar --bar height=32        \
+                 blur_radius=30   \
+                 position=top     \
+                 sticky=off       \
+                 padding_left=10  \
+                 padding_right=10 \
+                 color=0x15ffffff
+```
+We can rewrite this as a bash array to get rid of the backslashes and pass the
+contents of the array to the `--bar` command:
+```bash
+bar=(
+  height=32
+  blur_radius=30
+  position=top
+  sticky=off
+  padding_left=10
+  padding_right=10
+  color=0x15ffffff
+)
+
+sketchybar --bar "${bar[@]}"
+```
+
 ## Debugging Problems
 If you are experiencing problems with the configuration of *SketchyBar* it might be helpful to work through the following steps:
 * 1.) Start `sketchybar` directly from the commandline to see the verbose error/warning messages
