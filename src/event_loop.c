@@ -45,7 +45,6 @@ static void *event_loop_run(void *context) {
     while (event_loop->is_running) {
         struct event *event = queue_pop(queue);
         if (event) {
-            windows_freeze();
             uint32_t result = event_handler[event->type](event->context);
             windows_unfreeze();
             if (event->info) *event->info = (result << 0x1) | EVENT_PROCESSED;

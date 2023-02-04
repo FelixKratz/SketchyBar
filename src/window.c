@@ -77,15 +77,19 @@ void window_clear(struct window* window) {
 }
 
 void windows_freeze() {
+  if (g_transaction) return;
+
   SLSDisableUpdate(g_connection);
   g_transaction = SLSTransactionCreate(g_connection);
 }
 
 void windows_unfreeze() {
-  SLSTransactionCommit(g_transaction, 0);
-  CFRelease(g_transaction);
-  g_transaction = NULL;
-  SLSReenableUpdate(g_connection);
+  if (g_transaction) {
+    SLSTransactionCommit(g_transaction, 0);
+    CFRelease(g_transaction);
+    g_transaction = NULL;
+    SLSReenableUpdate(g_connection);
+  }
 }
 
 void window_set_frame(struct window* window, CGRect frame) {
@@ -109,6 +113,7 @@ void window_move(struct window* window, CGPoint point) {
 
   if (__builtin_available(macOS 12.0, *)) {
     // Monterey and later
+    windows_freeze();
     SLSTransactionMoveWindowWithGroup(g_transaction, window->id, point);
   } else {
     // Big Sur and Previous
@@ -126,6 +131,7 @@ void window_move(struct window* window, CGPoint point) {
 }
 
 bool window_apply_frame(struct window* window) {
+  windows_freeze();
   if (window->needs_resize) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
@@ -185,10 +191,12 @@ void window_close(struct window* window) {
 }
 
 void window_set_level(struct window* window, uint32_t level) {
+  windows_freeze();
   SLSTransactionSetWindowLevel(g_transaction, window->id, level);
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
+  windows_freeze();
   if (parent) {
     window->parent = parent;
     if (mode != W_OUT) window->order_mode = mode;
