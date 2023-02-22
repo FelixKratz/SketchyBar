@@ -34,7 +34,6 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager->topmost = false;
   bar_manager->sticky = false;
-  bar_manager->picky_redraw = false;
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_arrangement(display_active_display_id());
@@ -329,26 +328,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
 
     if (disabled_item_drawn_on_bar) return true;
 
-    if (bar_item->ignore_association
-        || (bar_item->type == BAR_COMPONENT_SPACE))
-      continue;
-
-    bool drawn_on_non_associated_space = bar_item->associated_space > 0
-                                         && !(bar_item->associated_space
-                                              & (1 << bar->sid))
-                                         && ((bar_item->associated_bar << 1)
-                                             & bar_mask);
-
-    if (drawn_on_non_associated_space) return true;
-
-    bool not_drawn_on_associated_space = draws_item
-                                         && bar_item->associated_space > 0
-                                         && (bar_item->associated_space
-                                             & (1 << bar->sid))
-                                         && !((bar_item->associated_bar << 1)
-                                              & bar_mask);
-
-    if (not_drawn_on_associated_space) return true;
+    if (bar_item->ignore_association) continue;
 
     bool not_drawn_on_associated_display =
       (draws_item
@@ -373,6 +353,25 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
        && (bar->adid != bar_manager->active_adid));
 
     if (drawn_on_non_associated_display) return true;
+
+    if (bar_item->type == BAR_COMPONENT_SPACE) continue;
+
+    bool drawn_on_non_associated_space = bar_item->associated_space > 0
+                                         && !(bar_item->associated_space
+                                              & (1 << bar->sid))
+                                         && ((bar_item->associated_bar << 1)
+                                             & bar_mask);
+
+    if (drawn_on_non_associated_space) return true;
+
+    bool not_drawn_on_associated_space = draws_item
+                                         && bar_item->associated_space > 0
+                                         && (bar_item->associated_space
+                                             & (1 << bar->sid))
+                                         && !((bar_item->associated_bar << 1)
+                                              & bar_mask);
+
+    if (not_drawn_on_associated_space) return true;
 
   }
   return false;

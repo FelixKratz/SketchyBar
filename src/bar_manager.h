@@ -14,7 +14,6 @@ struct bar_manager {
   bool shadow;
   bool topmost;
   bool sticky;
-  bool picky_redraw;
   bool font_smoothing;
   bool any_bar_hidden;
   bool needs_ordering;
