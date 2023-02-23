@@ -167,7 +167,7 @@ static bool text_set_color(struct text* text, uint32_t color) {
   return text_update_color(text);
 }
 
-static bool text_set_hightlight_color(struct text* text, uint32_t color) {
+static bool text_set_highlight_color(struct text* text, uint32_t color) {
   text->highlight_color = rgba_color_from_hex(color);
   return text_update_color(text);
 }
@@ -376,9 +376,9 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
       }
       else if (!text->highlight && highlight) {
         uint32_t target = hex_from_rgba_color(text->highlight_color);
-        text_set_hightlight_color(text, hex_from_rgba_color(text->color));
+        text_set_highlight_color(text, hex_from_rgba_color(text->color));
 
-        ANIMATE_BYTES(text_set_hightlight_color,
+        ANIMATE_BYTES(text_set_highlight_color,
                       text,
                       hex_from_rgba_color(text->highlight_color),
                       target                                     );
@@ -391,7 +391,7 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     needs_refresh = text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     struct token token = get_token(&message);
-    ANIMATE_BYTES(text_set_hightlight_color,
+    ANIMATE_BYTES(text_set_highlight_color,
                   text,
                   hex_from_rgba_color(text->highlight_color),
                   token_to_int(token)                        );
