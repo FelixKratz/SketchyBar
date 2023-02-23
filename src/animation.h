@@ -74,6 +74,7 @@ typedef ANIMATION_FUNCTION(animation_function);
 #define INTERP_FUNCTION_QUADRATIC 'q'
 #define INTERP_FUNCTION_SIN       's'
 #define INTERP_FUNCTION_TANH      't'
+#define INTERP_FUNCTION_CIRC      'c'
 #define INTERP_FUNCTION_BOUNCE    'b'
 #define INTERP_FUNCTION_EXP       'e'
 #define INTERP_FUNCTION_OVERSHOOT 'o'

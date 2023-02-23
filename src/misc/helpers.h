@@ -81,20 +81,8 @@ static inline double function_exp(double x) {
   return x*exp(x - 1.);
 }
 
-static inline double function_bounce(double x) {
-  double alpha = 2.;
-  double beta = 0.8;
-  if (x < 1. / alpha) {
-    return alpha*alpha * x * x;
-  }
-  else {
-    return beta * beta * (x - 1./2. + 1./alpha/2.)
-           + 1. - beta*beta* (1./2. + 1./alpha/2.);
-  }
-}
-
-static inline double function_overshoot(double x) {
-  return x * (1. + 0.5*(sin(3. * M_PI * x)));
+static inline double function_circ(double x) {
+    return sqrt(1.f - powf(x - 1.f, 2.f));
 }
 
 static inline char* format_bool(bool b) {

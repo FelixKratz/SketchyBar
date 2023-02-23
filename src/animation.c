@@ -37,12 +37,10 @@ void animation_setup(struct animation* animation, void* target, animator_functio
     animation->interp_function = &function_sin;
   } else if (interp_function == INTERP_FUNCTION_QUADRATIC) {
     animation->interp_function = &function_square;
-  } else if (interp_function == INTERP_FUNCTION_BOUNCE) {
-    animation->interp_function = &function_bounce;
   } else if (interp_function == INTERP_FUNCTION_EXP) {
     animation->interp_function = &function_exp;
-  } else if (interp_function == INTERP_FUNCTION_OVERSHOOT) {
-    animation->interp_function = &function_overshoot;
+  } else if (interp_function == INTERP_FUNCTION_CIRC) {
+    animation->interp_function = &function_circ;
   } else {
     animation->interp_function = &function_linear;
   }
