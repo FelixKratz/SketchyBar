@@ -7,9 +7,9 @@
 <span> • </span>
 <a href="https://felixkratz.github.io/SketchyBar/config/bar">Documentation</a> 
 <span> • </span> 
-<a href="https://github.com/FelixKratz/SketchyBar/discussions/47">Setups</a>
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/47?sort=top">Setups</a>
 <span> • </span> 
-<a href="https://github.com/FelixKratz/SketchyBar/discussions/12">Plugins</a>
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/12?sort=top">Plugins</a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@ shell scripts.
 
 ![](images/example.png)
 <p align="center">
-<a href="https://github.com/FelixKratz/SketchyBar/discussions/47">More Setups</a>
+<a href="https://github.com/FelixKratz/SketchyBar/discussions/47?sort=top">More Setups</a>
 </p>
 
 
@@ -58,12 +58,12 @@ which is located in `~/.config/sketchybar/sketchybarrc` and looks like this:
 All commands and options are explained in detail in the relevant sections
 of the configuration [documentation](https://felixkratz.github.io/SketchyBar/config/bar). You can try the commands directly from
 the commandline to see which affect they have and how they alter the bar. Once you have become familiar with the syntax you can
-look for a config to start from [here](https://github.com/FelixKratz/SketchyBar/discussions/47) or start from scratch and customize
+look for a config to start from [here](https://github.com/FelixKratz/SketchyBar/discussions/47?sort=top) or start from scratch and customize
 everything to your liking.
 
 You might also enjoy looking at the [Tips & Tricks](https://felixkratz.github.io/SketchyBar/config/tricks) section
 for some further tips on your journey. If you are searching for functional items you might want to check the
-[plugins](https://github.com/FelixKratz/SketchyBar/discussions/12) section if someone has already created what you are looking for.
+[plugins](https://github.com/FelixKratz/SketchyBar/discussions/12?sort=top) section if someone has already created what you are looking for.
 
 Should you encounter things not working as you expect them to, please *do not* hesitate to open an [issue](https://github.com/FelixKratz/SketchyBar/issues), as
 this is either a bug or a documentation problem and relevant in any case.
