@@ -56,7 +56,7 @@ extern struct bar_manager g_bar_manager;
                     t, \
                     g_bar_manager.animator.duration, \
                     g_bar_manager.animator.interp_function ); \
-    animation->seperate_bytes = true; \
+    animation->separate_bytes = true; \
     animator_add(&g_bar_manager.animator, animation); \
   } else { \
     needs_refresh = animator_cancel(&g_bar_manager.animator, (void*)o, (bool (*)(void*, int))&f); \
@@ -81,7 +81,7 @@ typedef ANIMATION_FUNCTION(animation_function);
 
 
 struct animation {
-  bool seperate_bytes;
+  bool separate_bytes;
   bool as_float;
   bool locked;
 

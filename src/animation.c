@@ -28,7 +28,7 @@ void animation_setup(struct animation* animation, void* target, animator_functio
   animation->final_value = final_value;
   animation->update_function = update_function;
   animation->target = target;
-  animation->seperate_bytes = false;
+  animation->separate_bytes = false;
   animation->as_float = false;
 
   if (interp_function == INTERP_FUNCTION_TANH) {
@@ -62,7 +62,7 @@ static bool animation_update(struct animation* animation) {
                              / (double)animation->duration);
 
   int value;
-  if (animation->seperate_bytes) {
+  if (animation->separate_bytes) {
     for (int i = 0; i < 4; i++) {
       unsigned char byte_i = *((unsigned char*)&animation->initial_value + i);
       unsigned char byte_f = *((unsigned char*)&animation->final_value + i);
@@ -131,7 +131,7 @@ static void animator_calculate_offset_for_animation(struct animator* animator, s
 void animator_add(struct animator* animator, struct animation* animation) {
   animator_calculate_offset_for_animation(animator, animation);
   animator->animations = realloc(animator->animations,
-                                 sizeof(struct animaton*)
+                                 sizeof(struct animation*)
                                         * ++animator->animation_count);
   animator->animations[animator->animation_count - 1] = animation;
 
