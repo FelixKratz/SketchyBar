@@ -21,6 +21,8 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
                                          (void *) ssid );
 
       event_loop_post(&g_event_loop, event);
+    } else {
+      free(ssid);
     }
   }
 }
