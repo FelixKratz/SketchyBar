@@ -59,6 +59,7 @@
 #define PROPERTY_DISTANCE                      "distance"
 #define PROPERTY_ANGLE                         "angle"
 #define PROPERTY_SCALE                         "scale"
+#define PROPERTY_STRING                        "string"
 
 #define PROPERTY_UPDATES                       "updates"
 #define PROPERTY_POSITION                      "position"

@@ -449,7 +449,9 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     char prev = text->align;
     text->align = get_token(&message).text[0];
     return prev != text->align;
-  } 
+  } else if (token_equals(property, PROPERTY_STRING)) {
+    return text_set_string(text, token_to_string(get_token(&message)), false);
+  }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
     if (key_value_pair.key && key_value_pair.value) {
