@@ -178,6 +178,7 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
   if (CGPointEqualToPoint(window->origin, g_nirvana)) {
     SLSMoveWindow(g_connection, window->id, &g_nirvana);
   }
+  CFRelease(window_list);
 }
 
 void window_close(struct window* window) {
