@@ -6,6 +6,7 @@
 #include "message.h"
 #include "power.h"
 #include "wifi.h"
+#include "misc/help.h"
 
 #define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
 
@@ -17,6 +18,9 @@
 
 #define CONFIG_OPT_LONG         "--config"
 #define CONFIG_OPT_SHRT         "-c"
+
+#define HELP_OPT_LONG           "--help"
+#define HELP_OPT_SHRT           "-h"
 
 #define MAJOR 2
 #define MINOR 14
@@ -172,6 +176,10 @@ static void parse_arguments(int argc, char **argv) {
   if ((string_equals(argv[1], VERSION_OPT_LONG))
       || (string_equals(argv[1], VERSION_OPT_SHRT))) {
     fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
+    exit(EXIT_SUCCESS);
+  } else if ((string_equals(argv[1], HELP_OPT_LONG))
+      || (string_equals(argv[1], HELP_OPT_SHRT))) {
+    printf(help_str, argv[0]);
     exit(EXIT_SUCCESS);
   } else if ((string_equals(argv[1], CLIENT_OPT_LONG))
              || (string_equals(argv[1], CLIENT_OPT_SHRT))) {
