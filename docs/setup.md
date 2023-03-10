@@ -24,6 +24,12 @@ or in the command line with verbose output:
 sketchybar
 ```
 
+It is possible to run sketchybar with a custom config file path (i.e. something
+else than `$HOME/.config/sketchybar/sketchybarrc`) via:
+```bash
+sketchybar --config <path>
+```
+
 ### Fonts
 The default sketchybar font is the Hack Nerd Font:
 ```bash
