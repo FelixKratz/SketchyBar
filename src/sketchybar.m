@@ -18,6 +18,9 @@
 #define CONFIG_OPT_LONG         "--config"
 #define CONFIG_OPT_SHRT         "-c"
 
+#define HELP_OPT_LONG           "--help"
+#define HELP_OPT_SHRT           "-h"
+
 #define MAJOR 2
 #define MINOR 14
 #define PATCH 2
@@ -37,6 +40,64 @@ char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_volume_events;
 bool g_brightness_events;
+
+static void help(char *cmd) {
+  printf(
+    "Usage: %s [options]\n\n"
+    "Startup: \n"
+    "  -c, --config CONFIGFILE\tRead CONFIGFILE as the configuration file\n"
+    "                         \tDefault CONFIGFILE is ~/.config/sketchybar/sketchybarrc\n\n"
+    "Set global bar properties, see https://felixkratz.github.io/SketchyBar/config/bar\n"
+    "      --bar <setting>=<value> ... <setting>=<value>\n\n"
+    "Items and their properties, see https://felixkratz.github.io/SketchyBar/config/items\n"
+    "      --add item <name> <position>\tAdd item to bar\n"
+    "      --set <name> <property>=<value> ... <property>=<value>\n"
+    "                                  \tChange item properties\n"
+    "      --default <property>=<value> ... <property>=<value>\n"
+    "                                  \tChange default properties for new items\n"
+    "      --set <name> popup.<popup_property>=<value>\n"
+    "                                  \tConfigure item popup menu\n"
+    "                                  \tSee https://felixkratz.github.io/SketchyBar/config/popups\n"
+    "      --reorder <name> ... <name> \tReorder items\n"
+    "      --move <name> before <reference name>\n"
+    "      --move <name> after <reference name>\n"
+    "                                  \tMove item relative to reference item\n"
+    "      --clone <parent name> <name> [optional: before/after]\n"
+    "                                  \tClone parent to create new item\n"
+    "      --rename <old name> <new name>\tRename item\n"
+    "      --remove <name>             \tRemove item\n\n"
+    "Special components, see https://felixkratz.github.io/SketchyBar/config/components\n"
+    "      --add graph <name> <position> <width in points>\n"
+    "                                  \tAdd graph component\n"
+    "      --push <name> <data point> ... <data point>\n"
+    "                                  \tPush data points to a graph\n"
+    "      --add space <name> <position>\tAdd space component\n"
+    "      --add bracket <name> <member name> ... <member name>\n"
+    "                                  \tAdd bracket component\n"
+    "      --add alias <application_name> <position>\n"
+    "                                  \tAdd alias component\n"
+    "      --add slider <name> <position> <width>\n"
+    "                                  \tAdd slider component\n\n"
+    "Events and Scripting, see https://felixkratz.github.io/SketchyBar/config/events\n"
+    "      --subscribe <name> <event> ... <event>\n"
+    "                                  \tSubscribe to events\n"
+    "      --add event <name> [optional: <NSDistributedNotificationName>]\n"
+    "                                  \tCreate custom event\n"
+    "      --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]\n"
+    "                                  \tTrigger custom event\n\n"
+    "Querying information, see https://felixkratz.github.io/SketchyBar/config/querying\n"
+    "      --query bar               \tQuery bar properties\n"
+    "      --query <name>            \tQuery item properties\n"
+    "      --query defaults          \tQuery default properties\n"
+    "      --query events            \tQuery events\n"
+    "      --query default_menu_items\tQuery names of available items for aliases\n\n"
+    "Animations, see https://felixkratz.github.io/SketchyBar/config/animations\n"
+    "      --animate <linear|quadratic|tanh|sin|exp|circ> <duration> \\\n"
+    "                --bar <property=value> ... <property=value>\\\n"
+    "                --set <name> <property=value> ... <property=value>\n"
+    "                         \tAnimate from given source to target property values\n\n",
+    cmd);
+}
 
 static int client_send_message(int argc, char **argv) {
   if (argc <= 1) {
@@ -172,6 +233,10 @@ static void parse_arguments(int argc, char **argv) {
   if ((string_equals(argv[1], VERSION_OPT_LONG))
       || (string_equals(argv[1], VERSION_OPT_SHRT))) {
     fprintf(stdout, "sketchybar-v%d.%d.%d\n", MAJOR, MINOR, PATCH);
+    exit(EXIT_SUCCESS);
+  } else if ((string_equals(argv[1], HELP_OPT_LONG))
+      || (string_equals(argv[1], HELP_OPT_SHRT))) {
+    help(argv[0]);
     exit(EXIT_SUCCESS);
   } else if ((string_equals(argv[1], CLIENT_OPT_LONG))
              || (string_equals(argv[1], CLIENT_OPT_SHRT))) {
