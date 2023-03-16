@@ -161,7 +161,6 @@ static bool alias_update_image(struct alias* alias, bool forced) {
   CGImageRef image_ref = window_capture(&alias->window);
 
   if (!image_ref) {
-    window_init(&alias->window);
     return false;
   }
 

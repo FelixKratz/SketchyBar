@@ -2,6 +2,7 @@
 #include "bar_manager.h"
 
 extern struct bar_manager g_bar_manager;
+extern int64_t g_disable_capture;
 
 void window_init(struct window* window) {
   window->context = NULL;
@@ -241,19 +242,18 @@ void window_disable_shadow(struct window* window) {
   CFRelease(shadow_props_cf);
 }
 
-extern int64_t g_disable_capture;
 CGImageRef window_capture(struct window* window) {
   if (g_disable_capture) {
     int64_t time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
     if (g_disable_capture < 0) {
       return NULL;
-    }
-    else if (time - g_disable_capture > (int64_t)2e9) {
+    } else if (time - g_disable_capture > (1ULL << 30)) {
       g_disable_capture = 0;
     } else {
       return NULL;
     }
   }
+
   CGImageRef image_ref = NULL;
 
   uint64_t wid = window->id;

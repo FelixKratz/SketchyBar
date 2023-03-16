@@ -24,8 +24,9 @@
 
 #define MAJOR 2
 #define MINOR 14
-#define PATCH 2
+#define PATCH 3
 
+extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
 
@@ -209,11 +210,11 @@ void system_events(uint32_t event, void* data, size_t data_length, void* context
   }
 }
 
-extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 int main(int argc, char **argv) {
   if (argc > 1) parse_arguments(argc, argv);
 
-  if (is_root()) error("sketchybar: running as root is not allowed! abort..\n");
+  if (is_root())
+    error("sketchybar: running as root is not allowed! abort..\n");
 
   init_misc_settings();
   acquire_lockfile();
