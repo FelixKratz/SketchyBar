@@ -86,23 +86,6 @@ void alias_init(struct alias* alias) {
   image_init(&alias->image);
 }
 
-void alias_setup(struct alias* alias, char* owner, char* name) {
-  alias->name = name;
-  alias->owner = owner;
-  alias_get_permission(alias);
-  alias_update_image(alias);
-}
-
-uint32_t alias_get_length(struct alias* alias) {
-  if (alias->image.image_ref) return alias->image.bounds.size.width;
-  return 0;
-}
-
-uint32_t alias_get_height(struct alias* alias) {
-  if (alias->image.image_ref) return alias->image.bounds.size.height;
-  return 0;
-}
-
 static void alias_find_window(struct alias* alias) {
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
                                                       kCGNullWindowID        );
@@ -171,7 +154,7 @@ static void alias_find_window(struct alias* alias) {
   CFRelease(window_list);
 }
 
-bool alias_update_image(struct alias* alias) {
+static bool alias_update_image(struct alias* alias, bool forced) {
   if (alias->window.id == 0) alias_find_window(alias);
   if (alias->window.id == 0) return false;
 
@@ -182,16 +165,36 @@ bool alias_update_image(struct alias* alias) {
     return false;
   }
 
-  return image_set_image(&alias->image, image_ref, alias->window.frame, false);
+  return image_set_image(&alias->image,
+                         image_ref,
+                         alias->window.frame,
+                         forced              );
 }
 
-bool alias_update(struct alias* alias) {
+void alias_setup(struct alias* alias, char* owner, char* name) {
+  alias->name = name;
+  alias->owner = owner;
+  alias_get_permission(alias);
+  alias_update_image(alias, true);
+}
+
+uint32_t alias_get_length(struct alias* alias) {
+  if (alias->image.image_ref) return alias->image.bounds.size.width;
+  return 0;
+}
+
+uint32_t alias_get_height(struct alias* alias) {
+  if (alias->image.image_ref) return alias->image.bounds.size.height;
+  return 0;
+}
+
+bool alias_update(struct alias* alias, bool forced) {
   if (alias->update_frequency == 0) return false;
 
   alias->counter++;
-  if (alias->counter >= alias->update_frequency) {
+  if (forced || alias->counter >= alias->update_frequency) {
     alias->counter = 0;
-    if (alias_update_image(alias)) {
+    if (alias_update_image(alias, forced)) {
       return true;
     }
   }

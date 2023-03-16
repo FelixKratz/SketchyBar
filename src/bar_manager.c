@@ -440,7 +440,7 @@ void bar_manager_update_alias_components(struct bar_manager* bar_manager, bool f
       continue;
     }
 
-    bar_item_update(bar_manager->bar_items[i], NULL, forced, NULL);
+    alias_update(&bar_manager->bar_items[i]->alias, forced);
   }
 }
 
@@ -520,7 +520,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
 
     if (bar_item->has_alias
         && bar_item_is_shown(bar_item)
-        && alias_update(&bar_item->alias)) {
+        && alias_update(&bar_item->alias, false)) {
       bar_item_needs_update(bar_item);
       needs_refresh = true;
     }

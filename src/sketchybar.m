@@ -41,6 +41,7 @@ char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_volume_events;
 bool g_brightness_events;
+int64_t g_disable_capture = 0;
 
 static int client_send_message(int argc, char **argv) {
   if (argc <= 1) {
@@ -198,6 +199,17 @@ static void parse_arguments(int argc, char **argv) {
   exit(client_send_message(argc, argv));
 }
 
+void system_events(uint32_t event, void* data, size_t data_length, void* context) {
+  if (event == 1322) {
+    g_disable_capture = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
+  } else if (event == 905) {
+    g_disable_capture = -1;
+  } else {
+    g_disable_capture = 0;
+  }
+}
+
+extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 int main(int argc, char **argv) {
   if (argc > 1) parse_arguments(argc, argv);
 
@@ -208,6 +220,12 @@ int main(int argc, char **argv) {
 
   if (!event_loop_init(&g_event_loop))
     error("sketchybar: could not initialize event_loop! abort..\n");
+
+  SLSRegisterNotifyProc((void*)system_events, 904, NULL);
+  SLSRegisterNotifyProc((void*)system_events, 905, NULL);
+  SLSRegisterNotifyProc((void*)system_events, 1401, NULL);
+  SLSRegisterNotifyProc((void*)system_events, 1508, NULL);
+  SLSRegisterNotifyProc((void*)system_events, 1322, NULL);
 
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);

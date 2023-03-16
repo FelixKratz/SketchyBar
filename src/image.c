@@ -116,7 +116,8 @@ void image_copy(struct image* image, CGImageRef source) {
 bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
 
-  if (!forced && image_data_equals(image, new_data_ref)) {
+  if (!forced && image_data_equals(image, new_data_ref)
+      && CGSizeEqualToSize(image->size, bounds.size)   ) {
     CFRelease(new_data_ref);
     CGImageRelease(new_image_ref);
     return false;
