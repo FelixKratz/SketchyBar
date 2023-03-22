@@ -140,7 +140,6 @@ static void exec_config_file(void) {
   }
 
   setenv("CONFIG_DIR", dirname(g_config_file), 1);
-  chdir(dirname(g_config_file));
 
   if (!ensure_executable_permission(g_config_file)) {
     printf("could not set the executable permission bit for '%s'", g_config_file);
