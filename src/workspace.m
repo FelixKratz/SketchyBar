@@ -27,22 +27,29 @@ int workspace_display_notch_height(uint32_t did)
 {
   if (!CGDisplayIsBuiltin(did)) return 0;
 
+  int height = 0;
   #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
   if (__builtin_available(macos 12.0, *)) {
-    for (NSScreen *screen in [NSScreen screens]) {
-      if ([[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue] == did) {
-        return screen.safeAreaInsets.top;
+    @autoreleasepool {
+      for (NSScreen *screen in [NSScreen screens]) {
+        if ([[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue] == did) {
+            height = screen.safeAreaInsets.top;
+        }
       }
     }
   }
   #endif
 
-  return 0;
+  return height;
 }
 
 uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
-  NSEvent *nsEvent = [NSEvent eventWithCGEvent:cgevent];
-  return [nsEvent windowNumber];
+  uint32_t wid;
+  @autoreleasepool {
+    NSEvent *nsEvent = [NSEvent eventWithCGEvent:cgevent];
+    wid = [nsEvent windowNumber];
+  }
+  return wid;
 }
 
 void forced_front_app_event() {
@@ -111,6 +118,7 @@ CGImageRef workspace_icon_for_app(char* app) {
 }
 
 - (void) allDistributedNotifications:(NSNotification *)note {
+  @autoreleasepool {
     struct notification* notification = notification_create();
     notification->name = string_copy((char*)[[note name] UTF8String]);
     if (note.userInfo && [NSJSONSerialization isValidJSONObject:note.userInfo]) {
@@ -125,6 +133,7 @@ CGImageRef workspace_icon_for_app(char* app) {
 
     struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, notification);
     event_loop_post(&g_event_loop, event);
+  }
 }
 
 - (void)willSleep:(NSNotification *)notification {
@@ -138,13 +147,15 @@ CGImageRef workspace_icon_for_app(char* app) {
 }
 
 - (void)appSwitched:(NSNotification *)notification {
-    char* name = NULL;
-    if (notification && notification.userInfo) {
-      NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
-      if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
+    @autoreleasepool {
+      char* name = NULL;
+      if (notification && notification.userInfo) {
+        NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
+        if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
+      }
+      struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, name);
+      event_loop_post(&g_event_loop, event);
     }
-    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, name);
-    event_loop_post(&g_event_loop, event);
 }
 
 - (void)didChangeMenuBarHiding:(NSNotification *)notification {
