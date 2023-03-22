@@ -246,6 +246,7 @@ static void popup_create_window(struct popup* popup) {
                              g_bar_manager.font_smoothing);
 
   window_set_blur_radius(&popup->window, popup->blur_radius);
+  popup->needs_ordering = true;
 }
 
 static void popup_close_window(struct popup* popup) {

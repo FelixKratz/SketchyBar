@@ -184,6 +184,7 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
 
 void window_close(struct window* window) {
   if (!window->id) return;
+  windows_unfreeze();
 
   SLSOrderWindow(g_connection, window->id, 0, 0);
   CGContextRelease(window->context);
@@ -194,19 +195,14 @@ void window_close(struct window* window) {
 
 void window_set_level(struct window* window, uint32_t level) {
   windows_freeze();
-  SLSTransactionSetWindowLevel(g_transaction, window->id, level);
+  SLSSetWindowLevel(g_connection, window->id, level);
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
   windows_freeze();
-  if (parent) {
-    window->parent = parent;
-    if (mode != W_OUT) window->order_mode = mode;
-    SLSTransactionOrderWindow(g_transaction, window->id, mode, parent->id);
-  } else {
-    window->parent = NULL;
-    SLSTransactionOrderWindow(g_transaction, window->id, mode, 0);
-  }
+  window->parent = parent;
+  if (mode != W_OUT) window->order_mode = mode;
+  SLSOrderWindow(g_connection, window->id, mode, parent ? parent->id : 0);
 }
 
 void window_assign_mouse_tracking_area(struct window* window, CGRect rect) {
