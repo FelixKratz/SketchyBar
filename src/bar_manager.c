@@ -403,7 +403,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
     if (forced
         || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
       bar_calculate_bounds(bar_manager->bars[i]);
-      bar_draw(bar_manager->bars[i]);
+      bar_draw(bar_manager->bars[i], false);
       if (bar_manager->needs_ordering) {
         bar_order_item_windows(bar_manager->bars[i]);
       }
@@ -703,6 +703,38 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
   }
 }
 
+void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    if (bar_manager->bars[i]->did == did) {
+      bar_resize(bar_manager->bars[i]);
+    }
+  }
+  bar_manager_refresh(bar_manager, false);
+}
+
+void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    struct bar* bar = bar_manager->bars[i];
+    if (bar->did == did) {
+      bar_resize(bar);
+      bar->adid = display_arrangement(bar->did);
+      bar->dsid = display_space_id(bar->did);
+      bar->sid = mission_control_index(bar->dsid);
+    }
+  }
+  bar_manager->needs_ordering = true;
+  bar_manager_refresh(bar_manager, true);
+  bar_manager_handle_display_change(bar_manager);
+}
+
+void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did) {
+  bar_manager_display_changed(bar_manager);
+}
+
+void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
+  bar_manager_display_changed(bar_manager);
+}
+
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_arrangement(display_active_display_id());
 
@@ -711,6 +743,7 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager_unfreeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
 
+  bar_manager_handle_display_change(bar_manager);
   bar_manager_handle_space_change(bar_manager, true);
 }
 

@@ -41,26 +41,26 @@ EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
-    bar_manager_handle_display_change(&g_bar_manager);
-    bar_manager_display_changed(&g_bar_manager);
+    uint32_t did = (uint32_t)(intptr_t)context;
+    bar_manager_display_added(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
-    bar_manager_handle_display_change(&g_bar_manager);
-    bar_manager_display_changed(&g_bar_manager);
+    uint32_t did = (uint32_t)(intptr_t)context;
+    bar_manager_display_removed(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
-    bar_manager_handle_display_change(&g_bar_manager);
-    bar_manager_display_changed(&g_bar_manager);
+    uint32_t did = (uint32_t)(intptr_t)context;
+    bar_manager_display_moved(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
-    bar_manager_handle_display_change(&g_bar_manager);
-    bar_manager_display_changed(&g_bar_manager);
+    uint32_t did = (uint32_t)(intptr_t)context;
+    bar_manager_display_resized(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 

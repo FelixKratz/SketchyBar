@@ -138,7 +138,7 @@ static void bar_check_for_clip_updates(struct bar* bar) {
   }
 }
 
-void bar_draw(struct bar* bar) {
+void bar_draw(struct bar* bar, bool forced) {
   if (bar->sid < 1 || bar->adid < 1) return;
 
   if (g_bar_manager.might_need_clipping)
@@ -182,7 +182,8 @@ void bar_draw(struct bar* bar) {
                         bar                                     );
     }
 
-    if (!window_apply_frame(window) && !bar_item->needs_update) continue;
+    if (!window_apply_frame(window, false) && !bar_item->needs_update)
+      continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
@@ -488,7 +489,7 @@ static CGRect bar_get_frame(struct bar *bar) {
 void bar_resize(struct bar* bar) {
   if (bar->hidden) return;
   window_set_frame(&bar->window, bar_get_frame(bar));
-  if (window_apply_frame(&bar->window)) {
+  if (window_apply_frame(&bar->window, false)) {
     window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
     g_bar_manager.bar_needs_update = true;
   }

@@ -327,7 +327,7 @@ void popup_draw(struct popup* popup) {
 
   if (!popup->window.id) popup_create_window(popup);
 
-  window_apply_frame(&popup->window);
+  window_apply_frame(&popup->window, false);
   CGContextClearRect(popup->window.context, popup->background.bounds);
 
   window_assign_mouse_tracking_area(&popup->window, popup->window.frame);

@@ -86,7 +86,7 @@ void window_clear(struct window* window);
 
 void window_move(struct window* window, CGPoint point);
 void window_set_frame(struct window* window, CGRect frame);
-bool window_apply_frame(struct window* window);
+bool window_apply_frame(struct window* window, bool forced);
 void window_send_to_space(struct window* window, uint64_t dsid);
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius);

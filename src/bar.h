@@ -22,7 +22,7 @@ void bar_destroy(struct bar* bar);
 void bar_set_hidden(struct bar* bar, bool hidden);
 void bar_calculate_bounds(struct bar* bar);
 void bar_resize(struct bar* bar);
-void bar_draw(struct bar* bar);
+void bar_draw(struct bar* bar, bool forced);
 void bar_order_item_windows(struct bar* bar);
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
