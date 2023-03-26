@@ -670,16 +670,9 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->script = script;
   bar_item->click_script = click_script;
 
-  text_set_font(&bar_item->icon, string_copy(ancestor->icon.font_name), true);
-  text_set_font(&bar_item->label, string_copy(ancestor->label.font_name),true);
-  text_set_string(&bar_item->icon, string_copy(ancestor->icon.string), true);
-  text_set_string(&bar_item->label, string_copy(ancestor->label.string), true);
-
-  text_set_font(&bar_item->slider.knob,
-                string_copy(ancestor->slider.knob.font_name), true);
-
-  text_set_string(&bar_item->slider.knob,
-                  string_copy(ancestor->slider.knob.string), true);
+  text_copy(&bar_item->icon, &ancestor->icon);
+  text_copy(&bar_item->label, &ancestor->label);
+  text_copy(&bar_item->slider.knob, &ancestor->slider.knob);
 
   if (ancestor->script)
     bar_item_set_script(bar_item, string_copy(ancestor->script));

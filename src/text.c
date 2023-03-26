@@ -1,54 +1,15 @@
 #include "text.h"
 #include "bar_manager.h"
 
-static CTFontRef text_create_font(char *cstring) {
-  float size = 10.0f;
-  char font_properties[2][255] = { {}, {} };
-  sscanf(cstring,
-         "%254[^:]:%254[^:]:%f",
-         font_properties[0],
-         font_properties[1],
-         &size                  );
-
-  CFStringRef font_family_name = CFStringCreateWithCString(NULL,
-                                                           font_properties[0],
-                                                           kCFStringEncodingUTF8);
-
-  CFStringRef font_style_name = CFStringCreateWithCString(NULL,
-                                                          font_properties[1],
-                                                          kCFStringEncodingUTF8);
-
-  CFNumberRef font_size = CFNumberCreate(NULL, kCFNumberFloat32Type, &size);
-
-  const void *keys[] = { kCTFontFamilyNameAttribute,
-                         kCTFontStyleNameAttribute,
-                         kCTFontSizeAttribute       };
-
-  const void *values[] = { font_family_name, font_style_name, font_size };
-  CFDictionaryRef attributes = CFDictionaryCreate(NULL,
-                                                  keys,
-                                                  values,
-                                                  array_count(keys),
-                                                  &kCFTypeDictionaryKeyCallBacks,
-                                                  &kCFTypeDictionaryValueCallBacks);
-
-  CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes(attributes);
-  CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
-
-  CFRelease(descriptor);
-  CFRelease(attributes);
-  CFRelease(font_size);
-  CFRelease(font_style_name);
-  CFRelease(font_family_name);
-
-  return font;
-}
-
 static void text_prepare_line(struct text* text) {
   const void *keys[] = { kCTFontAttributeName,
                          kCTForegroundColorFromContextAttributeName };
 
-  const void *values[] = { text->font, kCFBooleanTrue };
+  if (text->font.font_changed) {
+    font_create_ctfont(&text->font);
+    text->font.font_changed = false;
+  }
+  const void *values[] = { text->font.ct_font, kCFBooleanTrue };
   CFDictionaryRef attributes = CFDictionaryCreate(NULL,
                                                   keys,
                                                   values,
@@ -107,21 +68,16 @@ bool text_set_string(struct text* text, char* string, bool forced) {
   return true;
 }
 
+void text_copy(struct text* text, struct text* source) {
+  font_set_family(&text->font, string_copy(source->font.family), true);
+  font_set_style(&text->font, string_copy(source->font.style), true);
+  font_set_size(&text->font, source->font.size);
+  text_set_string(text, string_copy(source->string), true);
+}
+
 bool text_set_font(struct text* text, char* font_string, bool forced) {
-  if (!font_string) return false;
-  if (!forced && text->font_name
-      && strcmp(text->font_name, font_string) == 0) {
-    free(font_string);
-    return false;
-  }
-
-  if (font_string != text->font_name && text->font_name)
-    free(text->font_name);
-  if (text->font) CFRelease(text->font);
-
-  text->font = text_create_font(font_string);
-  text->font_name = font_string;
-  return text_set_string(text, text->string, true);
+  bool changed = font_set(&text->font, font_string, forced);
+  return changed;
 }
 
 void text_init(struct text* text) {
@@ -137,13 +93,11 @@ void text_init(struct text* text) {
   text->color = rgba_color_from_hex(0xffffffff);
   text->highlight_color = rgba_color_from_hex(0xff000000);
 
-  text->font = NULL;
   text->string = string_copy("");
-  text->font_name = string_copy("Hack Nerd Font:Bold:14.0");
-  text_set_font(text, text->font_name, true);
   text_set_string(text, text->string, false);
   shadow_init(&text->shadow);
   background_init(&text->background);
+  font_init(&text->font);
 }
 
 static bool text_update_color(struct text* text) {
@@ -205,14 +159,18 @@ static bool text_set_width(struct text* text, int width) {
 
 void text_clear_pointers(struct text* text) {
   text->string = NULL;
-  text->font_name = NULL;
-  text->font = NULL;
   text->line.line = NULL;
   background_clear_pointers(&text->background);
+  font_clear_pointers(&text->font);
 }
 
 uint32_t text_get_length(struct text* text, bool override) {
   if (!text->drawing) return 0;
+
+  if (text->font.font_changed) {
+    text_set_string(text, text->string, true);
+  }
+
   int len = text->bounds.size.width + text->padding_left + text->padding_right;
   if ((!text->has_const_width || override)
       && text->background.enabled
@@ -232,9 +190,9 @@ uint32_t text_get_height(struct text* text) {
 
 void text_destroy(struct text* text) {
   background_destroy(&text->background);
+  font_destroy(&text->font);
+
   if (text->string) free(text->string);
-  if (text->font_name) free(text->font_name);
-  if (text->font) CFRelease(text->font);
   text_destroy_line(text);
   text_clear_pointers(text);
 }
@@ -327,7 +285,7 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                "%s\"padding_left\": %d,\n"
                "%s\"padding_right\": %d,\n"
                "%s\"y_offset\": %d,\n"
-               "%s\"font\": \"%s\",\n"
+               "%s\"font\": \"%s:%s:%.2f\",\n"
                "%s\"width\": %d,\n"
                "%s\"align\": \"%s\",\n"
                "%s\"background\": {\n",
@@ -339,9 +297,9 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                indent, text->padding_left,
                indent, text->padding_right,
                indent, text->y_offset,
-               indent, text->font_name,
+               indent, text->font.family, text->font.style, text->font.size,
                indent, text->custom_width,
-               indent, align, indent                              );
+               indent, align, indent                                        );
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
@@ -461,9 +419,10 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
         return background_parse_sub_domain(&text->background, rsp, entry, message);
       else if (token_equals(subdom, SUB_DOMAIN_SHADOW))
         return shadow_parse_sub_domain(&text->shadow, rsp, entry, message);
-      else {
+      else if (token_equals(subdom, SUB_DOMAIN_FONT))
+        return font_parse_sub_domain(&text->font, rsp, entry, message);
+      else
         respond(rsp, "[!] Text: Invalid subdomain '%s' \n", subdom.text);
-      }
     }
     else {
       respond(rsp, "[!] Text: Invalid property '%s'\n", property.text);

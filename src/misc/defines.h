@@ -40,6 +40,7 @@
 #define SUB_DOMAIN_IMAGE                       "image"
 #define SUB_DOMAIN_KNOB                        "knob"
 #define SUB_DOMAIN_SLIDER                      "slider"
+#define SUB_DOMAIN_FONT                        "font"
 
 #define PROPERTY_FONT                          "font"
 #define PROPERTY_COLOR                         "color"
@@ -60,6 +61,10 @@
 #define PROPERTY_ANGLE                         "angle"
 #define PROPERTY_SCALE                         "scale"
 #define PROPERTY_STRING                        "string"
+
+#define PROPERTY_FONT_FAMILY                   "family"
+#define PROPERTY_FONT_STYLE                    "style"
+#define PROPERTY_FONT_SIZE                     "size"
 
 #define PROPERTY_UPDATES                       "updates"
 #define PROPERTY_POSITION                      "position"
