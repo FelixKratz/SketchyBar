@@ -81,6 +81,9 @@ A list of properties available to the *set* command is listed below (components 
 | `padding_right`                    | `<integer>`                       | `0`                        | Padding to the right of the `text`                                                           |
 | `y_offset`                         | `<integer>`                       | `0`                        | Vertical offset applied to the `text`                                                        |
 | `font`                             | `<family>:<type>:<size>`          | `Hack Nerd Font:Bold:14.0` | The font to be used for the `text`                                                           |
+| `font.family`                      | `<string>`                        | `Hack Nerd Font`           | The font family to be used for the `text`                                                    |
+| `font.style`                       | `<string>`                        | `Bold`                     | The font style to be used for the `text`                                                     |
+| `font.size`                        | `<float>`                         | `14.0`                     | The font size to be used for the `text`                                                      |
 | `string`                           | `<string>`                        |                            | Sets the text to the specified string                                                        |
 | `width`                            | `<positive_integer>` or `dynamic` | `dynamic`                  | Makes the `text` use a fixed `width` given in points                                         |
 | `align`                            | `center`, `left`, `right`         | `left`                     | Aligns the `text` in its container when it has a fixed `width` larger than the content width |

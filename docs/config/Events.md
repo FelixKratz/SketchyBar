@@ -40,8 +40,10 @@ When an item invokes a script, the script has access to some environment variabl
 ```bash
 $NAME
 $SENDER
+$CONFIG_DIR
 ```
 Where `$NAME` is the name of the item that has invoked the script and `$SENDER` is the reason why the script is executed.
+The variable `$CONFIG_DIR` contains the absolute path of the directory where the current sketchybarrc file is located.
 
 If an item is *clicked* the script has access to the additional variables:
 ```bash 
