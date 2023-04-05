@@ -183,8 +183,8 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
                  command.text                                           );
   }
 
-  if (!bar_item_set_position(bar_item, position.text)
-      && bar_item->type != BAR_COMPONENT_GROUP) {
+  if (bar_item->type != BAR_COMPONENT_GROUP &&
+      !bar_item_set_position(bar_item, position.text)) {
     respond(rsp, "[!] Add %s: Illegal position '%s'\n", name.text,
                                                         position.text);
     bar_manager_remove_item(&g_bar_manager, bar_item);
