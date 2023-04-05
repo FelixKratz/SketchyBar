@@ -5,7 +5,6 @@
 mach_port_t mach_get_bs_port(char* bs_name) {
   mach_port_name_t task = mach_task_self();
 
-  printf("%s\n", bs_name);
   mach_port_t bs_port;
   if (task_get_special_port(task,
                             TASK_BOOTSTRAP_PORT,
@@ -151,7 +150,6 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   char bs_name[256];
   snprintf(bs_name, 256, MACH_BS_NAME_FMT, g_name);
 
-  printf("%s\n", bs_name);
   if (bootstrap_register(mach_server->bs_port,
                          bs_name,
                          mach_server->port    ) != KERN_SUCCESS) {
