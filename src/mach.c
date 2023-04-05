@@ -5,6 +5,7 @@
 mach_port_t mach_get_bs_port(char* bs_name) {
   mach_port_name_t task = mach_task_self();
 
+  printf("%s\n", bs_name);
   mach_port_t bs_port;
   if (task_get_special_port(task,
                             TASK_BOOTSTRAP_PORT,
@@ -124,6 +125,7 @@ static void* mach_connection_handler(void *context) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+extern char g_name[256];
 bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   mach_server->task = mach_task_self();
 
@@ -146,9 +148,13 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
     return false;
   }
 
+  char bs_name[256];
+  snprintf(bs_name, 256, MACH_BS_NAME_FMT, g_name);
+
+  printf("%s\n", bs_name);
   if (bootstrap_register(mach_server->bs_port,
-                         MACH_BS_NAME,
-                         mach_server->port     ) != KERN_SUCCESS) {
+                         bs_name,
+                         mach_server->port    ) != KERN_SUCCESS) {
     return false;
   }
 

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MACH_BS_NAME "git.felix.sketchybar"
+#define MACH_BS_NAME_FMT "git.felix.%s"
 
 struct mach_message {
   mach_msg_header_t header;

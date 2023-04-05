@@ -9,7 +9,7 @@
 #include "misc/help.h"
 #include <libgen.h>
 
-#define LCFILE_PATH_FMT         "/tmp/sketchybar_%s.lock"
+#define LCFILE_PATH_FMT         "/tmp/%s_%s.lock"
 
 #define CLIENT_OPT_LONG         "--message"
 #define CLIENT_OPT_SHRT         "-m"
@@ -39,6 +39,7 @@ struct event_loop g_event_loop;
 struct mach_server g_mach_server;
 void *g_workspace_context;
 
+char g_name[256];
 char g_config_file[4096];
 char g_lock_file[MAXLEN];
 bool g_volume_events;
@@ -73,10 +74,13 @@ static int client_send_message(int argc, char **argv) {
   }
   *temp++ = '\0';
 
-  char* rsp = mach_send_message(mach_get_bs_port(MACH_BS_NAME),
+  char bs_name[256];
+  snprintf(bs_name, 256, MACH_BS_NAME_FMT, g_name);
+
+  char* rsp = mach_send_message(mach_get_bs_port(bs_name),
                                 message,
                                 message_length,
-                                true                           );
+                                true                     );
 
   free(message);
   if (!rsp) return EXIT_SUCCESS;
@@ -94,7 +98,7 @@ static int client_send_message(int argc, char **argv) {
 static void acquire_lockfile(void) {
   int handle = open(g_lock_file, O_CREAT | O_WRONLY, 0600);
   if (handle == -1) {
-    error("sketchybar: could not create lock-file! abort..\n");
+    error("%s: could not create lock-file! abort..\n", g_name);
   }
 
   struct flock lockfd = {
@@ -106,21 +110,21 @@ static void acquire_lockfile(void) {
   };
 
   if (fcntl(handle, F_SETLK, &lockfd) == -1) {
-    error("sketchybar: could not acquire lock-file... already running?\n");
+    error("%s: could not acquire lock-file... already running?\n", g_name);
   }
 }
 
 static bool get_config_file(char *restrict filename, char *restrict buffer, int buffer_size) {
   char *xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home && *xdg_home) {
-    snprintf(buffer, buffer_size, "%s/sketchybar/%s", xdg_home, filename);
+    snprintf(buffer, buffer_size, "%s/%s/%s", xdg_home, g_name, filename);
     if (file_exists(buffer)) return true;
   }
 
   char *home = getenv("HOME");
   if (!home) return false;
 
-  snprintf(buffer, buffer_size, "%s/.config/sketchybar/%s", home, filename);
+  snprintf(buffer, buffer_size, "%s/.config/%s/%s", home, g_name, filename);
   if (file_exists(buffer)) return true;
 
   snprintf(buffer, buffer_size, "%s/.%s", home, filename);
@@ -157,10 +161,10 @@ static void exec_config_file(void) {
 static inline void init_misc_settings(void) {
   char *user = getenv("USER");
   if (!user) {
-    error("sketchybar: 'env USER' not set! abort..\n");
+    error("%s: 'env USER' not set! abort..\n", g_name);
   }
 
-  snprintf(g_lock_file, sizeof(g_lock_file), LCFILE_PATH_FMT, user);
+  snprintf(g_lock_file, sizeof(g_lock_file), LCFILE_PATH_FMT, g_name, user);
 
   if (__builtin_available(macOS 13.0, *)) {
   } else {
@@ -220,16 +224,17 @@ void system_events(uint32_t event, void* data, size_t data_length, void* context
 }
 
 int main(int argc, char **argv) {
+  snprintf(g_name, sizeof(g_name), "%s", basename(argv[0]));
   if (argc > 1) parse_arguments(argc, argv);
 
   if (is_root())
-    error("sketchybar: running as root is not allowed! abort..\n");
+    error("%s: running as root is not allowed! abort..\n", g_name);
 
   init_misc_settings();
   acquire_lockfile();
 
   if (!event_loop_init(&g_event_loop))
-    error("sketchybar: could not initialize event_loop! abort..\n");
+    error("%s: could not initialize event_loop! abort..\n", g_name);
 
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
   SLSRegisterNotifyProc((void*)system_events, 905, NULL);
@@ -250,7 +255,7 @@ int main(int argc, char **argv) {
   windows_unfreeze();
 
   if (!mach_server_begin(&g_mach_server, mach_message_handler))
-    error("sketchybar: could not initialize daemon! abort..\n");
+    error("%s: could not initialize daemon! abort..\n", g_name);
 
   begin_receiving_power_events();
   begin_receiving_network_events();
