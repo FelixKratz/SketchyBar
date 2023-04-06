@@ -23,6 +23,8 @@ void group_add_member(struct group* group, struct bar_item* item);
 void group_remove_member(struct group* group, struct bar_item* bar_item);
 uint32_t group_get_length(struct group* group, struct bar* bar);
 
+struct bar_item* group_get_first_drawing_member_for_bar(struct group* group, struct bar* bar, struct bar_item** bar_items, uint32_t length);
+struct bar_item* group_get_last_drawing_member_for_bar(struct group* group, struct bar* bar, struct bar_item** bar_items, uint32_t length);
 void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y);
 void group_draw(struct group* group, CGContextRef context);
 void group_destroy(struct group* group);

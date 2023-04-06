@@ -253,15 +253,32 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
 
     int group_padding_left = 0;
     int group_padding_right = 0;
+    struct bar_item* first_group_member = NULL;
+    struct bar_item* last_group_member = NULL;
 
-    if (bar_item->group && (bar_item->group->first_item == bar_item))
-      group_padding_left = bar_item->group->members[0]->background.padding_left;
+    if (bar_item->group) {
+      first_group_member
+        = group_get_first_drawing_member_for_bar(bar_item->group,
+                                                 bar,
+                                                 g_bar_manager.bar_items,
+                                                 g_bar_manager.bar_item_count);
 
-    if (bar_item->group && (bar_item->group->last_item == bar_item))
-      group_padding_right = bar_item->group->members[0]->background.padding_right;
+      last_group_member
+        = group_get_last_drawing_member_for_bar(bar_item->group,
+                                                 bar,
+                                                 g_bar_manager.bar_items,
+                                                 g_bar_manager.bar_item_count);
+
+    }
 
     if (bar_item->position == POSITION_RIGHT
         || bar_item->position == POSITION_CENTER_LEFT) {
+
+      if (first_group_member == bar_item)
+        group_padding_right = bar_item->group->members[0]->background.padding_right;
+
+      if (last_group_member == bar_item)
+        group_padding_left = bar_item->group->members[0]->background.padding_left;
 
       *next_position = min(*next_position - bar_item_display_length
                            - bar_item->background.padding_right
@@ -270,6 +287,12 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                            - bar_item_display_length               );
     }
     else {
+      if (first_group_member == bar_item)
+        group_padding_left = bar_item->group->members[0]->background.padding_left;
+
+      if (last_group_member == bar_item)
+        group_padding_right = bar_item->group->members[0]->background.padding_right;
+
       *next_position += max((int)-*next_position,
                             bar_item->background.padding_left
                             + group_padding_left             );
@@ -302,7 +325,6 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
       *next_position += bar_item->has_const_width
                         ? bar_item_display_length
                           + bar_item->background.padding_right
-                          + group_padding_right
                           - bar_item->custom_width
                         : (- bar_item->background.padding_left
                            - group_padding_left               );
@@ -310,7 +332,6 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
       *next_position += bar_item->has_const_width
                         ? bar_item->custom_width
                           - bar_item->background.padding_left
-                          - group_padding_left
                         : (bar_item_length
                            + bar_item->background.padding_right
                            + group_padding_right               );
