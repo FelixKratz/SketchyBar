@@ -102,6 +102,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_window_id_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
+    uint32_t mouse_button_code = CGEventGetIntegerValueField(context, kCGMouseEventButtonNumber);
     uint32_t modifier_keys = CGEventGetFlags(context);
     uint32_t adid = display_arrangement(display_active_display_id());
 
@@ -123,7 +124,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
       }
     }
 
-    bar_item_on_click(bar_item, type, modifier_keys, point_in_window_coords);
+    bar_item_on_click(bar_item, type, mouse_button_code, modifier_keys, point_in_window_coords);
 
     if (bar_item && bar_item->needs_update)
       bar_manager_refresh(&g_bar_manager, false);

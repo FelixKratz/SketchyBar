@@ -177,8 +177,16 @@ void bar_item_on_drag(struct bar_item* bar_item, CGPoint point) {
   }
 }
 
-void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t modifier, CGPoint point) {
+void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_button_code, uint32_t modifier, CGPoint point) {
   if (!bar_item) return;
+
+  char button_code_str[32];
+
+  snprintf(button_code_str, 32, "%u", mouse_button_code);
+
+  env_vars_set(&bar_item->signal_args.env_vars,
+               string_copy("INFO"),
+               string_copy(button_code_str));
 
   env_vars_set(&bar_item->signal_args.env_vars,
                string_copy("BUTTON"),
