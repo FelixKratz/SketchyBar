@@ -6,6 +6,9 @@
 #define CLOCK_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef CLOCK_CALLBACK(clock_callback);
 
+#define DISPLAY_MAIN_PATTERN 0
+#define DISPLAY_ALL_PATTERN  UINT32_MAX
+
 struct bar_manager {
   CFRunLoopTimerRef clock;
 
@@ -21,7 +24,7 @@ struct bar_manager {
   bool bar_needs_update;
   bool bar_needs_resize;
 
-  char display;
+  uint32_t displays;
   char position;
 
   int margin;
@@ -64,7 +67,7 @@ bool bar_manager_set_background_blur(struct bar_manager* bar_manager, uint32_t r
 bool bar_manager_set_position(struct bar_manager* bar_manager, char pos);
 bool bar_manager_set_spaces(struct bar_manager* bar_manager, bool value);
 bool bar_manager_set_spaces_for_all_displays(struct bar_manager* bar_manager, bool value);
-bool bar_manager_set_display(struct bar_manager* bar_manager, char display);
+bool bar_manager_set_displays(struct bar_manager* bar_manager, uint32_t displays);
 bool bar_manager_set_hidden(struct bar_manager* bar_manager, uint32_t sid, bool hidden);
 bool bar_manager_set_topmost(struct bar_manager* bar_manager, bool topmost);
 bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky);

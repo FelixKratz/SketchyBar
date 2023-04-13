@@ -24,7 +24,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
   bar_manager->bar_item_count = 0;
-  bar_manager->display = DISPLAY_ALL;
+  bar_manager->displays = DISPLAY_ALL_PATTERN;
   bar_manager->position = POSITION_TOP;
   bar_manager->shadow = false;
   bar_manager->blur_radius = 0;
@@ -206,9 +206,9 @@ bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   return true;
 }
 
-bool bar_manager_set_display(struct bar_manager* bar_manager, char display) {
-  if (bar_manager->display == display) return false;
-  bar_manager->display = display;
+bool bar_manager_set_displays(struct bar_manager* bar_manager, uint32_t displays) {
+  if (bar_manager->displays == displays) return false;
+  bar_manager->displays = displays;
 
   bar_manager_reset(bar_manager);
   return true;
@@ -548,7 +548,7 @@ void bar_manager_reset(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_begin(struct bar_manager* bar_manager) {
-  if (bar_manager->display == DISPLAY_MAIN) {
+  if (bar_manager->displays == DISPLAY_MAIN_PATTERN) {
     uint32_t did = display_main_display_id();
     bar_manager->bar_count = 1;
     bar_manager->bars = (struct bar **) realloc(
@@ -560,16 +560,27 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
     bar_manager->bars[0]->adid = display_arrangement(did);
   } 
   else {
-    bar_manager->bar_count = display_active_display_count();
+    uint32_t display_count = display_active_display_count();
+    uint32_t bar_count = 0;
+    for (uint32_t index = 1; index <= display_count; index++) {
+      if (!(bar_manager->displays & 1 << (index - 1))) continue;
+      bar_count++;
+    }
+
+    bar_manager->bar_count = bar_count;
     bar_manager->bars = (struct bar **) realloc(
                                 bar_manager->bars,
                                 sizeof(struct bar *) * bar_manager->bar_count);
 
     memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
-    for (uint32_t index = 1; index <= bar_manager->bar_count; index++) {
+
+    uint32_t bar_index = 0;
+    for (uint32_t index = 1; index <= display_count; index++) {
+      if (!(bar_manager->displays & 1 << (index - 1))) continue;
       uint32_t did = display_arrangement_display_id(index);
-      bar_manager->bars[index - 1] = bar_create(did);
-      bar_manager->bars[index - 1]->adid = index;
+      bar_manager->bars[bar_index] = bar_create(did);
+      bar_manager->bars[bar_index]->adid = index;
+      bar_index++;
     }
   }
 

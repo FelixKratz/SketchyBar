@@ -382,10 +382,25 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
                                            evaluate_boolean_state(token,
                                                                   g_bar_manager.sticky));
   } else if (token_equals(command, PROPERTY_DISPLAY)) {
-    struct token position = get_token(&message);
-    if (position.length > 0)
-      needs_refresh = bar_manager_set_display(&g_bar_manager,
-                                              position.text[0]);
+    struct token display = get_token(&message);
+
+    uint32_t display_pattern = 0;
+    uint32_t count;
+    char** list = token_split(display, ',', &count);
+    if (list && count > 0) {
+      for (int i = 0; i < count; i++) {
+        if (strcmp(list[i], ARGUMENT_DISPLAY_ALL) == 0) {
+          display_pattern = DISPLAY_ALL_PATTERN;
+        } else if (strcmp(list[i], ARGUMENT_DISPLAY_MAIN) == 0) {
+          display_pattern = DISPLAY_MAIN_PATTERN;
+        }
+        else {
+          display_pattern |= 1 << (strtoul(list[i], NULL, 0) - 1);
+        }
+      }
+      free(list);
+    }
+    needs_refresh = bar_manager_set_displays(&g_bar_manager, display_pattern);
   } else if (token_equals(command, PROPERTY_POSITION)) {
     struct token position = get_token(&message);
     if (position.length > 0)

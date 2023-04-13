@@ -140,6 +140,9 @@
 #define ARGUMENT_COMMON_VAL_BEFORE             "before"
 #define ARGUMENT_COMMON_VAL_AFTER              "after"
 
+#define ARGUMENT_DISPLAY_MAIN                  "main"
+#define ARGUMENT_DISPLAY_ALL                   "all"
+
 #define ARGUMENT_UPDATES_WHEN_SHOWN            "when_shown" 
 #define ARGUMENT_DYNAMIC                       "dynamic"
 
@@ -151,9 +154,6 @@
 #define POSITION_POPUP        'p'
 #define POSITION_CENTER_LEFT  'q'
 #define POSITION_CENTER_RIGHT 'e'
-
-#define DISPLAY_MAIN 'm'
-#define DISPLAY_ALL  'a'
 
 #define TYPE_GRAPH  "graph"
 #define TYPE_SPACE  "space"
