@@ -38,9 +38,12 @@ void window_create(struct window* window, CGRect frame) {
   frame.origin = CGPointZero;
   CFTypeRef frame_region = window_create_region(window, frame);
   uint64_t id;
-  SLSNewWindow(g_connection, 2, window->origin.x, window->origin.y,
-                                                  frame_region,
-                                                  &id              );
+  SLSNewWindow(g_connection,
+               kCGBackingStoreBuffered,
+               window->origin.x,
+               window->origin.y,
+               frame_region,
+               &id                     );
 
   window->id = (uint32_t)id;
   CFRelease(frame_region);
