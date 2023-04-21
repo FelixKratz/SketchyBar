@@ -408,15 +408,44 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     text->align = get_token(&message).text[0];
     return prev != text->align;
   } else if (token_equals(property, PROPERTY_STRING)) {
-    return text_set_string(text, token_to_string(get_token(&message)), false);
+    uint32_t pre_width = text_get_length(text, false);
+    bool changed = text_set_string(text,
+                                   token_to_string(get_token(&message)),
+                                   false                                );
+
+    if (changed
+        && g_bar_manager.animator.duration > 0) {
+      uint32_t post_width = text_get_length(text, false);
+      if (post_width != pre_width) {
+        text_set_width(text, pre_width);
+        ANIMATE(text_set_width, text, pre_width, post_width);
+
+        struct animation* animation = animation_create();
+        animation_setup(animation,
+                        text,
+                        (bool (*)(void*, int))&text_set_width,
+                        text->custom_width,
+                        -1,
+                        1,
+                        INTERP_FUNCTION_LINEAR               );
+        animator_add(&g_bar_manager.animator, animation);
+      }
+    }
+
+    return changed;
   }
   else {
-    struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
     if (key_value_pair.key && key_value_pair.value) {
       struct token subdom = { key_value_pair.key, strlen(key_value_pair.key) };
-      struct token entry = { key_value_pair.value, strlen(key_value_pair.value) };
+      struct token entry = { key_value_pair.value,
+                             strlen(key_value_pair.value) };
       if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
-        return background_parse_sub_domain(&text->background, rsp, entry, message);
+        return background_parse_sub_domain(&text->background,
+                                           rsp,
+                                           entry,
+                                           message           );
       else if (token_equals(subdom, SUB_DOMAIN_SHADOW))
         return shadow_parse_sub_domain(&text->shadow, rsp, entry, message);
       else if (token_equals(subdom, SUB_DOMAIN_FONT))

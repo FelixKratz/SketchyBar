@@ -58,8 +58,10 @@ static bool animation_update(struct animation* animation) {
     return false;
   } 
 
-  double slider = animation->interp_function((double)animation->counter
-                             / (double)animation->duration);
+  double slider = animation->duration > 1
+                  ? animation->interp_function((double)animation->counter
+                                               / (double)animation->duration)
+                  : 1.0;
 
   int value;
   if (animation->separate_bytes) {

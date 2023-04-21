@@ -963,14 +963,18 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     }
   }
   else if (token_equals(property, PROPERTY_ICON)) {
-    needs_refresh = text_set_string(&bar_item->icon,
-                                    token_to_string(get_token(&message)),
-                                    false                                );
+    struct token dummy = { PROPERTY_STRING, strlen(PROPERTY_STRING)};
+    needs_refresh = text_parse_sub_domain(&bar_item->icon,
+                                          rsp,
+                                          dummy,
+                                          message         );
 
   } else if (token_equals(property, PROPERTY_LABEL)) {
-    needs_refresh = text_set_string(&bar_item->label,
-                                    token_to_string(get_token(&message)),
-                                    false                                );
+    struct token dummy = { PROPERTY_STRING, strlen(PROPERTY_STRING)};
+    needs_refresh = text_parse_sub_domain(&bar_item->label,
+                                          rsp,
+                                          dummy,
+                                          message          );
 
   } else if (token_equals(property, PROPERTY_UPDATES)) {
     struct token token = get_token(&message);

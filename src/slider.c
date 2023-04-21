@@ -150,9 +150,11 @@ bool slider_parse_sub_domain(struct slider* slider, FILE* rsp, struct token prop
     }
   }
   else if (token_equals(property, SUB_DOMAIN_KNOB)) {
-    needs_refresh = text_set_string(&slider->knob,
-                                    token_to_string(get_token(&message)),
-                                    false                                );
+    struct token dummy = { PROPERTY_STRING, strlen(PROPERTY_STRING)};
+    needs_refresh = text_parse_sub_domain(&slider->knob,
+                                          rsp,
+                                          dummy,
+                                          message        );
   }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
