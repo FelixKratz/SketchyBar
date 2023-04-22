@@ -28,7 +28,7 @@ where the events are:
 | `mouse.exited`         | When the mouse leaves an item                                                                       |                                        |
 | `mouse.entered.global` | When the mouse enters over *any* part of the bar                                                    |                                        |
 | `mouse.exited.global`  | When the mouse leaves *all* parts of the bar                                                        |                                        |
-| `mouse.clicked`        | When an item is clicked                                                                             |                                        |
+| `mouse.clicked`        | When an item is clicked                                                                             | mouse button and modifier info         |
 
 Some events send additional information in the `$INFO` variable
 When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names to distinguish between the different events.

@@ -38,7 +38,7 @@ where possible settings are:
 | `padding_right`  | `<positive_integer>`   | `0`          | Padding between the right bar border and the rightmost item |
 | `notch_width`    | `<positive_integer>`   | `200`        | The width of the notch to be accounted for on the internal display |
 | `notch_offset`   | `<positive_integer>`   | `0`          | Additional `y_offset` exclusively applied to notched screens |
-| `display`        | `main`, `all`          | `all`        | Display to show the bar on                                  |
+| `display`        | `main`, `all`, `<positive_integer list>`          | `all`        | Display to show the bar on                                  |
 | `hidden`         | `<boolean>`, `current` | `off`        | If all / the current bar is hidden                          |
 | `topmost`        | `<boolean>`            | `off`        | If the bar should be drawn on top of `everything`           |
 | `sticky`         | `<boolean>`            | `off`        | Makes the bar sticky (only use with disabled space change animations [#220](https://github.com/FelixKratz/SketchyBar/issues/220)) |

@@ -140,10 +140,13 @@ You can override the color of an alias via the property:
 ```bash
 sketchybar --set <name> alias.color=<argb_hex>
 ```
+and change its scale via:
+```bash
+sketchybar --set <name> alias.scale=<float>
+```
 
-Aliases currently are not clickable but can be modified with all the options
-available for simple items. By default, an alias will update once a second, the
-update interval can be adapted via:
+By default, an alias will update once a second, the update interval can be
+adapted via:
 ```bash
 sketchybar --set <name> alias.update_freq=<positive_integer>
 ```

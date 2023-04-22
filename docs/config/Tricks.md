@@ -86,6 +86,23 @@ Once you find a fitting icon, right click it, select *Copy Symbol* and paste it 
 If you are looking for stylised app icons you might want to checkout the excellent community maintained
 [app-icon-font](https://github.com/kvndrsslr/sketchybar-app-font) for SketchyBar.
 
+## Multiple Bars
+It is possible to have multiple independent instances of SketchyBar running.
+This is possible by changing the `argv[0]` of the sketchybar program. This is
+very easy, e.g. by symlinking the sketchybar binary with a different name, e.g.
+`bottom_bar`:
+```bash
+ln -s $(which sketchybar) $(dirname $(which sketchybar))/bottom_bar
+```
+This symlink can now be used to spawn and target an additional bar, i.e. for
+this bar we do not call `sketchybar --bar color=0xffff0000`, but rather
+`bottom_bar --bar color=0xffff0000` and start it by running `bottom_bar` in the
+commandline.
+
+The config path for this additional bar is in `$HOME/.config/bottom_bar/`.
+Of course `bottom_bar` is only an example and can be freely replaced with any
+other identifier.
+
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
 
