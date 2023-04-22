@@ -249,6 +249,8 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
     alias->color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     alias->color_override = true;
     return true;
+  } else if (token_equals(property, PROPERTY_SCALE)) {
+    return image_set_scale(&alias->image, token_to_float(get_token(&message)));
   } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
     alias->update_frequency = token_to_uint32t(get_token(&message));
     return false;
