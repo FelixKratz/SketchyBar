@@ -41,46 +41,6 @@ static struct bar_item* group_get_last_member(struct group* group, struct bar* b
   return last_item;
 }
 
-struct bar_item* group_get_first_drawing_member_for_bar(struct group* group, struct bar* bar, struct bar_item** bar_items, uint32_t length) {
-  if (group->num_members == 1) return NULL;
-
-  struct bar_item* first_item = NULL;
-  uint32_t min_index = length - 1;
-  for (int i = 1; i < group->num_members; i++) {
-    struct bar_item* member = group->members[i];
-    if (bar_draws_item(bar, member)) {
-      for (int i = 0; i < length; i++) {
-        if (i < min_index && bar_items[i] == member) {
-          min_index = i;
-          first_item = bar_items[i];
-        }
-      }
-    }
-  }
-
-  return first_item;
-}
-
-struct bar_item* group_get_last_drawing_member_for_bar(struct group* group, struct bar* bar, struct bar_item** bar_items, uint32_t length) {
-  if (group->num_members == 1) return NULL;
-
-  struct bar_item* last_item = NULL;
-  uint32_t max_index = 0;
-  for (int i = 1; i < group->num_members; i++) {
-    struct bar_item* member = group->members[i];
-    if (bar_draws_item(bar, member)) {
-      for (int i = 0; i < length; i++) {
-        if (i > max_index && bar_items[i] == member) {
-          max_index = i;
-          last_item = bar_items[i];
-        }
-      }
-    }
-  }
-
-  return last_item;
-}
-
 struct group* group_create() {
   struct group* group = malloc(sizeof(struct group));
   memset(group, 0, sizeof(struct group));
