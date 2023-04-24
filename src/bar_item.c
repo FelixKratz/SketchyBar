@@ -180,6 +180,8 @@ void bar_item_on_drag(struct bar_item* bar_item, CGPoint point) {
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_button_code, uint32_t modifier, CGPoint point) {
   if (!bar_item) return;
 
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
   char info_str[256];
   snprintf(info_str, 256, "{\n"
                          "\t\"button\": \"%s\",\n"
@@ -192,15 +194,13 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
                          get_modifier_description(modifier),
                          modifier                           );
 
-  env_vars_set(&bar_item->signal_args.env_vars,
-               string_copy("INFO"),
-               string_copy(info_str)           );
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(info_str));
 
-  env_vars_set(&bar_item->signal_args.env_vars,
+  env_vars_set(&env_vars,
                string_copy("BUTTON"),
                string_copy(get_type_description(type)));
 
-  env_vars_set(&bar_item->signal_args.env_vars,
+  env_vars_set(&env_vars,
                string_copy("MODIFIER"),
                string_copy(get_modifier_description(modifier)));
 
@@ -218,14 +218,27 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
                    string_copy(perc_str)           );
       bar_item->slider.is_dragged = false;
     } else {
+      env_vars_destroy(&env_vars);
       return;
     }
   }
 
-  if (bar_item->click_script && strlen(bar_item->click_script) > 0)
-    fork_exec(bar_item->click_script, &bar_item->signal_args.env_vars);
+  if (bar_item->click_script && strlen(bar_item->click_script) > 0) {
+    for (int i = 0; i < bar_item->signal_args.env_vars.count; i++) {
+      env_vars_set(&env_vars,
+                   string_copy(bar_item->signal_args.env_vars.vars[i]->key),
+                   string_copy(bar_item->signal_args.env_vars.vars[i]->value));
+    }
+
+    fork_exec(bar_item->click_script, &env_vars);
+  }
   if (bar_item->update_mask & UPDATE_MOUSE_CLICKED)
-    bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_CLICKED, true, NULL);
+    bar_item_update(bar_item,
+                    COMMAND_SUBSCRIBE_MOUSE_CLICKED,
+                    true,
+                    &env_vars                       );
+
+  env_vars_destroy(&env_vars);
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {
