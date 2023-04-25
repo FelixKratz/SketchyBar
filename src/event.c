@@ -296,3 +296,9 @@ EVENT_CALLBACK(EVENT_HANDLER_POWER_SOURCE_CHANGED) {
   free(context);
   return EVENT_SUCCESS;
 }
+
+EVENT_CALLBACK(EVENT_HANDLER_MEDIA_CHANGED) {
+  bar_manager_handle_media_change(&g_bar_manager, (char*)context);
+  free(context);
+  return EVENT_SUCCESS;
+}

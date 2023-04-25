@@ -107,6 +107,7 @@
 #define COMMAND_SUBSCRIBE_WIFI_CHANGE          "wifi_change"
 #define COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE    "brightness_change"
 #define COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE  "power_source_change"
+#define COMMAND_SUBSCRIBE_MEDIA_CHANGE         "media_change"
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED        "mouse.entered"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED         "mouse.exited"
 #define COMMAND_SUBSCRIBE_MOUSE_CLICKED        "mouse.clicked"

@@ -8,6 +8,7 @@
 #include "wifi.h"
 #include "misc/help.h"
 #include <libgen.h>
+#include "media.h"
 
 #define LCFILE_PATH_FMT         "/tmp/%s_%s.lock"
 
@@ -25,7 +26,7 @@
 
 #define MAJOR 2
 #define MINOR 15
-#define PATCH 0
+#define PATCH 1
 
 extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 extern int SLSMainConnectionID(void);
@@ -259,6 +260,7 @@ int main(int argc, char **argv) {
 
   begin_receiving_power_events();
   begin_receiving_network_events();
+  initialize_media_events();
 
   exec_config_file();
   RunApplicationEventLoop();

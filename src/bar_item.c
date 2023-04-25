@@ -4,6 +4,7 @@
 #include "event.h"
 #include "volume.h"
 #include "power.h"
+#include "media.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -1172,6 +1173,10 @@ void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message, 
 
     if (event_flag & UPDATE_BRIGHTNESS_CHANGE) {
       begin_receiving_brightness_events();
+    }
+
+    if (event_flag & UPDATE_MEDIA_CHANGE) {
+      begin_receiving_media_events();
     }
 
     bar_item->update_mask |= event_flag;

@@ -112,6 +112,7 @@ void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float vol
 void bar_manager_handle_wifi_change(struct bar_manager* bar_manager, char* ssid);
 void bar_manager_handle_brightness_change(struct bar_manager* bar_manager, float brightness);
 void bar_manager_handle_power_source_change(struct bar_manager* bar_manager, char* state);
+void bar_manager_handle_media_change(struct bar_manager* bar_manager, char* info);
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name, struct env_vars* env_vars);
 
 void bar_manager_destroy(struct bar_manager* bar_manager);
