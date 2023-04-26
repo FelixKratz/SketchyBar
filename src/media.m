@@ -72,7 +72,7 @@ bool g_media_events = false;
                                title_cstr,
                                album_cstr,
                                artist_cstr,
-                               app_cstr                        );
+                               app_cstr                            );
 
       if (!g_media_info || strcmp(info, g_media_info) != 0) {
         g_media_info = realloc(g_media_info, info_len);
@@ -94,7 +94,7 @@ bool g_media_events = false;
   if (!g_media_events) return;
   MRMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_get_main_queue(), ^(BOOL playing) {
     self.playing = playing;
-    [self update];
+    [self media_change:notification];
   });
 }
 
