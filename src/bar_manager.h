@@ -9,6 +9,9 @@ typedef CLOCK_CALLBACK(clock_callback);
 #define DISPLAY_MAIN_PATTERN 0
 #define DISPLAY_ALL_PATTERN  UINT32_MAX
 
+#define TOPMOST_LEVEL_WINDOW 'w'
+#define TOPMOST_LEVEL_ALL    'a'
+
 struct bar_manager {
   CFRunLoopTimerRef clock;
 
@@ -69,7 +72,7 @@ bool bar_manager_set_spaces(struct bar_manager* bar_manager, bool value);
 bool bar_manager_set_spaces_for_all_displays(struct bar_manager* bar_manager, bool value);
 bool bar_manager_set_displays(struct bar_manager* bar_manager, uint32_t displays);
 bool bar_manager_set_hidden(struct bar_manager* bar_manager, uint32_t sid, bool hidden);
-bool bar_manager_set_topmost(struct bar_manager* bar_manager, bool topmost);
+bool bar_manager_set_topmost(struct bar_manager* bar_manager, char level, bool topmost);
 bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky);
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow);
 bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);

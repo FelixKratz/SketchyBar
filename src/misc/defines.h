@@ -147,6 +147,8 @@
 #define ARGUMENT_UPDATES_WHEN_SHOWN            "when_shown" 
 #define ARGUMENT_DYNAMIC                       "dynamic"
 
+#define ARGUMENT_WINDOW                        "window"
+
 #define POSITION_TOP          't'
 #define POSITION_BOTTOM       'b'
 #define POSITION_LEFT         'l'

@@ -373,9 +373,16 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
                                                                          g_bar_manager.any_bar_hidden));
   } else if (token_equals(command, PROPERTY_TOPMOST)) {
     struct token token = get_token(&message);
-    needs_refresh = bar_manager_set_topmost(&g_bar_manager,
-                                            evaluate_boolean_state(token,
-                                                                   g_bar_manager.topmost));
+    if (token_equals(token, ARGUMENT_WINDOW)) {
+      needs_refresh = bar_manager_set_topmost(&g_bar_manager,
+                                              TOPMOST_LEVEL_WINDOW,
+                                              true                 );
+    } else {
+      needs_refresh = bar_manager_set_topmost(&g_bar_manager,
+                                              TOPMOST_LEVEL_ALL,
+                                              evaluate_boolean_state(token,
+                                                                     g_bar_manager.topmost));
+    }
   } else if (token_equals(command, PROPERTY_STICKY)) {
     struct token token = get_token(&message);
     needs_refresh = bar_manager_set_sticky(&g_bar_manager,
