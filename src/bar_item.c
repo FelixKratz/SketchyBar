@@ -370,6 +370,7 @@ bool bar_item_set_type(struct bar_item* bar_item, char* type) {
 
     bar_item->update_mask |= UPDATE_SPACE_CHANGE;
     bar_item->updates = false;
+    bar_item->updates_only_when_shown = false;
     env_vars_set(&bar_item->signal_args.env_vars,
                  string_copy("SELECTED"),
                  string_copy("false")            );
