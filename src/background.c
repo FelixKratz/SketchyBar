@@ -12,7 +12,7 @@ void background_init(struct background* background) {
   background->num_clips = 0;
   background->overrides_height = false;
 
-  background->bounds.size.height = 25;
+  background->bounds.size.height = 0;
   background->bounds.size.width = 0;
   background->border_width = 0;
   background->padding_left = 0;
