@@ -223,7 +223,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     if ((bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid))) {
       origin_window = &bar->window;
       popup_target = bar_manager_get_popup_by_point(&g_bar_manager,
-                                                           point          );
+                                                    point          );
       over_target = (popup_target != NULL);
     }
     else if ((popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid))) {
@@ -263,7 +263,9 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
                                                             adid           );
 
     if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
-        || bar_manager_get_bar_by_point(&g_bar_manager, point)) {
+        || (bar_manager_get_bar_by_point(&g_bar_manager, point)
+            && bar_manager_get_popup_by_point(&g_bar_manager,
+                                              point) != &bar_item->popup)) {
       bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
     } else if (bar_item) {
       bar_item->mouse_over = false;
