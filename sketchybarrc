@@ -86,7 +86,7 @@ sketchybar --add item space_separator left                         \
 
 sketchybar --add item clock right                              \
            --set clock   update_freq=10                        \
-                         icon=                                \
+                         icon=                                \
                          script="$PLUGIN_DIR/clock.sh"         \
                                                                \
            --add item wifi right                               \
