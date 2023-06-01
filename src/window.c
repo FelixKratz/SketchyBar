@@ -241,18 +241,21 @@ void window_disable_shadow(struct window* window) {
   CFRelease(shadow_props_cf);
 }
 
-CGImageRef window_capture(struct window* window) {
+CGImageRef window_capture(struct window* window, bool* disabled) {
   if (g_disable_capture) {
     int64_t time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
     if (g_disable_capture < 0) {
+      *disabled = true;
       return NULL;
     } else if (time - g_disable_capture > (1ULL << 30)) {
       g_disable_capture = 0;
     } else {
+      *disabled = true;
       return NULL;
     }
   }
 
+  *disabled = false;
   CGImageRef image_ref = NULL;
 
   uint64_t wid = window->id;

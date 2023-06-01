@@ -158,9 +158,14 @@ static bool alias_update_image(struct alias* alias, bool forced) {
   if (alias->window.id == 0) alias_find_window(alias);
   if (alias->window.id == 0) return false;
 
-  CGImageRef image_ref = window_capture(&alias->window);
+  bool disabled = false;
+  CGImageRef image_ref = window_capture(&alias->window, &disabled);
 
   if (!image_ref) {
+    if (!disabled) {
+      alias->window.id = 0;
+      image_destroy(&alias->image);
+    }
     return false;
   }
 

@@ -95,7 +95,7 @@ void window_set_level(struct window* window, uint32_t level);
 void window_order(struct window* window, struct window* parent, int mode);
 void window_assign_mouse_tracking_area(struct window* window, CGRect rect);
 
-CGImageRef window_capture(struct window* window);
+CGImageRef window_capture(struct window* window, bool* disabled);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
 
