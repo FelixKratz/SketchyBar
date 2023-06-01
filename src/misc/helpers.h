@@ -102,6 +102,9 @@ static inline char* escape_string(char* string) {
     else if (string[i] == '\n') {
       buffer[cursor++] = '\\';
       buffer[cursor++] = 'n';
+    } else if (string[i] == '\'') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = '\'';
     }
     else {
       buffer[cursor++] = string[i];
