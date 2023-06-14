@@ -78,7 +78,7 @@ void alias_init(struct alias* alias) {
   alias->name = NULL;
   alias->owner = NULL;
   alias->color_override = false;
-  alias->color = rgba_color_from_hex(0xffff0000);
+  color_init(&alias->color, 0xffff0000);
   alias->update_frequency = 1;
   alias->counter = 0;
 
@@ -251,7 +251,7 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
     }
   }
   else if (token_equals(property, PROPERTY_COLOR)) {
-    alias->color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
+    color_set_hex(&alias->color, token_to_uint32t(get_token(&message)));
     alias->color_override = true;
     return true;
   } else if (token_equals(property, PROPERTY_SCALE)) {

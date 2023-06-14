@@ -19,7 +19,7 @@ struct alias {
   struct window window;
 
   bool color_override;
-  struct rgba_color color;
+  struct color color;
   struct image image;
 };
 

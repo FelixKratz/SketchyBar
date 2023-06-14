@@ -11,6 +11,8 @@
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
+#define clamp(x, l, u) (min(max(x, l), u))
+
 #define MAXLEN 512
 #define FORK_TIMEOUT 60
 
@@ -26,14 +28,6 @@ struct signal_args {
   void *param1;
 };
 
-struct rgba_color {
-  float r;
-  float g;
-  float b;
-  float a;
-};
-
-static struct rgba_color g_transparent = { 0 };
 static CGPoint g_nirvana = {-9999, -9999};
 
 static double deg_to_rad = 2.* M_PI / 360.;
@@ -133,24 +127,6 @@ static inline void respond(FILE* rsp, char* response, ...) {
   vfprintf(stdout, response, args_stdout);
   va_end(args_rsp);
   va_end(args_stdout);
-}
-
-static inline uint32_t hex_from_rgba_color(struct rgba_color rgba_color) {
-  uint32_t result = 0;
-  result += ((uint32_t)(rgba_color.a * 255.0)) << 24;
-  result += ((uint32_t)(rgba_color.r * 255.0)) << 16;
-  result += ((uint32_t)(rgba_color.g * 255.0)) << 8;
-  result += ((uint32_t)(rgba_color.b * 255.0)) << 0;
-  return result;
-}
-
-static inline struct rgba_color rgba_color_from_hex(uint32_t color) {
-  struct rgba_color result;
-  result.r = ((color >> 16) & 0xff) / 255.0;
-  result.g = ((color >> 8) & 0xff) / 255.0;
-  result.b = ((color >> 0) & 0xff) / 255.0;
-  result.a = ((color >> 24) & 0xff) / 255.0;
-  return result;
 }
 
 static inline struct key_value_pair get_key_value_pair(char *token, char split) {
@@ -318,22 +294,6 @@ static inline uint32_t get_set_bit_position(uint32_t mask) {
     pos++;
   }
   return pos;
-}
-
-static inline void draw_rect(CGContextRef context, CGRect region, struct rgba_color* fill_color, uint32_t corner_radius, uint32_t line_width, struct rgba_color* stroke_color, bool clear) {
-  CGContextSetLineWidth(context, line_width);
-  if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
-  CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
-
-  if (clear) CGContextClearRect(context, region);
-  CGMutablePathRef path = CGPathCreateMutable();
-  CGRect inset_region = CGRectInset(region, (float)(line_width) / 2.f, (float)(line_width) / 2.f);
-  if (corner_radius > inset_region.size.height / 2.f || corner_radius > inset_region.size.width / 2.f)
-    corner_radius = inset_region.size.height > inset_region.size.width ? inset_region.size.width / 2.f : inset_region.size.height / 2.f; 
-  CGPathAddRoundedRect(path, NULL, inset_region, corner_radius, corner_radius);
-  CGContextAddPath(context, path);
-  CGContextDrawPath(context, kCGPathFillStroke);
-  CFRelease(path);
 }
 
 static inline void clip_rect(CGContextRef context, CGRect region, float clip, uint32_t corner_radius) {

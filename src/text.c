@@ -43,7 +43,6 @@ static void text_prepare_line(struct text* text) {
   text->bounds.size.height = (uint32_t) (text->bounds.size.height + 1.5);
   text->bounds.origin.x = (int32_t) (text->bounds.origin.x + 0.5);
   text->bounds.origin.y = (int32_t) (text->bounds.origin.y + 0.5);
-  text->line.color = text->highlight ? text->highlight_color : text->color;
 
   CFRelease(string);
   CFRelease(attributes);
@@ -90,40 +89,22 @@ void text_init(struct text* text) {
   text->y_offset = 0;
   text->align = POSITION_LEFT;
 
-  text->color = rgba_color_from_hex(0xffffffff);
-  text->highlight_color = rgba_color_from_hex(0xff000000);
-
   text->string = string_copy("");
   text_set_string(text, text->string, false);
   shadow_init(&text->shadow);
   background_init(&text->background);
   font_init(&text->font);
-}
 
-static bool text_update_color(struct text* text) {
-  struct rgba_color target_color = text->highlight
-                                   ? text->highlight_color
-                                   : text->color;
-
-  if (text->line.color.r == target_color.r 
-      && text->line.color.g == target_color.g 
-      && text->line.color.b == target_color.b 
-      && text->line.color.a == target_color.a) {
-    return false;
-  }
-
-  text->line.color = target_color;
-  return true;
+  color_init(&text->color, 0xffffffff);
+  color_init(&text->highlight_color, 0xff000000);
 }
 
 static bool text_set_color(struct text* text, uint32_t color) {
-  text->color = rgba_color_from_hex(color);
-  return text_update_color(text);
+  return color_set_hex(&text->color, color);
 }
 
 static bool text_set_highlight_color(struct text* text, uint32_t color) {
-  text->highlight_color = rgba_color_from_hex(color);
-  return text_update_color(text);
+  return color_set_hex(&text->highlight_color, color);
 }
 
 static bool text_set_padding_left(struct text* text, int padding) {
@@ -242,11 +223,8 @@ void text_draw(struct text* text, CGContextRef context) {
     CTLineDraw(text->line.line, context);
   }
 
-  CGContextSetRGBFillColor(context,
-                           text->line.color.r,
-                           text->line.color.g,
-                           text->line.color.b,
-                           text->line.color.a );
+  struct color color = text->highlight ? text->highlight_color : text->color;
+  CGContextSetRGBFillColor(context, color.r, color.g, color.b, color.a);
 
   CGContextSetTextPosition(context,
                            text->bounds.origin.x + text->padding_left,
@@ -292,8 +270,8 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                indent, text->string,
                indent, format_bool(text->drawing),
                indent, format_bool(text->highlight),
-               indent, hex_from_rgba_color(text->color),
-               indent, hex_from_rgba_color(text->highlight_color),
+               indent, text->color.hex,
+               indent, text->highlight_color.hex,
                indent, text->padding_left,
                indent, text->padding_right,
                indent, text->y_offset,
@@ -316,43 +294,43 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     struct token token = get_token(&message);
     ANIMATE_BYTES(text_set_color,
                   text,
-                  hex_from_rgba_color(text->color),
-                  token_to_int(token)              );
+                  text->color.hex,
+                  token_to_int(token));
   }
   else if (token_equals(property, PROPERTY_HIGHLIGHT)) {
     bool highlight = evaluate_boolean_state(get_token(&message),
                                              text->highlight    );
     if (g_bar_manager.animator.duration > 0) {
       if (text->highlight && !highlight) {
-        uint32_t target = hex_from_rgba_color(text->color);
-        text_set_color(text, hex_from_rgba_color(text->highlight_color));
+        uint32_t target = text->color.hex;
+        text_set_color(text, text->highlight_color.hex);
 
         ANIMATE_BYTES(text_set_color,
                       text,
-                      hex_from_rgba_color(text->color),
-                      target                           );
+                      text->color.hex,
+                      target          );
       }
       else if (!text->highlight && highlight) {
-        uint32_t target = hex_from_rgba_color(text->highlight_color);
-        text_set_highlight_color(text, hex_from_rgba_color(text->color));
+        uint32_t target = text->highlight_color.hex;
+        text_set_highlight_color(text, text->color.hex);
 
         ANIMATE_BYTES(text_set_highlight_color,
                       text,
-                      hex_from_rgba_color(text->highlight_color),
-                      target                                     );
+                      text->highlight_color.hex,
+                      target                    );
       }
     }
 
+    needs_refresh = text->highlight != highlight;
     text->highlight = highlight;
-    needs_refresh = text_update_color(text);
   } else if (token_equals(property, PROPERTY_FONT))
     needs_refresh = text_set_font(text, string_copy(message), false);
   else if (token_equals(property, PROPERTY_HIGHLIGHT_COLOR)) {
     struct token token = get_token(&message);
     ANIMATE_BYTES(text_set_highlight_color,
                   text,
-                  hex_from_rgba_color(text->highlight_color),
-                  token_to_int(token)                        );
+                  text->highlight_color.hex,
+                  token_to_int(token)       );
 
   } else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);
@@ -450,6 +428,13 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
         return shadow_parse_sub_domain(&text->shadow, rsp, entry, message);
       else if (token_equals(subdom, SUB_DOMAIN_FONT))
         return font_parse_sub_domain(&text->font, rsp, entry, message);
+      else if (token_equals(subdom, SUB_DOMAIN_COLOR))
+        return color_parse_sub_domain(&text->color, rsp, entry, message);
+      else if (token_equals(subdom, SUB_DOMAIN_HIGHLIGHT_COLOR))
+        return color_parse_sub_domain(&text->highlight_color,
+                                      rsp,
+                                      entry,
+                                      message);
       else
         respond(rsp, "[!] Text: Invalid subdomain '%s' \n", subdom.text);
     }

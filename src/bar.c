@@ -145,17 +145,13 @@ void bar_draw(struct bar* bar, bool forced) {
     bar_check_for_clip_updates(bar);
 
   if (g_bar_manager.bar_needs_update) {
-    draw_rect(bar->window.context,
-              bar->window.frame,
-              &g_bar_manager.background.color,
-              g_bar_manager.background.corner_radius,
-              g_bar_manager.background.border_width,
-              &g_bar_manager.background.border_color,
-              true                                   );
-
-    if (g_bar_manager.background.image.enabled) {
-      image_draw(&g_bar_manager.background.image, bar->window.context);
-    }
+    struct background* background = &g_bar_manager.background;
+    background->bounds = bar->window.frame;
+    background->bounds.origin.y -= background->y_offset;
+    background->shadow.enabled = false;
+    background->enabled = true;
+    CGContextClearRect(bar->window.context, bar->window.frame);
+    background_draw(background, bar->window.context);
   }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {

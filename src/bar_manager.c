@@ -44,8 +44,9 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->background.overrides_height = true;
   bar_manager->background.padding_left = 20;
   bar_manager->background.padding_right = 20;
-  bar_manager->background.border_color = rgba_color_from_hex(0xffff0000);
-  bar_manager->background.color = rgba_color_from_hex(0x44000000);
+
+  color_set_hex(&bar_manager->background.border_color, 0xffff0000);
+  color_set_hex(&bar_manager->background.color, 0x44000000);
 
   bar_item_init(&bar_manager->default_item, NULL);
   bar_item_set_name(&bar_manager->default_item, string_copy("defaults"));

@@ -7,7 +7,6 @@ struct text_line {
   CTLineRef line;
   CGFloat ascent;
   CGFloat descent;
-  struct rgba_color color;
 };
 
 struct text {
@@ -27,8 +26,8 @@ struct text {
 
   struct font font;
   struct text_line line;
-  struct rgba_color color;
-  struct rgba_color highlight_color;
+  struct color color;
+  struct color highlight_color;
   struct shadow shadow;
 
   struct background background;

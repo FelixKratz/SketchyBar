@@ -17,8 +17,8 @@ struct background {
   CGRect bounds;
   struct image image;
   struct shadow shadow;
-  struct rgba_color color;
-  struct rgba_color border_color;
+  struct color color;
+  struct color border_color;
 
   struct background** clips;
   uint32_t num_clips;

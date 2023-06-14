@@ -9,7 +9,8 @@ void shadow_init(struct shadow* shadow) {
                       *cos(((double)shadow->angle)*deg_to_rad);
   shadow->offset.y = -((float)shadow->distance)
                        *sin(((double)shadow->angle)*deg_to_rad);
-  shadow->color = rgba_color_from_hex(0xff000000);
+
+  color_init(&shadow->color, 0xff000000);
 }
 
 static bool shadow_set_enabled(struct shadow* shadow, bool enabled) {
@@ -37,14 +38,8 @@ static bool shadow_set_distance(struct shadow* shadow, uint32_t distance) {
 }
 
 static bool shadow_set_color(struct shadow* shadow, uint32_t color) {
-  struct rgba_color target_color = rgba_color_from_hex(color);
-  if (shadow->color.r == target_color.r 
-      && shadow->color.g == target_color.g 
-      && shadow->color.b == target_color.b 
-      && shadow->color.a == target_color.a) return false;
-  shadow->color = target_color;
-  shadow_set_enabled(shadow, true);
-  return true;
+  bool changed = shadow_set_enabled(shadow, true);
+  return color_set_hex(&shadow->color, color) || changed;
 }
 
 CGRect shadow_get_bounds(struct shadow* shadow, CGRect reference_bounds) {
@@ -59,7 +54,7 @@ void shadow_serialize(struct shadow* shadow, char* indent, FILE* rsp) {
                "%s\"angle\": %u,\n"
                "%s\"distance\": %u",
                indent, format_bool(shadow->enabled),
-               indent, hex_from_rgba_color(shadow->color),
+               indent, shadow->color.hex,
                indent, shadow->angle,
                indent, shadow->distance                   );
 }
@@ -89,11 +84,24 @@ bool shadow_parse_sub_domain(struct shadow* shadow, FILE* rsp, struct token prop
     struct token token = get_token(&message);
     ANIMATE_BYTES(shadow_set_color,
                   shadow,
-                  hex_from_rgba_color(shadow->color),
+                  shadow->color.hex,
                   token_to_int(token)                );
   }
   else {
-    respond(rsp, "[!] Shadow: Invalid property '%s'\n", property.text);
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = {key_value_pair.key,strlen(key_value_pair.key)};
+      struct token entry = {key_value_pair.value,strlen(key_value_pair.value)};
+      if (token_equals(subdom, SUB_DOMAIN_COLOR)) {
+        return color_parse_sub_domain(&shadow->color, rsp, entry, message);
+      }
+      else {
+        respond(rsp, "[!] Shadow: Invalid subdomain '%s'\n", subdom.text);
+      }
+    } else {
+      respond(rsp, "[!] Shadow: Invalid property '%s'\n", property.text);
+    }
   }
 
   return needs_refresh;

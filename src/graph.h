@@ -1,5 +1,6 @@
 #pragma once
 #include "misc/helpers.h"
+#include "color.h"
 
 struct graph {
   bool rtl;
@@ -13,8 +14,8 @@ struct graph {
   float line_width;
 
   CGRect bounds;
-  struct rgba_color line_color;
-  struct rgba_color fill_color;
+  struct color line_color;
+  struct color fill_color;
 };
 
 void graph_init(struct graph* graph);

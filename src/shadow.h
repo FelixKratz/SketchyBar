@@ -1,5 +1,6 @@
 #pragma once
 #include "misc/helpers.h"
+#include "color.h"
 
 struct shadow {
   bool enabled;
@@ -8,7 +9,7 @@ struct shadow {
   uint32_t distance;
   CGPoint offset;   
 
-  struct rgba_color color;
+  struct color color;
 };
 
 void shadow_init(struct shadow* shadow);

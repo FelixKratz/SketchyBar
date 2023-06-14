@@ -41,6 +41,9 @@
 #define SUB_DOMAIN_KNOB                        "knob"
 #define SUB_DOMAIN_SLIDER                      "slider"
 #define SUB_DOMAIN_FONT                        "font"
+#define SUB_DOMAIN_COLOR                       "color"
+#define SUB_DOMAIN_BORDER_COLOR                "border_color"
+#define SUB_DOMAIN_HIGHLIGHT_COLOR             "highlight_color"
 
 #define PROPERTY_FONT                          "font"
 #define PROPERTY_COLOR                         "color"
@@ -61,6 +64,12 @@
 #define PROPERTY_ANGLE                         "angle"
 #define PROPERTY_SCALE                         "scale"
 #define PROPERTY_STRING                        "string"
+
+#define PROPERTY_COLOR_HEX                     "hex"
+#define PROPERTY_COLOR_ALPHA                   "alpha"
+#define PROPERTY_COLOR_RED                     "red"
+#define PROPERTY_COLOR_GREEN                   "green"
+#define PROPERTY_COLOR_BLUE                    "blue"
 
 #define PROPERTY_FONT_FAMILY                   "family"
 #define PROPERTY_FONT_STYLE                    "style"

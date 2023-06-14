@@ -20,8 +20,8 @@ void background_init(struct background* background) {
   background->corner_radius = 0;
   background->y_offset = 0;
 
-  background->color = rgba_color_from_hex(0x00000000);
-  background->border_color = rgba_color_from_hex(0x00000000);
+  color_init(&background->color, 0x00000000);
+  color_init(&background->border_color, 0x00000000);
   shadow_init(&background->shadow);
   image_init(&background->image);
 }
@@ -56,14 +56,8 @@ bool background_set_enabled(struct background* background, bool enabled) {
 }
 
 bool background_set_color(struct background* background, uint32_t color) {
-  struct rgba_color target_color = rgba_color_from_hex(color);
-  if (background->color.r == target_color.r 
-      && background->color.g == target_color.g 
-      && background->color.b == target_color.b 
-      && background->color.a == target_color.a) return false;
-  background->color = target_color;
-  background_set_enabled(background, true);
-  return true;
+  bool changed = background_set_enabled(background, true);
+  return color_set_hex(&background->color, color) || changed;
 }
 
 static bool background_set_clip(struct background* background, float clip) {
@@ -76,13 +70,7 @@ static bool background_set_clip(struct background* background, float clip) {
 }
 
 static bool background_set_border_color(struct background* background, uint32_t color) {
-  struct rgba_color target_color = rgba_color_from_hex(color);
-  if (background->border_color.r == target_color.r 
-      && background->border_color.g == target_color.g 
-      && background->border_color.b == target_color.b 
-      && background->border_color.a == target_color.a) return false;
-  background->border_color = target_color;
-  return true;
+  return color_set_hex(&background->border_color, color);
 }
 
 static bool background_set_border_width(struct background* background, uint32_t border_width) {
@@ -182,6 +170,21 @@ void background_calculate_bounds(struct background* background, uint32_t x, uint
     image_calculate_bounds(&background->image, x, y);
 }
 
+static void draw_rect(CGContextRef context, CGRect region, struct color* fill_color, uint32_t corner_radius, uint32_t line_width, struct color* stroke_color) {
+  CGContextSetLineWidth(context, line_width);
+  if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
+  CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
+
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGRect inset_region = CGRectInset(region, (float)(line_width) / 2.f, (float)(line_width) / 2.f);
+  if (corner_radius > inset_region.size.height / 2.f || corner_radius > inset_region.size.width / 2.f)
+    corner_radius = inset_region.size.height > inset_region.size.width ? inset_region.size.width / 2.f : inset_region.size.height / 2.f; 
+  CGPathAddRoundedRect(path, NULL, inset_region, corner_radius, corner_radius);
+  CGContextAddPath(context, path);
+  CGContextDrawPath(context, kCGPathFillStroke);
+  CFRelease(path);
+}
+
 void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
   CGRect background_bounds = background->bounds;
@@ -193,8 +196,7 @@ void background_draw(struct background* background, CGContextRef context) {
               &background->shadow.color,
               background->corner_radius,
               background->border_width,
-              &background->shadow.color,
-              false                     );
+              &background->shadow.color);
   }
 
   if (background->image.enabled)
@@ -205,8 +207,7 @@ void background_draw(struct background* background, CGContextRef context) {
             &background->color,
             background->corner_radius,
             background->border_width,
-            &background->border_color,
-            false                     );
+            &background->border_color);
 }
 
 void background_clear_pointers(struct background* background) {
@@ -237,8 +238,8 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                "%s\"y_offset\": %d,\n"
                "%s\"clip\": %f,\n",
                indent, format_bool(background->enabled),
-               indent, hex_from_rgba_color(background->color),
-               indent, hex_from_rgba_color(background->border_color),
+               indent, background->color.hex,
+               indent, background->border_color.hex,
                indent, background->border_width,
                indent, background->overrides_height ? (int)background->bounds.size.height : 0,
                indent, background->corner_radius,
@@ -298,15 +299,15 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
     struct token token = get_token(&message);
     ANIMATE_BYTES(background_set_color,
                   background,
-                  hex_from_rgba_color(background->color),
-                  token_to_int(token)                    );
+                  background->color.hex,
+                  token_to_int(token)   );
   }
   else if (token_equals(property, PROPERTY_BORDER_COLOR)) {
     struct token token = get_token(&message);
     ANIMATE_BYTES(background_set_border_color,
                   background,
-                  hex_from_rgba_color(background->border_color),
-                  token_to_int(token)                           );
+                  background->border_color.hex,
+                  token_to_int(token)          );
   }
   else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
     struct token token = get_token(&message);
@@ -345,8 +346,18 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
                                        rsp,
                                        entry,
                                        message             );
-      else if (token_equals(subdom, SUB_DOMAIN_IMAGE))
+      else if (token_equals(subdom, SUB_DOMAIN_IMAGE)) {
         return image_parse_sub_domain(&background->image, rsp, entry, message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_COLOR)) {
+        return color_parse_sub_domain(&background->color, rsp, entry, message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_BORDER_COLOR)) {
+        return color_parse_sub_domain(&background->border_color,
+                                      rsp,
+                                      entry,
+                                      message                   );
+      }
       else {
         respond(rsp, "[!] Background: Invalid subdomain '%s'\n", subdom.text);
       }

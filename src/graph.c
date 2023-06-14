@@ -4,12 +4,13 @@ void graph_init(struct graph* graph) {
   graph->width = 0;
   graph->cursor = 0;
 
-  graph->line_color = rgba_color_from_hex(0xcccccc);
-  graph->fill_color = rgba_color_from_hex(0xcccccc);
   graph->line_width = 0.5;
   graph->fill = true;
   graph->overrides_fill_color = false;
   graph->enabled = true;
+
+  color_init(&graph->line_color, 0xcccccc);
+  color_init(&graph->fill_color, 0xcccccc);
 }
 
 void graph_setup(struct graph* graph, uint32_t width) {
@@ -112,8 +113,8 @@ void graph_serialize(struct graph* graph, char* indent, FILE* rsp) {
                  "%s\"fill_color\": \"0x%x\",\n"
                  "%s\"line_width\": \"%f\",\n"
                  "%s\"data\": [\n",
-                 indent, hex_from_rgba_color(graph->line_color),
-                 indent, hex_from_rgba_color(graph->fill_color),
+                 indent, graph->line_color.hex,
+                 indent, graph->fill_color.hex,
                  indent, graph->line_width, indent);
     int counter = 0;
     for (int i = 0; i < graph->width; i++) {
@@ -131,12 +132,12 @@ void graph_destroy(struct graph* graph) {
 
 bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token property, char* message) {
   if (token_equals(property, PROPERTY_COLOR)) {
-    graph->line_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
-    return true;
+    return color_set_hex(&graph->line_color,
+                         token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, PROPERTY_FILL_COLOR)) {
-    graph->fill_color = rgba_color_from_hex(token_to_uint32t(get_token(&message)));
     graph->overrides_fill_color = true;
-    return true;
+    return color_set_hex(&graph->fill_color,
+                         token_to_uint32t(get_token(&message)));
   } else if (token_equals(property, PROPERTY_LINE_WIDTH)) {
     graph->line_width = token_to_float(get_token(&message));
     return true;
