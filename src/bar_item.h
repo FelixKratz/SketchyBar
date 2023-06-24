@@ -50,6 +50,7 @@ struct bar_item {
 
   char* script;
   char* click_script;
+  char* scroll_script;
   struct signal_args signal_args;
   
   // The position in the bar: l,r,c
@@ -106,6 +107,7 @@ void bar_item_needs_update(struct bar_item* bar_item);
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars);
 
 void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_button_code, uint32_t modifier, CGPoint point);
+void bar_item_on_scroll(struct bar_item* bar_item, uint32_t type, long scroll_delta_vert);
 void bar_item_on_drag(struct bar_item* bar_item, CGPoint point);
 void bar_item_mouse_entered(struct bar_item* bar_item);
 void bar_item_mouse_exited(struct bar_item* bar_item);

@@ -26,6 +26,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED);
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED);
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED);
 EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_WIFI_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED);
@@ -62,6 +63,7 @@ enum event_type {
     MOUSE_DRAGGED,
     MOUSE_ENTERED,
     MOUSE_EXITED,
+    MOUSE_SCROLLED,
     VOLUME_CHANGED,
     WIFI_CHANGED,
     BRIGHTNESS_CHANGED,
@@ -92,6 +94,7 @@ static const char *event_type_str[] = {
     [MOUSE_DRAGGED]                  = "mouse_dragged",
     [MOUSE_ENTERED]                  = "mouse_entered",
     [MOUSE_EXITED]                   = "mouse_exited",
+    [MOUSE_SCROLLED]                 = "mouse_scrolled",
     [VOLUME_CHANGED]                 = "volume_changed",
     [WIFI_CHANGED]                   = "wifi_changed",
     [BRIGHTNESS_CHANGED]             = "brightness_changed",
@@ -114,6 +117,7 @@ static event_callback *event_handler[] = {
     [MOUSE_DRAGGED]                  = EVENT_HANDLER_MOUSE_DRAGGED,
     [MOUSE_ENTERED]                  = EVENT_HANDLER_MOUSE_ENTERED,
     [MOUSE_EXITED]                   = EVENT_HANDLER_MOUSE_EXITED,
+    [MOUSE_SCROLLED]                 = EVENT_HANDLER_MOUSE_SCROLLED,
     [VOLUME_CHANGED]                 = EVENT_HANDLER_VOLUME_CHANGED,
     [WIFI_CHANGED]                   = EVENT_HANDLER_WIFI_CHANGED,
     [BRIGHTNESS_CHANGED]             = EVENT_HANDLER_BRIGHTNESS_CHANGED,

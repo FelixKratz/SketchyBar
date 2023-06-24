@@ -82,6 +82,7 @@
 #define PROPERTY_UPDATE_FREQ                   "update_freq"
 #define PROPERTY_SCRIPT                        "script"
 #define PROPERTY_CLICK_SCRIPT                  "click_script"
+#define PROPERTY_SCROLL_SCRIPT                 "scroll_script"
 #define PROPERTY_ICON                          "icon"
 #define PROPERTY_YOFFSET                       "y_offset"
 #define PROPERTY_WIDTH                         "width"
@@ -120,8 +121,10 @@
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED        "mouse.entered"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED         "mouse.exited"
 #define COMMAND_SUBSCRIBE_MOUSE_CLICKED        "mouse.clicked"
+#define COMMAND_SUBSCRIBE_MOUSE_SCROLLED       "mouse.scrolled"
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL "mouse.entered.global"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL  "mouse.exited.global"
+#define COMMAND_SUBSCRIBE_MOUSE_SCROLLED_GLOBAL "mouse.scrolled.global"
 
 #define DOMAIN_QUERY                           "--query"
 #define COMMAND_QUERY_DEFAULT_ITEMS            "default_menu_items"
