@@ -280,6 +280,55 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     return EVENT_SUCCESS;
 }
 
+EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
+    CGPoint point = CGEventGetLocation(context);
+    uint32_t wid = get_window_id_from_cg_event(context);
+    CGEventType type = CGEventGetType(context);
+    long scroll_delta_vert = CGEventGetIntegerValueField(context, kCGScrollWheelEventDeltaAxis1);
+    uint32_t adid = display_arrangement(display_active_display_id());
+
+    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    if (bar) {
+      // Handle global mouse scrolled event
+      if (bar->mouse_over
+          && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager, scroll_delta_vert, bar->adid);
+      }
+
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
+
+    struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+    if (popup) {
+      // Handle global mouse scrolled event
+      if (popup->mouse_over
+          && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager, scroll_delta_vert, bar->adid);
+      }
+
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
+
+    struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
+                                                            wid,
+                                                            adid           );
+
+    if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
+      bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    }
+
+    bar_item_on_scroll(bar_item, type, scroll_delta_vert);
+
+    if (bar_item && bar_item->needs_update)
+      bar_manager_refresh(&g_bar_manager, false);
+
+    CFRelease(context);
+    return EVENT_SUCCESS;
+}
+
+
 EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED) {
   bar_manager_handle_volume_change(&g_bar_manager, *(float*)context);
   free(context);

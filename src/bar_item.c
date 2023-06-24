@@ -241,6 +241,38 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
   env_vars_destroy(&env_vars);
 }
 
+void bar_item_on_scroll(struct bar_item* bar_item, uint32_t type, long scroll_delta_vert) {
+  if (!bar_item) return;
+
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char info_str[256];
+  snprintf(info_str, 256, "{\n"
+                         "\t\"scroll_delta_vert\": %ld\n"
+                         "}\n",
+                         scroll_delta_vert                  );
+
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(info_str));
+
+  char delta_ver_str[32];
+  snprintf(delta_ver_str, 32, "%ld", scroll_delta_vert);
+  env_vars_set(&env_vars,
+               string_copy("DELTA_VERT"),
+               string_copy(delta_ver_str));
+
+  if (bar_item->scroll_script && strlen(bar_item->scroll_script) > 0) {
+    for (int i = 0; i < bar_item->signal_args.env_vars.count; i++) {
+      env_vars_set(&env_vars,
+                   string_copy(bar_item->signal_args.env_vars.vars[i]->key),
+                   string_copy(bar_item->signal_args.env_vars.vars[i]->value));
+    }
+
+    fork_exec(bar_item->scroll_script, &env_vars);
+  }
+
+  env_vars_destroy(&env_vars);
+}
+
 void bar_item_mouse_entered(struct bar_item* bar_item) {
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
@@ -285,6 +317,21 @@ static void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
 
   char* path = resolve_path(script);
   bar_item->click_script = path;
+}
+
+static void bar_item_set_scroll_script(struct bar_item* bar_item, char* script) {
+  if (!script) return;
+
+  if (bar_item->scroll_script && strcmp(bar_item->scroll_script, script) == 0) {
+    free(script);
+    return;
+  }
+
+  if (script != bar_item->scroll_script && bar_item->scroll_script)
+    free(bar_item->scroll_script);
+
+  char* path = resolve_path(script);
+  bar_item->scroll_script = path;
 }
 
 static bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
@@ -1035,6 +1082,8 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     bar_item_set_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CLICK_SCRIPT)) {
     bar_item_set_click_script(bar_item, token_to_string(get_token(&message)));
+  } else if (token_equals(property, PROPERTY_SCROLL_SCRIPT)) {
+    bar_item_set_scroll_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {

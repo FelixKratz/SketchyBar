@@ -781,6 +781,27 @@ void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
                                     NULL                                  );
 }
 
+void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, long scroll_delta_vert, uint32_t adid) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char delta_ver_str[32];
+  snprintf(delta_ver_str, 32, "%ld", scroll_delta_vert);
+  env_vars_set(&env_vars,
+               string_copy("DELTA_VERT"),
+               string_copy(delta_ver_str));
+
+  char adid_str[32];
+  snprintf(adid_str, 32, "%u", adid);
+  env_vars_set(&env_vars,
+               string_copy("DISPLAY"),
+               string_copy(adid_str));
+
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_MOUSE_SCROLLED_GLOBAL,
+                                    &env_vars                               );
+  env_vars_destroy(&env_vars);
+}
+
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
   if (!bar_item) return;
   bar_item_mouse_entered(bar_item);

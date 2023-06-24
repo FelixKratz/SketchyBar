@@ -8,7 +8,8 @@ static const EventTypeSpec mouse_events [] = {
     { kEventClassMouse, kEventMouseUp },
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseEntered },
-    { kEventClassMouse, kEventMouseExited }
+    { kEventClassMouse, kEventMouseExited },
+    { kEventClassMouse, kEventMouseWheelMoved }
 };
 
 
@@ -43,6 +44,13 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
                                          MOUSE_EXITED,
                                          (void *) CFRetain(CopyEventCGEvent(e)));
       event_loop_post(&g_event_loop, event); 
+      break;
+    }
+    case kEventMouseWheelMoved: {
+      struct event *event = event_create(&g_event_loop,
+                                         MOUSE_SCROLLED,
+                                         (void *) CFRetain(CopyEventCGEvent(e)));
+      event_loop_post(&g_event_loop, event);
       break;
     }
     default:
