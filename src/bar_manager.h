@@ -104,7 +104,7 @@ void bar_manager_resize(struct bar_manager* bar_manager);
 
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager);
-void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, long scroll_delta_vert, uint32_t did);
+void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t did);
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info);
