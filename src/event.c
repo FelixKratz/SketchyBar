@@ -280,21 +280,46 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     return EVENT_SUCCESS;
 }
 
+#define SCROLL_TIMEOUT 150000000
+struct {
+  uint64_t timestamp;
+  int delta_y;
+
+} g_scroll_info;
+
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
     CGPoint point = CGEventGetLocation(context);
-    uint32_t wid = get_window_id_from_cg_event(context);
-    CGEventType type = CGEventGetType(context);
-    long scroll_delta_vert = CGEventGetIntegerValueField(context, kCGScrollWheelEventDeltaAxis1);
+    uint32_t wid = get_wid_from_cg_event(context);
+    int scroll_delta
+                  = CGEventGetIntegerValueField(context,
+                                                kCGScrollWheelEventDeltaAxis1);
     uint32_t adid = display_arrangement(display_active_display_id());
+
+    uint64_t event_time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
+    if (g_scroll_info.timestamp + SCROLL_TIMEOUT > event_time) {
+      g_scroll_info.delta_y += scroll_delta;
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    } else {
+      if (g_scroll_info.timestamp + 2*SCROLL_TIMEOUT < event_time)
+        g_scroll_info.delta_y = 0;
+      g_scroll_info.timestamp
+                           = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
+    }
+    
 
     struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
     if (bar) {
       // Handle global mouse scrolled event
       if (bar->mouse_over
           && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
-        bar_manager_handle_mouse_scrolled_global(&g_bar_manager, scroll_delta_vert, bar->adid);
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
+                                                 scroll_delta
+                                                 + g_scroll_info.delta_y,
+                                                 bar->adid);
       }
 
+      g_scroll_info.delta_y = 0;
       CFRelease(context);
       return EVENT_SUCCESS;
     }
@@ -304,9 +329,13 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
       // Handle global mouse scrolled event
       if (popup->mouse_over
           && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
-        bar_manager_handle_mouse_scrolled_global(&g_bar_manager, scroll_delta_vert, bar->adid);
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
+                                                 scroll_delta
+                                                 + g_scroll_info.delta_y,
+                                                 bar->adid);
       }
 
+      g_scroll_info.delta_y = 0;
       CFRelease(context);
       return EVENT_SUCCESS;
     }
@@ -319,11 +348,12 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
     }
 
-    bar_item_on_scroll(bar_item, type, scroll_delta_vert);
+    bar_item_on_scroll(bar_item, scroll_delta + g_scroll_info.delta_y);
 
     if (bar_item && bar_item->needs_update)
       bar_manager_refresh(&g_bar_manager, false);
 
+    g_scroll_info.delta_y = 0;
     CFRelease(context);
     return EVENT_SUCCESS;
 }

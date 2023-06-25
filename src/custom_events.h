@@ -8,14 +8,16 @@
 #define UPDATE_MOUSE_ENTERED       1ULL << 4
 #define UPDATE_MOUSE_EXITED        1ULL << 5
 #define UPDATE_MOUSE_CLICKED       1ULL << 6
-#define UPDATE_SYSTEM_WILL_SLEEP   1ULL << 7
-#define UPDATE_ENTERED_GLOBAL      1ULL << 8
-#define UPDATE_EXITED_GLOBAL       1ULL << 9
-#define UPDATE_VOLUME_CHANGE       1ULL << 10
-#define UPDATE_BRIGHTNESS_CHANGE   1ULL << 11
-#define UPDATE_POWER_SOURCE_CHANGE 1ULL << 12
-#define UPDATE_WIFI_CHANGE         1ULL << 13
-#define UPDATE_MEDIA_CHANGE        1ULL << 14
+#define UPDATE_MOUSE_SCROLLED      1ULL << 7
+#define UPDATE_SYSTEM_WILL_SLEEP   1ULL << 8
+#define UPDATE_ENTERED_GLOBAL      1ULL << 9
+#define UPDATE_EXITED_GLOBAL       1ULL << 10
+#define UPDATE_SCROLLED_GLOBAL     1ULL << 11
+#define UPDATE_VOLUME_CHANGE       1ULL << 12
+#define UPDATE_BRIGHTNESS_CHANGE   1ULL << 13
+#define UPDATE_POWER_SOURCE_CHANGE 1ULL << 14
+#define UPDATE_WIFI_CHANGE         1ULL << 15
+#define UPDATE_MEDIA_CHANGE        1ULL << 16
 
 extern void* g_workspace_context;
 extern void workspace_create_custom_observer(void** context, char* name);
