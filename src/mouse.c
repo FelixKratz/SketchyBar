@@ -1,6 +1,16 @@
+#include <Carbon/Carbon.h>
 #include "mouse.h"
 
 extern struct event_loop g_event_loop;
+
+static const EventTypeSpec mouse_events [] = {
+    { kEventClassMouse, kEventMouseDown },
+    { kEventClassMouse, kEventMouseUp },
+    { kEventClassMouse, kEventMouseDragged },
+    { kEventClassMouse, kEventMouseEntered },
+    { kEventClassMouse, kEventMouseExited }
+};
+
 
 static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void *data) {
   switch (GetEventKind(e)) {

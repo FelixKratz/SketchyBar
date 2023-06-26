@@ -1,4 +1,3 @@
-#include <Carbon/Carbon.h>
 #include "event.h"
 #include "event_loop.h"
 

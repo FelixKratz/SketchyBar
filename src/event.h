@@ -1,5 +1,4 @@
 #pragma once
-#include <Carbon/Carbon.h>
 #include <mach/mach.h>
 #include "misc/memory_pool.h"
 #include "bar_manager.h"
