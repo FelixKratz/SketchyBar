@@ -28,9 +28,14 @@
 #define MINOR 15
 #define PATCH 2
 
-extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 extern int SLSMainConnectionID(void);
-extern int RunApplicationEventLoop(void);
+extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
+
+extern CGError SLSGetEventPort(int cid, mach_port_t* port_out);
+extern CGEventRef SLEventCreateNextEvent(int cid);
+extern void _CFMachPortSetOptions(CFMachPortRef mach_port, int options);
+extern CGError SLSSetBackgroundEventMask(int cid, int mask);
+extern CGError SLSSetEventMask(int cid, int mask);
 
 int g_connection;
 CFTypeRef g_transaction;
@@ -170,6 +175,19 @@ void system_events(uint32_t event, void* data, size_t data_length, void* context
   }
 }
 
+void mach_port_callback(CFMachPortRef port, void* message, CFIndex size, void* context) {
+  int cid = g_connection;
+  CGEventRef cg_event = SLEventCreateNextEvent(cid);
+  if (!cg_event) return;
+  do {
+    CGEventType type = CGEventGetType(cg_event);
+    if (type != 0xd) mouse_handle_event(type, cg_event);
+
+    CFRelease(cg_event);
+    cg_event = SLEventCreateNextEvent(cid);
+  } while (cg_event != NULL);
+}
+
 int main(int argc, char **argv) {
   snprintf(g_name, sizeof(g_name), "%s", basename(argv[0]));
   if (argc > 1) parse_arguments(argc, argv);
@@ -189,7 +207,6 @@ int main(int argc, char **argv) {
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);
 
-  mouse_begin();
   display_begin();
   workspace_event_handler_begin(&g_workspace_context);
 
@@ -205,8 +222,29 @@ int main(int argc, char **argv) {
   initialize_media_events();
 
   exec_config_file();
-
   begin_receiving_config_change_events();
-  RunApplicationEventLoop();
+  SLSSetBackgroundEventMask(g_connection, g_mouse_events);
+  SLSSetEventMask(g_connection, g_mouse_events);
+  
+  mach_port_t port;
+  CGError error = SLSGetEventPort(g_connection, &port);
+  CFMachPortRef cf_mach_port = NULL;
+  CFRunLoopSourceRef source = NULL;
+  if (error == kCGErrorSuccess) {
+    cf_mach_port = CFMachPortCreateWithPort(NULL,
+                                            port,
+                                            mach_port_callback,
+                                            NULL,
+                                            false              );
+
+    _CFMachPortSetOptions(cf_mach_port, 0x40);
+    source = CFMachPortCreateRunLoopSource(NULL, cf_mach_port, 0);
+
+    CFRunLoopAddSource(CFRunLoopGetCurrent(),
+                       source,
+                       kCFRunLoopDefaultMode);
+  }
+
+  CFRunLoopRun();
   return 0;
 }

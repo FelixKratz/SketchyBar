@@ -1,5 +1,6 @@
 #include "window.h"
 #include "bar_manager.h"
+#include "mouse.h"
 
 extern struct bar_manager g_bar_manager;
 extern int64_t g_disable_capture;
@@ -52,18 +53,9 @@ void window_create(struct window* window, CGRect frame) {
   SLSSetWindowTags(g_connection, window->id, &set_tags, 64);
   SLSClearWindowTags(g_connection, window->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, window->id, 0);
+  SLSSetWindowEventMask(g_connection, window->id, g_mouse_events);
 
-  const void* keys[] = { CFSTR("CGWindowContextShouldUseCA") };
-  const void* values[] = { kCFBooleanTrue };
-  CFDictionaryRef dict = CFDictionaryCreate(NULL,
-                                            keys,
-                                            values,
-                                            1,
-                                            &kCFTypeDictionaryKeyCallBacks,
-                                            &kCFTypeDictionaryValueCallBacks);
-
-  window->context = SLWindowContextCreate(g_connection, window->id, dict);
-  CFRelease(dict);
+  window->context = SLWindowContextCreate(g_connection, window->id, NULL);
 
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
   window->needs_move = false;
