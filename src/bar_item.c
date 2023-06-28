@@ -19,7 +19,6 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->updates = true;
   bar_item->updates_only_when_shown = false;
   bar_item->selected = false;
-  bar_item->mouse_over = false;
   bar_item->ignore_association = false;
   bar_item->overrides_association = false;
   bar_item->counter = 0;
@@ -243,16 +242,13 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {
-  bar_item->mouse_over = true;
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (bar_item->mouse_over && (bar_item->update_mask & UPDATE_MOUSE_EXITED))
+  if (bar_item->update_mask & UPDATE_MOUSE_EXITED)
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
-
-  bar_item->mouse_over = false;
 }
 
 static bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {

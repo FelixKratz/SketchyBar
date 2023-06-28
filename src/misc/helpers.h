@@ -548,3 +548,20 @@ static inline void error(const char *format, ...) {
     exit(EXIT_FAILURE);
 }
 
+static inline int get_wid_from_cg_event(CGEventRef event) {
+  switch (CGEventGetType(event)) {
+    case kCGEventLeftMouseUp:
+    case kCGEventRightMouseUp:
+    case kCGEventOtherMouseUp:
+    case kCGEventLeftMouseDragged:
+    case kCGEventRightMouseDragged:
+    case kCGEventOtherMouseDragged:
+      return CGEventGetIntegerValueField(event, 0x5b);
+    case 0x8:
+    case 0x9:
+    case kCGEventScrollWheel:
+      return CGEventGetIntegerValueField(event, 0x33);
+    default:
+      return 0;
+  }
+}

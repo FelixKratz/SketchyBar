@@ -100,7 +100,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     CGPoint point = CGEventGetLocation(context);
-    uint32_t wid = get_window_id_from_cg_event(context);
+    uint32_t wid = get_wid_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
     uint32_t mouse_button_code = CGEventGetIntegerValueField(context, kCGMouseEventButtonNumber);
     uint32_t modifier_keys = CGEventGetFlags(context);
@@ -109,6 +109,13 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                             wid,
                                                             adid           );
+
+    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+    if (!bar_item && !popup && !bar) {
+      CFRelease(context);
+      return EVENT_SUCCESS;
+    }
 
     if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
       bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
@@ -135,7 +142,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
     CGPoint point = CGEventGetLocation(context);
-    uint32_t wid = get_window_id_from_cg_event(context);
+    uint32_t wid = get_wid_from_cg_event(context);
     uint32_t adid = display_arrangement(display_active_display_id());
 
     struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
@@ -167,7 +174,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
-    uint32_t wid = get_window_id_from_cg_event(context);
+    uint32_t wid = get_wid_from_cg_event(context);
     
     uint32_t adid = display_arrangement(display_active_display_id());
 
@@ -212,7 +219,7 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
 
 EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
     uint32_t adid = display_arrangement(display_active_display_id());
-    uint32_t wid = get_window_id_from_cg_event(context);
+    uint32_t wid = get_wid_from_cg_event(context);
 
     struct bar* bar,* bar_target;
     struct popup* popup,* popup_target;
@@ -267,8 +274,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
             && bar_manager_get_popup_by_point(&g_bar_manager,
                                               point) != &bar_item->popup)) {
       bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
-    } else if (bar_item) {
-      bar_item->mouse_over = false;
     }
 
     CFRelease(context);

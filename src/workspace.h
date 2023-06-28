@@ -16,4 +16,3 @@ void workspace_event_handler_end(void *context);
 int workspace_display_notch_height(uint32_t did);
 
 CGImageRef workspace_icon_for_app(char* app);
-uint32_t get_window_id_from_cg_event(CGEventRef cgevent);

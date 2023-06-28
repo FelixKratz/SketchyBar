@@ -6,8 +6,6 @@
 
 struct event_loop;
 
-extern uint32_t get_window_id_from_cg_event(CGEventRef cgevent);
-
 #define EVENT_CALLBACK(name) uint32_t name(void *context)
 typedef EVENT_CALLBACK(event_callback);
 

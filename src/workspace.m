@@ -43,15 +43,6 @@ int workspace_display_notch_height(uint32_t did)
   return height;
 }
 
-uint32_t get_window_id_from_cg_event(CGEventRef cgevent) {
-  uint32_t wid;
-  @autoreleasepool {
-    NSEvent *nsEvent = [NSEvent eventWithCGEvent:cgevent];
-    wid = [nsEvent windowNumber];
-  }
-  return wid;
-}
-
 void forced_front_app_event() {
   @autoreleasepool {
     NSString* name = [[[NSWorkspace sharedWorkspace] frontmostApplication] localizedName];

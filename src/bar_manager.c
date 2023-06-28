@@ -782,7 +782,7 @@ void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
-  if (!bar_item || bar_item->mouse_over) return;
+  if (!bar_item) return;
   bar_item_mouse_entered(bar_item);
 }
 
