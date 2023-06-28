@@ -167,11 +167,6 @@ static inline void init_misc_settings(void) {
 
   snprintf(g_lock_file, sizeof(g_lock_file), LCFILE_PATH_FMT, g_name, user);
 
-  if (__builtin_available(macOS 13.0, *)) {
-  } else {
-    NSApplicationLoad();
-  }
-
   signal(SIGCHLD, SIG_IGN);
   signal(SIGPIPE, SIG_IGN);
   CGSetLocalEventsSuppressionInterval(0.0f);

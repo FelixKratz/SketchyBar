@@ -1,6 +1,13 @@
 #include "workspace.h"
 #include "misc/helpers.h"
 
+#include <AppKit/AppKit.h>
+@interface workspace_context : NSObject {
+}
+- (id)init;
+- (void)addCustomObserver:(NSString *)name;
+@end
+
 extern struct event_loop g_event_loop;
 
 void workspace_event_handler_init(void **context) {

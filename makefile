@@ -1,8 +1,13 @@
 CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
-LIBS     = -framework Carbon -framework Cocoa -framework CoreAudio \
-           -framework CoreWLAN -framework IOKit \
+LIBS     = -framework Carbon \
+	   -framework AppKit \
+           -framework CoreAudio \
+           -framework CoreWLAN \
+	   -framework IOKit \
 	   -F/System/Library/PrivateFrameworks \
-	   -framework SkyLight -framework DisplayServices -framework MediaRemote
+	   -framework SkyLight \
+	   -framework DisplayServices \
+	   -framework MediaRemote
 ODIR     = bin
 SRC      = src
 
@@ -44,7 +49,7 @@ asan: CFLAGS=-std=c99 -Wall -g -fsanitize=address -fsanitize=undefined -fno-omit
 asan: clean arm64
 	./bin/sketchybar
 
-$(ODIR)/sketchybar: $(SRC)/sketchybar.m $(OBJ) | $(ODIR)
+$(ODIR)/sketchybar: $(SRC)/sketchybar.c $(OBJ) | $(ODIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 $(ODIR)/%.o: $(SRC)/%.c $(SRC)/%.h | $(ODIR)
