@@ -14,7 +14,9 @@ SRC      = src
 _OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
        image.o mouse.o shadow.o font.o text.o message.o mouse.o bar.o color.o \
        window.o bar_manager.o display.o event_loop.o group.o mach.o popup.o \
-       animation.o workspace.om volume.o slider.o power.o wifi.om media.om
+       animation.o workspace.om volume.o slider.o power.o wifi.om media.om \
+			 hotload.o
+
 OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 .PHONY: all clean arm x86 profile leak universal

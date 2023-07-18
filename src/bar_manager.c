@@ -23,6 +23,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->bar_needs_update = false;
   bar_manager->bars = NULL;
   bar_manager->bar_count = 0;
+  bar_manager->bar_items = NULL;
   bar_manager->bar_item_count = 0;
   bar_manager->displays = DISPLAY_ALL_PATTERN;
   bar_manager->position = POSITION_TOP;
@@ -169,7 +170,7 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
            sizeof(struct bar_item*)*bar_manager->bar_item_count);
   }
 
-  bar_item_destroy(bar_item);
+  bar_item_destroy(bar_item, true);
 }
 
 bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {
@@ -991,17 +992,27 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, struct not
 }
 
 void bar_manager_destroy(struct bar_manager* bar_manager) {
+  animator_destroy(&bar_manager->animator);
+
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_item_destroy(bar_manager->bar_items[i]);
+    bar_item_destroy(bar_manager->bar_items[i], true);
   }
   if (bar_manager->bar_items) free(bar_manager->bar_items);
   for (int i = 0; i < bar_manager->bar_count; i++) {
     bar_destroy(bar_manager->bars[i]);
   }
+
+  bar_item_destroy(&bar_manager->default_item, false);
   custom_events_destroy(&bar_manager->custom_events);
   background_destroy(&bar_manager->background);
 
   if (bar_manager->bars) free(bar_manager->bars);
+  CFRunLoopRemoveTimer(CFRunLoopGetMain(),
+                       bar_manager->clock,
+                       kCFRunLoopCommonModes);
+
+  CFRunLoopTimerInvalidate(bar_manager->clock);
+  CFRelease(bar_manager->clock);
 }
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {

@@ -760,7 +760,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   }
 }
 
-void bar_item_destroy(struct bar_item* bar_item) {
+void bar_item_destroy(struct bar_item* bar_item, bool free_memory) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script) free(bar_item->script);
   if (bar_item->click_script) free(bar_item->click_script);
@@ -786,7 +786,7 @@ void bar_item_destroy(struct bar_item* bar_item) {
   }
   if (bar_item->windows) free(bar_item->windows);
 
-  free(bar_item);
+  if (free_memory) free(bar_item);
 }
 
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {

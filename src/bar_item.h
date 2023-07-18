@@ -99,7 +99,7 @@ struct bar_item* bar_item_create();
 void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ancestor);
 void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item);
 void bar_item_serialize(struct bar_item* bar_item, FILE* rsp);
-void bar_item_destroy(struct bar_item* bar_item);
+void bar_item_destroy(struct bar_item* bar_item, bool free_memory);
 
 bool bar_item_is_shown(struct bar_item* bar_item);
 void bar_item_needs_update(struct bar_item* bar_item);

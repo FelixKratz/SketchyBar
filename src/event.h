@@ -33,6 +33,7 @@ EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_POWER_SOURCE_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_MEDIA_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION);
+EVENT_CALLBACK(EVENT_HANDLER_HOTLOAD);
 
 #define EVENT_QUEUED     0x0
 #define EVENT_PROCESSED  0x1
@@ -70,6 +71,7 @@ enum event_type {
     POWER_SOURCE_CHANGED,
     MEDIA_CHANGED,
     DISTRIBUTED_NOTIFICATION,
+    HOTLOAD,
 
     EVENT_TYPE_COUNT
 };
@@ -101,6 +103,7 @@ static const char *event_type_str[] = {
     [POWER_SOURCE_CHANGED]           = "power_source_changed",
     [MEDIA_CHANGED]                  = "media_changed",
     [DISTRIBUTED_NOTIFICATION]       = "distributed_notification",
+    [HOTLOAD]                        = "hotload",
 
     [EVENT_TYPE_COUNT]               = "event_type_count"
 };
@@ -131,6 +134,7 @@ static event_callback *event_handler[] = {
     [SHELL_REFRESH]                  = EVENT_HANDLER_SHELL_REFRESH,
     [ANIMATOR_REFRESH]               = EVENT_HANDLER_ANIMATOR_REFRESH,
     [MACH_MESSAGE]                   = EVENT_HANDLER_MACH_MESSAGE,
+    [HOTLOAD]                        = EVENT_HANDLER_HOTLOAD,
 };
 
 struct event {

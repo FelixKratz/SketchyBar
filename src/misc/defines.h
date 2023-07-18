@@ -30,6 +30,8 @@
 
 #define DOMAIN_EXIT                            "--exit"
 
+#define DOMAIN_HOTLOAD                         "--hotload"
+
 #define SUB_DOMAIN_ICON                        "icon"
 #define SUB_DOMAIN_LABEL                       "label"
 #define SUB_DOMAIN_BACKGROUND                  "background"

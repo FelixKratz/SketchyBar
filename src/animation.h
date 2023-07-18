@@ -120,3 +120,4 @@ bool animator_cancel(struct animator* animator, void* target, animator_function*
 void animator_cancel_locked(struct animator* animator, void* target, animator_function* function);
 bool animator_update(struct animator* animator);
 void animator_lock(struct animator* animator);
+void animator_destroy(struct animator* animator);

@@ -17,6 +17,7 @@ void custom_event_destroy(struct custom_event* custom_event) {
 
 void custom_events_init(struct custom_events* custom_events) {
   custom_events->count = 0;
+  custom_events->events = NULL;
 
   // System Events
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED), NULL);

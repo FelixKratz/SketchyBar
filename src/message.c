@@ -1,5 +1,6 @@
 #include "message.h"
 #include "misc/defines.h"
+#include "hotload.h"
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -696,6 +697,9 @@ void handle_message_mach(struct mach_buffer* buffer) {
     } else if (token_equals(command, DOMAIN_EXIT)) {
       bar_manager_destroy(&g_bar_manager);
       exit(0);
+    } else if (token_equals(command, DOMAIN_HOTLOAD)) {
+      struct token token = get_token(&message);
+      hotload_set_state(evaluate_boolean_state(token, hotload_get_state()));
     } else {
       char* rbr_msg = get_batch_line(&message);
       respond(rsp, "[!] Unknown domain '%s'\n", command.text);

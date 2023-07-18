@@ -1,5 +1,6 @@
 #include "event.h"
 #include "event_loop.h"
+#include "hotload.h"
 
 extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
@@ -386,5 +387,13 @@ EVENT_CALLBACK(EVENT_HANDLER_POWER_SOURCE_CHANGED) {
 EVENT_CALLBACK(EVENT_HANDLER_MEDIA_CHANGED) {
   bar_manager_handle_media_change(&g_bar_manager, (char*)context);
   free(context);
+  return EVENT_SUCCESS;
+}
+
+EVENT_CALLBACK(EVENT_HANDLER_HOTLOAD) {
+  bar_manager_destroy(&g_bar_manager);
+  bar_manager_init(&g_bar_manager);
+  bar_manager_begin(&g_bar_manager);
+  exec_config_file();
   return EVENT_SUCCESS;
 }

@@ -7,22 +7,23 @@
 #include "power.h"
 #include "wifi.h"
 #include "misc/help.h"
-#include <libgen.h>
 #include "media.h"
+#include "hotload.h"
+#include <libgen.h>
 
-#define LCFILE_PATH_FMT         "/tmp/%s_%s.lock"
+#define LCFILE_PATH_FMT  "/tmp/%s_%s.lock"
 
-#define CLIENT_OPT_LONG         "--message"
-#define CLIENT_OPT_SHRT         "-m"
+#define CLIENT_OPT_LONG  "--message"
+#define CLIENT_OPT_SHRT  "-m"
 
-#define VERSION_OPT_LONG        "--version"
-#define VERSION_OPT_SHRT        "-v"
+#define VERSION_OPT_LONG "--version"
+#define VERSION_OPT_SHRT "-v"
 
-#define CONFIG_OPT_LONG         "--config"
-#define CONFIG_OPT_SHRT         "-c"
+#define CONFIG_OPT_LONG  "--config"
+#define CONFIG_OPT_SHRT  "-c"
 
-#define HELP_OPT_LONG           "--help"
-#define HELP_OPT_SHRT           "-h"
+#define HELP_OPT_LONG    "--help"
+#define HELP_OPT_SHRT    "-h"
 
 #define MAJOR 2
 #define MINOR 15
@@ -112,48 +113,6 @@ static void acquire_lockfile(void) {
 
   if (fcntl(handle, F_SETLK, &lockfd) == -1) {
     error("%s: could not acquire lock-file... already running?\n", g_name);
-  }
-}
-
-static bool get_config_file(char *restrict filename, char *restrict buffer, int buffer_size) {
-  char *xdg_home = getenv("XDG_CONFIG_HOME");
-  if (xdg_home && *xdg_home) {
-    snprintf(buffer, buffer_size, "%s/%s/%s", xdg_home, g_name, filename);
-    if (file_exists(buffer)) return true;
-  }
-
-  char *home = getenv("HOME");
-  if (!home) return false;
-
-  snprintf(buffer, buffer_size, "%s/.config/%s/%s", home, g_name, filename);
-  if (file_exists(buffer)) return true;
-
-  snprintf(buffer, buffer_size, "%s/.%s", home, filename);
-  return file_exists(buffer);
-}
-
-static void exec_config_file(void) {
-  if (!*g_config_file
-    && !get_config_file("sketchybarrc", g_config_file, sizeof(g_config_file))) {
-    printf("could not locate config file..\n");
-    return;
-  }
-
-  if (!file_exists(g_config_file)) {
-    printf("file '%s' does not exist..\n", g_config_file);
-    return;
-  }
-
-  setenv("CONFIG_DIR", dirname(g_config_file), 1);
-
-  if (!ensure_executable_permission(g_config_file)) {
-    printf("could not set the executable permission bit for '%s'\n", g_config_file);
-    return;
-  }
-
-  if (!fork_exec(g_config_file, NULL)) {
-    printf("failed to execute file '%s'\n", g_config_file);
-    return;
   }
 }
 
@@ -258,6 +217,8 @@ int main(int argc, char **argv) {
   initialize_media_events();
 
   exec_config_file();
+
+  begin_receiving_config_change_events();
   RunApplicationEventLoop();
   return 0;
 }

@@ -245,3 +245,18 @@ bool animator_update(struct animator* animator) {
 
   return needs_refresh;
 }
+
+void animator_destroy(struct animator* animator) {
+  if (animator->animation_count > 0) {
+    CFRunLoopRemoveTimer(CFRunLoopGetMain(),
+                         animator->clock,
+                         kCFRunLoopCommonModes);
+    CFRelease(animator->clock);
+
+    for (int i = 0; i < animator->animation_count; i++) {
+      animation_destroy(animator->animations[i]);
+    }
+  }
+
+  if (animator->animations) free(animator->animations);
+}
