@@ -1,7 +1,6 @@
 #include "bar.h"
 #include "bar_manager.h"
 #include "event.h"
-#include "event_loop.h"
 #include "display.h"
 #include "misc/helpers.h"
 #include "window.h"

@@ -1,7 +1,6 @@
 #include "display.h"
 
 extern int workspace_display_notch_height(uint32_t did);
-extern struct event_loop g_event_loop;
 extern int g_connection;
 extern bool g_brightness_events;
 
@@ -13,11 +12,8 @@ static void brightness_handler(void* notification_center, uint32_t did, void* na
   DisplayServicesGetBrightness(did, brightness);
   if (g_last_brightness < *brightness - 1e-2 || g_last_brightness > *brightness + 1e-2) {
     g_last_brightness = *brightness;
-    struct event *event = event_create(&g_event_loop,
-                                       BRIGHTNESS_CHANGED,
-                                       (void *) brightness);
-
-    event_loop_post(&g_event_loop, event);
+    struct event event = { (void*) brightness, 0, BRIGHTNESS_CHANGED };
+    event_post(&event);
   } else {
     free(brightness);
   }
@@ -25,33 +21,23 @@ static void brightness_handler(void* notification_center, uint32_t did, void* na
 
 static DISPLAY_EVENT_HANDLER(display_handler) {
     if (flags & kCGDisplayAddFlag) {
-        struct event *event = event_create(&g_event_loop,
-                                           DISPLAY_ADDED,
-                                           (void *)(intptr_t) did);
+        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_ADDED };
+        event_post(&event);
 
-        event_loop_post(&g_event_loop, event);
         if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
           DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
     } else if (flags & kCGDisplayRemoveFlag) {
-        struct event *event = event_create(&g_event_loop,
-                                           DISPLAY_REMOVED,
-                                           (void *)(intptr_t) did);
+        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_REMOVED };
+        event_post(&event);
 
-        event_loop_post(&g_event_loop, event);
         if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
           DisplayServicesUnregisterForBrightnessChangeNotifications(did, did);
     } else if (flags & kCGDisplayMovedFlag) {
-        struct event *event = event_create(&g_event_loop,
-                                           DISPLAY_MOVED,
-                                           (void *)(intptr_t) did);
-
-        event_loop_post(&g_event_loop, event);
+        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_MOVED };
+        event_post(&event);
     } else if (flags & kCGDisplayDesktopShapeChangedFlag) {
-        struct event *event = event_create(&g_event_loop,
-                                           DISPLAY_RESIZED,
-                                           (void *)(intptr_t) did);
-
-        event_loop_post(&g_event_loop, event);
+        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_RESIZED };
+        event_post(&event);
     }
 }
 

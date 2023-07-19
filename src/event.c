@@ -1,8 +1,6 @@
 #include "event.h"
-#include "event_loop.h"
 #include "hotload.h"
 
-extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 extern int g_connection;
 
@@ -13,12 +11,9 @@ enum event_type event_type_from_string(const char *str) {
     return EVENT_TYPE_UNKNOWN;
 }
 
-struct event *event_create(struct event_loop *event_loop, enum event_type type, void *context) {
-    struct event *event = memory_pool_push(&event_loop->pool, struct event);
-    event->type = type;
-    event->context = context;
-    event->info = 0;
-    return event;
+void event_post(struct event *event) {
+  event_handler[event->type](event->context);
+  windows_unfreeze();
 }
 
 EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {

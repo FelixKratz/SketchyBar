@@ -1,6 +1,5 @@
 #include "bar_manager.h"
 #include "workspace.h"
-#include "event_loop.h"
 #include "mach.h"
 #include "mouse.h"
 #include "message.h"
@@ -37,7 +36,6 @@ int g_connection;
 CFTypeRef g_transaction;
 
 struct bar_manager g_bar_manager;
-struct event_loop g_event_loop;
 struct mach_server g_mach_server;
 void *g_workspace_context;
 
@@ -182,9 +180,6 @@ int main(int argc, char **argv) {
   init_misc_settings();
   acquire_lockfile();
 
-  if (!event_loop_init(&g_event_loop))
-    error("%s: could not initialize event_loop! abort..\n", g_name);
-
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
   SLSRegisterNotifyProc((void*)system_events, 905, NULL);
   SLSRegisterNotifyProc((void*)system_events, 1401, NULL);
@@ -194,7 +189,6 @@ int main(int argc, char **argv) {
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);
 
-  event_loop_begin(&g_event_loop);
   mouse_begin();
   display_begin();
   workspace_event_handler_begin(&g_workspace_context);

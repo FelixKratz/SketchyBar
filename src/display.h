@@ -1,6 +1,5 @@
 #pragma once
 #include "event.h"
-#include "event_loop.h"
 #include "misc/helpers.h"
 
 #define DISPLAY_EVENT_HANDLER(name) void name(uint32_t did, CGDisplayChangeSummaryFlags flags, void *context)

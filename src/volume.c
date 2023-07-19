@@ -83,11 +83,8 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
 
   if (*volume > g_last_volume + 1e-2 || *volume < g_last_volume - 1e-2) {
     g_last_volume = *volume;
-    struct event *event = event_create(&g_event_loop,
-                                       VOLUME_CHANGED,
-                                       (void *) volume);
-
-    event_loop_post(&g_event_loop, event);
+    struct event event = { (void*) volume, 0, VOLUME_CHANGED };
+    event_post(&event);
   } else {
     free(volume);
   }

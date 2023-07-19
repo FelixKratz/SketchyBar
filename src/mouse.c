@@ -1,8 +1,6 @@
 #include <Carbon/Carbon.h>
 #include "mouse.h"
 
-extern struct event_loop g_event_loop;
-
 static const EventTypeSpec mouse_events [] = {
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
@@ -16,41 +14,47 @@ static const EventTypeSpec mouse_events [] = {
 static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void *data) {
   switch (GetEventKind(e)) {
     case kEventMouseUp: {
-      struct event *event = event_create(&g_event_loop,
-                                         MOUSE_UP,
-                                         (void *) CFRetain(CopyEventCGEvent(e)));
+      struct event event = { (void *) CopyEventCGEvent(e),
+                              0,
+                              MOUSE_UP                    };
 
-      event_loop_post(&g_event_loop, event);
+      event_post(&event);
       break;
     }
     case kEventMouseDragged: {
-      struct event *event = event_create(&g_event_loop,
-                                         MOUSE_DRAGGED,
-                                         (void *) CFRetain(CopyEventCGEvent(e)));
+      CGEventRef cg_event = CopyEventCGEvent(e);
+      struct event event = { (void *) cg_event,
+                              0,
+                              MOUSE_DRAGGED    };
 
-      event_loop_post(&g_event_loop, event);
+      event_post(&event);
       break;
     }
     case kEventMouseEntered: {
-      struct event *event = event_create(&g_event_loop,
-                                         MOUSE_ENTERED,
-                                         (void *) CFRetain(CopyEventCGEvent(e)));
+      CGEventRef cg_event = CopyEventCGEvent(e);
+      struct event event = { (void *) cg_event,
+                              0,
+                              MOUSE_ENTERED    };
 
-      event_loop_post(&g_event_loop, event); 
+      event_post(&event); 
       break;
     }
     case kEventMouseExited: {
-      struct event *event = event_create(&g_event_loop,
-                                         MOUSE_EXITED,
-                                         (void *) CFRetain(CopyEventCGEvent(e)));
-      event_loop_post(&g_event_loop, event); 
+      CGEventRef cg_event = CopyEventCGEvent(e);
+      struct event event = { (void *) cg_event,
+                              0,
+                              MOUSE_EXITED     };
+
+      event_post(&event); 
       break;
     }
     case kEventMouseWheelMoved: {
-      struct event *event = event_create(&g_event_loop,
-                                         MOUSE_SCROLLED,
-                                         (void *) CFRetain(CopyEventCGEvent(e)));
-      event_loop_post(&g_event_loop, event);
+      CGEventRef cg_event = CopyEventCGEvent(e);
+      struct event event = { (void *) cg_event,
+                              0,
+                              MOUSE_SCROLLED   };
+
+      event_post(&event);
       break;
     }
     default:

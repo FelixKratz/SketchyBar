@@ -4,8 +4,6 @@
 #include "bar_manager.h"
 #include "message.h"
 
-struct event_loop;
-
 #define EVENT_CALLBACK(name) uint32_t name(void *context)
 typedef EVENT_CALLBACK(event_callback);
 
@@ -35,15 +33,8 @@ EVENT_CALLBACK(EVENT_HANDLER_MEDIA_CHANGED);
 EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION);
 EVENT_CALLBACK(EVENT_HANDLER_HOTLOAD);
 
-#define EVENT_QUEUED     0x0
-#define EVENT_PROCESSED  0x1
-
 #define EVENT_SUCCESS      0x0
 #define EVENT_FAILURE      0x1
-#define EVENT_MOUSE_IGNORE 0x2
-
-#define event_status(e) ((e)  & 0x1)
-#define event_result(e) ((e) >> 0x1)
 
 enum event_type {
     EVENT_TYPE_UNKNOWN,
@@ -138,11 +129,10 @@ static event_callback *event_handler[] = {
 };
 
 struct event {
-    void *context;
-    volatile uint32_t *info;
-    enum event_type type;
+  void* context;
+  volatile uint32_t* info;
+  enum event_type type;
 };
 
-struct event *event_create(struct event_loop *event_loop, enum event_type type, void *context);
-void event_destroy(struct event_loop *event_loop, struct event *event);
 enum event_type event_type_from_string(const char *str);
+void event_post(struct event *event);

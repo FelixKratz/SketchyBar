@@ -1,19 +1,17 @@
 #include "bar_manager.h"
 #include "bar_item.h"
 #include "event.h"
-#include "event_loop.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "wifi.h"
 #include "volume.h"
 #include "power.h"
 
-extern struct event_loop g_event_loop;
 extern void forced_front_app_event();
 
 static CLOCK_CALLBACK(clock_handler) {
-  struct event *event = event_create(&g_event_loop, SHELL_REFRESH, NULL);
-  event_loop_post(&g_event_loop, event);
+  struct event event = { NULL, 0, SHELL_REFRESH };
+  event_post(&event);
 }
 
 void bar_manager_init(struct bar_manager* bar_manager) {

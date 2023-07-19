@@ -8,8 +8,6 @@
 - (void)addCustomObserver:(NSString *)name;
 @end
 
-extern struct event_loop g_event_loop;
-
 void workspace_event_handler_init(void **context) {
     workspace_context *ws_context = [workspace_context alloc];
     *context = ws_context;
@@ -54,8 +52,11 @@ void forced_front_app_event() {
   @autoreleasepool {
     NSString* name = [[[NSWorkspace sharedWorkspace] frontmostApplication] localizedName];
     const char* front_app = [name cStringUsingEncoding:NSUTF8StringEncoding];
-    struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, string_copy((char*)front_app));
-    event_loop_post(&g_event_loop, event);
+
+    struct event event = { string_copy((char*)front_app),
+                           0,
+                           APPLICATION_FRONT_SWITCHED    };
+    event_post(&event);
   }
 }
 
@@ -129,19 +130,19 @@ CGImageRef workspace_icon_for_app(char* app) {
       }
     }
 
-    struct event *event = event_create(&g_event_loop, DISTRIBUTED_NOTIFICATION, notification);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { notification, 0, DISTRIBUTED_NOTIFICATION };
+    event_post(&event);
   }
 }
 
 - (void)willSleep:(NSNotification *)notification {
-    struct event *event = event_create(&g_event_loop, SYSTEM_WILL_SLEEP, NULL);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { NULL, 0, SYSTEM_WILL_SLEEP };
+    event_post(&event);
 }
 
 - (void)didWake:(NSNotification *)notification {
-    struct event *event = event_create(&g_event_loop, SYSTEM_WOKE, NULL);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { NULL, 0, SYSTEM_WOKE };
+    event_post(&event);
 }
 
 - (void)appSwitched:(NSNotification *)notification {
@@ -151,24 +152,24 @@ CGImageRef workspace_icon_for_app(char* app) {
         NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
         if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
       }
-      struct event *event = event_create(&g_event_loop, APPLICATION_FRONT_SWITCHED, name);
-      event_loop_post(&g_event_loop, event);
+      struct event event = { name, 0, APPLICATION_FRONT_SWITCHED };
+      event_post(&event);
     }
 }
 
 - (void)didChangeMenuBarHiding:(NSNotification *)notification {
-    struct event *event = event_create(&g_event_loop, MENU_BAR_HIDDEN_CHANGED, NULL);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { NULL, 0, MENU_BAR_HIDDEN_CHANGED };
+    event_post(&event);
 }
 
 - (void)activeDisplayDidChange:(NSNotification *)notification {
-    struct event *event = event_create(&g_event_loop, DISPLAY_CHANGED, NULL);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { NULL, 0, DISPLAY_CHANGED };
+    event_post(&event);
 }
 
 - (void)activeSpaceDidChange:(NSNotification *)notification {
-    struct event *event = event_create(&g_event_loop, SPACE_CHANGED, NULL);
-    event_loop_post(&g_event_loop, event);
+    struct event event = { NULL, 0, SPACE_CHANGED };
+    event_post(&event);
 }
 
 @end

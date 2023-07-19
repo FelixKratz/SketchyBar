@@ -1,6 +1,5 @@
 #pragma once
 #include "event.h"
-#include "event_loop.h"
 
 void workspace_create_custom_observer (void **context, char* notification);
 void workspace_event_handler_init(void **context);

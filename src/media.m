@@ -1,7 +1,4 @@
 #include "event.h"
-#include "event_loop.h"
-
-extern struct event_loop g_event_loop;
 
 extern void MRMediaRemoteRegisterForNowPlayingNotifications(dispatch_queue_t queue);
 extern void MRMediaRemoteGetNowPlayingInfo(dispatch_queue_t queue, void (^block)(NSDictionary* dict));
@@ -80,10 +77,8 @@ bool g_media_events = false;
         char* payload_info = malloc(info_len);
         memcpy(payload_info, info, info_len);
 
-        struct event *event = event_create(&g_event_loop,
-                                           MEDIA_CHANGED,
-                                           payload_info  );
-        event_loop_post(&g_event_loop, event);
+        struct event event = { payload_info, 0, MEDIA_CHANGED };
+        event_post(&event);
       }
     }
   }

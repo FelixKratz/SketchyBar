@@ -2,7 +2,6 @@
 #include "misc/defines.h"
 #include "hotload.h"
 
-extern struct event_loop g_event_loop;
 extern struct bar_manager g_bar_manager;
 
 static struct bar_item** get_bar_items_for_regex(struct token reg, FILE* rsp, uint32_t* count) {
@@ -714,8 +713,8 @@ void handle_message_mach(struct mach_buffer* buffer) {
       free(rbr_msg);
 
       if (reload) {
-        struct event *event = event_create(&g_event_loop, HOTLOAD, NULL);
-        event_loop_post(&g_event_loop, event); 
+        struct event event = { NULL, 0, HOTLOAD };
+        event_post(&event); 
       }
     } else {
       char* rbr_msg = get_batch_line(&message);
@@ -745,6 +744,6 @@ void handle_message_mach(struct mach_buffer* buffer) {
 }
 
 MACH_HANDLER(mach_message_handler) {
-  struct event *event = event_create(&g_event_loop, MACH_MESSAGE, message);
-  event_loop_post(&g_event_loop, event);
+  struct event event = { message, 0, MACH_MESSAGE };
+  event_post(&event);
 }

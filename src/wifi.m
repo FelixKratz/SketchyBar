@@ -2,7 +2,6 @@
 #include <SystemConfiguration/SystemConfiguration.h>
 #include "wifi.h"
 #include "event.h"
-#include "event_loop.h"
 
 char* g_current_ssid = NULL;
 void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
@@ -16,11 +15,8 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
       if (g_current_ssid) free(g_current_ssid);
       g_current_ssid = string_copy(ssid);
 
-      struct event *event = event_create(&g_event_loop,
-                                         WIFI_CHANGED,
-                                         (void *) ssid );
-
-      event_loop_post(&g_event_loop, event);
+      struct event event = { (void*) ssid, 0, WIFI_CHANGED };
+      event_post(&event);
     } else {
       free(ssid);
     }

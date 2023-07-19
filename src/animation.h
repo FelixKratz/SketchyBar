@@ -100,8 +100,6 @@ struct animation {
 struct animation* animation_create();
 void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function);
 
-extern struct event_loop g_event_loop;
-
 #define ANIMATOR_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef ANIMATOR_CALLBACK(animator_callback);
 

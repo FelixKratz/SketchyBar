@@ -1,6 +1,5 @@
 #include "bar_item.h"
 #include "bar_manager.h"
-#include "event_loop.h"
 #include "event.h"
 #include "volume.h"
 #include "power.h"

@@ -10,7 +10,6 @@
 #include "slider.h"
 #include "mach.h"
 #include "event.h"
-#include "event_loop.h"
 #include "misc/helpers.h"
 #include "misc/defines.h"
 

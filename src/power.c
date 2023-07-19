@@ -12,22 +12,17 @@ void power_handler(void* context) {
       g_power_source = POWER_AC;
       char* source = malloc(sizeof(char)*8);
       snprintf(source, 8, "AC");
-      struct event *event = event_create(&g_event_loop,
-                                         POWER_SOURCE_CHANGED,
-                                         (void *) source);
-
-      event_loop_post(&g_event_loop, event);
+      struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };
+      event_post(&event);
     }
   } else if (CFStringCompare(type, POWER_BATTERY_KEY, 0) == 0) {
     if (g_power_source != POWER_BATTERY) {
       g_power_source = POWER_BATTERY;
       char* source = malloc(sizeof(char)*8);
       snprintf(source, 8, "BATTERY");
-      struct event *event = event_create(&g_event_loop,
-                                         POWER_SOURCE_CHANGED,
-                                         (void *) source);
 
-      event_loop_post(&g_event_loop, event);
+      struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };
+      event_post(&event);
     }
   }
   CFRelease(info);

@@ -2,8 +2,8 @@
 #include "event.h"
  
 static ANIMATOR_CALLBACK(animator_handler) {
-  struct event *event = event_create(&g_event_loop, ANIMATOR_REFRESH, NULL);
-  event_loop_post(&g_event_loop, event);
+  struct event event = { NULL, 0, ANIMATOR_REFRESH };
+  event_post(&event);
 }
 
 struct animation* animation_create() {
