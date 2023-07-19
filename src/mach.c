@@ -1,6 +1,7 @@
 #include "mach.h"
 #include <mach/message.h>
 #include <stdint.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 mach_port_t mach_get_bs_port(char* bs_name) {
   mach_port_name_t task = mach_task_self();
@@ -27,19 +28,20 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
   mach_msg_return_t msg_return;
   if (timeout)
     msg_return = mach_msg(&buffer->message.header,
-                                             MACH_RCV_MSG | MACH_RCV_TIMEOUT,
-                                             0,
-                                             sizeof(struct mach_buffer),
-                                             port,
-                                             100,
-                                             MACH_PORT_NULL                  );
+                          MACH_RCV_MSG | MACH_RCV_TIMEOUT,
+                          0,
+                          sizeof(struct mach_buffer),
+                          port,
+                          100,
+                          MACH_PORT_NULL                  );
   else 
-    msg_return = mach_msg(&buffer->message.header, MACH_RCV_MSG,
-                                                   0,
-                                                   sizeof(struct mach_buffer),
-                                                   port,
-                                                   MACH_MSG_TIMEOUT_NONE,
-                                                   MACH_PORT_NULL            );
+    msg_return = mach_msg(&buffer->message.header,
+                          MACH_RCV_MSG,
+                          0,
+                          sizeof(struct mach_buffer),
+                          port,
+                          MACH_MSG_TIMEOUT_NONE,
+                          MACH_PORT_NULL            );
 
   if (msg_return != MACH_MSG_SUCCESS) {
     buffer->message.descriptor.address = NULL;
@@ -111,15 +113,11 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   return NULL;
 }
 
-static void* mach_connection_handler(void *context) {
-  struct mach_server* server = context;
-  while (server->is_running) {
-    struct mach_buffer* buffer = malloc(sizeof(struct mach_buffer));
-    mach_receive_message(server->port, buffer, false);
-    server->handler(buffer);
-  }
-
-  return NULL;
+void mach_message_callback(CFMachPortRef port, void* message, CFIndex size, void* context) {
+  struct mach_server* mach_server = context;
+  struct mach_buffer* buffer = malloc(sizeof(struct mach_buffer));
+  buffer->message = *(struct mach_message*)message;
+  mach_server->handler(buffer);
 }
 
 #pragma clang diagnostic push
@@ -158,9 +156,22 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
 
   mach_server->handler = handler;
   mach_server->is_running = true;
-  pthread_create(&mach_server->thread, NULL, &mach_connection_handler,
-                                             mach_server              );
 
+  CFMachPortContext context = {0, (void*)mach_server};
+
+  CFMachPortRef cf_mach_port = CFMachPortCreateWithPort(NULL,
+                                                        mach_server->port,
+                                                        mach_message_callback,
+                                                        &context,
+                                                        false                );
+
+  CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(NULL,
+                                                            cf_mach_port,
+                                                            0            );
+
+  CFRunLoopAddSource(CFRunLoopGetMain(), source, kCFRunLoopDefaultMode);
+  CFRelease(source);
+  CFRelease(cf_mach_port);
   return true;
 }
 #pragma clang diagnostic pop
