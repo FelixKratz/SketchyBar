@@ -12,7 +12,7 @@ void power_handler(void* context) {
       g_power_source = POWER_AC;
       char source[8];
       snprintf(source, 8, "AC");
-      struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };
+      struct event event = { (void*) source, POWER_SOURCE_CHANGED };
       event_post(&event);
     }
   } else if (CFStringCompare(type, POWER_BATTERY_KEY, 0) == 0) {
@@ -21,7 +21,7 @@ void power_handler(void* context) {
       char source[8];
       snprintf(source, 8, "BATTERY");
 
-      struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };
+      struct event event = { (void*) source, POWER_SOURCE_CHANGED };
       event_post(&event);
     }
   }

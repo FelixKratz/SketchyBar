@@ -2,7 +2,7 @@
 #include "event.h"
  
 static ANIMATOR_CALLBACK(animator_handler) {
-  struct event event = { NULL, 0, ANIMATOR_REFRESH };
+  struct event event = { NULL, ANIMATOR_REFRESH };
   event_post(&event);
 }
 

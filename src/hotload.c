@@ -75,7 +75,7 @@ static void handler(ConstFSEventStreamRef stream,
              const FSEventStreamEventFlags* flags,
              const FSEventStreamEventId* ids) {
   if (g_hotload && count > 0) {
-    struct event event = { NULL, 0, HOTLOAD };
+    struct event event = { NULL, HOTLOAD };
     event_post(&event); 
   }
 }

@@ -40,7 +40,6 @@ enum event_type {
 
 struct event {
   void* context;
-  volatile uint32_t* info;
   enum event_type type;
 };
 

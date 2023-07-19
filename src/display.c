@@ -12,29 +12,29 @@ static void brightness_handler(void* notification_center, uint32_t did, void* na
   DisplayServicesGetBrightness(did, brightness);
   if (g_last_brightness < *brightness - 1e-2 || g_last_brightness > *brightness + 1e-2) {
     g_last_brightness = *brightness;
-    struct event event = { (void*) brightness, 0, BRIGHTNESS_CHANGED };
+    struct event event = { (void*) brightness, BRIGHTNESS_CHANGED };
     event_post(&event);
   }
 }
 
 static DISPLAY_EVENT_HANDLER(display_handler) {
     if (flags & kCGDisplayAddFlag) {
-        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_ADDED };
+        struct event event = { (void *)(intptr_t) did, DISPLAY_ADDED };
         event_post(&event);
 
         if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
           DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
     } else if (flags & kCGDisplayRemoveFlag) {
-        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_REMOVED };
+        struct event event = { (void *)(intptr_t) did, DISPLAY_REMOVED };
         event_post(&event);
 
         if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
           DisplayServicesUnregisterForBrightnessChangeNotifications(did, did);
     } else if (flags & kCGDisplayMovedFlag) {
-        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_MOVED };
+        struct event event = { (void *)(intptr_t) did, DISPLAY_MOVED };
         event_post(&event);
     } else if (flags & kCGDisplayDesktopShapeChangedFlag) {
-        struct event event = { (void *)(intptr_t) did, 0, DISPLAY_RESIZED };
+        struct event event = { (void *)(intptr_t) did, DISPLAY_RESIZED };
         event_post(&event);
     }
 }

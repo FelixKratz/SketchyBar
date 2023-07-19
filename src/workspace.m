@@ -54,7 +54,6 @@ void forced_front_app_event() {
     const char* front_app = [name cStringUsingEncoding:NSUTF8StringEncoding];
 
     struct event event = { string_copy((char*)front_app),
-                           0,
                            APPLICATION_FRONT_SWITCHED    };
     event_post(&event);
   }
@@ -130,18 +129,18 @@ CGImageRef workspace_icon_for_app(char* app) {
       }
     }
 
-    struct event event = { notification, 0, DISTRIBUTED_NOTIFICATION };
+    struct event event = { notification, DISTRIBUTED_NOTIFICATION };
     event_post(&event);
   }
 }
 
 - (void)willSleep:(NSNotification *)notification {
-    struct event event = { NULL, 0, SYSTEM_WILL_SLEEP };
+    struct event event = { NULL, SYSTEM_WILL_SLEEP };
     event_post(&event);
 }
 
 - (void)didWake:(NSNotification *)notification {
-    struct event event = { NULL, 0, SYSTEM_WOKE };
+    struct event event = { NULL, SYSTEM_WOKE };
     event_post(&event);
 }
 
@@ -152,23 +151,23 @@ CGImageRef workspace_icon_for_app(char* app) {
         NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
         if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
       }
-      struct event event = { name, 0, APPLICATION_FRONT_SWITCHED };
+      struct event event = { name, APPLICATION_FRONT_SWITCHED };
       event_post(&event);
     }
 }
 
 - (void)didChangeMenuBarHiding:(NSNotification *)notification {
-    struct event event = { NULL, 0, MENU_BAR_HIDDEN_CHANGED };
+    struct event event = { NULL, MENU_BAR_HIDDEN_CHANGED };
     event_post(&event);
 }
 
 - (void)activeDisplayDidChange:(NSNotification *)notification {
-    struct event event = { NULL, 0, DISPLAY_CHANGED };
+    struct event event = { NULL, DISPLAY_CHANGED };
     event_post(&event);
 }
 
 - (void)activeSpaceDidChange:(NSNotification *)notification {
-    struct event event = { NULL, 0, SPACE_CHANGED };
+    struct event event = { NULL, SPACE_CHANGED };
     event_post(&event);
 }
 

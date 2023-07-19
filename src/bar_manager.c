@@ -10,7 +10,7 @@
 extern void forced_front_app_event();
 
 static CLOCK_CALLBACK(clock_handler) {
-  struct event event = { NULL, 0, SHELL_REFRESH };
+  struct event event = { NULL, SHELL_REFRESH };
   event_post(&event);
 }
 

@@ -77,7 +77,7 @@ bool g_media_events = false;
         char payload_info[info_len];
         memcpy(payload_info, info, info_len);
 
-        struct event event = { payload_info, 0, MEDIA_CHANGED };
+        struct event event = { payload_info, MEDIA_CHANGED };
         event_post(&event);
       }
     }

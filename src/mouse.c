@@ -15,9 +15,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
   switch (GetEventKind(e)) {
     case kEventMouseUp: {
       CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event,
-                              0,
-                              MOUSE_UP         };
+      struct event event = { (void *) cg_event, MOUSE_UP };
 
       event_post(&event);
       CFRelease(cg_event);
@@ -25,9 +23,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
     }
     case kEventMouseDragged: {
       CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event,
-                              0,
-                              MOUSE_DRAGGED    };
+      struct event event = { (void *) cg_event, MOUSE_DRAGGED };
 
       event_post(&event);
       CFRelease(cg_event);
@@ -35,9 +31,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
     }
     case kEventMouseEntered: {
       CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event,
-                              0,
-                              MOUSE_ENTERED    };
+      struct event event = { (void *) cg_event, MOUSE_ENTERED };
 
       event_post(&event); 
       CFRelease(cg_event);
@@ -45,9 +39,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
     }
     case kEventMouseExited: {
       CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event,
-                              0,
-                              MOUSE_EXITED     };
+      struct event event = { (void *) cg_event, MOUSE_EXITED };
 
       event_post(&event); 
       CFRelease(cg_event);
@@ -55,9 +47,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
     }
     case kEventMouseWheelMoved: {
       CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event,
-                              0,
-                              MOUSE_SCROLLED   };
+      struct event event = { (void *) cg_event, MOUSE_SCROLLED };
 
       event_post(&event);
       CFRelease(cg_event);

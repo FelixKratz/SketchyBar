@@ -713,7 +713,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
       free(rbr_msg);
 
       if (reload) {
-        struct event event = { NULL, 0, HOTLOAD };
+        struct event event = { NULL, HOTLOAD };
         event_post(&event); 
       }
     } else {
@@ -744,6 +744,6 @@ void handle_message_mach(struct mach_buffer* buffer) {
 }
 
 MACH_HANDLER(mach_message_handler) {
-  struct event event = { message, 0, MACH_MESSAGE };
+  struct event event = { message, MACH_MESSAGE };
   event_post(&event);
 }

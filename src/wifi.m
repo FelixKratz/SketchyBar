@@ -15,7 +15,7 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
       if (g_current_ssid) free(g_current_ssid);
       g_current_ssid = string_copy(ssid);
 
-      struct event event = { (void*) ssid, 0, WIFI_CHANGED };
+      struct event event = { (void*) ssid, WIFI_CHANGED };
       event_post(&event);
     }
   }
