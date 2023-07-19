@@ -1,6 +1,5 @@
 #pragma once
 #include <mach/mach.h>
-#include "misc/memory_pool.h"
 #include "bar_manager.h"
 #include "message.h"
 
