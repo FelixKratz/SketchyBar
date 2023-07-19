@@ -4,97 +4,83 @@
 extern struct bar_manager g_bar_manager;
 extern int g_connection;
 
-enum event_type event_type_from_string(const char *str) {
-    for (int i = EVENT_TYPE_UNKNOWN + 1; i < EVENT_TYPE_COUNT; ++i) {
-        if (string_equals(str, event_type_str[i])) return i;
-    }
-    return EVENT_TYPE_UNKNOWN;
-}
-
-void event_post(struct event *event) {
-  event_handler[event->type](event->context);
-  windows_unfreeze();
-}
-
-EVENT_CALLBACK(EVENT_HANDLER_DISTRIBUTED_NOTIFICATION) {
+static uint32_t event_distributed_notification(void* context) {
     bar_manager_handle_notification(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_APPLICATION_FRONT_SWITCHED) {
+static uint32_t event_application_front_switched(void* context) {
     bar_manager_handle_front_app_switch(&g_bar_manager, context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_SPACE_CHANGED) {
+static uint32_t event_space_changed(void* context) {
     bar_manager_handle_space_change(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_CHANGED) {
+static uint32_t event_display_changed(void* context) {
     bar_manager_handle_display_change(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_ADDED) {
+static uint32_t event_display_added(void* context) {
     uint32_t did = (uint32_t)(intptr_t)context;
     bar_manager_display_added(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_REMOVED) {
+static uint32_t event_display_removed(void* context) {
     uint32_t did = (uint32_t)(intptr_t)context;
     bar_manager_display_removed(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_MOVED) {
+static uint32_t event_display_moved(void* context) {
     uint32_t did = (uint32_t)(intptr_t)context;
     bar_manager_display_moved(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_DISPLAY_RESIZED) {
+static uint32_t event_display_resized(void* context) {
     uint32_t did = (uint32_t)(intptr_t)context;
     bar_manager_display_resized(&g_bar_manager, did);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MENU_BAR_HIDDEN_CHANGED) {
+static uint32_t event_menu_bar_hidden_changed(void* context) {
     bar_manager_resize(&g_bar_manager);
     g_bar_manager.bar_needs_update = true;
     bar_manager_refresh(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WOKE) {
+static uint32_t event_system_woke(void* context) {
     bar_manager_handle_system_woke(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_SYSTEM_WILL_SLEEP) {
+static uint32_t event_system_will_sleep(void* context) {
     bar_manager_handle_system_will_sleep(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_SHELL_REFRESH) {
+static uint32_t event_shell_refresh(void* context) {
     bar_manager_update(&g_bar_manager, false);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_ANIMATOR_REFRESH) {
+static uint32_t event_animator_refresh(void* context) {
     bar_manager_animator_refresh(&g_bar_manager);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MACH_MESSAGE) {
-    if (context) handle_message_mach(context);
-    mach_msg_destroy(&((struct mach_buffer*) context)->message.header);
-    free(context);
+static uint32_t event_mach_message(void* context) {
+    handle_message_mach(context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
+static uint32_t event_mouse_up(void* context) {
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_wid_from_cg_event(context);
     CGEventType type = CGEventGetType(context);
@@ -109,7 +95,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
     struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
     if (!bar_item && !popup && !bar) {
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -132,11 +117,10 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_UP) {
     if (bar_item && bar_item->needs_update)
       bar_manager_refresh(&g_bar_manager, false);
 
-    CFRelease(context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
+static uint32_t event_mouse_dragged(void* context) {
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_wid_from_cg_event(context);
     uint32_t adid = display_arrangement(display_active_display_id());
@@ -146,7 +130,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
                                                             adid           );
 
     if (!bar_item || !bar_item->has_slider) {
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -165,11 +148,10 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_DRAGGED) {
     if (bar_item->needs_update)
       bar_manager_refresh(&g_bar_manager, false);
 
-    CFRelease(context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
+static uint32_t event_mouse_entered(void* context) {
     uint32_t wid = get_wid_from_cg_event(context);
     
     uint32_t adid = display_arrangement(display_active_display_id());
@@ -183,7 +165,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
         bar_manager_handle_mouse_entered_global(&g_bar_manager);
       }
       
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -196,7 +177,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
         bar_manager_handle_mouse_entered_global(&g_bar_manager);
       }
       
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
     struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
@@ -209,11 +189,10 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_ENTERED) {
     }
 
     bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
-    CFRelease(context);
     return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
+static uint32_t event_mouse_exited(void* context) {
     uint32_t adid = display_arrangement(display_active_display_id());
     uint32_t wid = get_wid_from_cg_event(context);
 
@@ -257,7 +236,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
         }
       }
       
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -272,7 +250,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_EXITED) {
       bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
     }
 
-    CFRelease(context);
     return EVENT_SUCCESS;
 }
 
@@ -283,7 +260,7 @@ struct {
 
 } g_scroll_info;
 
-EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
+static uint32_t event_mouse_scrolled(void* context) {
     CGPoint point = CGEventGetLocation(context);
     uint32_t wid = get_wid_from_cg_event(context);
     int scroll_delta
@@ -294,7 +271,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
     uint64_t event_time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
     if (g_scroll_info.timestamp + SCROLL_TIMEOUT > event_time) {
       g_scroll_info.delta_y += scroll_delta;
-      CFRelease(context);
       return EVENT_SUCCESS;
     } else {
       if (g_scroll_info.timestamp + 2*SCROLL_TIMEOUT < event_time)
@@ -316,7 +292,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
       }
 
       g_scroll_info.delta_y = 0;
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -332,7 +307,6 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
       }
 
       g_scroll_info.delta_y = 0;
-      CFRelease(context);
       return EVENT_SUCCESS;
     }
 
@@ -350,45 +324,75 @@ EVENT_CALLBACK(EVENT_HANDLER_MOUSE_SCROLLED) {
       bar_manager_refresh(&g_bar_manager, false);
 
     g_scroll_info.delta_y = 0;
-    CFRelease(context);
     return EVENT_SUCCESS;
 }
 
 
-EVENT_CALLBACK(EVENT_HANDLER_VOLUME_CHANGED) {
+static uint32_t event_volume_changed(void* context) {
   bar_manager_handle_volume_change(&g_bar_manager, *(float*)context);
-  free(context);
   return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_WIFI_CHANGED) {
+static uint32_t event_wifi_changed(void* context) {
   bar_manager_handle_wifi_change(&g_bar_manager, (char*)context);
-  free(context);
   return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_BRIGHTNESS_CHANGED) {
+static uint32_t event_brightness_changed(void* context) {
   bar_manager_handle_brightness_change(&g_bar_manager, *(float*)context);
-  free(context);
   return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_POWER_SOURCE_CHANGED) {
+static uint32_t event_power_source_changed(void* context) {
   bar_manager_handle_power_source_change(&g_bar_manager, (char*)context);
-  free(context);
   return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_MEDIA_CHANGED) {
+static uint32_t event_media_changed(void* context) {
   bar_manager_handle_media_change(&g_bar_manager, (char*)context);
-  free(context);
   return EVENT_SUCCESS;
 }
 
-EVENT_CALLBACK(EVENT_HANDLER_HOTLOAD) {
+static uint32_t event_hotload(void* context) {
   bar_manager_destroy(&g_bar_manager);
   bar_manager_init(&g_bar_manager);
   bar_manager_begin(&g_bar_manager);
   exec_config_file();
   return EVENT_SUCCESS;
 }
+
+typedef uint32_t callback_type(void*);
+static callback_type* event_handler[] = {
+    [APPLICATION_FRONT_SWITCHED]     = event_application_front_switched,
+    [SPACE_CHANGED]                  = event_space_changed,
+    [DISPLAY_ADDED]                  = event_display_added,
+    [DISPLAY_REMOVED]                = event_display_removed,
+    [DISPLAY_MOVED]                  = event_display_moved,
+    [DISPLAY_RESIZED]                = event_display_resized,
+    [DISPLAY_CHANGED]                = event_display_changed,
+    [MOUSE_UP]                       = event_mouse_up,
+    [MOUSE_DRAGGED]                  = event_mouse_dragged,
+    [MOUSE_ENTERED]                  = event_mouse_entered,
+    [MOUSE_EXITED]                   = event_mouse_exited,
+    [MOUSE_SCROLLED]                 = event_mouse_scrolled,
+    [VOLUME_CHANGED]                 = event_volume_changed,
+    [WIFI_CHANGED]                   = event_wifi_changed,
+    [BRIGHTNESS_CHANGED]             = event_brightness_changed,
+    [POWER_SOURCE_CHANGED]           = event_power_source_changed,
+    [MEDIA_CHANGED]                  = event_media_changed,
+    [DISTRIBUTED_NOTIFICATION]       = event_distributed_notification,
+
+    [MENU_BAR_HIDDEN_CHANGED]        = event_menu_bar_hidden_changed,
+    [SYSTEM_WOKE]                    = event_system_woke,
+    [SYSTEM_WILL_SLEEP]              = event_system_will_sleep,
+    [SHELL_REFRESH]                  = event_shell_refresh,
+    [ANIMATOR_REFRESH]               = event_animator_refresh,
+    [MACH_MESSAGE]                   = event_mach_message,
+    [HOTLOAD]                        = event_hotload,
+};
+
+void event_post(struct event *event) {
+  event_handler[event->type](event->context);
+  windows_unfreeze();
+}
+

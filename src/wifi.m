@@ -7,7 +7,7 @@ char* g_current_ssid = NULL;
 void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
   @autoreleasepool {
     NSData* data = [[[CWWiFiClient sharedWiFiClient] interface] ssidData];
-    char* ssid = malloc([data length] + 1);
+    char ssid[[data length] + 1];
     memcpy(ssid, [data bytes], [data length]);
     ssid[[data length]] = '\0'; 
 
@@ -17,8 +17,6 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
 
       struct event event = { (void*) ssid, 0, WIFI_CHANGED };
       event_post(&event);
-    } else {
-      free(ssid);
     }
   }
 }

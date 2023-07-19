@@ -74,7 +74,7 @@ bool g_media_events = false;
         g_media_info = realloc(g_media_info, info_len);
         memcpy(g_media_info, info, info_len);
 
-        char* payload_info = malloc(info_len);
+        char payload_info[info_len];
         memcpy(payload_info, info, info_len);
 
         struct event event = { payload_info, 0, MEDIA_CHANGED };

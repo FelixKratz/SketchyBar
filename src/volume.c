@@ -34,8 +34,8 @@ static AudioObjectPropertyAddress kMuteLeftPropertyAddress = {
 
 static float g_last_volume = -1.f;
 static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObjectPropertyAddress* addresses, void* context) {
-  float* volume = malloc(sizeof(float));
-  memset(volume, 0, sizeof(float));
+  float v = 0;
+  float* volume = &v;
 
   uint32_t muted_main = 0;
   uint32_t size = sizeof(uint32_t);
@@ -85,9 +85,7 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
     g_last_volume = *volume;
     struct event event = { (void*) volume, 0, VOLUME_CHANGED };
     event_post(&event);
-  } else {
-    free(volume);
-  }
+  } 
   return KERN_SUCCESS;
 }
 

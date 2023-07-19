@@ -14,11 +14,13 @@ static const EventTypeSpec mouse_events [] = {
 static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void *data) {
   switch (GetEventKind(e)) {
     case kEventMouseUp: {
-      struct event event = { (void *) CopyEventCGEvent(e),
+      CGEventRef cg_event = CopyEventCGEvent(e);
+      struct event event = { (void *) cg_event,
                               0,
-                              MOUSE_UP                    };
+                              MOUSE_UP         };
 
       event_post(&event);
+      CFRelease(cg_event);
       break;
     }
     case kEventMouseDragged: {
@@ -28,6 +30,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
                               MOUSE_DRAGGED    };
 
       event_post(&event);
+      CFRelease(cg_event);
       break;
     }
     case kEventMouseEntered: {
@@ -37,6 +40,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
                               MOUSE_ENTERED    };
 
       event_post(&event); 
+      CFRelease(cg_event);
       break;
     }
     case kEventMouseExited: {
@@ -46,6 +50,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
                               MOUSE_EXITED     };
 
       event_post(&event); 
+      CFRelease(cg_event);
       break;
     }
     case kEventMouseWheelMoved: {
@@ -55,6 +60,7 @@ static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void 
                               MOUSE_SCROLLED   };
 
       event_post(&event);
+      CFRelease(cg_event);
       break;
     }
     default:

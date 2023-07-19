@@ -10,7 +10,7 @@ void power_handler(void* context) {
   if (CFStringCompare(type, POWER_AC_KEY, 0) == 0) {
     if (g_power_source != POWER_AC) {
       g_power_source = POWER_AC;
-      char* source = malloc(sizeof(char)*8);
+      char source[8];
       snprintf(source, 8, "AC");
       struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };
       event_post(&event);
@@ -18,7 +18,7 @@ void power_handler(void* context) {
   } else if (CFStringCompare(type, POWER_BATTERY_KEY, 0) == 0) {
     if (g_power_source != POWER_BATTERY) {
       g_power_source = POWER_BATTERY;
-      char* source = malloc(sizeof(char)*8);
+      char source[8];
       snprintf(source, 8, "BATTERY");
 
       struct event event = { (void*) source, 0, POWER_SOURCE_CHANGED };

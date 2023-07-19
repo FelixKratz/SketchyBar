@@ -115,9 +115,10 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
 
 void mach_message_callback(CFMachPortRef port, void* message, CFIndex size, void* context) {
   struct mach_server* mach_server = context;
-  struct mach_buffer* buffer = malloc(sizeof(struct mach_buffer));
-  buffer->message = *(struct mach_message*)message;
-  mach_server->handler(buffer);
+  struct mach_buffer buffer;
+  buffer.message = *(struct mach_message*)message;
+  mach_server->handler(&buffer);
+  mach_msg_destroy(&buffer.message.header);
 }
 
 #pragma clang diagnostic push

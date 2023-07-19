@@ -7,15 +7,13 @@ extern bool g_brightness_events;
 
 float g_last_brightness = -1.f;
 static void brightness_handler(void* notification_center, uint32_t did, void* name, const void* sender, CFDictionaryRef info) {
-  float* brightness = malloc(sizeof(float));
-  memset(brightness, 0, sizeof(float));
+  float b = 0;
+  float* brightness = &b;
   DisplayServicesGetBrightness(did, brightness);
   if (g_last_brightness < *brightness - 1e-2 || g_last_brightness > *brightness + 1e-2) {
     g_last_brightness = *brightness;
     struct event event = { (void*) brightness, 0, BRIGHTNESS_CHANGED };
     event_post(&event);
-  } else {
-    free(brightness);
   }
 }
 
