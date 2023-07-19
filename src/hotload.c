@@ -16,6 +16,16 @@ int hotload_get_state() {
   return g_hotload;
 }
 
+bool set_config_file_path(char* file) {
+  char* path = realpath(file, NULL);
+  if (path) {
+    snprintf(g_config_file, sizeof(g_config_file), "%s", path);
+    free(path);
+    return true;
+  }
+  return false;
+}
+
 static bool get_config_file(char *restrict filename, char *restrict buffer, int buffer_size) {
   char *xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home && *xdg_home) {

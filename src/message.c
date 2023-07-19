@@ -700,6 +700,23 @@ void handle_message_mach(struct mach_buffer* buffer) {
     } else if (token_equals(command, DOMAIN_HOTLOAD)) {
       struct token token = get_token(&message);
       hotload_set_state(evaluate_boolean_state(token, hotload_get_state()));
+    } else if (token_equals(command, DOMAIN_RELOAD)) {
+      char* rbr_msg = get_batch_line(&message);
+      char* cur = rbr_msg;
+      struct token token = get_token(&cur);
+
+      bool reload = false;
+      if (token.length > 0 && token.text) {
+        if (!set_config_file_path(token.text)) {
+          respond(rsp, "[?] Reload: Invalid config path '%s'\n", token.text);
+        } else reload = true;
+      } else reload = true;
+      free(rbr_msg);
+
+      if (reload) {
+        struct event *event = event_create(&g_event_loop, HOTLOAD, NULL);
+        event_loop_post(&g_event_loop, event); 
+      }
     } else {
       char* rbr_msg = get_batch_line(&message);
       respond(rsp, "[!] Unknown domain '%s'\n", command.text);

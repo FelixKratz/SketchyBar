@@ -153,13 +153,7 @@ static void parse_arguments(int argc, char **argv) {
     if (argc < 3) {
       printf("[!] Error: Too few arguments for argument 'config'.\n");
     } else {
-      char* path = realpath(argv[2], NULL);
-      if (path) {
-        snprintf(g_config_file, sizeof(g_config_file), "%s", path);
-        free(path);
-        return;
-      }
-
+      if (set_config_file_path(argv[2])) return;
       printf("[!] Error: Specified config file path invalid.\n");
     }
     exit(EXIT_FAILURE);
