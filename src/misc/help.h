@@ -39,7 +39,7 @@ static const char help_str[] = {
   "                                  \tSubscribe to events\n"
   "      --add event <name> [optional: <NSDistributedNotificationName>]\n"
   "                                  \tCreate custom event\n"
-  "      --trigger <event> [Optional: <envvar>=<value> ... <envvar>=<value>]\n"
+  "      --trigger <event> [optional: <envvar>=<value> ... <envvar>=<value>]\n"
   "                                  \tTrigger custom event\n\n"
   "Querying information, see https://felixkratz.github.io/SketchyBar/config/querying\n"
   "      --query bar               \tQuery bar properties\n"
@@ -52,4 +52,7 @@ static const char help_str[] = {
   "                --bar <property=value> ... <property=value>\\\n"
   "                --set <name> <property=value> ... <property=value>\n"
   "                         \tAnimate from given source to target property values\n\n"
+  "Reloading the config\n"
+  "      --hotload <boolean>        \tEnable or disable the config hotloader\n"
+  "      --reload [optional: <path>]\tReload the current or the given config\n\n"
 };
