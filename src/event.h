@@ -1,10 +1,6 @@
 #pragma once
-#include <mach/mach.h>
 #include "bar_manager.h"
 #include "message.h"
-
-#define EVENT_SUCCESS      0x0
-#define EVENT_FAILURE      0x1
 
 enum event_type {
   EVENT_TYPE_UNKNOWN,
