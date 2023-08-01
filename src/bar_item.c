@@ -168,6 +168,18 @@ void bar_item_needs_update(struct bar_item* bar_item) {
   bar_item->needs_update = true;
 }
 
+void bar_item_cancel_drag(struct bar_item* bar_item) {
+  if (bar_item->has_slider) {
+    char perc_str[8];
+    snprintf(perc_str, 8, "%d", bar_item->slider.percentage);
+    env_vars_set(&bar_item->signal_args.env_vars,
+                 string_copy("PERCENTAGE"),
+                 string_copy(perc_str)           );
+
+    slider_cancel_drag(&bar_item->slider);
+  }
+}
+
 void bar_item_on_drag(struct bar_item* bar_item, CGPoint point) {
   if (bar_item->has_slider) {
     if (slider_handle_drag(&bar_item->slider, point)) {
@@ -210,12 +222,7 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
         bar_item_needs_update(bar_item);
       }
 
-      char perc_str[8];
-      snprintf(perc_str, 8, "%d", bar_item->slider.percentage);
-      env_vars_set(&bar_item->signal_args.env_vars,
-                   string_copy("PERCENTAGE"),
-                   string_copy(perc_str)           );
-      bar_item->slider.is_dragged = false;
+      bar_item_cancel_drag(bar_item);
     } else {
       env_vars_destroy(&env_vars);
       return;

@@ -36,6 +36,8 @@ extern CGEventRef SLEventCreateNextEvent(int cid);
 extern void _CFMachPortSetOptions(CFMachPortRef mach_port, int options);
 extern CGError SLSSetBackgroundEventMask(int cid, int mask);
 extern CGError SLSSetEventMask(int cid, int mask);
+extern CGError SLSGetCoalesceEventsMask(uint32_t cid, int64_t* mask_out);
+extern CGError SLSCoalesceEventsInMask(uint32_t cid, int64_t mask);
 
 int g_connection;
 CFTypeRef g_transaction;
@@ -223,8 +225,12 @@ int main(int argc, char **argv) {
 
   exec_config_file();
   begin_receiving_config_change_events();
-  SLSSetBackgroundEventMask(g_connection, g_mouse_events);
   SLSSetEventMask(g_connection, g_mouse_events);
+
+  int64_t mask;
+  SLSGetCoalesceEventsMask(g_connection, &mask);
+  mask = (uint32_t)mask & 0xf67fff1f;
+  SLSCoalesceEventsInMask(g_connection, mask);
   
   mach_port_t port;
   CGError error = SLSGetEventPort(g_connection, &port);
