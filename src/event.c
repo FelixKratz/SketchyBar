@@ -186,7 +186,7 @@ static void event_mouse_exited(void* context) {
   if ((bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid))) {
     origin_window = &bar->window;
     popup_target = bar_manager_get_popup_by_point(&g_bar_manager,
-        point          );
+                                                  point          );
     over_target = (popup_target != NULL);
   }
   else if ((popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid))) {

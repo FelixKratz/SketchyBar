@@ -29,6 +29,10 @@ uint32_t slider_get_percentage_for_point(struct slider* slider, CGPoint point) {
   return min(percentage, 100);
 }
 
+void slider_cancel_drag(struct slider* slider) {
+  slider->is_dragged = false;
+}
+
 bool slider_handle_drag(struct slider* slider, CGPoint point) {
   uint32_t percentage = slider_get_percentage_for_point(slider, point);
   slider->is_dragged = true;

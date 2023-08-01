@@ -6,6 +6,7 @@
 #include "wifi.h"
 #include "volume.h"
 #include "power.h"
+#include "mouse.h"
 
 extern void forced_front_app_event();
 
@@ -768,13 +769,21 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager_handle_space_change(bar_manager, true);
 }
 
+void bar_manager_cancel_drag(struct bar_manager* bar_manager) {
+  for (uint32_t i = 0; i < bar_manager->bar_item_count; i++) {
+    bar_item_cancel_drag(bar_manager->bar_items[i]);
+  }
+}
+
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager) {
+  SLSSetBackgroundEventMask(g_connection, g_mouse_events);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL,
                                     NULL                                   );
 }
 
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
+  SLSSetBackgroundEventMask(g_connection, 0);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL,
                                     NULL                                  );

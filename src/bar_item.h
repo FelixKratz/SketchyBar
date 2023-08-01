@@ -110,6 +110,7 @@ void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta);
 void bar_item_on_drag(struct bar_item* bar_item, CGPoint point);
 void bar_item_mouse_entered(struct bar_item* bar_item);
 void bar_item_mouse_exited(struct bar_item* bar_item);
+void bar_item_cancel_drag(struct bar_item* bar_item);
 
 void bar_item_append_associated_space(struct bar_item* bar_item, uint32_t bit);
 void bar_item_append_associated_display(struct bar_item* bar_item, uint32_t bit);

@@ -49,11 +49,11 @@ void window_create(struct window* window, CGRect frame) {
   window->id = (uint32_t)id;
   CFRelease(frame_region);
 
+  SLSSetWindowEventMask(g_connection, window->id, g_mouse_events);
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
   SLSSetWindowTags(g_connection, window->id, &set_tags, 64);
   SLSClearWindowTags(g_connection, window->id, &clear_tags, 64);
   SLSSetWindowOpacity(g_connection, window->id, 0);
-  SLSSetWindowEventMask(g_connection, window->id, g_mouse_events);
 
   window->context = SLWindowContextCreate(g_connection, window->id, NULL);
 

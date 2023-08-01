@@ -23,6 +23,7 @@ bool slider_handle_drag(struct slider* slider, CGPoint point);
 uint32_t slider_get_percentage_for_point(struct slider* slider, CGPoint point);
 uint32_t slider_get_length(struct slider* slider);
 
+void slider_cancel_drag(struct slider* slider);
 void slider_destroy(struct slider* slider);
 void slider_serialize(struct slider* slider, char* indent, FILE* rsp);
 bool slider_parse_sub_domain(struct slider* graph, FILE* rsp, struct token property, char* message);
