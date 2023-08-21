@@ -5,7 +5,6 @@
 
 extern char g_config_file[4096];
 extern char g_name[256];
-pthread_mutex_t hotload_lock;
 bool g_hotload = false;
 
 void hotload_set_state(int state) {

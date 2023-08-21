@@ -1001,9 +1001,10 @@ void bar_manager_handle_notification(struct bar_manager* bar_manager, struct not
 void bar_manager_destroy(struct bar_manager* bar_manager) {
   animator_destroy(&bar_manager->animator);
 
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_item_destroy(bar_manager->bar_items[i], true);
+  while (bar_manager->bar_item_count > 0) {
+    bar_manager_remove_item(bar_manager, bar_manager->bar_items[0]);
   }
+
   if (bar_manager->bar_items) free(bar_manager->bar_items);
   for (int i = 0; i < bar_manager->bar_count; i++) {
     bar_destroy(bar_manager->bars[i]);
