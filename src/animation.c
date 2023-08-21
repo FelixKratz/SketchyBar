@@ -1,9 +1,11 @@
 #include "animation.h"
 #include "event.h"
- 
-static ANIMATOR_CALLBACK(animator_handler) {
-  struct event event = { NULL, ANIMATOR_REFRESH };
+
+static CVReturn animation_frame_callback(CVDisplayLinkRef display_link, const CVTimeStamp* now, const CVTimeStamp* output_time, CVOptionFlags flags, CVOptionFlags* flags_out, void* context) {
+  double time_scale = 60. * CVDisplayLinkGetActualOutputVideoRefreshPeriod(display_link);
+  struct event event = { *((void**)&time_scale), ANIMATOR_REFRESH };
   event_post(&event);
+  return kCVReturnSuccess;
 }
 
 struct animation* animation_create() {
@@ -46,7 +48,7 @@ void animation_setup(struct animation* animation, void* target, animator_functio
   }
 }
 
-static bool animation_update(struct animation* animation) {
+static bool animation_update(struct animation* animation, double time_scale) {
   if (!animation->target
       || !animation->update_function
       || animation->counter > animation->duration) {
@@ -54,13 +56,13 @@ static bool animation_update(struct animation* animation) {
   }
 
   if (animation->offset > 0) {
-    animation->offset--;
+    animation->offset-= time_scale;
     return false;
   } 
 
   double slider = animation->duration > 1
-                  ? animation->interp_function((double)animation->counter
-                                               / (double)animation->duration)
+                  ? animation->interp_function(animation->counter
+                                               / animation->duration)
                   : 1.0;
 
   int value;
@@ -80,7 +82,7 @@ static bool animation_update(struct animation* animation) {
             + slider * animation->final_value;
   }
 
-  animation->counter++;
+  animation->counter += time_scale;
   bool needs_update = animation->update_function(animation->target, value);
 
   bool found_item = false;
@@ -105,6 +107,7 @@ void animator_init(struct animator* animator) {
   animator->animation_count = 0;
   animator->interp_function = 0;
   animator->duration = 0;
+  animator->time_scale = 1.;
 }
 
 void animator_lock(struct animator* animator) {
@@ -116,7 +119,7 @@ void animator_lock(struct animator* animator) {
 static void animator_calculate_offset_for_animation(struct animator* animator, struct animation* animation) {
   if (animator->animation_count < 1) return;
 
-  uint32_t offset = 0;
+  double offset = 0;
   struct animation* previous = NULL;
   for (uint32_t i = 0; i < animator->animation_count; i++) {
     struct animation* current = animator->animations[i];
@@ -138,17 +141,9 @@ void animator_add(struct animator* animator, struct animation* animation) {
   animator->animations[animator->animation_count - 1] = animation;
 
   if (animator->animation_count == 1) {
-    animator->clock = CFRunLoopTimerCreate(NULL,
-                                           CFAbsoluteTimeGetCurrent()+1./60.,
-                                           1./60.,
-                                           0,
-                                           0,
-                                           animator_handler,
-                                           NULL                              );
-
-    CFRunLoopAddTimer(CFRunLoopGetMain(),
-                      animator->clock,
-                      kCFRunLoopCommonModes);
+    CVDisplayLinkCreateWithActiveCGDisplays(&animator->display_link);
+    CVDisplayLinkSetOutputCallback(animator->display_link, animation_frame_callback, animator);
+    CVDisplayLinkStart(animator->display_link);
   }
 }
 
@@ -177,10 +172,11 @@ static void animator_remove(struct animator* animator, struct animation* animati
   animation_destroy(animation);
 
   if (animator->animation_count == 0) {
-    CFRunLoopRemoveTimer(CFRunLoopGetMain(),
-                         animator->clock,
-                         kCFRunLoopCommonModes);
-    CFRelease(animator->clock);
+    if (animator->display_link)
+      CVDisplayLinkStop(animator->display_link);
+
+    CVDisplayLinkRelease(animator->display_link);
+    animator->display_link = NULL;
   }
 }
 
@@ -233,7 +229,7 @@ bool animator_update(struct animator* animator) {
   uint32_t remove_count = 0;
 
   for (uint32_t i = 0; i < animator->animation_count; i++) {
-    needs_refresh |= animation_update(animator->animations[i]);
+    needs_refresh |= animation_update(animator->animations[i], animator->time_scale);
     if (animator->animations[i]->counter > animator->animations[i]->duration) {
       remove[remove_count++] = animator->animations[i];
     }
@@ -248,10 +244,10 @@ bool animator_update(struct animator* animator) {
 
 void animator_destroy(struct animator* animator) {
   if (animator->animation_count > 0) {
-    CFRunLoopRemoveTimer(CFRunLoopGetMain(),
-                         animator->clock,
-                         kCFRunLoopCommonModes);
-    CFRelease(animator->clock);
+    if (animator->display_link)
+      CVDisplayLinkStop(animator->display_link);
+    CVDisplayLinkRelease(animator->display_link);
+    animator->display_link = NULL;
 
     for (int i = 0; i < animator->animation_count; i++) {
       animation_destroy(animator->animations[i]);

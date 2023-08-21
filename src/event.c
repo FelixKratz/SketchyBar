@@ -59,6 +59,7 @@ static void event_shell_refresh(void* context) {
 }
 
 static void event_animator_refresh(void* context) {
+  g_bar_manager.animator.time_scale = *(double*)&context;
   bar_manager_animator_refresh(&g_bar_manager);
 }
 
@@ -361,7 +362,10 @@ static callback_type* event_handler[] = {
   [HOTLOAD]                    = event_hotload,
 };
 
+extern pthread_mutex_t g_event_mutex;
 void event_post(struct event *event) {
+  pthread_mutex_lock(&g_event_mutex);
   event_handler[event->type](event->context);
   windows_unfreeze();
+  pthread_mutex_unlock(&g_event_mutex);
 }

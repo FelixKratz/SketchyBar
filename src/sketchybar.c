@@ -41,6 +41,7 @@ extern CGError SLSCoalesceEventsInMask(uint32_t cid, int64_t mask);
 
 int g_connection;
 CFTypeRef g_transaction;
+pthread_mutex_t g_event_mutex;
 
 struct bar_manager g_bar_manager;
 struct mach_server g_mach_server;
@@ -199,6 +200,11 @@ int main(int argc, char **argv) {
 
   init_misc_settings();
   acquire_lockfile();
+
+  pthread_mutexattr_t mattr;
+  pthread_mutexattr_init(&mattr);
+  pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&g_event_mutex, &mattr);
 
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
   SLSRegisterNotifyProc((void*)system_events, 905, NULL);

@@ -2,6 +2,7 @@ CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
 LIBS     = -framework AppKit \
            -framework CoreAudio \
            -framework CoreWLAN \
+           -framework CoreVideo \
 	   -framework IOKit \
 	   -F/System/Library/PrivateFrameworks \
 	   -framework SkyLight \
