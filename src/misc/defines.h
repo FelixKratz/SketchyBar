@@ -47,6 +47,7 @@
 #define SUB_DOMAIN_COLOR                       "color"
 #define SUB_DOMAIN_BORDER_COLOR                "border_color"
 #define SUB_DOMAIN_HIGHLIGHT_COLOR             "highlight_color"
+#define SUB_DOMAIN_FILL_COLOR                  "fill_color"
 
 #define PROPERTY_FONT                          "font"
 #define PROPERTY_COLOR                         "color"

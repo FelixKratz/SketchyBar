@@ -246,6 +246,12 @@ bool alias_parse_sub_domain(struct alias* alias, FILE* rsp, struct token propert
                                      rsp,
                                      entry,
                                      message              );
+    else if (token_equals(subdom, SUB_DOMAIN_COLOR)) {
+      bool changed = !alias->color_override;
+      alias->color_override = true;
+      return color_parse_sub_domain(&alias->color, rsp, entry, message)
+            || changed;
+    }
     else {
       respond(rsp, "[!] Alias: Invalid subdomain '%s'\n", subdom.text);
     }

@@ -143,7 +143,24 @@ bool graph_parse_sub_domain(struct graph* graph, FILE* rsp, struct token propert
     return true;
   } 
   else {
-    respond(rsp, "[!] Graph: Invalid property '%s'\n", property.text);
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = {key_value_pair.key,strlen(key_value_pair.key)};
+      struct token entry = {key_value_pair.value,strlen(key_value_pair.value)};
+      if (token_equals(subdom, SUB_DOMAIN_COLOR)) {
+        return color_parse_sub_domain(&graph->line_color, rsp, entry, message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_FILL_COLOR)) {
+        return color_parse_sub_domain(&graph->fill_color, rsp, entry, message);
+      }
+      else {
+        respond(rsp, "[!] Graph: Invalid subdomain '%s'\n", subdom.text);
+      }
+    }
+    else {
+      respond(rsp, "[!] Graph: Invalid property '%s'\n", property.text);
+    }
   }
   return false;
 }

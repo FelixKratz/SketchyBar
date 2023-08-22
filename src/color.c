@@ -76,6 +76,8 @@ bool color_parse_sub_domain(struct color* color, FILE* rsp, struct token propert
                   color,
                   color->b,
                   token_to_float(get_token(&message)));
+  } else {
+    respond(rsp, "[?] Color: Invalid property '%s'\n", property);
   }
 
   return needs_refresh;
