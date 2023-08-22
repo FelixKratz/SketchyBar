@@ -91,7 +91,7 @@ sketchybar --add item clock right                              \
                                                                \
            --add item wifi right                               \
            --set wifi    script="$PLUGIN_DIR/wifi.sh"          \
-                         icon=直                               \
+                         icon=                                \
            --subscribe wifi wifi_change                        \
                                                                \
            --add item volume right                             \
