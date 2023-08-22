@@ -5,4 +5,6 @@
 # focused application in the $INFO variable:
 # https://felixkratz.github.io/SketchyBar/config/events#events-and-scripting
 
-sketchybar --set $NAME label="$INFO"
+if [ "$SENDER" = "front_app_switched" ]; then
+  sketchybar --set $NAME label="$INFO"
+fi
