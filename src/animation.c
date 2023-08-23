@@ -3,6 +3,7 @@
 
 static CVReturn animation_frame_callback(CVDisplayLinkRef display_link, const CVTimeStamp* now, const CVTimeStamp* output_time, CVOptionFlags flags, CVOptionFlags* flags_out, void* context) {
   double time_scale = 60. * CVDisplayLinkGetActualOutputVideoRefreshPeriod(display_link);
+  if (time_scale <= 0) time_scale = 1.;
   struct event event = { *((void**)&time_scale), ANIMATOR_REFRESH };
   event_post(&event);
   return kCVReturnSuccess;
@@ -49,9 +50,7 @@ void animation_setup(struct animation* animation, void* target, animator_functio
 }
 
 static bool animation_update(struct animation* animation, double time_scale) {
-  if (!animation->target
-      || !animation->update_function
-      || animation->counter > animation->duration) {
+  if (!animation->target || !animation->update_function) {
     return false;
   }
 
@@ -60,7 +59,8 @@ static bool animation_update(struct animation* animation, double time_scale) {
     return false;
   } 
 
-  double slider = animation->duration > 1
+  double slider = (animation->duration > 1
+                   && animation->counter < animation->duration)
                   ? animation->interp_function(animation->counter
                                                / animation->duration)
                   : 1.0;
