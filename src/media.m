@@ -1,4 +1,5 @@
 #include "event.h"
+#include <Foundation/Foundation.h>
 
 extern void MRMediaRemoteRegisterForNowPlayingNotifications(dispatch_queue_t queue);
 extern void MRMediaRemoteGetNowPlayingInfo(dispatch_queue_t queue, void (^block)(NSDictionary* dict));
