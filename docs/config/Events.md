@@ -30,6 +30,7 @@ where the events are:
 | `mouse.entered.global` | When the mouse enters over *any* part of the bar                                                    |                                        |
 | `mouse.exited.global`  | When the mouse leaves *all* parts of the bar                                                        |                                        |
 | `mouse.clicked`        | When an item is clicked                                                                             | mouse button and modifier info         |
+| `mouse.scrolled`       | When the mouse is scrolled over an item                                                             | scroll wheel delta                     |
 
 Some events send additional information in the `$INFO` variable
 When an item is subscribed to these events the *script* is run and it gets passed the `$SENDER` variable, which holds exactly the above names to distinguish between the different events.
@@ -54,6 +55,7 @@ $MODIFIER
 where the `$BUTTON` can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the `$MODIFIER` is either *shift*, *ctrl*, *alt* or *cmd* and 
 specifies the modifier key held down while clicking the item.
 
+If an item receive a *scroll* event from the mouse the script gets send the additional `$SCROLL_DELTA` variable.
 
 All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 

@@ -14,6 +14,7 @@ module.exports = {
         "config/querying",
         "config/animations",
         "config/types",
+        "config/reloading",
         "config/tricks"
       ],
     },

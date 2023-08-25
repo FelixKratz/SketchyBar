@@ -17,7 +17,8 @@ where the `<curve>` is any of the animation curves:
 - `linear`, `quadratic`, `tanh`, `sin`, `exp`, `circ`
 
 The `<duration>` is a positive integer quantifying the number of animation
-steps.
+steps (the duration is the frame count on a 60Hz display, such that the
+temporal duration of the animation in seconds is given by `<duration>` / 60).
 
 The animation system *always* animates between all *current* values and the
 values specified in a configuration command (i.e. `--bar` or `--set` commands).
@@ -35,8 +36,9 @@ with key-frames. You can also make other properties wait with their animation
 till another animation is finished, by simply setting the property that should
 wait to its current value in the first animation.
 
-A new non-animated `--set` command targeting a currently animated property will cancel the
-animation queue and immediately set the value.
+A new non-animated `--set` command targeting a currently animated property will
+cancel the animation queue and immediately set the value.
 
-A new animated `--set` command targeting a currently animated property will cancel the
-animation queue and immediately begin with the new animation, beginning at the current state.
+A new animated `--set` command targeting a currently animated property will
+cancel the animation queue and immediately begin with the new animation,
+beginning at the current state.
