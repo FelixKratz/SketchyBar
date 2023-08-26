@@ -1,4 +1,5 @@
 #include "mach.h"
+#include <mach/mach_port.h>
 #include <mach/message.h>
 #include <stdint.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -135,6 +136,17 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
     return false;
   }
 
+  struct mach_port_limits limits = {};
+  limits.mpl_qlimit = MACH_PORT_QLIMIT_LARGE;
+
+  if (mach_port_set_attributes(mach_server->task,
+                               mach_server->port,
+                               MACH_PORT_LIMITS_INFO,
+                               (mach_port_info_t)&limits,
+                               MACH_PORT_LIMITS_INFO_COUNT) != KERN_SUCCESS) {
+    return false;
+  }
+
   if (mach_port_insert_right(mach_server->task,
                              mach_server->port,
                              mach_server->port,
@@ -160,8 +172,10 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   mach_server->handler = handler;
   mach_server->is_running = true;
 
-
-  pthread_create(&mach_server->thread, NULL, mach_connection_handler, mach_server);
+  pthread_create(&mach_server->thread,
+                 NULL,
+                 mach_connection_handler,
+                 mach_server             );
   return true;
 }
 #pragma clang diagnostic pop
