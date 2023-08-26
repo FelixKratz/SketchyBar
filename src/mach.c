@@ -114,14 +114,12 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   return NULL;
 }
 
-static void* mach_connection_handler(void* context) {
+void mach_message_callback(CFMachPortRef port, void* message, CFIndex size, void* context) {
   struct mach_server* mach_server = context;
-  while (mach_server->is_running) {
-    struct mach_buffer buffer;
-    mach_receive_message(mach_server->port, &buffer, false);
-    mach_server->handler(&buffer);
-  }
-  return NULL;
+  struct mach_buffer buffer;
+  buffer.message = *(struct mach_message*)message;
+  mach_server->handler(&buffer);
+  mach_msg_destroy(&buffer.message.header);
 }
 
 #pragma clang diagnostic push
@@ -172,10 +170,21 @@ bool mach_server_begin(struct mach_server* mach_server, mach_handler handler) {
   mach_server->handler = handler;
   mach_server->is_running = true;
 
-  pthread_create(&mach_server->thread,
-                 NULL,
-                 mach_connection_handler,
-                 mach_server             );
+  CFMachPortContext context = {0, (void*)mach_server};
+
+  CFMachPortRef cf_mach_port = CFMachPortCreateWithPort(NULL,
+                                                        mach_server->port,
+                                                        mach_message_callback,
+                                                        &context,
+                                                        false                );
+
+  CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(NULL,
+                                                            cf_mach_port,
+                                                            0            );
+
+  CFRunLoopAddSource(CFRunLoopGetMain(), source, kCFRunLoopDefaultMode);
+  CFRelease(source);
+  CFRelease(cf_mach_port);
   return true;
 }
 #pragma clang diagnostic pop
