@@ -27,6 +27,7 @@ struct mach_server {
   mach_port_name_t task;
   mach_port_t port;
   mach_port_t bs_port;
+  pthread_t thread;
 
   mach_handler* handler;
 };
