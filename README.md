@@ -86,9 +86,13 @@ This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* a
 The original idea is based on the status bar that was included in *[yabai](https://github.com/koekeishiya/yabai)* before getting removed.
 
 
+## Related Projects
+- [SbarLua](https://github.com/FelixKratz/SbarLua): A Lua API for SketchyBar
+- [sketchybar-app-font](https://github.com/kvndrsslr/sketchybar-app-font): A symbol font for SketchyBar
+- [SketchyBarHelper](https://github.com/FelixKratz/SketchyBarHelper): A header for C/C++ to directly communicate with SketchyBar
+
 ## Some animation examples
 
 https://user-images.githubusercontent.com/22680421/211198711-45318f04-e96f-4aa1-a0ba-c7f30f050902.mp4
-
 
 
