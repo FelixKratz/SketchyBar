@@ -77,13 +77,22 @@ static bool animation_update(struct animation* animation, double time_scale) {
   } else if (animation->as_float) {
     *((float*)&value) = (1. - slider) * *(float*)&animation->initial_value
              + slider * *(float*)&animation->final_value;
+
   } else {
     value = (1. - slider) * animation->initial_value
             + slider * animation->final_value;
   }
 
+  bool needs_update;
+  if (animation->as_float) {
+    needs_update =
+      ((bool (*)(void*, float))animation->update_function)(animation->target,
+                                                           *((float*)&value) );
+  } else {
+    needs_update = animation->update_function(animation->target, value);
+  }
+
   animation->counter += time_scale;
-  bool needs_update = animation->update_function(animation->target, value);
 
   bool found_item = false;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
