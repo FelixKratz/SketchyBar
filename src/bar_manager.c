@@ -767,6 +767,7 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
 
   bar_manager_handle_display_change(bar_manager);
   bar_manager_handle_space_change(bar_manager, true);
+  animator_renew_display_link(&bar_manager->animator);
 }
 
 void bar_manager_cancel_drag(struct bar_manager* bar_manager) {
@@ -967,11 +968,13 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SYSTEM_WILL_SLEEP,
                                     NULL                                );
+  animator_destroy_display_link(&bar_manager->animator);
   bar_manager->sleeps = true;
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager->sleeps = false;
+  animator_renew_display_link(&bar_manager->animator);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                     NULL                          );

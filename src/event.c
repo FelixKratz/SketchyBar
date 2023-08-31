@@ -59,7 +59,6 @@ static void event_shell_refresh(void* context) {
 }
 
 static void event_animator_refresh(void* context) {
-  g_bar_manager.animator.time_scale = *(double*)&context;
   bar_manager_animator_refresh(&g_bar_manager);
 }
 

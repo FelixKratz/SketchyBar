@@ -115,9 +115,11 @@ struct animator {
 };
 
 void animator_init(struct animator* animator);
+void animator_renew_display_link(struct animator* animator);
 void animator_add(struct animator* animator, struct animation* animation);
 bool animator_cancel(struct animator* animator, void* target, animator_function* function);
 void animator_cancel_locked(struct animator* animator, void* target, animator_function* function);
 bool animator_update(struct animator* animator);
 void animator_lock(struct animator* animator);
 void animator_destroy(struct animator* animator);
+void animator_destroy_display_link(struct animator* animator);
