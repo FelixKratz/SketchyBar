@@ -363,7 +363,14 @@ static callback_type* event_handler[] = {
 
 extern pthread_mutex_t g_event_mutex;
 void event_post(struct event *event) {
-  pthread_mutex_lock(&g_event_mutex);
+  if (event->type == ANIMATOR_REFRESH) {
+    // If the mutex is locked, we drop the animation refresh cycle to avoid
+    // deadlocking occuring due to the CVDisplayLink
+    if (pthread_mutex_trylock(&g_event_mutex) != 0) return;
+  } else {
+    pthread_mutex_lock(&g_event_mutex);
+  }
+
   event_handler[event->type](event->context);
   windows_unfreeze();
   pthread_mutex_unlock(&g_event_mutex);
