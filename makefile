@@ -1,5 +1,6 @@
 CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
-LIBS     = -framework AppKit \
+LIBS     = -framework Carbon \
+	   -framework AppKit \
            -framework CoreAudio \
            -framework CoreWLAN \
            -framework CoreVideo \

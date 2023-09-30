@@ -777,14 +777,12 @@ void bar_manager_cancel_drag(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager) {
-  SLSSetBackgroundEventMask(g_connection, g_mouse_events);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL,
                                     NULL                                   );
 }
 
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
-  SLSSetBackgroundEventMask(g_connection, 0);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL,
                                     NULL                                  );

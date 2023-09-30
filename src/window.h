@@ -1,10 +1,6 @@
 #pragma once
 #include "misc/helpers.h"
 
-extern CGError SLSSetWindowEventShape(int cid, int wid, CFTypeRef region);
-extern CGError SLSSetWindowEventMask(int cid, int wid, int mask);
-extern CGError SLSSetBackgroundEventMask(int cid, int mask);
-
 extern CFTypeRef SLSTransactionCreate(int cid);
 extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
