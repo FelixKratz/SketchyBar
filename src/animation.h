@@ -85,6 +85,7 @@ struct animation {
   bool separate_bytes;
   bool as_float;
   bool locked;
+  bool finished;
 
   double duration;
   double counter;

@@ -57,11 +57,13 @@ static bool animation_update(struct animation* animation, double time_scale) {
     return false;
   } 
 
-  double slider = (animation->duration > 1
-                   && animation->counter < animation->duration)
-                  ? animation->interp_function(animation->counter
-                                               / animation->duration)
-                  : 1.0;
+  bool final_frame = !((animation->duration > 1
+                     && animation->counter < animation->duration));
+
+  double slider = final_frame
+                  ? 1.0
+                  : animation->interp_function(animation->counter
+                                               / animation->duration);
 
   int value;
   if (animation->separate_bytes) {
@@ -106,6 +108,7 @@ static bool animation_update(struct animation* animation, double time_scale) {
 
   if (!found_item && needs_update) g_bar_manager.bar_needs_update = true;
 
+  animation->finished = final_frame;
   return needs_update;
 }
 
@@ -268,7 +271,7 @@ bool animator_update(struct animator* animator) {
     needs_refresh |= animation_update(animator->animations[i],
                                       animator->time_scale    );
 
-    if (animator->animations[i]->counter > animator->animations[i]->duration) {
+    if (animator->animations[i]->finished) {
       remove[remove_count++] = animator->animations[i];
     }
   }
