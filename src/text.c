@@ -302,6 +302,10 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
                                              text->highlight    );
     if (g_bar_manager.animator.duration > 0) {
       if (text->highlight && !highlight) {
+        animator_cancel(&g_bar_manager.animator,
+                        text,
+                        (animator_function*)text_set_color);
+
         uint32_t target = text->color.hex;
         text_set_color(text, text->highlight_color.hex);
 
@@ -311,6 +315,10 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
                       target          );
       }
       else if (!text->highlight && highlight) {
+        animator_cancel(&g_bar_manager.animator,
+                        text,
+                        (animator_function*)text_set_highlight_color);
+
         uint32_t target = text->highlight_color.hex;
         text_set_highlight_color(text, text->color.hex);
 
