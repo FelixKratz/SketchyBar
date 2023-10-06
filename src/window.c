@@ -110,7 +110,7 @@ void window_move(struct window* window, CGPoint point) {
     windows_freeze();
     SLSTransactionMoveWindowWithGroup(g_transaction, window->id, point);
   } else {
-    // Big Sur and Previous
+    // Big Sur and previous
     SLSMoveWindow(g_connection, window->id, &point);
     CFNumberRef number = CFNumberCreate(NULL,
                                         kCFNumberSInt32Type,
@@ -130,11 +130,13 @@ bool window_apply_frame(struct window* window, bool forced) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
     if (__builtin_available(macOS 13.0, *)) {
+      // Ventura and later
       SLSSetWindowShape(g_connection, window->id,
                                       g_nirvana.x,
                                       g_nirvana.y,
                                       frame_region);
     } else {
+      // Monterey and previous
       if (window->parent) {
         SLSOrderWindow(g_connection, window->id, 0, window->parent->id);
       }
@@ -195,7 +197,17 @@ void window_order(struct window* window, struct window* parent, int mode) {
   windows_freeze();
   window->parent = parent;
   if (mode != W_OUT) window->order_mode = mode;
-  SLSOrderWindow(g_connection, window->id, mode, parent ? parent->id : 0);
+
+  if (__builtin_available(macOS 14.0, *)) {
+    // Sonoma and later
+    SLSTransactionOrderWindow(g_transaction,
+                              window->id,
+                              mode,
+                              parent ? parent->id : 0);
+  } else {
+    // Ventura and previous
+    SLSOrderWindow(g_connection, window->id, mode, parent ? parent->id : 0);
+  }
 }
 
 void window_assign_mouse_tracking_area(struct window* window, CGRect rect) {

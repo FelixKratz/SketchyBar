@@ -1,21 +1,23 @@
 CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
+
 LIBS     = -framework Carbon \
-	   -framework AppKit \
-           -framework CoreAudio \
-           -framework CoreWLAN \
-           -framework CoreVideo \
-	   -framework IOKit \
-	   -F/System/Library/PrivateFrameworks \
-	   -framework SkyLight \
-	   -framework DisplayServices \
-	   -framework MediaRemote
+					 -framework AppKit \
+					 -framework CoreAudio \
+					 -framework CoreWLAN \
+					 -framework CoreVideo \
+					 -framework IOKit \
+					 -F/System/Library/PrivateFrameworks \
+					 -framework SkyLight \
+					 -framework DisplayServices \
+					 -framework MediaRemote
+
 ODIR     = bin
 SRC      = src
 
 _OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
-       image.o mouse.o shadow.o font.o text.o message.o mouse.o bar.o color.o \
-       window.o bar_manager.o display.o group.o mach.o popup.o \
-       animation.o workspace.om volume.o slider.o power.o wifi.om media.om \
+			 image.o mouse.o shadow.o font.o text.o message.o mouse.o bar.o color.o \
+			 window.o bar_manager.o display.o group.o mach.o popup.o \
+			 animation.o workspace.om volume.o slider.o power.o wifi.om media.om \
 			 hotload.o
 
 OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
