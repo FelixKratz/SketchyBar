@@ -1099,7 +1099,8 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       bar_item->align = position.text[0];
       needs_refresh = true;
     }
-  } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)) {
+  } else if (token_equals(property, PROPERTY_ASSOCIATED_SPACE)
+             || token_equals(property, PROPERTY_SPACE)        ) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_space;
     bar_item->associated_space = 0;
@@ -1115,7 +1116,8 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       free(list);
     }
     needs_refresh = (prev != bar_item->associated_space);
-  } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)) {
+  } else if (token_equals(property, PROPERTY_ASSOCIATED_DISPLAY)
+             || token_equals(property, PROPERTY_DISPLAY)        ) {
     struct token token = get_token(&message);
     uint32_t prev = bar_item->associated_display;
     bar_item->associated_display = 0;

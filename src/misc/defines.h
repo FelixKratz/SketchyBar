@@ -100,6 +100,7 @@
 #define PROPERTY_POSITION                      "position"
 #define PROPERTY_MARGIN                        "margin"
 #define PROPERTY_DISPLAY                       "display"
+#define PROPERTY_SPACE                         "space"
 #define PROPERTY_TOPMOST                       "topmost"
 #define PROPERTY_STICKY                        "sticky"
 #define PROPERTY_HIDDEN                        "hidden"
