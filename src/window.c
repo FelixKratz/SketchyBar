@@ -190,7 +190,14 @@ void window_close(struct window* window) {
 
 void window_set_level(struct window* window, uint32_t level) {
   windows_freeze();
-  SLSSetWindowLevel(g_connection, window->id, level);
+
+  if (__builtin_available(macOS 14.0, *)) {
+    // Sonoma and later
+    SLSTransactionSetWindowLevel(g_transaction, window->id, level);
+  } else {
+    // Ventura and previous
+    SLSSetWindowLevel(g_connection, window->id, level);
+  }
 }
 
 void window_order(struct window* window, struct window* parent, int mode) {
