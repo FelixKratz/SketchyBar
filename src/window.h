@@ -6,8 +6,6 @@ extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, in
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
 extern CGError SLSTransactionSetWindowShape(CFTypeRef transaction, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
 extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint point);
-// extern CGError SLSTransactionAddWindowToWindowOrderingGroup(CFTypeRef transaction, uint32_t parent_wid, uint32_t child_wid, int order);
-// extern CGError SLSTransactionClearWindowOrderingGroup(CFTypeRef transaction, uint32_t wid);
 extern CGError SLSTransactionCommitUsingMethod(CFTypeRef transaction, uint32_t method);
 extern CGError SLSTransactionCommit(CFTypeRef transaction, uint32_t async);
 
