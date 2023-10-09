@@ -55,8 +55,10 @@ You should of course vet the code from all plugins before executing them to make
 ### Hiding the original macOS bar
 - (Pre macOS Ventura) Hide the default macOS menu bar in *System Preferences* -> *Dock & Menu Bar*:
 ![hide_macOS_bar](/img/hide_menubar.png)
-- (Post macOS Ventura) Hide the default macOS menu bar in *System Settings* -> *Desktop & Dock* -> *Automatically hide and show the menu bar* -> *Always*:
+- (macOS Ventura) Hide the default macOS menu bar in *System Settings* -> *Desktop & Dock* -> *Automatically hide and show the menu bar* -> *Always*:
 ![hide_macOS_bar_ventura](/img/hide_macos_bar_ventura.png)
+- (macOS Sonoma) Hide the default macOS menu bar in *System Settings* -> *Control Center* -> *Automatically hide and show the menu bar* -> *Always*:
+![hide_macOS_bar_sonoma](/img/hide_macos_bar_sonoma.png)
 
 ### Compile from source
 It is easy to compile the project from source:
