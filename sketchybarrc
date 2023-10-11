@@ -47,7 +47,7 @@ for i in "${!SPACE_ICONS[@]}"
 do
   sid=$(($i+1))
   sketchybar --add space space.$sid left                                 \
-             --set space.$sid associated_space=$sid                      \
+             --set space.$sid space=$sid                                 \
                               icon=${SPACE_ICONS[i]}                     \
                               background.color=0x44ffffff                \
                               background.corner_radius=5                 \
@@ -88,11 +88,6 @@ sketchybar --add item clock right                              \
            --set clock   update_freq=10                        \
                          icon=                                \
                          script="$PLUGIN_DIR/clock.sh"         \
-                                                               \
-           --add item wifi right                               \
-           --set wifi    script="$PLUGIN_DIR/wifi.sh"          \
-                         icon=                                \
-           --subscribe wifi wifi_change                        \
                                                                \
            --add item volume right                             \
            --set volume  script="$PLUGIN_DIR/volume.sh"        \
