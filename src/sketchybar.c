@@ -26,7 +26,7 @@
 
 #define MAJOR 2
 #define MINOR 17
-#define PATCH 0
+#define PATCH 1
 
 extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 extern int SLSMainConnectionID(void);
