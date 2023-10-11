@@ -35,8 +35,8 @@ A list of properties available to the *set* command is listed below (components 
 | : -------:                         | :------:                            | :-------: | -----------                                           |
 | `drawing`                          | `<boolean>`                         | `on`      | If the item should be drawn into the bar              |
 | `position`                         | `left`, `right`, `center`           |           | Position of the item in the bar                       |
-| `associated_space`                 | `<positive_integer list>`           | `0`       | Spaces to show this item on                           |
-| `associated_display`               | `<positive_integer list>`, `active` | `0`       | Displays to show this item on                         |
+| `space`                            | `<positive_integer list>`           | `0`       | Spaces to show this item on                           |
+| `display`                          | `<positive_integer list>`, `active` | `0`       | Displays to show this item on                         |
 | `ignore_association`               | `<boolean>`                         | `off`     | Ignores all space / display associations while on     |
 | `y_offset`                         | `<integer>`                         | `0`       | Vertical offset applied to the item                   |
 | `padding_left`                     | `<integer>`                         | `0`       | The padding applied left of the item                  |
