@@ -3,7 +3,6 @@
 #include "wifi.h"
 #include "event.h"
 
-char* g_current_ssid = NULL;
 void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
   @autoreleasepool {
     NSData* data = [[[CWWiFiClient sharedWiFiClient] interface] ssidData];
@@ -11,19 +10,12 @@ void update_ssid(SCDynamicStoreRef store, CFArrayRef keys, void* info) {
     memcpy(ssid, [data bytes], [data length]);
     ssid[[data length]] = '\0'; 
 
-    if (!g_current_ssid || strcmp(g_current_ssid, ssid) != 0) {
-      if (g_current_ssid) free(g_current_ssid);
-      g_current_ssid = string_copy(ssid);
-
-      struct event event = { (void*) ssid, WIFI_CHANGED };
-      event_post(&event);
-    }
+    struct event event = { (void*) ssid, WIFI_CHANGED };
+    event_post(&event);
   }
 }
 
 void forced_network_event() {
-  if (g_current_ssid) free(g_current_ssid);
-  g_current_ssid = NULL;
   update_ssid(NULL, NULL, NULL);
 }
 
