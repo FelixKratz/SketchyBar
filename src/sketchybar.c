@@ -28,6 +28,10 @@
 #define MINOR 17
 #define PATCH 1
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+extern CGError SLSWindowManagementBridgeSetDelegate(void* delegate);
+#endif
+
 extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
@@ -213,6 +217,12 @@ int main(int argc, char **argv) {
   exec_config_file();
 
   begin_receiving_config_change_events();
+
+  #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+  if (__builtin_available(macos 14.0, *)) {
+    SLSWindowManagementBridgeSetDelegate(NULL);
+  }
+  #endif
   RunApplicationEventLoop();
   return 0;
 }
