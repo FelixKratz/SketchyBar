@@ -977,11 +977,8 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
     bar_manager_custom_events_trigger(bar_manager,
                                       COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                       NULL                          );
+    bar_manager_display_changed(bar_manager);
   }
-
-  animator_renew_display_link(&bar_manager->animator);
-  bar_manager_refresh(bar_manager, true);
-  bar_manager_handle_space_change(bar_manager, true);
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {
