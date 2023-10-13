@@ -33,6 +33,7 @@ is described here.
 ## Further <boolean> operations
 
 All <boolean> properties can be negated with an exclamation mark, e.g. *!on*.
+Note that you may have to quote the negated expression in certain shells.
 
 ## Further <argb_hex> operations
 
@@ -67,12 +68,12 @@ If the alpha channel of the bar color is the only change needed, execute
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-components*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
 *sketchybar-tips*(5)

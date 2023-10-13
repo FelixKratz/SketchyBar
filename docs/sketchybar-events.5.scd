@@ -13,25 +13,23 @@ sketchybar-events - configuration of events and scripting
 
 # DESCRIPTION
 
-All items can subscribe to arbitrary events. When the event happens, all items
-subscribed to the event will execute their scripts. This mechanism can be used
-to create more reactive and performant items which react to events rather than
-to polled changes.
+All items can subscribe to events. When an event is triggered, all items
+subscribed to this event will execute their scripts. This mechanism can be
+used to create more reactive and performant items which react to events rather
+than to poll changes.
 
-Some events send additional information through the *$INFO* environment variable.
-When an item is subscribed to these events, the script is run and the *$SENDER*
-variable is passed. This variable holds the event name (see EVENTS) to
-distinguish between the different events.
-It is thus possible to have a script that reacts differently to various events
-(consider: a switch statement via shell's *case* command for the *$SENDER*
-variable in the *script*).
+Some events send additional information through the *$INFO* environment
+variable. When a script is run due to an event the *$SENDER* variable is passed.
+This variable holds the event name (see EVENTS) and can be used to distinguish
+between different events in a script. It is thus possible to have a script
+that reacts differently to various events (consider: a switch statement via
+shell's *case* command for the *$SENDER* variable in the *script*).
 
 Alternatively, a fixed *update_freq* can be *--set* such that the event is
 routinely run to poll for changes. Here, the *$SENDER* variable will hold the
 value *routine*.
 
-An item invokes a script, the script has access to some environment variables
-such as
+All scripts invoked by an item have access to some environment variables such as
 - *$NAME*
 - *$SENDER*
 - *$CONFIG_DIR*
@@ -39,20 +37,21 @@ where *$NAME* is the name of the item that invoked the script and *$SENDER* is
 the reason why the script was executed. *$CONFIG_DIR* holds the value of the
 absolute path of the directory where the current configuration file is located.
 
-If an item is *clicked*, the script (that is *click_script*) has access to the
-additional variables such as
+If an item is *clicked*, the script being called (either *click_script* or the
+*script* when subscribed to *mouse.clicked*) has access to the additional
+variables such as
 - *$BUTTON*
 - *$MODIFIER*
-where *$BUTTON* can have a value of *left*, *right* or *other*, and does specify
-the mouse button that was used to click the item. Whereas, *$MODIFIER* can be
-*shift*, *ctrl*, *alt* or *cmd*, and does specify the modifier key held down while
-clicking the item.
+where *$BUTTON* can have a value of *left*, *right* or *other*, and does
+specify the mouse button that was used to click the item. Whereas, *$MODIFIER*
+can be *shift*, *ctrl*, *alt* or *cmd*, and does specify the modifier key held
+down while clicking the item.
 
 If an item receives a *scroll* event from the mouse, the script sends the
 additional *$SCROLL_DELTA* variable.
 
-All scripts are *forced* to terminate after 60 seconds and do not run while the
-system is sleeping.
+All scripts are *forced* to terminate after 60 seconds and do not run while
+the system is sleeping.
 
 # OPTIONS
 
@@ -61,14 +60,14 @@ system is sleeping.
 	Optionally, an event can use the notifications sent to macOS's notification
 	system by specifying the relevant _NSDistributedNotificationName_.
 
-	For example, Spotify notifies the system on track change via 
+	For example, Spotify notifies the system on track change via
 	*com.spotify.client.PlaybackStateChanged*, and the system notifies itself
 	when the screen is unlocked via *com.apple.screenIsUnlocked*.
 
-	Custom events that subscribe to *NSDistributedNotificationCenter* notifications
-	will receive additional notification information through the *$INFO* variable
-	if available.
-	
+	Custom events that subscribe to *NSDistributedNotificationCenter*
+	notifications will receive additional notification information through the
+	*$INFO* variable if available.
+
 	For more on *NSDistributedNotifications*, see 
 	https://github.com/FelixKratz/SketchyBar/discussions/151
 
@@ -77,14 +76,14 @@ system is sleeping.
 	A list of events can be found in EVENTS. See below.
 
 *--trigger* _NAME_ [_ENVVAR_=_VALUE_ ... _ENVVAR_=_VALUE_]
-	Trigger the added custom event. Optionally, an event can send an environment
-	variable _ENVVAR with value _VALUE_ (or a series of such variables) to the
-	trigger command then pass them to *script* or *click_script*.
+	Trigger any custom event. Optionally, specify _ENVVAR with value _VALUE_ 
+	(or a series of such variables) to pass them on to the *script* or 
+	*click_script*.
 
 *--update*
-	Forces all *scripts* to run and all *events* to be emitted. This should
-	*NEVER* be used in an item script as this would lead to infinite loops.
-	But, this is prominently needed after the initial configuration to properly
+	Forces all *scripts* to run and all *events* to be emitted. This should 
+	*NEVER* be used in an item script as this would lead to infinite loops. 
+	But, this is prominently needed after the initial configuration to properly 
 	initialize all the items by forcing all their scripts to run.
 
 # EVENTS
@@ -147,23 +146,23 @@ system is sleeping.
 
 # EXAMPLES
 
-A simple plugin that uses the com.spotify.client.PlaybackStateChanged*
-*notification sent by Spotify can be found at
+A simple plugin that uses the com.spotify.client.PlaybackStateChanged* 
+*notification sent by Spotify can be found at 
 https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842
 
-A more advanced plugin that uses the *com.apple.screenIsUnlocked* notification
-sent by the system and the animation feature (see *sketchybar-animate*(5)) can
-be found at
+A more advanced plugin that uses the *com.apple.screenIsUnlocked* notification 
+sent by the system and the animation feature (see *sketchybar-animate*(5)) can 
+be found at 
 https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-2979651
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(1) ++
+*sketchybar*(5) ++
+*sketchybar-items*(5) ++
+*sketchybar-components*(5) ++
+*sketchybar-popup*(5) ++
+*sketchybar-query*(5) ++
+*sketchybar-animate*(5) ++
+*sketchybar-types*(5) ++
 *sketchybar-tips*(5)

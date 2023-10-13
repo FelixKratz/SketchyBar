@@ -33,12 +33,12 @@ Sketchybar can be queried for information about a number of things.
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-components*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-animate*(5)++
+*sketchybar-types*(5)++
 *sketchybar-tips*(5)
