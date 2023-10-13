@@ -51,8 +51,8 @@ values found here.
 
 *--set* _NAME_ _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_
 	Change the properties of an item. _NAME_ is used to target the item. It can
-	be a regular expression inside of two slashes: /*REGEX*/. A list of properties
-	available can be found in PROPERTIES. See below.
+	be a regular expression inside of two slashes: /*REGEX*/ to target mutliple
+	items. A list of properties available can be found in PROPERTIES. See below.
 	
 *--default* _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_
 	Change the defaults at any point in the configuration. All item created
@@ -60,9 +60,9 @@ values found here.
 	item.
 
 *--reorder* _NAME_ ... _NAME_
-	Reorder the items. A new order can be supplied for arbitrary many items. Only the
-	specified items get reordered. By swapping them around, everything else stays
-	the same. To swap two items, simply call
+	Reorder the items. A new order can be supplied for arbitrary many items. Only
+	the specified items get reordered. By swapping them around, everything else
+	stays the same. To swap two items, simply call
 	```
 	sketchybar --reorder NAME1 NAME2
 	```
@@ -72,20 +72,20 @@ values found here.
 	_REFERENCE_NAME_, use *before*. Otherwise, use *after*.
 
 *--clone* _PARENT_NAME_ _NAME_ [*before*|*after*]
-	Clone an item to another item. The new item will inherit *all* properties of the
-	parent item. The optional *before* and *after* modifiers can be used to move the
-	item before, or after the parent, equivalently to a *--move* command.
+	Clone an item to another item. The new item will inherit *all* properties of
+	the parent item. The optional *before* and *after* modifiers can be used to
+	move the item before, or after the parent, equivalently to a *--move* command.
 
 *--rename* _OLD_NAME_ _NEW_NAME_
 	Rename an item. Note that the new name should not be in use by another item.
 
 *--remove* _NAME_
 	Remove an item. _NAME_ can be a regex: /*REGEX*/. The item will be completely
-	destroyed and removed from brackets.
+	destroyed and removed from the bar, brackets and popups.
 
 # PROPERTIES
 
-This section is relevant to the *--set* and *--default* commands.
+This section is relevant for the *--set* and *--default* commands.
 
 ## Geometry properties
 
@@ -392,34 +392,19 @@ sketchybar --default \\
 To add a simple clock item on the left part of the bar:
 
 ```
-pos=left
-name=clock
-sketchybar --add item $name $pos \\
-	--set $name update_freq=60 icon.drawing=off \\
+sketchybar --add item clock left \\
+	--set clock update_freq=60 icon.drawing=off \\
 		script='sketchybar --set $NAME label="$(date "+%a %m%d %H%M")"'
-```
-
-To add a battery item on the right part wherein the item updates based on
-*system_woke* and *power_source_change* events (see *sketchybar-events*(5)) and
-uses some battery.sh script somewhere:
-
-```
-dir="$CONFIG_DIR"/plugins
-pos=right
-name=battery
-sketchybar --add item $name $pos \\
-	--set $name update_freq=120 script="$dir/battery.sh" \\
-	--subscribe $name system_woke power_source_change
 ```
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-components*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
+*sketchybar-types*(5)++
 *sketchybar-tips*(5)

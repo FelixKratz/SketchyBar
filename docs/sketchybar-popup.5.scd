@@ -69,33 +69,22 @@ To get a simple popup menu that allows us to either go to System Settings or
 Activity Monitor, or lock the screen:
 
 ```
-sketchybar -m --bar blur_radius=50 height=32 \\
+sketchybar --bar height=32 \\
 	--add item apple.logo left \\
-	--set apple.logo icon=🍎 \\
-		icon.font="SF Pro:Black:16.0"                                 \\
-		label.drawing=off                                             \\
-		click_script='sketchybar -m --set $NAME popup.drawing=toggle' \\
-		popup.background.border_width=2                               \\
-		popup.background.corner_radius=3                              \\
-		popup.background.border_color=0xff9dd274                      \\
-	--default \\
-		background.padding_left=5         \\
-		background.padding_right=5        \\
-		icon.padding_right=5              \\
-		icon.font="SF Pro:Bold:16.0"      \\
-		label.font="SF Pro:Semibold:13.0" \\
+	--set apple.logo icon="#Popup#" \\
+		click_script='sketchybar --set $NAME popup.drawing=toggle' \\
 	--add item apple.preferences popup.apple.logo \\
-	--set apple.preferences icon=⚙ label="Settings" \\
+	--set apple.preferences label="Settings" \\
 		click_script="open -a 'System Settings';
-			sketchybar -m --set apple.logo popup.drawing=off" \\
+			sketchybar --set apple.logo popup.drawing=off" \\
 	--add item apple.activity popup.apple.logo \\
-	--set apple.activity icon=🔍 label="Activity" \\
+	--set apple.activity label="Activity" \\
 		click_script="open -a 'Activity Monitor';
-			sketchybar -m --set apple.logo popup.drawing=off" \\
+			sketchybar --set apple.logo popup.drawing=off" \\
 	--add item apple.lock popup.apple.logo \\
-	--set apple.lock icon=🔒 label="Lock Screen" \\
+	--set apple.lock label="Lock Screen" \\
 		click_script="pmset displaysleepnow; 
-			sketchybar -m --set apple.logo popup.drawing=off"
+			sketchybar --set apple.logo popup.drawing=off"
 ```
 
 More examples be found at 
@@ -103,12 +92,12 @@ https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomme
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-components*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
+*sketchybar-types*(5)++
 *sketchybar-tips*(5)

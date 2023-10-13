@@ -13,21 +13,15 @@ _DATA_POINT_ ... _DATA_POINT_ ++
 *sketchybar --add alias* _APPLICATION_NAME_|"_WINDOW_OWNER_,_WINDOW_NAME_" _POSITION_ ++
 *sketchybar --add slider* _NAME_ _POSITION_ _WIDTH_
 
-*sketchybar --set* _NAME_ _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_ ++
-*sketchybar --default* _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_ ++
-*sketchybar --reorder* _NAME_ ... _NAME_ ++
-*sketchybar --move* _NAME_ *before*|*after* _REFERENCE_NAME_ ++
-*sketchybar --clone* _PARENT_NAME_ _NAME_ [*before*|*after*] ++
-*sketchybar --rename* _OLD_NAME_ _NEW_NAME_ ++
-*sketchybar --remove* _NAME_
-
 # DESCRIPTION
 
-Components are essentially items, but with special properties.
-Currently, there available components include
+Components are essentially items (see *sketchybar-items*(5)), but with special
+properties.
+
+Currently, the available components include
 - *graph*: shows a graph
 - *space*: represents a mission control space
-- *bracket*: brackets other items together
+- *bracket*: creates a shared background for any number of items
 - *alias*: aliases a menu bar item from the macOS bar
 - *slider*: shows a progression and can be clicked/dragged to set a new value.
 Refer to *sketchybar-types*(5) when needed.
@@ -74,11 +68,13 @@ a redefinition below.
 ## Notes
 
 Graphs usually take the entire height of the bar as a drawing canvas. However,
-if a background is set for the graph item and for its height, the graph
-will draw inside of the background. With a background enabled, the graph can
-also be moved via a *y_offset*, say,
+if a background is set for the graph item, the graph will draw inside of the
+background (i.e. scaled in height to fit the background). With a background
+enabled, the graph can also be moved via a *y_offset*, say,
 ```
-sketchybar --set graph_name background.color=0xff00ff00 background.height=20 y_offset=2
+sketchybar --set graph_name background.color=0xff00ff00 \\
+					   background.height=20 \\
+					   y_offset=2
 ```
 
 
@@ -94,15 +90,16 @@ sketchybar --set graph_name background.color=0xff00ff00 background.height=20 y_o
 	Change the properties of the component. Inherits the usual *--set* command
 	usage. Overriden properties include:
 	- *space*: which space this item represents
-	- *display*: (optional) on which display the space is shown. The space property
-	  must be set to properly associate this item with the corresponding mission
-	  control space. Optionally, a display to force a space item to stay on a specific
-	  display can be provided. Otherwise the item will draw on the screen on which the
-	  space is currently located.
+	- *display*: (optional) on which display the space is shown.
+
+	The space property must be set to properly associate this item with the
+	corresponding mission control space. Optionally, a display to force a space
+	item to stay on a specific display can be provided. Otherwise the item will
+	draw on the screen on which the space is currently located.
 
 ## Notes
 
-This component provides dditional variables available for *script* and
+This component provides additional variables available for *script* and
 *click_script*:
 - *$SELECTED*: has the value *true* if the associated space is selected;
   otherwise *false*
@@ -113,7 +110,7 @@ By default, this component invokes the script
 ```
 sketchybar --set $NAME icon.highlight=$SELECTED
 ```
-which can then be freely configured by supplying a different script:
+which can be freely configured by supplying a different script:
 ```
 sketchybar --set space_name script=path/to/script
 ```
@@ -147,9 +144,9 @@ To set a colored background around the space components (which are, say, named
 space.1, space.2, space.3), the setup would be:
 ```
 sketchybar --add bracket spaces space.1 space.2 space.3 \\
-	--set spaces background.color=0xffffffff \\
-		background.corner_radius=4 \\
-		background.height=20
+		 --set spaces background.color=0xffffffff \\
+				    background.corner_radius=4 \\
+				    background.height=20
 ```
 
 Alternatively, if there are a number of spaces, say, named space.1, space.2,
@@ -175,7 +172,8 @@ those items.
 	bar item to be aliased.
 
 	If an application has multiple menu bar widgets, the command can be overloaded
-	by providing a _WINDOW_OWNER_ and _WINDOW_NAME_.
+	by providing a _WINDOW_OWNER_ and _WINDOW_NAME_. See the note below how to
+	list all available widgets.
 
 	Then, say, the default system items can be aliased as in:
 	- "Control Center,Bluetooth"
@@ -210,8 +208,8 @@ those items.
 
 ## Notes
 
-All other macOS menu bar items currently available on the system with their
-respective owners and names can be listed via (see *sketchybar-query*(5))
+All macOS menu bar items currently available on the system with their respective
+owners and names can be listed via (see *sketchybar-query*(5))
 ```
 sketchybar --query default_menu_items
 ```
@@ -261,64 +259,43 @@ sketchybar --query default_menu_items
 
 ## Notes
 
-The slider can be enabled to receive *mouse.clicked* events by subscribing
-to this event. 
+The slider can be enabled to receive *mouse.clicked* events by subscribing to
+this event. 
 
 A slider will receive the additional environment variable *$PERCENTAGE* on a
 click in its script, which represents the percentage corresponding to the click
 location.
 
-If a slider is dragged by the mouse it will only send a single event
-on drag release and track the mouse during the drag.
+If a slider is dragged by the mouse it will only send a single event on drag
+release and track the mouse during the drag.
 
 # EXAMPLES
 
 To add mission control space indicators to indicate active and available spaces
-in posix shell and without yabai scripting additions:
-
-```
-pos=left
-name=space
-set -- 1 2 3 4 5 6 7 8 9
-sid=0
-for win in "$@"
-do sid=$((sid+1))
-	sketchybar --add $name $name.$sid $pos \\
-		--set $name.$sid associated_space=$sid icon.drawing=off label="$win" \\
-			script='sketchybar --set $NAME background.border_width=1 \\
-				background.padding_left=5 background.drawing=$SELECTED' \\
-			click_script="skhd -k ctrl\\ -\\ $sid"
-done
-sketchybar --add bracket spaces "/$name\..*/"
-```
-
-Or, in bash and with scripting additions:
+in bash:
 
 ```
 SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
 for i in "${!SPACE_ICONS[@]}"
 do sid=$(($i+1))
 	sketchybar --add space space.$sid left \\
-		--set space.$sid space=$sid \\
-			icon=${SPACE_ICONS[i]}               \\
-			background.color=0x44ffffff          \\
-			background.corner_radius=5           \\
-			background.height=20                 \\
-			background.drawing=off               \\
-			label.drawing=off                    \\
-			script="CONFIG_DIR/plugins/space.sh" \\
-			click_script="yabai -m space --focus $sid"
+		\--set space.$sid space=$sid icon=${SPACE_ICONS[i]} \\
+		script='sketchybar --set $NAME icon.highlight=$SELECTED'
 done
 ```
+Should you wish to focus the respective spaces with a click on the item in the
+bar, you can add a click_script to the items which triggers a space change (e.g.
+via yabai or by synthetically emitting the space focus keyboard shortcuts via
+skhd)
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
+*sketchybar-types*(5)++
 *sketchybar-tips*(5)

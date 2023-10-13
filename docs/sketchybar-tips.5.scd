@@ -119,13 +119,16 @@ ln -s $(which sketchybar) $(dirname $(which sketchybar))/bottom_bar
 ```
 
 This symlink can now be used to spawn and target an additional bar. For this
-bar, you do not call *sketchybar --bar color=0xffff0000* but rather 
-*bottom_bar --bar color=0xffff0000*. You also start it by running *bottom_bar* in
-the command line.
+bar, you do not call *sketchybar --bar color=0xffff0000* but rather
+*bottom_bar --bar color=0xffff0000*. You also start it by running *bottom_bar*
+in the command line.
 
 The config path for this additional bar is in _$HOME/.config/bottom_bar/_. Of
 course *bottom_bar* is only an example and can be freely replaced with any other
 identifier.
+
+You can bootstrap the additional bar by invoking it at the very bottom of your
+main bar's sketchybarrc.
 
 ## Performance optimizations
 
@@ -144,12 +147,12 @@ highlight some optimizations that can be used to reduce the footprint further:
 
 # SEE ALSO
 
-*sketchybar*(1)
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
+*sketchybar*(1)++
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-components*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
 *sketchybar-types*(5)

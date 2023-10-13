@@ -2,8 +2,7 @@ sketchybar(1)
 
 # NAME
 
-sketchybar - custom macOS statusbar with shell plugin, interaction and graph
-support
+sketchybar - a highly customizable macOS status bar replacement
 
 # SYNOPSIS
 
@@ -60,9 +59,9 @@ _PROPERTY_=_VALUE_
 
 *--hotload* _BOOLEAN_
 	Enables the hotload feature. If you wish that the bar automatically reloads
-	the configuration file once it is edited, the hotload functionality can be used.
-	It will monitor the directory of the current configuration for changes and
-	reload the configuration should it detect file changes.
+	the configuration file once it is edited, the hotload functionality can be
+	used. It will monitor the directory of the current configuration for changes
+	and reload the configuration should it detect file changes.
 
 For the other commands, see CONFIGURATION below for the relevant man page.
 
@@ -113,7 +112,7 @@ launches. Everything persistent should be set up in this file.
 
 It is possible to play with properties in the commandline and change them on the
 fly while the bar is running. Once a fitting value is found, the configuration
-can  then be included in the configuration file. The configuration is then
+can then be included in the configuration file. The configuration is then
 restored on restart.
 
 When configuring the bar, it can be helpful to *stop the brew service* and *run
@@ -189,14 +188,14 @@ To hide the original macOS bar in
 
 # SEE ALSO
 
-*sketchybar*(5)
-*sketchybar-items*(5)
-*sketchybar-components*(5)
-*sketchybar-popup*(5)
-*sketchybar-events*(5)
-*sketchybar-query*(5)
-*sketchybar-animate*(5)
-*sketchybar-types*(5)
+*sketchybar*(5)++
+*sketchybar-items*(5)++
+*sketchybar-components*(5)++
+*sketchybar-popup*(5)++
+*sketchybar-events*(5)++
+*sketchybar-query*(5)++
+*sketchybar-animate*(5)++
+*sketchybar-types*(5)++
 *sketchybar-tips*(5)
 
 # BUGS
