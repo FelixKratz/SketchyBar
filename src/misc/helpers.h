@@ -394,6 +394,8 @@ static inline char* read_file(char* path) {
 }
 
 static inline char* resolve_path(char* path) {
+  if (!path) return NULL;
+
   if (path[0] == '~') {
     char* home = getenv("HOME");
     char buf[512];

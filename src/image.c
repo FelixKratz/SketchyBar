@@ -21,6 +21,7 @@ bool image_set_enabled(struct image* image, bool enabled) {
 }
 
 bool image_load(struct image* image, char* path, FILE* rsp) {
+  if (!path) return false;
   char* app = string_copy(path);
   if (image->path) free(image->path);
   image->path = string_copy(path);
@@ -49,19 +50,25 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     }
   } else if (file_exists(res_path)) {
     CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
-    if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
-      new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
-                                                       NULL,
-                                                       false,
-                                                       kCGRenderingIntentDefault);
-    else {
-      new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider,
-                                                        NULL,
-                                                        false,
-                                                        kCGRenderingIntentDefault);
+    if (data_provider) {
+      if (strlen(res_path) > 3 && string_equals(&res_path[strlen(res_path) - 4], ".png"))
+        new_image_ref = CGImageCreateWithPNGDataProvider(data_provider,
+                                                         NULL,
+                                                         false,
+                                                         kCGRenderingIntentDefault);
+      else {
+        new_image_ref = CGImageCreateWithJPEGDataProvider(data_provider,
+                                                          NULL,
+                                                          false,
+                                                          kCGRenderingIntentDefault);
+      }
+      CFRelease(data_provider);
+    } else {
+      respond(rsp, "[!] Image: Invalid Image Format: '%s'\n", app_kv.value);
+      free(res_path);
+      free(app);
+      return false;
     }
-
-    if (data_provider) CFRelease(data_provider);
   }
   else if (strlen(res_path) == 0) {
     image_destroy(image);

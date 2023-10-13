@@ -304,7 +304,7 @@ static void bar_item_set_script(struct bar_item* bar_item, char* script) {
     free(bar_item->script);
 
   char* path = resolve_path(script);
-  bar_item->script = path;
+  if (path) bar_item->script = path;
 }
 
 static void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
@@ -319,7 +319,7 @@ static void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
     free(bar_item->click_script);
 
   char* path = resolve_path(script);
-  bar_item->click_script = path;
+  if (path) bar_item->click_script = path;
 }
 
 static bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {

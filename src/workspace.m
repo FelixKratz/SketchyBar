@@ -66,7 +66,7 @@ CGImageRef workspace_icon_for_app(char* app) {
   if (!image) return NULL;
 
   NSRect rect = NSMakeRect( 0, 0, [image size].width, [image size].height);
-  return [image CGImageForProposedRect: &rect context: NULL hints:NULL];
+  return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect context: NULL hints:NULL]);
 }
 
 @implementation workspace_context
