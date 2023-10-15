@@ -21,6 +21,7 @@ struct text {
   int padding_left;
   int padding_right;
   uint32_t custom_width;
+  uint32_t max_chars;
 
   CGRect bounds;
 

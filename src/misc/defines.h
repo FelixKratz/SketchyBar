@@ -95,6 +95,7 @@
 #define PROPERTY_IGNORE_ASSOCIATION            "ignore_association"
 #define PROPERTY_EVENT_PORT                    "mach_helper"
 #define PROPERTY_PERCENTAGE                    "percentage"
+#define PROPERTY_MAX_CHARS                     "max_chars"
 
 #define DOMAIN_BAR                             "--bar"
 #define PROPERTY_POSITION                      "position"

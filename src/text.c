@@ -16,10 +16,35 @@ static void text_prepare_line(struct text* text) {
                                                   array_count(keys),
                                                   &kCFTypeDictionaryKeyCallBacks,
                                                   &kCFTypeDictionaryValueCallBacks);
+  CFStringRef string;
+  if (text->max_chars > 0) {
+    uint32_t len = strlen(text->string) + 4;
+    char buffer[len];
+    memset(buffer, 0, len);
 
-  CFStringRef string = CFStringCreateWithCString(NULL,
-                                                 text->string,
-                                                 kCFStringEncodingUTF8);
+    char* read = text->string;
+    char* write = buffer;
+    uint32_t counter = 0;
+    while (*read) {
+      if ((*read & 0xC0) != 0x80) counter++; 
+      if (counter > text->max_chars) {
+        *write++ = 0xE2;
+        *write++ = 0x80;
+        *write++ = 0xA6;
+        break;
+      }
+      *write++ = *read++;
+    }
+
+    string = CFStringCreateWithCString(NULL,
+                                       buffer,
+                                       kCFStringEncodingUTF8);
+  } else {
+    string = CFStringCreateWithCString(NULL,
+                                       text->string,
+                                       kCFStringEncodingUTF8);
+
+  }
 
   if (!string) string = CFStringCreateWithCString(NULL,
                                                   "Warning: Malformed UTF-8 string",
@@ -52,6 +77,15 @@ static void text_prepare_line(struct text* text) {
 static void text_destroy_line(struct text* text) {
   if (text->line.line) CFRelease(text->line.line);
   text->line.line = NULL;
+}
+
+bool text_set_max_chars(struct text* text, uint32_t max_chars) {
+  if (text->max_chars == max_chars) return false;
+  text->max_chars = max_chars;
+  if (strlen(text->string) > text->max_chars) {
+    text_set_string(text, text->string, true);
+  }
+  return strlen(text->string) > text->max_chars;
 }
 
 bool text_set_string(struct text* text, char* string, bool forced) {
@@ -87,6 +121,7 @@ void text_init(struct text* text) {
   text->padding_left = 0;
   text->padding_right = 0;
   text->y_offset = 0;
+  text->max_chars = 0;
   text->align = POSITION_LEFT;
 
   text->string = string_copy("");
@@ -419,6 +454,8 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     }
 
     return changed;
+  } else if (token_equals(property, PROPERTY_MAX_CHARS)) {
+    return text_set_max_chars(text, token_to_int(get_token(&message)));
   }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text,
