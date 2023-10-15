@@ -110,13 +110,13 @@ A sketchybar configuration file is a regular shell script file that resides
 at _$HOME/.config/sketchybar/sketchybarrc_. It is executed when sketchybar
 launches. Everything persistent should be set up in this file.
 
-It is possible to play with properties in the commandline and change them on the
-fly while the bar is running. Once a fitting value is found, the configuration
-can then be included in the configuration file. The configuration is then
-restored on restart.
+It is possible to play with properties in the command line and change them
+on the fly while the bar is running. Once a fitting value is found, the
+configuration can then be included in the configuration file. The configuration
+is then restored on restart.
 
 When configuring the bar, it can be helpful to *stop the brew service* and *run
-sketchybar* from the commandline directly to see all relevant error messages
+sketchybar* from the command line directly to see all relevant error messages
 and warnings directly.
 
 Refer to
@@ -168,7 +168,7 @@ If sketchybar is run from the command line directly with the command
 *sketchybar*, all outputs and error messages from scripts will be printed in
 stdout.
 
-The default plugin folder is located in _$HOME/.config/sketchybar/plugins_.
+The default plugin folder is located at _$HOME/.config/sketchybar/plugins_.
 Plugins need to be referenced with absolute paths because relative paths will
 not be resolved correctly.
 

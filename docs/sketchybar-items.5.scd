@@ -223,7 +223,7 @@ Note:
 |  highlight_color
 :  <argb_hex>
 :  0xff000000
-:  Highlight color of the text (e.g. for active space icon
+:  Highlight color of the text (e.g. for active space icon)
 |  padding_left
 :  <integer>
 :  0

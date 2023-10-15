@@ -19,7 +19,7 @@ used to create more reactive and performant items which react to events rather
 than to poll changes.
 
 Some events send additional information through the *$INFO* environment
-variable. When a script is run due to an event the *$SENDER* variable is passed.
+variable. When a script is run due to an event, the *$SENDER* variable is passed.
 This variable holds the event name (see EVENTS) and can be used to distinguish
 between different events in a script. It is thus possible to have a script
 that reacts differently to various events (consider: a switch statement via
@@ -76,7 +76,7 @@ the system is sleeping.
 	A list of events can be found in EVENTS. See below.
 
 *--trigger* _NAME_ [_ENVVAR_=_VALUE_ ... _ENVVAR_=_VALUE_]
-	Trigger any custom event. Optionally, specify _ENVVAR with value _VALUE_ 
+	Trigger any custom event. Optionally, specify _ENVVAR_ with value _VALUE_ 
 	(or a series of such variables) to pass them on to the *script* or 
 	*click_script*.
 
@@ -93,11 +93,11 @@ the system is sleeping.
 :< *returned $INFO*
 |  front_app_switched
 :  When the front application changes (not triggered if a different window of
-  the same app is focused)
+   the same app is focused)
 :  front application name
 |  space_change
 :  When the active mission control space changes
-:  JSON for active spaces on all displays
+:  list of active spaces on all displays in a JSON structure
 |  display_change
 :  When the active display is changed
 :  new active display id
@@ -140,19 +140,19 @@ the system is sleeping.
 |  mouse.scrolled
 :  When the mouse is scrolled over an item
 :  scroll wheel delta
-|  mouse.scrolled.globa
+|  mouse.scrolled.global
 :  When the mouse is scrolled over an empty region of the bar
 :  scroll wheel delta
 
 # EXAMPLES
 
-A simple plugin that uses the com.spotify.client.PlaybackStateChanged* 
-*notification sent by Spotify can be found at 
+A simple plugin that uses the *com.spotify.client.PlaybackStateChanged*
+notification sent by Spotify can be found at
 https://github.com/FelixKratz/SketchyBar/discussions/12#discussioncomment-1455842
 
-A more advanced plugin that uses the *com.apple.screenIsUnlocked* notification 
-sent by the system and the animation feature (see *sketchybar-animate*(5)) can 
-be found at 
+A more advanced plugin that uses the *com.apple.screenIsUnlocked* notification
+sent by the system and the animation feature (see *sketchybar-animate*(5)) can
+be found at
 https://github.com/FelixKratz/SketchyBar/discussions/12?sort=new#discussioncomment-2979651
 
 # SEE ALSO

@@ -23,7 +23,7 @@ The possible settings to configure the bar include
 |  border_color
 :  <argb_hex>
 :  0xffff0000
-:  Color of the bars border
+:  Color of the bar's border
 |  position
 :  top, bottom
 :  top
@@ -47,7 +47,7 @@ The possible settings to configure the bar include
 |  border_width
 :  <positive_integer>
 :  0
-:  Border width of the bars border
+:  Border width of the bar's border
 |  blur_radius
 :  <positive_integer>
 :  0
@@ -83,7 +83,7 @@ The possible settings to configure the bar include
 |  sticky
 :  <boolean>
 :  off
-:  Makes the bar sticky (only use with disabled space change animations [See issue #220]
+:  Makes the bar sticky (only use with disabled space change animations)
 |  font_smoothing
 :  <boolean>
 :  off
@@ -92,6 +92,10 @@ The possible settings to configure the bar include
 :  <boolean>
 :  off
 :  If the bar should draw a shadow
+
+
+For details about *sticky*, see
+https://github.com/FelixKratz/SketchyBar/issues/220
 
 # EXAMPLES
 

@@ -116,7 +116,7 @@ sketchybar --set space_name script=path/to/script
 ```
 
 For performance reasons the space script is only run on a change in the
-$SELECTED variable, i.e. if the associated space has become active or has
+*$SELECTED* variable, i.e. if the associated space has become active or has
 resigned being active.
 
 
@@ -172,7 +172,7 @@ those items.
 	bar item to be aliased.
 
 	If an application has multiple menu bar widgets, the command can be overloaded
-	by providing a _WINDOW_OWNER_ and _WINDOW_NAME_. See the note below how to
+	by providing a _WINDOW_OWNER_ and _WINDOW_NAME_. See the note below on how to
 	list all available widgets.
 
 	Then, say, the default system items can be aliased as in:
@@ -209,7 +209,7 @@ those items.
 ## Notes
 
 All macOS menu bar items currently available on the system with their respective
-owners and names can be listed via (see *sketchybar-query*(5))
+owners and names can be listed via (see *sketchybar-query*(5)):
 ```
 sketchybar --query default_menu_items
 ```
@@ -284,9 +284,9 @@ do sid=$(($i+1))
 done
 ```
 Should you wish to focus the respective spaces with a click on the item in the
-bar, you can add a click_script to the items which triggers a space change (e.g.
-via yabai or by synthetically emitting the space focus keyboard shortcuts via
-skhd)
+bar, you can add a *click_script* to the items which triggers a space change
+(e.g. via yabai, or via skhd by synthetically emitting the space focus keyboard
+shortcuts).
 
 # SEE ALSO
 

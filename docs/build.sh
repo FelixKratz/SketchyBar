@@ -1,3 +1,5 @@
+#!/bin/sh
+
 rm -rf build
 mkdir build
 scdoc < sketchybar-animate.5.scd > build/sketchybar-animate.5
