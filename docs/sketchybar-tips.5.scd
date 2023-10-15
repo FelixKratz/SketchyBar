@@ -68,7 +68,7 @@ sketchybar --bar "${bar[@]}"
 If you are experiencing problems with the configuration process, it might be
 helpful to work through the following steps:
 
-. Start sketchybar directly from the commandline to see the verbose error or,
+. Start sketchybar directly from the command line to see the verbose error or
   warning messages.
 . Make sure you have no trailing whitespaces after the newline escape character
   *\\*.
@@ -76,7 +76,7 @@ helpful to work through the following steps:
 . Reduce the configuration to a minimal example and narrow down the problematic
   region.
 . Try running erroneous scripts directly in the command line.
-. Query sketchybar for relevant properties and use them to deduce the,
+. Query sketchybar for relevant properties and use them to deduce the
   problems root cause.
 . Create and file an issue at https://github.com/FelixKratz/SketchyBar/issues.
   A second pair of eyes might now be the only thing that helps. 
@@ -127,8 +127,8 @@ The config path for this additional bar is in _$HOME/.config/bottom_bar/_. Of
 course *bottom_bar* is only an example and can be freely replaced with any other
 identifier.
 
-You can bootstrap the additional bar by invoking it at the very bottom of your
-main bar's sketchybarrc.
+You can bootstrap the additional bar by invoking it at the very end of your
+main bar's configuration file.
 
 ## Performance optimizations
 

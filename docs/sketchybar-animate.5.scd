@@ -44,7 +44,7 @@ animation beginning at the current state.
 	animation in seconds is given by _DURATION_ / 60.
 
 The animation system *always* animates between all *current* values and the
-values specified in a configuration command (i.e. `--bar` or `--set` commands).
+values specified in a configuration command (i.e. *--bar* or *--set* commands).
 
 # EXAMPLES
 
