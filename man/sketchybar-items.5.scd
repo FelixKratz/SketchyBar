@@ -256,6 +256,10 @@ Note:
 :  <string>
 :  -
 :  Sets the text to the specified string
+|  max_chars
+:  <positive_integer>
+:  0
+:  Sets the maximum characters to display (truncated with ellipsis)
 |  width
 :  <positive_integer> or dynamic
 :  dynamic
