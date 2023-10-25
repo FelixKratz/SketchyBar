@@ -8,6 +8,10 @@
 - (void)addCustomObserver:(NSString *)name;
 @end
 
+float workspace_get_scale() {
+  return [[NSScreen mainScreen] backingScaleFactor];
+}
+
 void workspace_event_handler_init(void **context) {
     workspace_context *ws_context = [workspace_context alloc];
     *context = ws_context;
@@ -65,8 +69,11 @@ CGImageRef workspace_icon_for_app(char* app) {
   NSImage* image = [[NSWorkspace sharedWorkspace] iconForFile:path.path];
   if (!image) return NULL;
 
-  NSRect rect = NSMakeRect( 0, 0, [image size].width, [image size].height);
-  return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect context: NULL hints:NULL]);
+  float scale = workspace_get_scale();
+  NSRect rect = NSMakeRect( 0, 0, 16 * scale, 16 * scale);
+  return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect
+                                                    context: NULL
+                                                      hints: NULL]);
 }
 
 @implementation workspace_context

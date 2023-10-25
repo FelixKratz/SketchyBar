@@ -1,6 +1,7 @@
 #include "image.h"
 #include "misc/helpers.h"
 #include "shadow.h"
+#include "workspace.h"
 
 void image_init(struct image* image) {
   image->enabled = false;
@@ -27,10 +28,12 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
   image->path = string_copy(path);
   char* res_path = resolve_path(path);
   CGImageRef new_image_ref = NULL;
+  float scale = 1.f;
 
   struct key_value_pair app_kv = get_key_value_pair(app, '.');
   if (app_kv.key && app_kv.value && strcmp(app_kv.key, "app") == 0) {
     CGImageRef app_icon = workspace_icon_for_app(app_kv.value);
+    scale = workspace_get_scale();
     if (app_icon) new_image_ref = app_icon;
     else {
       respond(rsp, "[!] Image: Invalid application name: '%s'\n", app_kv.value);
@@ -86,8 +89,8 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     image_set_image(image,
                     new_image_ref,
                     (CGRect){{0,0},
-                             {CGImageGetWidth(new_image_ref),
-                              CGImageGetHeight(new_image_ref)}},
+                             {CGImageGetWidth(new_image_ref) / scale,
+                              CGImageGetHeight(new_image_ref) / scale }},
                     true                                        );
   }
   else {
