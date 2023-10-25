@@ -12,3 +12,6 @@ scdoc < sketchybar-tips.5.scd > build/sketchybar-tips.5
 scdoc < sketchybar-types.5.scd > build/sketchybar-types.5
 scdoc < sketchybar.1.scd > build/sketchybar.1
 scdoc < sketchybar.5.scd > build/sketchybar.5
+
+tar -czvf documentation.tar.gz -C build .
+rm -rf build
