@@ -15,3 +15,4 @@ scdoc < sketchybar.5.scd > build/sketchybar.5
 
 tar -czvf documentation.tar.gz -C build .
 rm -rf build
+mv documentation.tar.gz ../static/

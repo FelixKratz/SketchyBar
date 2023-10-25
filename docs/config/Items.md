@@ -85,6 +85,7 @@ A list of properties available to the *set* command is listed below (components 
 | `font.style`                       | `<string>`                        | `Bold`                     | The font style to be used for the `text`                                                     |
 | `font.size`                        | `<float>`                         | `14.0`                     | The font size to be used for the `text`                                                      |
 | `string`                           | `<string>`                        |                            | Sets the text to the specified string                                                        |
+| `max_chars`                        | `<positive_integer>`              | `0`                        | Sets the maximum characters to display (truncated with ellipsis)                             |
 | `width`                            | `<positive_integer>` or `dynamic` | `dynamic`                  | Makes the `text` use a fixed `width` given in points                                         |
 | `align`                            | `center`, `left`, `right`         | `left`                     | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
 | `background.<background_property>` |                                   |                            | Texts support all `background` properties                                                    |
