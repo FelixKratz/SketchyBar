@@ -11,8 +11,14 @@ void image_init(struct image* image) {
   image->size = CGSizeZero;
   image->scale = 1.0;
   image->path = NULL;
+  image->corner_radius = 0;
+  image->border_width = 0;
+  image->y_offset = 0;
+  image->padding_left = 0;
+  image->padding_right = 0;
 
   shadow_init(&image->shadow);
+  color_init(&image->border_color, 0xcccccccc);
 }
 
 bool image_set_enabled(struct image* image, bool enabled) {
@@ -156,25 +162,118 @@ bool image_set_scale(struct image* image, float scale) {
   return true;
 }
 
+bool image_set_corner_radius(struct image* image, uint32_t corner_radius) {
+  if (image->corner_radius == corner_radius) return false;
+
+  image->corner_radius = corner_radius;
+  return true;
+}
+
+bool image_set_border_width(struct image* image, float border_width) {
+  if (image->border_width == border_width) return false;
+
+  image->border_width = border_width;
+  return true;
+}
+
+bool image_set_border_color(struct image* image, uint32_t color) {
+  return color_set_hex(&image->border_color, color);
+}
+
+bool image_set_padding_left(struct image* image, int padding_left) {
+  if (image->padding_left == padding_left) return false;
+
+  image->padding_left = padding_left;
+  return true;
+}
+
+bool image_set_padding_right(struct image* image, int padding_right) {
+  if (image->padding_right == padding_right) return false;
+
+  image->padding_right = padding_right;
+  return true;
+}
+
+bool image_set_yoffset(struct image* image, int yoffset) {
+  if (image->y_offset == yoffset) return false;
+
+  image->y_offset = yoffset;
+  return true;
+}
+
+CGSize image_get_size(struct image* image) {
+  return (CGSize){ .width = image->bounds.size.width
+                            + image->padding_left
+                            + image->padding_right
+                            + (image->shadow.enabled
+                               ? image->shadow.offset.x : 0),
+                   .height = image->bounds.size.height };
+}
+
 void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
-  image->bounds.origin.x = x;
-  image->bounds.origin.y = y - image->bounds.size.height / 2;
+  image->bounds.origin.x = x + image->padding_left;
+  image->bounds.origin.y = y - image->bounds.size.height / 2 + image->y_offset;
 }
 
 void image_draw(struct image* image, CGContextRef context) {
   if (!image->image_ref) return;
 
-  // if (image->shadow.enabled) {
-  //   CGContextSaveGState(context);
-  //   CGRect sbounds = shadow_get_bounds(&image->shadow, image->bounds);
-  //   CGContextDrawImage(context, sbounds, image->image_ref);
-  //   CGContextClipToMask(context, sbounds, image->image_ref);
-  //   CGContextSetRGBFillColor(context, image->shadow.color.r, image->shadow.color.g, image->shadow.color.b, image->shadow.color.a);
-  //   CGContextFillRect(context, sbounds);
-  //   CGContextRestoreGState(context);
-  // } 
+  if (image->shadow.enabled) {
+    CGContextSaveGState(context);
+    CGRect sbounds = shadow_get_bounds(&image->shadow, image->bounds);
+    CGContextSetRGBFillColor(context, image->shadow.color.r, image->shadow.color.g, image->shadow.color.b, image->shadow.color.a);
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRoundedRect(path,
+                         NULL,
+                         sbounds,
+                         image->corner_radius,
+                         image->corner_radius);
+
+    CGContextAddPath(context, path);
+    CGContextDrawPath(context, kCGPathFillStroke);
+    CFRelease(path);
+    CGContextRestoreGState(context);
+  } 
+
+  CGContextSaveGState(context);
+  if (image->bounds.size.height > 2*image->corner_radius
+      && image->bounds.size.width > 2*image->corner_radius) {
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRoundedRect(path,
+                         NULL,
+                         image->bounds,
+                         image->corner_radius,
+                         image->corner_radius);
+
+    CGContextAddPath(context, path);
+    CGContextClip(context);
+    CFRelease(path);
+  }
 
   CGContextDrawImage(context, image->bounds, image->image_ref);
+
+  if (image->bounds.size.height > 2*image->corner_radius
+      && image->bounds.size.width > 2*image->corner_radius) {
+    CGContextSetLineWidth(context, 2*image->border_width);
+    CGContextSetRGBStrokeColor(context,
+                               image->border_color.r,
+                               image->border_color.g,
+                               image->border_color.b,
+                               image->border_color.a);
+
+    CGContextSetRGBFillColor(context, 0, 0, 0, 0);
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRoundedRect(path,
+                         NULL,
+                         image->bounds,
+                         image->corner_radius,
+                         image->corner_radius);
+
+    CGContextAddPath(context, path);
+    CGContextDrawPath(context, kCGPathFillStroke);
+    CFRelease(path);
+  }
+  CGContextRestoreGState(context);
 }
 
 void image_clear_pointers(struct image* image) {
@@ -200,15 +299,75 @@ void image_serialize(struct image* image, char* indent, FILE* rsp) {
 }
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
+  bool needs_refresh = false;
   if (token_equals(property, PROPERTY_DRAWING))
     return image_set_enabled(image,
                              evaluate_boolean_state(get_token(&message),
                              image->enabled)                            );
   else if (token_equals(property, PROPERTY_SCALE))
     return image_set_scale(image, token_to_float(get_token(&message)));
-  else {
-    fprintf(rsp, "Unknown property: %s \n", property.text);
-    printf("Unknown property: %s \n", property.text);
+  else if (token_equals(property, PROPERTY_CORNER_RADIUS)) {
+    ANIMATE(image_set_corner_radius,
+            image,
+            image->corner_radius,
+            token_to_uint32t(get_token(&message)));
   }
-  return false;
+  else if (token_equals(property, PROPERTY_PADDING_LEFT)) {
+    ANIMATE(image_set_padding_left,
+            image,
+            image->padding_left,
+            token_to_uint32t(get_token(&message)));
+  }
+  else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
+    ANIMATE(image_set_padding_right,
+            image,
+            image->padding_right,
+            token_to_uint32t(get_token(&message)));
+  }
+  else if (token_equals(property, PROPERTY_YOFFSET)) {
+    ANIMATE(image_set_yoffset,
+            image,
+            image->y_offset,
+            token_to_uint32t(get_token(&message)));
+  }
+  else if (token_equals(property, PROPERTY_BORDER_WIDTH)) {
+    ANIMATE_FLOAT(image_set_border_width,
+                  image,
+                  image->border_width,
+                  token_to_float(get_token(&message)));
+  }
+  else if (token_equals(property, PROPERTY_BORDER_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(image_set_border_color,
+                  image,
+                  image->border_color.hex,
+                  token_to_int(token));
+  }
+  else {
+    struct key_value_pair key_value_pair = get_key_value_pair(property.text,
+                                                              '.'           );
+    if (key_value_pair.key && key_value_pair.value) {
+      struct token subdom = {key_value_pair.key,strlen(key_value_pair.key)};
+      struct token entry = {key_value_pair.value,strlen(key_value_pair.value)};
+      if (token_equals(subdom, SUB_DOMAIN_BORDER_COLOR)) {
+        return color_parse_sub_domain(&image->border_color,
+                                      rsp,
+                                      entry,
+                                      message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_SHADOW)) {
+        return shadow_parse_sub_domain(&image->shadow,
+                                       rsp,
+                                       entry,
+                                       message             );
+      }
+      else {
+        respond(rsp, "[?] Image: Invalid subdomain: %s \n", property.text);
+      }
+    }
+    else {
+        respond(rsp, "[?] Image: Unknown property: %s \n", property.text);
+    }
+  }
+  return needs_refresh;
 }

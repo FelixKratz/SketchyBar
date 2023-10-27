@@ -469,9 +469,10 @@ static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
 
 uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override) {
   uint32_t content_length = bar_item_get_content_length(bar_item);
-  if (bar_item->background.enabled && bar_item->background.image.enabled
-      && bar_item->background.image.bounds.size.width > content_length  ) {
-    content_length = bar_item->background.image.bounds.size.width;
+  if (bar_item->background.enabled && bar_item->background.image.enabled) {
+    CGSize image_size = image_get_size(&bar_item->background.image);
+
+    if (image_size.width > content_length) content_length = image_size.width;
   }
 
   if (bar_item->has_const_width && (!ignore_override

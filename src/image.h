@@ -17,6 +17,14 @@ struct image {
   CFDataRef data_ref;
 
   struct shadow shadow;
+
+  struct color border_color;
+  float border_width;
+  uint32_t corner_radius;
+
+  uint32_t padding_left;
+  uint32_t padding_right;
+  uint32_t y_offset;
 };
 
 void image_init(struct image* image);
@@ -26,6 +34,7 @@ bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bound
 bool image_load(struct image* image, char* path, FILE* rsp);
 bool image_set_scale(struct image* image, float scale);
 
+CGSize image_get_size(struct image* image);
 void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y);
 void image_draw(struct image* image, CGContextRef context);
 void image_clear_pointers(struct image* image);
