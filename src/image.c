@@ -316,19 +316,19 @@ bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token propert
     ANIMATE(image_set_padding_left,
             image,
             image->padding_left,
-            token_to_uint32t(get_token(&message)));
+            token_to_int(get_token(&message)));
   }
   else if (token_equals(property, PROPERTY_PADDING_RIGHT)) {
     ANIMATE(image_set_padding_right,
             image,
             image->padding_right,
-            token_to_uint32t(get_token(&message)));
+            token_to_int(get_token(&message)));
   }
   else if (token_equals(property, PROPERTY_YOFFSET)) {
     ANIMATE(image_set_yoffset,
             image,
             image->y_offset,
-            token_to_uint32t(get_token(&message)));
+            token_to_int(get_token(&message)));
   }
   else if (token_equals(property, PROPERTY_BORDER_WIDTH)) {
     ANIMATE_FLOAT(image_set_border_width,

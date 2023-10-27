@@ -22,9 +22,9 @@ struct image {
   float border_width;
   uint32_t corner_radius;
 
-  uint32_t padding_left;
-  uint32_t padding_right;
-  uint32_t y_offset;
+  int padding_left;
+  int padding_right;
+  int y_offset;
 };
 
 void image_init(struct image* image);
