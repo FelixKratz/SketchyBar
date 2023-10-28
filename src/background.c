@@ -199,15 +199,16 @@ void background_draw(struct background* background, CGContextRef context) {
               &background->shadow.color);
   }
 
-  if (background->image.enabled)
-    image_draw(&background->image, context);
-
   draw_rect(context,
             background_bounds,
             &background->color,
             background->corner_radius,
             background->border_width,
             &background->border_color);
+
+  if (background->image.enabled)
+    image_draw(&background->image, context);
+
 }
 
 void background_clear_pointers(struct background* background) {

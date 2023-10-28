@@ -495,16 +495,14 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t background_height = 0;
   if (bar_item->background.enabled) {
     uint32_t image_height = bar_item->background.image.enabled
-                            ? bar_item->background.image.bounds.size.height
+                            ? image_get_size(&bar_item->background.image).height
                             : 0;
 
     background_height = max(image_height,
                             bar_item->background.bounds.size.height);
   }
 
-  uint32_t height = max(item_height, background_height);
-
-  return height;
+  return max(item_height, background_height);
 }
 
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {

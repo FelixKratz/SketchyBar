@@ -117,8 +117,8 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
 
   if (popup->background.enabled
       && popup->background.image.enabled) {
-    width = popup->background.image.bounds.size.width
-            + 2*popup->background.border_width;
+    uint32_t image_width = image_get_size(&popup->background.image).width;
+    width = image_width + 2*popup->background.border_width;
   }
 
   if (popup->horizontal) {
@@ -138,8 +138,8 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
 
     if (popup->background.enabled
         && popup->background.image.enabled) {
-      if (popup->background.image.bounds.size.height > height)
-        height = popup->background.image.bounds.size.height;
+      uint32_t image_height = image_get_size(&popup->background.image).height;
+      if (image_height > height) height = image_height;
       
       x = (width - total_item_width) / 2;
     }
@@ -220,8 +220,11 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
 
   popup->background.bounds.size.width = width;
   popup->background.bounds.size.height = y;
-  popup->background.image.bounds.origin.x = popup->background.border_width;
-  popup->background.image.bounds.origin.y = popup->background.border_width;
+
+  image_calculate_bounds(&popup->background.image,
+                         popup->background.border_width,
+                         popup->background.border_width
+                         + popup->background.image.bounds.size.height / 2);
 
   if (popup->adid > 0)
     window_set_frame(&popup->window, popup_get_frame(popup));

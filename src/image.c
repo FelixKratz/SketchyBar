@@ -207,7 +207,8 @@ CGSize image_get_size(struct image* image) {
                             + image->padding_right
                             + (image->shadow.enabled
                                ? image->shadow.offset.x : 0),
-                   .height = image->bounds.size.height };
+                   .height = image->bounds.size.height
+                             + 2*abs(image->y_offset) };
 }
 
 void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
