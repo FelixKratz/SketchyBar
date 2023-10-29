@@ -7,6 +7,7 @@
 #include "volume.h"
 #include "power.h"
 #include "mouse.h"
+#include "media.h"
 
 extern void forced_front_app_event();
 
@@ -522,6 +523,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     forced_brightness_event();
     forced_power_event();
     forced_front_app_event();
+    forced_media_change_event();
   }
 
   bool needs_refresh = false;

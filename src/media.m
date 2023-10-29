@@ -4,6 +4,7 @@
 extern void MRMediaRemoteRegisterForNowPlayingNotifications(dispatch_queue_t queue);
 extern void MRMediaRemoteGetNowPlayingInfo(dispatch_queue_t queue, void (^block)(NSDictionary* dict));
 extern void MRMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_queue_t queue, void (^block)(BOOL playing));
+extern void MRMediaRemoteGetNowPlayingApplicationDisplayName(int null, dispatch_queue_t queue, void (^block)(CFStringRef name));
 
 extern NSString* kMRMediaRemoteNowPlayingApplicationIsPlayingDidChangeNotification;
 extern NSString* kMRMediaRemoteNowPlayingInfoDidChangeNotification;
@@ -95,14 +96,18 @@ bool g_media_events = false;
 
 - (void)media_change:(NSNotification *)notification {
   if (!g_media_events) return;
-  MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(NSDictionary* dict) {
+  MRMediaRemoteGetNowPlayingApplicationDisplayName(0, dispatch_get_main_queue(), ^(CFStringRef name) {
     @autoreleasepool {
-      self.app = [notification.userInfo valueForKey:kMRMediaRemoteNowPlayingApplicationDisplayNameUserInfoKey];
-      self.artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
-      self.title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
-      self.album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
+      MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(NSDictionary* dict) {
+        @autoreleasepool {
+          self.app = (NSString*)name;
+          self.artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
+          self.title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
+          self.album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
 
-      [self update];
+          [self update];
+        }
+      });
     }
   });
 }
@@ -118,4 +123,8 @@ void initialize_media_events() {
 
 void begin_receiving_media_events() {
   g_media_events = true;
+}
+
+void forced_media_change_event() {
+  [g_media_context playing_change:NULL];
 }
