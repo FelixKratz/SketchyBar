@@ -68,6 +68,7 @@
 #define PROPERTY_ANGLE                         "angle"
 #define PROPERTY_SCALE                         "scale"
 #define PROPERTY_STRING                        "string"
+#define PROPERTY_SCROLL_TEXTS                  "scroll_texts"
 
 #define PROPERTY_COLOR_HEX                     "hex"
 #define PROPERTY_COLOR_ALPHA                   "alpha"

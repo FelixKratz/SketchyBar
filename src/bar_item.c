@@ -32,6 +32,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->blur_radius = 0;
   bar_item->event_port = 0;
   bar_item->shadow = false;
+  bar_item->scroll_texts = false;
 
   bar_item->has_const_width = false;
   bar_item->custom_width = 0;
@@ -105,17 +106,26 @@ void bar_item_reset_associated_bar(struct bar_item* bar_item) {
 }
 
 bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struct env_vars* env_vars) {
+  bool is_shown = bar_item_is_shown(bar_item);
+  if (is_shown && bar_item->scroll_texts && (bar_item->counter % 15 == 0)) {
+    text_animate_scroll(&bar_item->icon);
+    text_animate_scroll(&bar_item->label);
+    if (bar_item->type == BAR_COMPONENT_SLIDER)
+      text_animate_scroll(&bar_item->slider.knob);
+  }
+
+  bar_item->counter++;
+
   if ((!bar_item->updates || (bar_item->update_frequency == 0 && !sender))
       && !forced                                                          ) {
     return false;
   }
 
-  bar_item->counter++;
-
   bool scheduled_update_needed = bar_item->update_frequency
                                   <= bar_item->counter;
+
   bool should_update = bar_item->updates_only_when_shown
-                       ? bar_item_is_shown(bar_item)
+                       ? is_shown
                        : true;
 
   if (((scheduled_update_needed || sender) && should_update) || forced) {
@@ -157,6 +167,7 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
       free(message);
     }
   }
+
   return false;
 }
 
@@ -1035,6 +1046,9 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     needs_refresh = bar_item_set_drawing(bar_item,
                                          evaluate_boolean_state(get_token(&message),
                                                                 bar_item->drawing   ));
+  } else if (token_equals(property, PROPERTY_SCROLL_TEXTS)) {
+    bar_item->scroll_texts = evaluate_boolean_state(get_token(&message),
+                                                    bar_item->scroll_texts);
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {

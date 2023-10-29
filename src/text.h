@@ -22,6 +22,8 @@ struct text {
   int padding_right;
   uint32_t custom_width;
   uint32_t max_chars;
+  float scroll;
+  float width;
 
   CGRect bounds;
 
@@ -42,6 +44,7 @@ bool text_set_string(struct text* text, char* string, bool forced);
 bool text_set_font(struct text* text, char* font_string, bool forced);
 void text_copy(struct text* text, struct text* source);
 
+bool text_animate_scroll(struct text* text);
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
 void text_draw(struct text* text, CGContextRef context);
 void text_destroy(struct text* text);

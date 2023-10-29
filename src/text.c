@@ -1,6 +1,43 @@
 #include "text.h"
 #include "bar_manager.h"
 
+static void text_calculate_truncated_width(struct text* text, CFDictionaryRef attributes) {
+  if (text->max_chars > 0) {
+    uint32_t len = strlen(text->string) + 4;
+    char buffer[len];
+    memset(buffer, 0, len);
+
+    char* read = text->string;
+    char* write = buffer;
+    uint32_t counter = 0;
+    while (*read) {
+      if ((*read & 0xC0) != 0x80) counter++; 
+      if (counter > text->max_chars) {
+        break;
+      }
+      *write++ = *read++;
+    }
+
+    CFStringRef string = CFStringCreateWithCString(NULL,
+                                                   buffer,
+                                                   kCFStringEncodingUTF8);
+
+    if (string) {
+      CFAttributedStringRef attr_string = CFAttributedStringCreate(NULL,
+                                                                   string,
+                                                                   attributes);
+
+      CTLineRef line = CTLineCreateWithAttributedString(attr_string);
+
+      CGRect bounds = CTLineGetBoundsWithOptions(line,
+                                              kCTLineBoundsUseGlyphPathBounds);
+      text->width = (uint32_t)(bounds.size.width + 1.5f);
+      CFRelease(attr_string);
+      CFRelease(line);
+    }
+  }
+}
+
 static void text_prepare_line(struct text* text) {
   const void *keys[] = { kCTFontAttributeName,
                          kCTForegroundColorFromContextAttributeName };
@@ -16,39 +53,14 @@ static void text_prepare_line(struct text* text) {
                                                   array_count(keys),
                                                   &kCFTypeDictionaryKeyCallBacks,
                                                   &kCFTypeDictionaryValueCallBacks);
-  CFStringRef string;
-  if (text->max_chars > 0) {
-    uint32_t len = strlen(text->string) + 4;
-    char buffer[len];
-    memset(buffer, 0, len);
 
-    char* read = text->string;
-    char* write = buffer;
-    uint32_t counter = 0;
-    while (*read) {
-      if ((*read & 0xC0) != 0x80) counter++; 
-      if (counter > text->max_chars) {
-        *write++ = 0xE2;
-        *write++ = 0x80;
-        *write++ = 0xA6;
-        break;
-      }
-      *write++ = *read++;
-    }
-
-    string = CFStringCreateWithCString(NULL,
-                                       buffer,
-                                       kCFStringEncodingUTF8);
-  } else {
-    string = CFStringCreateWithCString(NULL,
-                                       text->string,
-                                       kCFStringEncodingUTF8);
-
-  }
+  CFStringRef string = CFStringCreateWithCString(NULL,
+                                                 text->string,
+                                                 kCFStringEncodingUTF8);
 
   if (!string) string = CFStringCreateWithCString(NULL,
-                                                  "Warning: Malformed UTF-8 string",
-                                                  kCFStringEncodingUTF8             );
+                                          "Warning: Malformed UTF-8 string",
+                                          kCFStringEncodingUTF8             );
 
   CFAttributedStringRef attr_string = CFAttributedStringCreate(NULL,
                                                                string,
@@ -69,9 +81,13 @@ static void text_prepare_line(struct text* text) {
   text->bounds.origin.x = (int32_t) (text->bounds.origin.x + 0.5);
   text->bounds.origin.y = (int32_t) (text->bounds.origin.y + 0.5);
 
+  text->width = text->bounds.size.width;
+
   CFRelease(string);
-  CFRelease(attributes);
   CFRelease(attr_string);
+
+  text_calculate_truncated_width(text, attributes);
+  CFRelease(attributes);
 }
 
 static void text_destroy_line(struct text* text) {
@@ -123,6 +139,7 @@ void text_init(struct text* text) {
   text->y_offset = 0;
   text->max_chars = 0;
   text->align = POSITION_LEFT;
+  text->scroll = 0.f;
 
   text->string = string_copy("");
   text_set_string(text, text->string, false);
@@ -187,7 +204,7 @@ uint32_t text_get_length(struct text* text, bool override) {
     text_set_string(text, text->string, true);
   }
 
-  int len = text->bounds.size.width + text->padding_left + text->padding_right;
+  int len = text->width + text->padding_left + text->padding_right;
   if ((!text->has_const_width || override)
       && text->background.enabled
       && text->background.image.enabled) {
@@ -240,10 +257,53 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   }
 }
 
+bool text_set_scroll(struct text* text, float scroll) {
+  if (text->scroll == scroll) return false;
+  text->scroll = scroll;
+  return true;
+}
+
+bool text_animate_scroll(struct text* text) {
+  if (text->max_chars == 0) return false;
+
+  g_bar_manager.animator.duration = 300;
+  g_bar_manager.animator.interp_function = INTERP_FUNCTION_TANH;
+
+  bool needs_refresh = false;
+  ANIMATE_FLOAT(text_set_scroll,
+                text,
+                text->scroll,
+                max(text->bounds.size.width - text->width, 0));
+
+  ANIMATE_FLOAT(text_set_scroll, text, text->scroll, 0);
+
+  g_bar_manager.animator.duration = 0;
+  g_bar_manager.animator.interp_function = '\0';
+
+  return needs_refresh;
+}
+
 void text_draw(struct text* text, CGContextRef context) {
+
   if (!text->drawing) return;
   if (text->background.enabled)
     background_draw(&text->background, context);
+
+  CGContextSaveGState(context);
+  if (text->max_chars > 0) {
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGRect bounds = text->bounds;
+    bounds.size.width = text->width;
+    bounds.origin.x += text->padding_left;
+    bounds.origin.y -= text->line.descent;
+    bounds.size.height = text->line.ascent + text->line.descent;
+
+    CGPathAddRect(path, NULL, bounds);
+
+    CGContextAddPath(context, path);
+    CGContextClip(context);
+    CFRelease(path);
+  }
 
   if (text->shadow.enabled) {
     CGContextSetRGBFillColor(context,
@@ -263,9 +323,11 @@ void text_draw(struct text* text, CGContextRef context) {
   CGContextSetRGBFillColor(context, color.r, color.g, color.b, color.a);
 
   CGContextSetTextPosition(context,
-                           text->bounds.origin.x + text->padding_left,
-                           text->bounds.origin.y + text->y_offset     );
+                           text->bounds.origin.x + text->padding_left
+                           - text->scroll,
+                           text->bounds.origin.y + text->y_offset    );
   CTLineDraw(text->line.line, context);
+  CGContextRestoreGState(context);
 }
 
 void text_serialize(struct text* text, char* indent, FILE* rsp) {
