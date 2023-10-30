@@ -755,7 +755,6 @@ void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did) 
 }
 
 void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
-  if (bar_manager->sleeps) bar_manager_handle_system_woke(bar_manager);
   bar_manager_display_changed(bar_manager);
 }
 
@@ -973,14 +972,13 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
-  if (bar_manager->sleeps) {
-    bar_manager->sleeps = false;
-    bar_manager_custom_events_trigger(bar_manager,
-                                      COMMAND_SUBSCRIBE_SYSTEM_WOKE,
-                                      NULL                          );
+  bar_manager->sleeps = false;
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_SYSTEM_WOKE,
+                                    NULL                          );
 
-    bar_manager_display_changed(bar_manager);
-  }
+
+  bar_manager_display_changed(bar_manager);
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {
