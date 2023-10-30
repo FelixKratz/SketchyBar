@@ -34,7 +34,6 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->sleeps = false;
   bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager->topmost = false;
-  bar_manager->sticky = false;
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_arrangement(display_active_display_id());

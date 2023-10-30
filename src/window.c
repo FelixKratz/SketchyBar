@@ -26,7 +26,10 @@ void window_create(struct window* window, CGRect frame) {
   uint64_t set_tags = kCGSExposeFadeTagBit;
   uint64_t clear_tags = 0;
 
-  if (g_bar_manager.sticky) {
+  if (__builtin_available(macOS 14.0, *)) {
+    set_tags |= kCGSStickyTagBit;
+    clear_tags = kCGSSuperStickyTagBit;
+  } else if (g_bar_manager.sticky) {
     set_tags |= kCGSStickyTagBit;
     clear_tags = kCGSSuperStickyTagBit;
   }
