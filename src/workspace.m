@@ -55,11 +55,15 @@ int workspace_display_notch_height(uint32_t did)
 void forced_front_app_event() {
   @autoreleasepool {
     NSString* name = [[[NSWorkspace sharedWorkspace] frontmostApplication] localizedName];
-    const char* front_app = [name cStringUsingEncoding:NSUTF8StringEncoding];
+    if (name) {
+      const char* front_app = [name cStringUsingEncoding:NSUTF8StringEncoding];
 
-    struct event event = { string_copy((char*)front_app),
-                           APPLICATION_FRONT_SWITCHED    };
-    event_post(&event);
+      if (front_app) {
+        struct event event = { string_copy((char*)front_app),
+                               APPLICATION_FRONT_SWITCHED    };
+        event_post(&event);
+      }
+    }
   }
 }
 
