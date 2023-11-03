@@ -160,7 +160,10 @@ CGImageRef workspace_icon_for_app(char* app) {
       char* name = NULL;
       if (notification && notification.userInfo) {
         NSRunningApplication* app = [notification.userInfo objectForKey:NSWorkspaceApplicationKey];
-        if (app) name = string_copy((char*)[[app localizedName] UTF8String]);
+        if (app) {
+          char* app_name_tmp = (char*)[[app localizedName] UTF8String];
+          if (app_name_tmp) name = string_copy(app_name_tmp);
+        }
       }
       struct event event = { name, APPLICATION_FRONT_SWITCHED };
       event_post(&event);
