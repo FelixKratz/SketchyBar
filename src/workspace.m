@@ -107,6 +107,10 @@ CGImageRef workspace_icon_for_app(char* app) {
                 selector:@selector(didChangeMenuBarHiding:)
                 name:@"AppleInterfaceMenuBarHidingChangedNotification"
                 object:nil];
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self
+                selector:@selector(didWake:)
+                name:@"com.apple.screenIsUnlocked"
+                object:nil];
     }
 
     return self;
