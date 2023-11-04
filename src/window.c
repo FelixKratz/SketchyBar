@@ -129,7 +129,7 @@ void window_move(struct window* window, CGPoint point) {
 
 bool window_apply_frame(struct window* window, bool forced) {
   windows_freeze();
-  if (window->needs_resize) {
+  if (window->needs_resize || forced) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
     if (__builtin_available(macOS 13.0, *)) {

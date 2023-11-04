@@ -177,7 +177,7 @@ void bar_draw(struct bar* bar, bool forced) {
                         bar                                     );
     }
 
-    if (!window_apply_frame(window, false) && !bar_item->needs_update)
+    if (!window_apply_frame(window, forced) && !bar_item->needs_update)
       continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
