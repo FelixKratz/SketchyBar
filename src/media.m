@@ -100,12 +100,14 @@ bool g_media_events = false;
     @autoreleasepool {
       MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(NSDictionary* dict) {
         @autoreleasepool {
-          self.app = (NSString*)name;
-          self.artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
-          self.title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
-          self.album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
+          if (dict) {
+            self.app = (NSString*)name;
+            self.artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
+            self.title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
+            self.album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
 
-          [self update];
+            [self update];
+          }
         }
       });
     }
