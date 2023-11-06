@@ -40,6 +40,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
   if (app_kv.key && app_kv.value && strcmp(app_kv.key, "app") == 0) {
     CGImageRef app_icon = workspace_icon_for_app(app_kv.value);
     scale = workspace_get_scale();
+    scale *= scale;
     if (app_icon) new_image_ref = app_icon;
     else {
       respond(rsp, "[!] Image: Invalid application name: '%s'\n", app_kv.value);

@@ -9,7 +9,14 @@
 @end
 
 float workspace_get_scale() {
-  return [[NSScreen mainScreen] backingScaleFactor];
+  float scale = 1.f;
+  NSArray* screens = [NSScreen screens];
+  for (int i = 0; i < [screens count]; i++) {
+    NSScreen* screen = screens[i];
+    float screen_scale = [screen backingScaleFactor]; 
+    if (screen_scale > scale) scale = screen_scale;
+  }
+  return scale;
 }
 
 void workspace_event_handler_init(void **context) {
@@ -74,7 +81,7 @@ CGImageRef workspace_icon_for_app(char* app) {
   if (!image) return NULL;
 
   float scale = workspace_get_scale();
-  NSRect rect = NSMakeRect( 0, 0, 16 * scale, 16 * scale);
+  NSRect rect = NSMakeRect( 0, 0, 32 * scale, 32 * scale);
   return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect
                                                     context: NULL
                                                       hints: NULL]);
