@@ -265,16 +265,26 @@ bool text_set_scroll(struct text* text, float scroll) {
 
 bool text_animate_scroll(struct text* text) {
   if (text->max_chars == 0) return false;
+  if (text->scroll != 0) return false;
 
-  g_bar_manager.animator.duration = 300;
-  g_bar_manager.animator.interp_function = INTERP_FUNCTION_TANH;
+  g_bar_manager.animator.duration = 100
+                                    * (text->bounds.size.width / text->width);
+  g_bar_manager.animator.interp_function = INTERP_FUNCTION_LINEAR;
 
   bool needs_refresh = false;
   ANIMATE_FLOAT(text_set_scroll,
                 text,
                 text->scroll,
-                max(text->bounds.size.width - text->width, 0));
+                max(text->bounds.size.width, 0));
 
+  g_bar_manager.animator.duration = 1;
+  ANIMATE_FLOAT(text_set_scroll,
+                text,
+                text->scroll,
+                -max(text->width, 0));
+
+  g_bar_manager.animator.duration = 100;
+;
   ANIMATE_FLOAT(text_set_scroll, text, text->scroll, 0);
 
   g_bar_manager.animator.duration = 0;
