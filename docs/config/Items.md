@@ -42,6 +42,7 @@ A list of properties available to the *set* command is listed below (components 
 | `padding_left`                     | `<integer>`                         | `0`       | The padding applied left of the item                  |
 | `padding_right`                    | `<integer>`                         | `0`       | The padding applied right of the item                 |
 | `width`                            | `<positive_integer>` or `dynamic`   | `dynamic` | Makes the *item* use a fixed *width* given in points  |
+| `scroll_texts`                     | `<boolean>`       | `off`           | Controls the automatic scroll of all items texts, which are truncated by the `max_chars` property  |
 | `blur_radius`                      | `<positive_integer>`                | `0`       | The blur radius applied to the background of the item |
 | `background.<background_property>` |                                     |           | Items support all `background` properties             |
 
@@ -85,7 +86,7 @@ A list of properties available to the *set* command is listed below (components 
 | `font.style`                       | `<string>`                        | `Bold`                     | The font style to be used for the `text`                                                     |
 | `font.size`                        | `<float>`                         | `14.0`                     | The font size to be used for the `text`                                                      |
 | `string`                           | `<string>`                        |                            | Sets the text to the specified string                                                        |
-| `max_chars`                        | `<positive_integer>`              | `0`                        | Sets the maximum characters to display (truncated with ellipsis)                             |
+| `max_chars`                        | `<positive_integer>`              | `0`                        | Sets the maximum characters to display (can be scrolled via the items `scroll_texts` property) |
 | `width`                            | `<positive_integer>` or `dynamic` | `dynamic`                  | Makes the `text` use a fixed `width` given in points                                         |
 | `align`                            | `center`, `left`, `right`         | `left`                     | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
 | `background.<background_property>` |                                   |                            | Texts support all `background` properties                                                    |
@@ -115,6 +116,13 @@ A list of properties available to the *set* command is listed below (components 
 | :-------:         | :------:    | :-------: | -----------                                          |
 | `drawing`         | `<boolean>` | `off`     | If the image should draw                             |
 | `scale`           | `<float>`   | `1.0`     | The scale factor that should be applied to the image |
+| `border_color`             | `<argb_hex>`                | `0x00000000` | Color of the image border |
+| `border_width`             | `<positive_integer>`        | `0`          | Width of the image border |
+| `corner_radius`            | `<positive_integer>`        | `0`          | Corner radius of the image |
+| `padding_left`             | `<integer>`                 | `0`          | Padding to the left of the image |
+| `padding_right`            | `<integer>`                 | `0`          | Padding to the right of the image  |
+| `y_offset`                 | `<integer>`                 | `0`          | Vertical offset applied to the image |
+| `shadow.<shadow_property>` |                             |              | Images support all `shadow` properties |
 
 ### Shadow properties
 

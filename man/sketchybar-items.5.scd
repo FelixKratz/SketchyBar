@@ -129,6 +129,10 @@ This section is relevant for the *--set* and *--default* commands.
 :  <positive_integer> or dynamic
 :  dynamic
 :  Makes the _item_ use a fixed _width_ given in points
+|  scroll_texts
+:  <boolean>
+:  off
+:  Controls the automatic scroll of all items texts, which are truncated by the max_chars property
 |  blur_radius
 :  <positive_integer>
 :  0
@@ -259,7 +263,7 @@ Note:
 |  max_chars
 :  <positive_integer>
 :  0
-:  Sets the maximum characters to display (truncated with ellipsis)
+:  Sets the maximum characters to display (can be scrolled via the items scroll_texts property)
 |  width
 :  <positive_integer> or dynamic
 :  dynamic
@@ -350,6 +354,34 @@ Note:
 :  <float>
 :  1.0
 :  The scale factor that should be applied to the image
+|  border_color
+:  <argb_hex>
+:  0x00000000
+:  Color of the image border
+|  border_width
+:  <positive_integer>
+:  0
+:  Width of the image border
+|  corner_radius
+:  <positive_integer>
+:  0
+:  Corner radius of the image
+|  padding_left
+:  <integer>
+:  0
+:  Padding to the left of the image
+|  padding_right
+:  <integer>
+:  0
+:  Padding to the right of the image
+|  y_offset
+:  <integer>
+:  0
+:  Vertical offset applied to the image
+|  shadow.<shadow_property>
+:  -
+:  -
+:  Images support all shadow properties
 
 ## Shadow properties
 
