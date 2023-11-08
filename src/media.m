@@ -16,10 +16,10 @@ extern NSString* kMRMediaRemoteNowPlayingInfoTitle;
 extern NSString* kMRMediaRemoteNowPlayingApplicationDisplayNameUserInfoKey;
 
 @interface media_context : NSObject {}
-  @property (retain) NSString* app;
-  @property (retain) NSString* artist;
-  @property (retain) NSString* title;
-  @property (retain) NSString* album;
+  @property const char* app;
+  @property const char* artist;
+  @property const char* title;
+  @property const char* album;
   @property BOOL playing;
 - (id)init;
 @end
@@ -41,7 +41,12 @@ extern NSString* kMRMediaRemoteNowPlayingApplicationDisplayNameUserInfoKey;
                                           selector:@selector(media_change:)
                                           name:kMRMediaRemoteNowPlayingApplicationDidChangeNotification
                                           object:nil];
+      self.app = NULL;
+      self.artist = NULL;
+      self.title = NULL;
+      self.album = NULL;
     }
+
     return self;
 }
 
@@ -50,14 +55,10 @@ bool g_media_events = false;
 - (void) update {
   @autoreleasepool {
     if (self.app && self.artist && self.title && self.album) {
-      const char* app_cstr = [self.app UTF8String];
-      const char* artist_cstr = [self.artist UTF8String];
-      const char* title_cstr = [self.title UTF8String];
-      const char* album_cstr = [self.album UTF8String];
-      uint32_t info_len = strlen(app_cstr)
-                          + strlen(artist_cstr)
-                          + strlen(title_cstr)
-                          + strlen(album_cstr) + 256;
+      uint32_t info_len = strlen(self.app)
+                          + strlen(self.artist)
+                          + strlen(self.title)
+                          + strlen(self.album) + 256;
 
       char info[info_len];
       snprintf(info, info_len, "{\n"
@@ -67,10 +68,10 @@ bool g_media_events = false;
                                "\t\"artist\": \"%s\",\n"
                                "\t\"app\": \"%s\"\n}",
                                self.playing ? "playing" : "paused",
-                               title_cstr,
-                               album_cstr,
-                               artist_cstr,
-                               app_cstr                            );
+                               self.title,
+                               self.album,
+                               self.artist,
+                               self.app                            );
 
       if (!g_media_info || strcmp(info, g_media_info) != 0) {
         g_media_info = realloc(g_media_info, info_len);
@@ -100,13 +101,20 @@ bool g_media_events = false;
     @autoreleasepool {
       MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(NSDictionary* dict) {
         @autoreleasepool {
-          if (dict) {
-            self.app = (NSString*)name;
-            self.artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
-            self.title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
-            self.album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
+          if (dict && name) {
+            NSString* app = (NSString*)name;
+            NSString* artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
+            NSString* title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
+            NSString* album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
+            if (artist && title && album && name) {
+              self.app = (char*)[app UTF8String];
+              self.artist = (char*)[artist UTF8String];
+              self.title = (char*)[title UTF8String];
+              self.album = (char*)[album UTF8String];
 
-            [self update];
+              [self update];
+            }
+
           }
         }
       });
