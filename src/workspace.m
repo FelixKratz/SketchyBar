@@ -86,10 +86,12 @@ CGImageRef workspace_icon_for_app(char* app) {
           ns_app = [app bundleIdentifier];
           path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:ns_app];
           recovered = true;
+          break;
         }
       }
       if (!recovered) return NULL;
     }
+
     NSImage* image = [[NSWorkspace sharedWorkspace] iconForFile:path.path];
     if (!image) return NULL;
 
