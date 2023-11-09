@@ -32,17 +32,7 @@ bool image_set_enabled(struct image* image, bool enabled) {
 bool image_set_link(struct image* image, struct image* link) {
   if (image->link == link) return false;
   image->link = link;
-  if (link) {
-    image->enabled = true;
-    CGRect bounds = (CGRect){{0,0},
-                  { CGImageGetWidth(image->link->image_ref) / image->scale,
-                    CGImageGetHeight(image->link->image_ref) / image->scale }};
-
-    image->size = bounds.size;
-    image->bounds = (CGRect){{0, 0},
-                             {bounds.size.width * image->scale,
-                              bounds.size.height * image->scale}};
-  }
+  if (link) image->enabled = true;
   return true;
 }
 
