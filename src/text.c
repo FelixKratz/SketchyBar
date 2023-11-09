@@ -31,7 +31,7 @@ static void text_calculate_truncated_width(struct text* text, CFDictionaryRef at
 
       CGRect bounds = CTLineGetBoundsWithOptions(line,
                                               kCTLineBoundsUseGlyphPathBounds);
-      text->width = (uint32_t)(bounds.size.width + 1.5f);
+      text->width = (uint32_t)(bounds.size.width + 1.5);
       CFRelease(attr_string);
       CFRelease(line);
     }
@@ -266,6 +266,7 @@ bool text_set_scroll(struct text* text, float scroll) {
 bool text_animate_scroll(struct text* text) {
   if (text->max_chars == 0) return false;
   if (text->scroll != 0) return false;
+  if (text->width == text->bounds.size.width) return false;
 
   g_bar_manager.animator.duration = 100
                                     * (text->bounds.size.width / text->width);
