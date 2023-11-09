@@ -325,6 +325,10 @@ static void event_media_changed(void* context) {
   bar_manager_handle_media_change(&g_bar_manager, (char*)context);
 }
 
+static void event_cover_changed(void* context) {
+  bar_manager_handle_media_cover_change(&g_bar_manager, (CGImageRef)context);
+}
+
 static void event_hotload(void* context) {
   bar_manager_destroy(&g_bar_manager);
   bar_manager_init(&g_bar_manager);
@@ -351,6 +355,7 @@ static callback_type* event_handler[] = {
   [BRIGHTNESS_CHANGED]         = event_brightness_changed,
   [POWER_SOURCE_CHANGED]       = event_power_source_changed,
   [MEDIA_CHANGED]              = event_media_changed,
+  [COVER_CHANGED]              = event_cover_changed,
   [DISTRIBUTED_NOTIFICATION]   = event_distributed_notification,
   [MENU_BAR_HIDDEN_CHANGED]    = event_menu_bar_hidden_changed,
   [SYSTEM_WOKE]                = event_system_woke,

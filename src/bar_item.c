@@ -468,6 +468,14 @@ bool bar_item_set_position(struct bar_item* bar_item, char* position) {
   return true;
 }
 
+bool bar_item_set_media_cover(struct bar_item* bar_item, struct image* image) {
+  bool linked = (bar_item->background.image.link == image
+                 ||bar_item->icon.background.image.link == image
+                 ||bar_item->label.background.image.link == image);
+  if (linked) bar_item_needs_update(bar_item);
+  return linked;
+}
+
 static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
   int length = text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)

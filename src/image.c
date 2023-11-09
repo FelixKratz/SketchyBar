@@ -2,6 +2,7 @@
 #include "misc/helpers.h"
 #include "shadow.h"
 #include "workspace.h"
+#include "media.h"
 
 void image_init(struct image* image) {
   image->enabled = false;
@@ -16,6 +17,7 @@ void image_init(struct image* image) {
   image->y_offset = 0;
   image->padding_left = 0;
   image->padding_right = 0;
+  image->link = NULL;
 
   shadow_init(&image->shadow);
   color_init(&image->border_color, 0xcccccccc);
@@ -24,6 +26,23 @@ void image_init(struct image* image) {
 bool image_set_enabled(struct image* image, bool enabled) {
   if (image->enabled == enabled) return false;
   image->enabled = enabled;
+  return true;
+}
+
+bool image_set_link(struct image* image, struct image* link) {
+  if (image->link == link) return false;
+  image->link = link;
+  if (link) {
+    image->enabled = true;
+    CGRect bounds = (CGRect){{0,0},
+                  { CGImageGetWidth(image->link->image_ref) / image->scale,
+                    CGImageGetHeight(image->link->image_ref) / image->scale }};
+
+    image->size = bounds.size;
+    image->bounds = (CGRect){{0, 0},
+                             {bounds.size.width * image->scale,
+                              bounds.size.height * image->scale}};
+  }
   return true;
 }
 
@@ -58,6 +77,11 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
       free(app);
       return false;
     }
+  } else if (strcmp(path, "media.artwork") == 0) {
+    free(res_path);
+    free(app);
+    begin_receiving_media_events();
+    return image_set_link(image, &g_bar_manager.current_artwork);
   } else if (file_exists(res_path)) {
     CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
     if (data_provider) {
@@ -131,6 +155,14 @@ void image_copy(struct image* image, CGImageRef source) {
 }
 
 bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
+  if (!new_image_ref) {
+    if (image->image_ref) CGImageRelease(image->image_ref);
+    if (image->data_ref) CFRelease(image->data_ref);
+    image->image_ref = NULL;
+    image->data_ref = NULL;
+    return false;
+  }
+  if (image->link) image_set_link(image, NULL);
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
 
   if (!forced && image_data_equals(image, new_data_ref)
@@ -213,12 +245,25 @@ CGSize image_get_size(struct image* image) {
 }
 
 void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
+  if (image->link && image->link->image_ref) {
+    float internal_scale = 32.f / CGImageGetHeight(image->link->image_ref);
+    CGRect bounds = (CGRect){{0,0},
+                  { CGImageGetWidth(image->link->image_ref) * internal_scale,
+                    32.f                                                    }};
+
+    image->size = bounds.size;
+    image->bounds = (CGRect){{0, 0},
+                             {bounds.size.width * image->scale,
+                              bounds.size.height * image->scale}};
+  }
+
   image->bounds.origin.x = x + image->padding_left;
   image->bounds.origin.y = y - image->bounds.size.height / 2 + image->y_offset;
 }
 
 void image_draw(struct image* image, CGContextRef context) {
-  if (!image->image_ref) return;
+  if ((!image->link && !image->image_ref)
+      || (image->link && !image->link->image_ref)) return;
 
   if (image->shadow.enabled) {
     CGContextSaveGState(context);
@@ -252,7 +297,9 @@ void image_draw(struct image* image, CGContextRef context) {
     CFRelease(path);
   }
 
-  CGContextDrawImage(context, image->bounds, image->image_ref);
+  CGContextDrawImage(context,
+                     image->bounds,
+                     image->link ? image->link->image_ref : image->image_ref);
 
   if (image->bounds.size.height > 2*image->corner_radius
       && image->bounds.size.width > 2*image->corner_radius) {

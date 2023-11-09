@@ -13,6 +13,8 @@ extern NSString* kMRMediaRemoteNowPlayingApplicationDidChangeNotification;
 extern NSString* kMRMediaRemoteNowPlayingInfoAlbum;
 extern NSString* kMRMediaRemoteNowPlayingInfoArtist;
 extern NSString* kMRMediaRemoteNowPlayingInfoTitle;
+extern NSString* kMRMediaRemoteNowPlayingInfoArtworkMIMEType;
+extern NSString* kMRMediaRemoteNowPlayingInfoArtworkData;
 extern NSString* kMRMediaRemoteNowPlayingApplicationDisplayNameUserInfoKey;
 
 @interface media_context : NSObject {}
@@ -20,6 +22,7 @@ extern NSString* kMRMediaRemoteNowPlayingApplicationDisplayNameUserInfoKey;
   @property const char* artist;
   @property const char* title;
   @property const char* album;
+  @property CGImageRef artwork;
   @property BOOL playing;
 - (id)init;
 @end
@@ -73,6 +76,9 @@ bool g_media_events = false;
                                self.artist,
                                self.app                            );
 
+      struct event cover_event = { self.artwork, COVER_CHANGED };
+      event_post(&cover_event);
+
       if (!g_media_info || strcmp(info, g_media_info) != 0) {
         g_media_info = realloc(g_media_info, info_len);
         memcpy(g_media_info, info, info_len);
@@ -112,9 +118,31 @@ bool g_media_events = false;
               self.title = (char*)[title UTF8String];
               self.album = (char*)[album UTF8String];
 
+              NSString* mime_type = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtworkMIMEType];
+              NSData* ns_data = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtworkData];
+              CGImageRef image = NULL;
+              if (mime_type && ns_data) {
+                CFDataRef data = CFDataCreate(NULL,
+                                              [ns_data bytes],
+                                              [ns_data length]);
+
+                CGDataProviderRef provider
+                                        = CGDataProviderCreateWithCFData(data);
+
+                if (provider) {
+                  CGImageSourceRef source
+                         = CGImageSourceCreateWithDataProvider(provider, NULL);
+                  if (source) {
+                    image = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+                    CFRelease(source);
+                  }
+                  CFRelease(provider);
+                }
+                CFRelease(data);
+              }
+              self.artwork = image;
               [self update];
             }
-
           }
         }
       });

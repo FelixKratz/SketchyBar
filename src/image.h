@@ -25,6 +25,8 @@ struct image {
   int padding_left;
   int padding_right;
   int y_offset;
+
+  struct image* link;
 };
 
 void image_init(struct image* image);

@@ -39,6 +39,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_arrangement(display_active_display_id());
   bar_manager->might_need_clipping = false;
 
+  image_init(&bar_manager->current_artwork);
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;
   bar_manager->background.overrides_height = true;
@@ -886,6 +887,15 @@ void bar_manager_handle_media_change(struct bar_manager* bar_manager, char* info
   env_vars_destroy(&env_vars);
 }
 
+void bar_manager_handle_media_cover_change(struct bar_manager* bar_manager, CGImageRef image) {
+  if (image_set_image(&bar_manager->current_artwork, image, CGRectNull, false)){
+    for (int i = 0; i < bar_manager->bar_item_count; i++) {
+      struct bar_item* bar_item = bar_manager->bar_items[i];
+      bar_item_set_media_cover(bar_item, &bar_manager->current_artwork);
+    }
+  }
+}
+
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);
@@ -1022,6 +1032,7 @@ void bar_manager_destroy(struct bar_manager* bar_manager) {
 
   CFRunLoopTimerInvalidate(bar_manager->clock);
   CFRelease(bar_manager->clock);
+  image_destroy(&bar_manager->current_artwork);
 }
 
 void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
