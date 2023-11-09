@@ -75,16 +75,30 @@ void forced_front_app_event() {
 }
 
 CGImageRef workspace_icon_for_app(char* app) {
-  NSURL* path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[NSString stringWithUTF8String:app]];
-  if (!path) return NULL;
-  NSImage* image = [[NSWorkspace sharedWorkspace] iconForFile:path.path];
-  if (!image) return NULL;
+  @autoreleasepool {
+    NSString* ns_app = [NSString stringWithUTF8String:app];
+    NSURL* path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:ns_app];
+    if (!path) {
+      bool recovered = false;
+      NSArray* running_apps = [[NSWorkspace sharedWorkspace] runningApplications];
+      for (NSRunningApplication* app in running_apps) {
+        if ([[app localizedName] isEqualToString:ns_app]) {
+          ns_app = [app bundleIdentifier];
+          path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:ns_app];
+          recovered = true;
+        }
+      }
+      if (!recovered) return NULL;
+    }
+    NSImage* image = [[NSWorkspace sharedWorkspace] iconForFile:path.path];
+    if (!image) return NULL;
 
-  float scale = workspace_get_scale();
-  NSRect rect = NSMakeRect( 0, 0, 32 * scale, 32 * scale);
-  return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect
-                                                    context: NULL
-                                                      hints: NULL]);
+    float scale = workspace_get_scale();
+    NSRect rect = NSMakeRect( 0, 0, 32 * scale, 32 * scale);
+    return (CGImageRef)CFRetain([image CGImageForProposedRect: &rect
+                                                      context: NULL
+                                                        hints: NULL]);
+  }
 }
 
 @implementation workspace_context
