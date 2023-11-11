@@ -26,7 +26,7 @@
 
 #define MAJOR 2
 #define MINOR 19
-#define PATCH 0
+#define PATCH 2
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
 extern CGError SLSWindowManagementBridgeSetDelegate(void* delegate);
