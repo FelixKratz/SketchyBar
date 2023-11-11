@@ -109,17 +109,17 @@ bool g_media_events = false;
         @autoreleasepool {
           if (dict && name) {
             NSString* app = (NSString*)name;
-            NSString* artist = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtist];
-            NSString* title = [dict valueForKey:kMRMediaRemoteNowPlayingInfoTitle];
-            NSString* album = [dict valueForKey:kMRMediaRemoteNowPlayingInfoAlbum];
+            NSString* artist = [dict objectForKey:kMRMediaRemoteNowPlayingInfoArtist];
+            NSString* title = [dict objectForKey:kMRMediaRemoteNowPlayingInfoTitle];
+            NSString* album = [dict objectForKey:kMRMediaRemoteNowPlayingInfoAlbum];
             if (artist && title && album && name) {
               self.app = (char*)[app UTF8String];
               self.artist = (char*)[artist UTF8String];
               self.title = (char*)[title UTF8String];
               self.album = (char*)[album UTF8String];
 
-              NSString* mime_type = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtworkMIMEType];
-              NSData* ns_data = [dict valueForKey:kMRMediaRemoteNowPlayingInfoArtworkData];
+              NSString* mime_type = [dict objectForKey:kMRMediaRemoteNowPlayingInfoArtworkMIMEType];
+              NSData* ns_data = [dict objectForKey:kMRMediaRemoteNowPlayingInfoArtworkData];
               CGImageRef image = NULL;
               if (mime_type && ns_data) {
                 CFDataRef data = CFDataCreate(NULL,
