@@ -76,8 +76,10 @@ bool g_media_events = false;
                                self.artist,
                                self.app                            );
 
-      struct event cover_event = { self.artwork, COVER_CHANGED };
-      event_post(&cover_event);
+      if (self.artwork) {
+        struct event cover_event = { self.artwork, COVER_CHANGED };
+        event_post(&cover_event);
+      }
 
       if (!g_media_info || strcmp(info, g_media_info) != 0) {
         g_media_info = realloc(g_media_info, info_len);
