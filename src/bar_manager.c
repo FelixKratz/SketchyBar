@@ -8,6 +8,7 @@
 #include "power.h"
 #include "mouse.h"
 #include "media.h"
+#include "app_windows.h"
 
 extern void forced_front_app_event();
 
@@ -524,6 +525,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     forced_power_event();
     forced_front_app_event();
     forced_media_change_event();
+    forced_space_windows_event();
   }
 
   bool needs_refresh = false;
@@ -903,6 +905,16 @@ void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* 
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED,
                                     &env_vars                            );
+  env_vars_destroy(&env_vars);
+}
+
+void bar_manager_handle_space_windows_change(struct bar_manager* bar_manager, char* info) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  if (info) env_vars_set(&env_vars, string_copy("INFO"), string_copy(info));
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_SPACE_WINDOWS_CHANGE,
+                                    &env_vars                              );
   env_vars_destroy(&env_vars);
 }
 

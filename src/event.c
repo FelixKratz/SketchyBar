@@ -329,6 +329,10 @@ static void event_cover_changed(void* context) {
   bar_manager_handle_media_cover_change(&g_bar_manager, (CGImageRef)context);
 }
 
+static void event_space_windows_changed(void* context) {
+  bar_manager_handle_space_windows_change(&g_bar_manager, (char*)context);
+}
+
 static void event_hotload(void* context) {
   bar_manager_destroy(&g_bar_manager);
   bar_manager_init(&g_bar_manager);
@@ -364,6 +368,7 @@ static callback_type* event_handler[] = {
   [ANIMATOR_REFRESH]           = event_animator_refresh,
   [MACH_MESSAGE]               = event_mach_message,
   [HOTLOAD]                    = event_hotload,
+  [SPACE_WINDOWS_CHANGED]      = event_space_windows_changed,
 };
 
 extern pthread_mutex_t g_event_mutex;

@@ -119,6 +119,7 @@ void bar_manager_handle_brightness_change(struct bar_manager* bar_manager, float
 void bar_manager_handle_power_source_change(struct bar_manager* bar_manager, char* state);
 void bar_manager_handle_media_change(struct bar_manager* bar_manager, char* info);
 void bar_manager_handle_media_cover_change(struct bar_manager* bar_manager, CGImageRef image);
+void bar_manager_handle_space_windows_change(struct bar_manager* bar_manager, char* info);
 void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* name, struct env_vars* env_vars);
 
 void bar_manager_destroy(struct bar_manager* bar_manager);

@@ -74,6 +74,15 @@ void forced_front_app_event() {
   }
 }
 
+char* workspace_copy_app_name_for_pid(pid_t pid) {
+  const char* result = NULL;
+  @autoreleasepool {
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    result = [[app localizedName] UTF8String];
+  }
+  return result ? string_copy((char*)result) : NULL;
+}
+
 CGImageRef workspace_icon_for_app(char* app) {
   @autoreleasepool {
     NSString* ns_app = [NSString stringWithUTF8String:app];

@@ -131,6 +131,7 @@
 #define COMMAND_SUBSCRIBE_MOUSE_ENTERED_GLOBAL "mouse.entered.global"
 #define COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL  "mouse.exited.global"
 #define COMMAND_SUBSCRIBE_MOUSE_SCROLLED_GLOBAL "mouse.scrolled.global"
+#define COMMAND_SUBSCRIBE_SPACE_WINDOWS_CHANGE "space_windows_change"
 
 #define DOMAIN_QUERY                           "--query"
 #define COMMAND_QUERY_DEFAULT_ITEMS            "default_menu_items"

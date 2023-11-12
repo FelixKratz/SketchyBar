@@ -50,6 +50,7 @@ char g_lock_file[MAXLEN];
 bool g_volume_events;
 bool g_brightness_events;
 int64_t g_disable_capture = 0;
+pid_t g_pid = 0;
 
 static int client_send_message(int argc, char **argv) {
   if (argc <= 1) {
@@ -187,6 +188,7 @@ int main(int argc, char **argv) {
   if (is_root())
     error("%s: running as root is not allowed! abort..\n", g_name);
 
+  pid_for_task(mach_task_self(), &g_pid);
   init_misc_settings();
   acquire_lockfile();
 

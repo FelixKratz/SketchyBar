@@ -34,6 +34,7 @@ uint32_t display_arrangement_display_id(int arrangement);
 bool display_menu_bar_visible(void);
 CGRect display_menu_bar_rect(uint32_t did);
 uint32_t display_active_display_count(void);
+uint32_t *display_active_display_list(uint32_t *count);
 bool display_begin(void);
 bool display_end(void);
 
