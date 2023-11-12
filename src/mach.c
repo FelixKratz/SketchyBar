@@ -55,8 +55,8 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   }
 
   mach_port_t response_port;
-  if (await_response) {
     mach_port_name_t task = mach_task_self();
+  if (await_response) {
     if (mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE,
                                  &response_port          ) != KERN_SUCCESS) {
       return NULL;
@@ -106,9 +106,21 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   if (await_response) {
     struct mach_buffer buffer = { 0 };
     mach_receive_message(response_port, &buffer, true);
-    if (buffer.message.descriptor.address)
-      return (char*)buffer.message.descriptor.address;
+    char* rsp = NULL;
+    if (buffer.message.descriptor.address) {
+      rsp = malloc(strlen(buffer.message.descriptor.address) + 1);
+      memcpy(rsp, buffer.message.descriptor.address,
+                  strlen(buffer.message.descriptor.address) + 1);
+    } else {
+      rsp = malloc(1);
+      *rsp = '\0';
+    }
+
     mach_msg_destroy(&buffer.message.header);
+    mach_port_mod_refs(task, response_port, MACH_PORT_RIGHT_RECEIVE, -1);
+    mach_port_deallocate(task, response_port);
+
+    return rsp;
   }
 
   return NULL;

@@ -97,6 +97,7 @@ static int client_send_message(int argc, char **argv) {
   } else {
     fprintf(stdout, "%s", rsp);
   }
+  free(rsp);
 
   return EXIT_SUCCESS;
 }
