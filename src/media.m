@@ -166,5 +166,7 @@ void begin_receiving_media_events() {
 }
 
 void forced_media_change_event() {
+  if (g_media_info) free(g_media_info);
+  g_media_info = NULL;
   [g_media_context playing_change:NULL];
 }
