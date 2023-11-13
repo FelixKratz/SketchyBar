@@ -98,6 +98,9 @@ the system is sleeping.
 |  space_change
 :  When the active mission control space changes
 :  list of active spaces on all displays in a JSON structure
+|  space_windows_change
+:  When a window is created or destroyed on a space
+:  list of application windows on the respective space in a JSON structure
 |  display_change
 :  When the active display is changed
 :  new active display id

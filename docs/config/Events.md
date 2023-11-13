@@ -17,6 +17,7 @@ where the events are:
 | :-------:              | :------:                                                                                            | :------:                               |
 | `front_app_switched`   | When the front application changes (not triggered if a different window of the same app is focused) | front application name                 |
 | `space_change`         | When the active mission control space changes                                                       | JSON for active spaces on all displays |
+| `space_windows_change` | When a window is created or destroyed on a space                                                    | JSON containing the space and all app windows |
 | `display_change`       | When the active display is changed                                                                  | new active display id                  |
 | `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
 | `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
