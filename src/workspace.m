@@ -93,8 +93,10 @@ CGImageRef workspace_icon_for_app(char* app) {
       for (NSRunningApplication* app in running_apps) {
         if ([[app localizedName] isEqualToString:ns_app]) {
           ns_app = [app bundleIdentifier];
-          path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:ns_app];
-          recovered = true;
+          if (ns_app) {
+            path = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:ns_app];
+            recovered = true;
+          }
           break;
         }
       }
