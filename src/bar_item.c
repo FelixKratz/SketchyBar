@@ -292,15 +292,15 @@ void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta) {
 void bar_item_mouse_entered(struct bar_item* bar_item) {
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED && !bar_item->mouse_over) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
-    bar_item->mouse_over = true;
   }
+  bar_item->mouse_over = true;
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
   if (bar_item->update_mask & UPDATE_MOUSE_EXITED && bar_item->mouse_over) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
-    bar_item->mouse_over = false;
   }
+  bar_item->mouse_over = false;
 }
 
 static bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
