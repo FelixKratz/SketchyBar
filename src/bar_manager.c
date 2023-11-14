@@ -890,12 +890,16 @@ void bar_manager_handle_media_change(struct bar_manager* bar_manager, char* info
 }
 
 void bar_manager_handle_media_cover_change(struct bar_manager* bar_manager, CGImageRef image) {
+  bool needs_refresh = false;
   if (image_set_image(&bar_manager->current_artwork, image, CGRectNull, false)){
     for (int i = 0; i < bar_manager->bar_item_count; i++) {
       struct bar_item* bar_item = bar_manager->bar_items[i];
-      bar_item_set_media_cover(bar_item, &bar_manager->current_artwork);
+      needs_refresh |= bar_item_set_media_cover(bar_item,
+                                                &bar_manager->current_artwork);
     }
   }
+
+  if (needs_refresh) bar_manager_refresh(bar_manager, false);
 }
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {
