@@ -34,6 +34,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->event_port = 0;
   bar_item->shadow = false;
   bar_item->scroll_texts = false;
+  bar_item->mouse_over = false;
 
   bar_item->has_const_width = false;
   bar_item->custom_width = 0;
@@ -289,13 +290,17 @@ void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta) {
 }
 
 void bar_item_mouse_entered(struct bar_item* bar_item) {
-  if (bar_item->update_mask & UPDATE_MOUSE_ENTERED)
+  if (bar_item->update_mask & UPDATE_MOUSE_ENTERED && !bar_item->mouse_over) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
+    bar_item->mouse_over = true;
+  }
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
-  if (bar_item->update_mask & UPDATE_MOUSE_EXITED)
+  if (bar_item->update_mask & UPDATE_MOUSE_EXITED && bar_item->mouse_over) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
+    bar_item->mouse_over = false;
+  }
 }
 
 static bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
@@ -474,7 +479,7 @@ bool bar_item_set_media_cover(struct bar_item* bar_item, struct image* image) {
                  ||bar_item->icon.background.image.link == image
                  ||bar_item->label.background.image.link == image);
   if (linked) bar_item_needs_update(bar_item);
-  return linked;
+  return linked && bar_item_is_shown(bar_item);
 }
 
 static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {

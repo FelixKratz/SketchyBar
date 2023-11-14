@@ -136,8 +136,6 @@ static void event_mouse_dragged(void* context) {
 static void event_mouse_entered(void* context) {
   uint32_t wid = get_wid_from_cg_event(context);
 
-  uint32_t adid = display_arrangement(display_active_display_id());
-
   struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
   if (bar) {
     // Handle global mouse entered event
@@ -161,6 +159,9 @@ static void event_mouse_entered(void* context) {
 
     return;
   }
+
+  uint32_t adid = display_arrangement(display_active_display_id());
+
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
                                                           adid           );
