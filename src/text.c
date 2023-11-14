@@ -306,8 +306,8 @@ void text_draw(struct text* text, CGContextRef context) {
     CGRect bounds = text->bounds;
     bounds.size.width = text->width;
     bounds.origin.x += text->padding_left;
-    bounds.origin.y -= text->line.descent;
-    bounds.size.height = text->line.ascent + text->line.descent;
+    bounds.origin.y = -9999.f;
+    bounds.size.height = 2.f*9999.f;
 
     CGPathAddRect(path, NULL, bounds);
 
