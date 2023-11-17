@@ -9,14 +9,16 @@
 @end
 
 float workspace_get_scale() {
-  float scale = 1.f;
-  NSArray* screens = [NSScreen screens];
-  for (int i = 0; i < [screens count]; i++) {
-    NSScreen* screen = screens[i];
-    float screen_scale = [screen backingScaleFactor]; 
-    if (screen_scale > scale) scale = screen_scale;
+  @autoreleasepool {
+    float scale = 1.f;
+    NSArray* screens = [NSScreen screens];
+    for (int i = 0; i < [screens count]; i++) {
+      NSScreen* screen = screens[i];
+      float screen_scale = [screen backingScaleFactor]; 
+      if (screen_scale > scale) scale = screen_scale;
+    }
+    return scale;
   }
-  return scale;
 }
 
 void workspace_event_handler_init(void **context) {
@@ -75,12 +77,11 @@ void forced_front_app_event() {
 }
 
 char* workspace_copy_app_name_for_pid(pid_t pid) {
-  const char* result = NULL;
   @autoreleasepool {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    result = [[app localizedName] UTF8String];
+    const char* result = [[app localizedName] UTF8String];
+    return result ? string_copy((char*)result) : NULL;
   }
-  return result ? string_copy((char*)result) : NULL;
 }
 
 CGImageRef workspace_icon_for_app(char* app) {
