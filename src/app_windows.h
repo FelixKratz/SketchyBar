@@ -25,6 +25,5 @@ struct app_windows {
   uint32_t num_windows;
 };
 
-
 void begin_receiving_space_window_events();
 void forced_space_windows_event();

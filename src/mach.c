@@ -50,9 +50,7 @@ void mach_receive_message(mach_port_t port, struct mach_buffer* buffer, bool tim
 }
 
 char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool await_response) {
-  if (!message || !port) {
-    return NULL;
-  }
+  if (!message || !port) return NULL;
 
   mach_port_t response_port;
     mach_port_name_t task = mach_task_self();

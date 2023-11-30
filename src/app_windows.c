@@ -43,8 +43,7 @@ void app_windows_add(struct app_windows* windows, struct app_window* window) {
 
 void app_windows_clear_space(struct app_windows* windows, uint64_t sid) {
   for (int i = 0; i < windows->num_windows; i++) {
-    if (windows->windows[i].sid == sid)
-      app_window_clear(windows->windows + i);
+    if (windows->windows[i].sid == sid) app_window_clear(windows->windows + i);
   }
 }
 
@@ -72,9 +71,7 @@ static bool app_window_suitable(struct app_window* window) {
     CFTypeRef iterator = SLSWindowQueryResultCopyWindows(query);
     if (iterator && SLSWindowIteratorGetCount(iterator) > 0) {
       if (SLSWindowIteratorAdvance(iterator)) {
-        if (iterator_window_suitable(iterator)) {
-          suitable = true;
-        }
+        if (iterator_window_suitable(iterator)) suitable = true;
       }
     }
     if (iterator) CFRelease(iterator);
@@ -173,9 +170,7 @@ static void app_windows_update_space(struct app_windows* windows, uint64_t sid, 
 
               pid_t pid = 0;
               SLSConnectionGetPID(wid_cid, &pid);
-              struct app_window window = { .wid = wid,
-                                           .sid = sid,
-                                           .pid = pid };
+              struct app_window window = {.wid = wid, .sid = sid, .pid = pid};
               app_windows_add(windows, &window);
             }
           }
@@ -205,11 +200,8 @@ static void window_spawn_handler(uint32_t event, struct window_spawn_data* data,
 
   if (event == 1325 && app_window_suitable(&window)) {
     app_windows_update_space(&g_windows, sid, false);
-  } else if (event == 1326) {
-    bool found = app_windows_find(&g_windows, &window);
-    if (found) {
-      app_windows_update_space(&g_windows, sid, false);
-    }
+  } else if (event == 1326 && app_windows_find(&g_windows, &window)) {
+    app_windows_update_space(&g_windows, sid, false);
   }
 }
 

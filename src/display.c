@@ -10,7 +10,8 @@ static void brightness_handler(void* notification_center, uint32_t did, void* na
   float b = 0;
   float* brightness = &b;
   DisplayServicesGetBrightness(did, brightness);
-  if (g_last_brightness < *brightness - 1e-2 || g_last_brightness > *brightness + 1e-2) {
+  if (g_last_brightness < *brightness - 1e-2
+     || g_last_brightness > *brightness + 1e-2) {
     g_last_brightness = *brightness;
     struct event event = { (void*) brightness, BRIGHTNESS_CHANGED };
     event_post(&event);

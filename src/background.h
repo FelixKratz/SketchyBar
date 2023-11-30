@@ -1,8 +1,6 @@
 #pragma once
 #include "image.h"
 
-struct bar;
-
 struct background {
   bool enabled;
   float clip;
@@ -24,6 +22,8 @@ struct background {
   uint32_t num_clips;
 };
 
+struct bar;
+
 void background_init(struct background* background);
 void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
@@ -34,6 +34,7 @@ bool background_set_padding_left(struct background* background, uint32_t pad);
 bool background_set_padding_right(struct background* background, uint32_t pad);
 
 void background_draw(struct background* background, CGContextRef context);
+
 struct background* background_get_clip(struct background* background, uint32_t adid);
 void background_clip_bar(struct background* background, int offset, struct bar* bar);
 bool background_clip_needs_update(struct background* background, struct bar* bar);

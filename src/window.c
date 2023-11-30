@@ -16,7 +16,7 @@ void window_init(struct window* window) {
   window->order_mode = W_ABOVE;
 }
 
-static CFTypeRef window_create_region(struct window *window, CGRect frame) {
+static CFTypeRef window_create_region(struct window* window, CGRect frame) {
   CFTypeRef frame_region;
   CGSNewRegionWithRect(&frame, &frame_region);
   return frame_region;
@@ -92,14 +92,12 @@ void windows_unfreeze() {
 void window_set_frame(struct window* window, CGRect frame) {
   if (window->needs_move
       || !CGPointEqualToPoint(window->origin, frame.origin)) {
-
     window->needs_move = true;
     window->origin = frame.origin;
   }
 
   if (window->needs_resize
       || !CGSizeEqualToSize(window->frame.size, frame.size)) {
-
     window->needs_resize = true;
     window->frame.size = frame.size;
   }
