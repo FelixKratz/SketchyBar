@@ -39,6 +39,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_arrangement(display_active_display_id());
   bar_manager->might_need_clipping = false;
+  bar_manager->sticky = false;
 
   image_init(&bar_manager->current_artwork);
   background_init(&bar_manager->background);

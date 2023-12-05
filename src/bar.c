@@ -526,7 +526,7 @@ struct bar *bar_create(uint32_t did) {
   bar->did = did;
   bar->dsid = display_space_id(did);
   bar->sid = mission_control_index(bar->dsid);
-  bar->shown = true;
+  bar->shown = SLSSpaceGetType(g_connection, bar->dsid) != 4;
   g_bar_manager.bar_needs_update = true;
   bar_create_window(bar);
   return bar;
