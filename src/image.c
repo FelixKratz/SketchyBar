@@ -343,8 +343,12 @@ bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token propert
     return image_set_enabled(image,
                              evaluate_boolean_state(get_token(&message),
                              image->enabled)                            );
-  else if (token_equals(property, PROPERTY_SCALE))
-    return image_set_scale(image, token_to_float(get_token(&message)));
+  else if (token_equals(property, PROPERTY_SCALE)) {
+    ANIMATE_FLOAT(image_set_scale,
+                  image,
+                  image->scale,
+                  token_to_float(get_token(&message)));
+  }
   else if (token_equals(property, PROPERTY_CORNER_RADIUS)) {
     ANIMATE(image_set_corner_radius,
             image,
