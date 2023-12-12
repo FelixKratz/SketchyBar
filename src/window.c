@@ -82,7 +82,7 @@ void windows_freeze() {
 
 void windows_unfreeze() {
   if (g_transaction) {
-    SLSTransactionCommit(g_transaction, 1);
+    SLSTransactionCommit(g_transaction, 0);
     CFRelease(g_transaction);
     g_transaction = NULL;
     SLSReenableUpdate(g_connection);
