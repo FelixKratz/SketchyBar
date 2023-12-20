@@ -141,6 +141,7 @@ OSStatus device_changed(AudioObjectID id, uint32_t address_count, const AudioObj
                                  &kVolumeLeftPropertyAddress,
                                  &handler,
                                  NULL                        );
+  g_last_volume = -1.f;
   g_audio_id = new_id;
   handler(g_audio_id, address_count, addresses, context);
   return KERN_SUCCESS;
