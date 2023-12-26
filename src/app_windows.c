@@ -219,6 +219,11 @@ static void update_all_spaces(struct app_windows* windows, bool silent) {
   if (displays) free(displays);
 }
 
+static void space_handler(uint32_t event, void* data, size_t data_length, void* context) {
+  update_all_spaces(&g_windows, event == 1401);
+}
+
+
 void forced_space_windows_event() {
   if (g_space_window_events) update_all_spaces(&g_windows, false);
 }
@@ -232,6 +237,13 @@ void begin_receiving_space_window_events() {
     SLSRegisterNotifyProc(window_spawn_handler,
                           1326,
                           (void*)(intptr_t)g_connection);
+
+    SLSRegisterNotifyProc((void*)space_handler, 1401, NULL);
+    if (__builtin_available(macOS 13.0, *)) {
+      SLSRegisterNotifyProc((void*)space_handler, 1327, NULL);
+      SLSRegisterNotifyProc((void*)space_handler, 1328, NULL);
+    }
+
     g_space_window_events = true;
     update_all_spaces(&g_windows, true);
   }
