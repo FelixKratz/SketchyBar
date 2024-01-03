@@ -50,11 +50,11 @@ a redefinition below.
 :< *description*
 |  graph.color
 :  <argb_hex>
-:  0xcccccc
+:  0xffcccccc
 :  Color of the graph line
 |  graph.fill_color
 :  <argb_hex>
-:  0xcccccc
+:  0xffcccccc
 :  Fill color of the graph
 |  graph.line_width
 :  <float>
