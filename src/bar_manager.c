@@ -1068,6 +1068,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "%s\"position\": \"%s\",\n"
                "%s\"topmost\": \"%s\",\n"
                "%s\"sticky\": \"%s\",\n"
+               "%s\"hidden\": \"%s\",\n"
                "%s\"shadow\": \"%s\",\n"
                "%s\"font_smoothing\": \"%s\",\n"
                "%s\"blur_radius\": %u,\n"
@@ -1076,6 +1077,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                                               ? "bottom" : "top",
                indent, format_bool(bar_manager->topmost),
                indent, format_bool(bar_manager->sticky),
+               indent, format_bool(bar_manager->any_bar_hidden),
                indent, format_bool(bar_manager->shadow),
                indent, format_bool(bar_manager->font_smoothing),
                indent, bar_manager->blur_radius,
