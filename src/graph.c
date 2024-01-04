@@ -9,8 +9,8 @@ void graph_init(struct graph* graph) {
   graph->overrides_fill_color = false;
   graph->enabled = true;
 
-  color_init(&graph->line_color, 0xcccccc);
-  color_init(&graph->fill_color, 0xcccccc);
+  color_init(&graph->line_color, 0xffcccccc);
+  color_init(&graph->fill_color, 0xffcccccc);
 }
 
 void graph_setup(struct graph* graph, uint32_t width) {
