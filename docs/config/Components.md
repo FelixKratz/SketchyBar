@@ -19,11 +19,11 @@ sketchybar --add graph <name> <position> <width in points>
 
 Additional graph properties:
 
-| <property\>        | <value\>     | default    | description                 |
-| :-------:          | :------:     | :-------:  | -----------                 |
-| `graph.color`      | `<argb_hex>` | `0xcccccc` | Color of the graph line     |
-| `graph.fill_color` | `<argb_hex>` | `0xcccccc` | Fill color of the graph     |
-| `graph.line_width` | `<float>`    | `0.5`      | Width of the line in points |
+| <property\>        | <value\>     | default      | description                 |
+| :-------:          | :------:     | :-------:    | -----------                 |
+| `graph.color`      | `<argb_hex>` | `0xffcccccc` | Color of the graph line     |
+| `graph.fill_color` | `<argb_hex>` | `0xffcccccc` | Fill color of the graph     |
+| `graph.line_width` | `<float>`    | `0.5`        | Width of the line in points |
 
 Push data points into the graph via:
 ```bash
