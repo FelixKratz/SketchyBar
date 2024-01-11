@@ -58,10 +58,14 @@ bool g_media_events = false;
 - (void) update {
   @autoreleasepool {
     if (self.app && self.artist && self.title && self.album) {
+      char* escaped_artist = escape_string((char*)self.artist);
+      char* escaped_title = escape_string((char*)self.title);
+      char* escaped_album = escape_string((char*)self.album);
+
       uint32_t info_len = strlen(self.app)
-                          + strlen(self.artist)
-                          + strlen(self.title)
-                          + strlen(self.album) + 256;
+                          + strlen(escaped_artist)
+                          + strlen(escaped_title)
+                          + strlen(escaped_album) + 256;
 
       char info[info_len];
       snprintf(info, info_len, "{\n"
@@ -71,10 +75,14 @@ bool g_media_events = false;
                                "\t\"artist\": \"%s\",\n"
                                "\t\"app\": \"%s\"\n}",
                                self.playing ? "playing" : "paused",
-                               self.title,
-                               self.album,
-                               self.artist,
+                               escaped_title,
+                               escaped_album,
+                               escaped_artist,
                                self.app                            );
+
+      free(escaped_artist);
+      free(escaped_title);
+      free(escaped_album);
 
       if (self.artwork) {
         struct event cover_event = { self.artwork, COVER_CHANGED };
