@@ -33,6 +33,7 @@ extern CGError SLSWindowManagementBridgeSetDelegate(void* delegate);
 #endif
 
 extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
+extern int SLSGetSpaceManagementMode(int cid);
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
 
@@ -209,6 +210,9 @@ int main(int argc, char **argv) {
     SLSRegisterNotifyProc((void*)space_events, 1328, NULL);
   }
 
+  if (SLSGetSpaceManagementMode(g_connection) != 1) {
+    error("%s: 'System Settings' -> 'Desktop & Dock' -> 'Displays have separate spaces' needs to be enabled for sketchybar to work properly.\n", g_name);
+  }
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);
 
