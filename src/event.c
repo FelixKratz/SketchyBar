@@ -72,7 +72,7 @@ static void event_mouse_up(void* context) {
   CGEventType type = CGEventGetType(context);
   uint32_t mouse_button_code = CGEventGetIntegerValueField(context, kCGMouseEventButtonNumber);
   uint32_t modifier_keys = CGEventGetFlags(context);
-  uint32_t adid = display_arrangement(display_active_display_id());
+  uint32_t adid = display_active_display_adid();
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
@@ -109,7 +109,7 @@ static void event_mouse_up(void* context) {
 static void event_mouse_dragged(void* context) {
   CGPoint point = CGEventGetLocation(context);
   uint32_t wid = get_wid_from_cg_event(context);
-  uint32_t adid = display_arrangement(display_active_display_id());
+  uint32_t adid = display_active_display_adid();
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
@@ -160,7 +160,7 @@ static void event_mouse_entered(void* context) {
     return;
   }
 
-  uint32_t adid = display_arrangement(display_active_display_id());
+  uint32_t adid = display_active_display_adid();
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
@@ -175,7 +175,7 @@ static void event_mouse_entered(void* context) {
 }
 
 static void event_mouse_exited(void* context) {
-  uint32_t adid = display_arrangement(display_active_display_id());
+  uint32_t adid = display_active_display_adid();
   uint32_t wid = get_wid_from_cg_event(context);
 
   struct bar* bar,* bar_target;
@@ -245,7 +245,7 @@ static void event_mouse_scrolled(void* context) {
   int scroll_delta
     = CGEventGetIntegerValueField(context,
         kCGScrollWheelEventDeltaAxis1);
-  uint32_t adid = display_arrangement(display_active_display_id());
+  uint32_t adid = display_active_display_adid();
 
   uint64_t event_time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
   if (g_scroll_info.timestamp + SCROLL_TIMEOUT > event_time) {

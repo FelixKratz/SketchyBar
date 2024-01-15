@@ -359,7 +359,7 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
     struct token state = get_token(&message);
     uint32_t adid = 0;
     if (token_equals(state, "current")) {
-      adid = display_arrangement(display_active_display_id());
+      adid = display_active_display_adid();
 
       if (adid > 0 && adid <= g_bar_manager.bar_count)
         needs_refresh = bar_manager_set_hidden(&g_bar_manager,

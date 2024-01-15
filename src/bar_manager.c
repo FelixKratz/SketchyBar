@@ -37,7 +37,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->topmost = false;
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
-  bar_manager->active_adid = display_arrangement(display_active_display_id());
+  bar_manager->active_adid = display_active_display_adid();
   bar_manager->might_need_clipping = false;
   bar_manager->sticky = false;
 
@@ -603,7 +603,7 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
     bar_manager->active_displays |= 1 << bar_manager->bars[i]->adid;
   }
 
-  bar_manager->active_adid = display_arrangement(display_active_display_id());
+  bar_manager->active_adid = display_active_display_adid();
   bar_manager->needs_ordering = true;
 }
 
@@ -763,7 +763,7 @@ void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
 }
 
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
-  bar_manager->active_adid = display_arrangement(display_active_display_id());
+  bar_manager->active_adid = display_active_display_adid();
 
   bar_manager_freeze(bar_manager);
   bar_manager_reset(bar_manager);
@@ -978,7 +978,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
 }
 
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
-  bar_manager->active_adid = display_arrangement(display_active_display_id());
+  bar_manager->active_adid = display_active_display_adid();
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char adid_str[3];
