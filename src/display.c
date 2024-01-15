@@ -192,6 +192,8 @@ uint32_t display_arrangement_display_id(int arrangement) {
 }
 
 uint32_t display_active_display_adid(void) {
+    if (display_active_display_count() == 1) return 1;
+
     CFStringRef uuid = display_active_display_uuid();
     CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
     if (!displays) {
