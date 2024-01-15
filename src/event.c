@@ -72,28 +72,24 @@ static void event_mouse_up(void* context) {
   CGEventType type = CGEventGetType(context);
   uint32_t mouse_button_code = CGEventGetIntegerValueField(context, kCGMouseEventButtonNumber);
   uint32_t modifier_keys = CGEventGetFlags(context);
-  uint32_t adid = display_active_display_adid();
 
+  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          adid           );
+                                                          &window        );
 
   struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
   struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
   if (!bar_item && !popup && !bar) return;
 
   if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
-    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, &window);
   }
 
-  struct window* window = NULL;
   CGPoint point_in_window_coords = CGPointZero;
-  if (bar_item) {
-    window = bar_item_get_window(bar_item, adid);
-    if (window) {
-      point_in_window_coords.x = point.x - window->origin.x;
-      point_in_window_coords.y = point.y - window->origin.y;
-    }
+  if (bar_item && window) {
+    point_in_window_coords.x = point.x - window->origin.x;
+    point_in_window_coords.y = point.y - window->origin.y;
   }
 
   bar_item_on_click(bar_item,
@@ -109,22 +105,18 @@ static void event_mouse_up(void* context) {
 static void event_mouse_dragged(void* context) {
   CGPoint point = CGEventGetLocation(context);
   uint32_t wid = get_wid_from_cg_event(context);
-  uint32_t adid = display_active_display_adid();
 
+  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          adid           );
+                                                          &window        );
 
   if (!bar_item || !bar_item->has_slider) return;
 
-  struct window* window = NULL;
   CGPoint point_in_window_coords = CGPointZero;
-  if (bar_item) {
-    window = bar_item_get_window(bar_item, adid);
-    if (window) {
-      point_in_window_coords.x = point.x - window->origin.x;
-      point_in_window_coords.y = point.y - window->origin.y;
-    }
+  if (bar_item && window) {
+    point_in_window_coords.x = point.x - window->origin.x;
+    point_in_window_coords.y = point.y - window->origin.y;
   }
 
   bar_item_on_drag(bar_item, point_in_window_coords);
@@ -160,22 +152,19 @@ static void event_mouse_entered(void* context) {
     return;
   }
 
-  uint32_t adid = display_active_display_adid();
-
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          adid           );
+                                                          NULL          );
 
   if (!bar_item) {
     CGPoint point = CGEventGetLocation(context);
-    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, NULL);
   }
 
   bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
 }
 
 static void event_mouse_exited(void* context) {
-  uint32_t adid = display_active_display_adid();
   uint32_t wid = get_wid_from_cg_event(context);
 
   struct bar* bar,* bar_target;
@@ -223,12 +212,12 @@ static void event_mouse_exited(void* context) {
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          adid           );
+                                                          NULL           );
 
   if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
       || (bar_manager_get_bar_by_point(&g_bar_manager, point)
-        && bar_manager_get_popup_by_point(&g_bar_manager,
-          point) != &bar_item->popup)) {
+        && bar_manager_get_popup_by_point(&g_bar_manager, point)
+            != &bar_item->popup)) {
     bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
   }
 }
@@ -245,7 +234,6 @@ static void event_mouse_scrolled(void* context) {
   int scroll_delta
     = CGEventGetIntegerValueField(context,
         kCGScrollWheelEventDeltaAxis1);
-  uint32_t adid = display_active_display_adid();
 
   uint64_t event_time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
   if (g_scroll_info.timestamp + SCROLL_TIMEOUT > event_time) {
@@ -291,10 +279,10 @@ static void event_mouse_scrolled(void* context) {
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          adid           );
+                                                          NULL           );
 
   if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
-    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, adid);
+    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, NULL);
   }
 
   bar_item_on_scroll(bar_item, scroll_delta + g_scroll_info.delta_y);

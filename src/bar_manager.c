@@ -607,40 +607,39 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
   bar_manager->needs_ordering = true;
 }
 
-struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, uint32_t adid) {
-  if (adid < 1) return NULL;
-
+struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, struct window** window_out) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (!bar_item->drawing || bar_item->num_windows < adid
-        || !bar_item->windows[adid - 1]                   ) {
-      continue;
-    }
+    if (!bar_item->drawing) continue;
 
-    struct window* window = bar_item_get_window(bar_item, adid);
-    CGRect frame = window->frame;
-    frame.origin = window->origin;
-    if (cgrect_contains_point(&frame, &point)) {
-      return bar_item;
+    for (int adid = 1; adid <= bar_item->num_windows; adid++) {
+      struct window* window = bar_item_get_window(bar_item, adid);
+      if (!window) continue;
+
+      CGRect frame = window->frame;
+      frame.origin = window->origin;
+      if (cgrect_contains_point(&frame, &point)) {
+        if (window_out) *window_out = window;
+        return bar_item;
+      }
     }
   }
   return NULL;
 }
 
-struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, uint32_t wid, uint32_t adid) {
-  if (adid < 1) return NULL;
-
+struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, uint32_t wid, struct window** window_out) {
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
-    if (!bar_item->drawing || bar_item->num_windows < adid
-        || !bar_item->windows[adid - 1]) {
-      continue;
-    }
+    if (!bar_item->drawing) continue;
 
-    struct window* window = bar_item_get_window(bar_item, adid);
+    for (int adid = 1; adid <= bar_item->num_windows; adid++) {
+      struct window* window = bar_item_get_window(bar_item, adid);
+      if (!window) continue;
 
-    if (window->id == wid) {
-      return bar_item;
+      if (window->id == wid) {
+        if (window_out) *window_out = window;
+        return bar_item;
+      }
     }
   }
   return NULL;
