@@ -1,6 +1,11 @@
 #include "message.h"
+#include "app_windows.h"
 #include "misc/defines.h"
 #include "hotload.h"
+#include "volume.h"
+#include "media.h"
+#include "wifi.h"
+#include "power.h"
 
 extern struct bar_manager g_bar_manager;
 
@@ -75,9 +80,18 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
 
   if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_CHANGE)) {
     bar_manager_handle_space_change(&g_bar_manager, true);
-  }
-  else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_DISPLAY_CHANGE)) {
     bar_manager_handle_display_change(&g_bar_manager);
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_SPACE_WINDOWS_CHANGE)) {
+    forced_space_windows_event();
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_VOLUME_CHANGE)) {
+    forced_volume_event();
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_MEDIA_CHANGE)) {
+    forced_media_change_event();
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_WIFI_CHANGE)) {
+    forced_network_event();
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE)) {
+    forced_power_event();
   } else {
     bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
   }
