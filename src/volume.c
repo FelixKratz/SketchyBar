@@ -76,7 +76,7 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
                              &volume_left                );
 
   if (volume_left > 0.f) {
-    *volume = muted_left ? 0.f : volume_left;
+    *volume = (muted_left || muted_main) ? 0.f : volume_left;
   } else {
     *volume = muted_main ? 0.f : volume_main;
   }
