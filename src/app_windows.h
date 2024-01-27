@@ -13,6 +13,7 @@ extern uint32_t SLSWindowIteratorGetWindowID(CFTypeRef iterator);
 extern uint64_t SLSWindowIteratorGetTags(CFTypeRef iterator);
 extern uint64_t SLSWindowIteratorGetAttributes(CFTypeRef iterator);
 extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* context);
+extern CGError SLSRequestNotificationsForWindows(int cid, uint32_t* wid_list, uint32_t list_count);
 
 struct app_window {
   uint32_t wid;
