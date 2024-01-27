@@ -519,7 +519,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   if ((bar_manager->frozen && !forced) || bar_manager->sleeps) return;
 
   if (forced) {
-    bar_manager_update_space_components(bar_manager, true);
+    bar_manager_handle_space_change(bar_manager, true);
     forced_network_event();
     forced_volume_event();
     forced_brightness_event();
