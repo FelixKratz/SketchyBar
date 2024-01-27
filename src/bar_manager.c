@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "bar.h"
 #include "bar_item.h"
 #include "event.h"
 #include "misc/env_vars.h"
@@ -594,6 +595,9 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
       uint32_t did = display_arrangement_display_id(index);
       bar_manager->bars[bar_index] = bar_create(did);
       bar_manager->bars[bar_index]->adid = index;
+      if (bar_manager->any_bar_hidden)
+        bar_set_hidden(bar_manager->bars[bar_index], true);
+
       bar_index++;
     }
   }
