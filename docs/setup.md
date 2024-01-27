@@ -5,6 +5,11 @@ sidebar_position: 1
 ---
 
 ## Installation
+### Prerequisite
+SketchyBar will only work properly with the system setting "Displays have
+separate Spaces" turned on (the default setting). The option is located
+in *System Settings* -> *Desktop & Dock* -> *Displays have separate Spaces*.
+
 ### Brew Install
 ```bash
 brew tap FelixKratz/formulae
