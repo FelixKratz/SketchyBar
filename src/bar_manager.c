@@ -40,7 +40,13 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->notch_offset = 0;
   bar_manager->active_adid = display_active_display_adid();
   bar_manager->might_need_clipping = false;
-  bar_manager->sticky = false;
+
+  // The bar is always sticky on Sonoma
+  if (__builtin_available(macOS 14.0, *)) {
+    bar_manager->sticky = true;
+  } else {
+    bar_manager->sticky = false;
+  }
 
   image_init(&bar_manager->current_artwork);
   background_init(&bar_manager->background);
@@ -289,6 +295,8 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, char level, bool t
 }
 
 bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky) {
+  // Sticky can not be changed from Sonoma up
+  if (__builtin_available(macOS 14.0, *)) return false;
   if (sticky == bar_manager->sticky) return false;
 
   bar_manager->sticky = sticky;
