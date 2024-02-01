@@ -3,6 +3,7 @@
 
 extern struct bar_manager g_bar_manager;
 extern int64_t g_disable_capture;
+int g_space = 0;
 
 void window_init(struct window* window) {
   window->context = NULL;
@@ -25,11 +26,6 @@ static CFTypeRef window_create_region(struct window* window, CGRect frame) {
 void window_create(struct window* window, CGRect frame) {
   uint64_t set_tags = kCGSExposeFadeTagBit;
   uint64_t clear_tags = 0;
-
-  if (g_bar_manager.sticky) {
-    set_tags |= kCGSStickyTagBit;
-    clear_tags = kCGSSuperStickyTagBit;
-  }
 
   window->origin = frame.origin;
   window->frame.origin = CGPointZero;
@@ -58,6 +54,33 @@ void window_create(struct window* window, CGRect frame) {
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
   window->needs_move = false;
   window->needs_resize = false;
+
+
+  if (g_bar_manager.sticky) {
+    if (!g_space) {
+      g_space = SLSSpaceCreate(g_connection, 1, 0);
+      SLSSpaceSetAbsoluteLevel(g_connection, g_space, 0);
+
+      CFArrayRef space_list = cfarray_of_cfnumbers(&g_space,
+                                                   sizeof(uint32_t),
+                                                   1,
+                                                   kCFNumberSInt32Type);
+      SLSShowSpaces(g_connection, space_list);
+      CFRelease(space_list);
+    }
+
+    CFArrayRef window_list = cfarray_of_cfnumbers(&window->id,
+                                                  sizeof(uint32_t),
+                                                  1,
+                                                  kCFNumberSInt32Type);
+
+    SLSSpaceAddWindowsAndRemoveFromSpaces(g_connection,
+                                          g_space,
+                                          window_list,
+                                          0x7          );
+
+    CFRelease(window_list);
+  }
 }
 
 void window_clear(struct window* window) {

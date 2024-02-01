@@ -41,12 +41,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_active_display_adid();
   bar_manager->might_need_clipping = false;
 
-  // The bar is always sticky on Sonoma
-  if (__builtin_available(macOS 14.0, *)) {
-    bar_manager->sticky = true;
-  } else {
-    bar_manager->sticky = false;
-  }
+  bar_manager->sticky = true;
 
   image_init(&bar_manager->current_artwork);
   background_init(&bar_manager->background);
@@ -295,8 +290,6 @@ bool bar_manager_set_topmost(struct bar_manager *bar_manager, char level, bool t
 }
 
 bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky) {
-  // Sticky can not be changed from Sonoma up
-  if (__builtin_available(macOS 14.0, *)) return false;
   if (sticky == bar_manager->sticky) return false;
 
   bar_manager->sticky = sticky;
@@ -421,6 +414,8 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
       bar_item_needs_update(bar_manager->bar_items[j]);
     }
   }
+
+  if (forced || bar_manager->bar_needs_resize) bar_manager_resize(bar_manager);
 
   for (int i = 0; i < bar_manager->bar_count; ++i) {
     if (forced
@@ -956,6 +951,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
 
     bar_manager->needs_ordering |= !was_shown && bar_manager->bars[i]->shown;
     force_refresh |= !was_shown && bar_manager->bars[i]->shown;
+    force_refresh |= !bar_manager->bars[i]->shown && was_shown;
 
     if (bar_manager->bars[i]->dsid != dsid) {
       bar_manager->bars[i]->dsid = dsid;

@@ -52,10 +52,13 @@ extern CGError SLSSetSurfaceResolution(int cid, uint32_t wid, uint32_t sid, CGFl
 extern CGError SLSFlushSurface(int cid, uint32_t wid, uint32_t surface, int param);
 extern CGError SLSSetSurfaceColorSpace(int cid, uint32_t wid, uint32_t surface, CGColorSpaceRef color_space);
 
+extern int SLSSpaceCreate(int cid, int one, int zero);
+extern CGError SLSSpaceSetAbsoluteLevel(int cid, int sid, int level);
+extern CGError SLSShowSpaces(int cid, CFArrayRef space_list);
+extern CGError SLSHideSpaces(int cid, CFArrayRef space_list);
+extern CGError SLSSpaceAddWindowsAndRemoveFromSpaces(int cid, int sid, CFArrayRef array, int seven);
+
 #define kCGSExposeFadeTagBit            (1ULL <<  1)
-#define kCGSHighQualityResamplingTagBit (1ULL <<  4)
-#define kCGSStickyTagBit                (1ULL << 11)
-#define kCGSSuperStickyTagBit           (1ULL << 45)
 
 #define W_ABOVE  1
 #define W_OUT    0

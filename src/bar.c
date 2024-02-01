@@ -481,7 +481,10 @@ static CGRect bar_get_frame(struct bar *bar) {
 }
 
 void bar_resize(struct bar* bar) {
-  if (bar->hidden) return;
+  if (bar->hidden || !bar->shown) {
+    window_move(&bar->window, g_nirvana);
+    return;
+  };
   window_set_frame(&bar->window, bar_get_frame(bar));
   if (window_apply_frame(&bar->window, false)) {
     window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
