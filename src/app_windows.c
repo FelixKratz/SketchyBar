@@ -197,6 +197,7 @@ static void app_windows_update_space(struct app_windows* windows, uint64_t sid, 
               app_windows_add(windows, &window);
             }
           }
+          CFRelease(iterator);
         }
         CFRelease(query);
       }
