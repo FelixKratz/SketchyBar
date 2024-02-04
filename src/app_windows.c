@@ -123,9 +123,22 @@ static void app_windows_post_event_for_space(struct app_windows* windows, uint64
         pid_count[j]++;
         if (!pid_name[j]) {
           pid_name[j] = workspace_copy_app_name_for_pid(pid_list[j]);
-          length += pid_name[j] ? strlen(pid_name[j]) + 16 : 0;
+          length += pid_name[j] ? (strlen(pid_name[j]) + 16) : 0;
         }
         break;
+      }
+    }
+  }
+
+  for (int i = 0; i < windows->num_windows; i++) {
+    for (int j = i + 1; j < windows->num_windows; j++) {
+      if (pid_name[i]
+          && pid_name[j]
+          && strcmp(pid_name[i], pid_name[j]) == 0) {
+        free(pid_name[j]);
+        pid_name[j] = NULL;
+
+        pid_count[i] += pid_count[j];
       }
     }
   }
@@ -155,7 +168,6 @@ static void app_windows_post_event_for_space(struct app_windows* windows, uint64
     free(pid_name[i]);
     cursor = payload + strlen(payload);
   }
-
 
   snprintf(cursor, length - (cursor - payload), "\n\t}\n}\n");
   struct event event = { payload, SPACE_WINDOWS_CHANGED };
