@@ -82,8 +82,8 @@ The possible settings to configure the bar include
 :  If the bar should be drawn on top of everything, or on top of all windows
 |  sticky
 :  <boolean>
-:  off
-:  Makes the bar sticky (only use with disabled space change animations)
+:  on
+:  Makes the bar sticky on space changes
 |  font_smoothing
 :  <boolean>
 :  off
