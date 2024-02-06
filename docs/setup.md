@@ -15,8 +15,12 @@ in *System Settings* -> *Desktop & Dock* -> *Displays have separate Spaces*.
 brew tap FelixKratz/formulae
 brew install sketchybar
 ```
-Do not forget to copy the example configuration files to your home directory
-(the brew installation specific commands are listed in the caveats section after the brew install is finished).
+Copy the example configuration and make it executable:
+```bash
+mkdir -p ~/.config/sketchybar/plugins
+cp $(brew --prefix)/share/sketchybar/examples/sketchybarrc ~/.config/sketchybar/sketchybarrc
+cp -r $(brew --prefix)/share/sketchybar/examples/plugins/ ~/.config/sketchybar/plugins/
+```
 The default configuration is intentionally sparse, so if you are looking for something more sophisticated as a starting point, you might want to look at
 [this discussion](https://github.com/FelixKratz/SketchyBar/discussions/47).
 
