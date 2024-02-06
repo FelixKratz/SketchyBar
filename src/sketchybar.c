@@ -185,6 +185,7 @@ void system_events(uint32_t event, void* data, size_t data_length, void* context
 
 int main(int argc, char **argv) {
   snprintf(g_name, sizeof(g_name), "%s", basename(argv[0]));
+  setenv("BAR_NAME", g_name, 1);
   if (argc > 1) parse_arguments(argc, argv);
 
   if (is_root())
