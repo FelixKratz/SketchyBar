@@ -185,15 +185,21 @@ void system_events(uint32_t event, void* data, size_t data_length, void* context
 
 int main(int argc, char **argv) {
   snprintf(g_name, sizeof(g_name), "%s", basename(argv[0]));
-  setenv("BAR_NAME", g_name, 1);
-  if (argc > 1) parse_arguments(argc, argv);
 
   if (is_root())
     error("%s: running as root is not allowed! abort..\n", g_name);
 
+  setenv("BAR_NAME", g_name, 1);
+
+  if (argc > 1) parse_arguments(argc, argv);
+
   pid_for_task(mach_task_self(), &g_pid);
   init_misc_settings();
   acquire_lockfile();
+
+  if (SLSGetSpaceManagementMode(g_connection) != 1) {
+    error("%s: 'System Settings' -> 'Desktop & Dock' -> 'Displays have separate spaces' needs to be enabled for sketchybar to work properly.\n", g_name);
+  }
 
   pthread_mutexattr_t mattr;
   pthread_mutexattr_init(&mattr);
@@ -211,9 +217,6 @@ int main(int argc, char **argv) {
     SLSRegisterNotifyProc((void*)space_events, 1328, NULL);
   }
 
-  if (SLSGetSpaceManagementMode(g_connection) != 1) {
-    error("%s: 'System Settings' -> 'Desktop & Dock' -> 'Displays have separate spaces' needs to be enabled for sketchybar to work properly.\n", g_name);
-  }
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);
 
@@ -233,7 +236,6 @@ int main(int argc, char **argv) {
   initialize_media_events();
 
   exec_config_file();
-
   begin_receiving_config_change_events();
 
   #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
@@ -241,6 +243,7 @@ int main(int argc, char **argv) {
     SLSWindowManagementBridgeSetDelegate(NULL);
   }
   #endif
+
   RunApplicationEventLoop();
   return 0;
 }
