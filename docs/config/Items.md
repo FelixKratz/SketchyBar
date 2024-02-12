@@ -106,7 +106,7 @@ A list of properties available to the *set* command is listed below (components 
 | `padding_right`            | `<integer>`                 | `0`          | Padding to the right of the `background`                                       |
 | `y_offset`                 | `<integer>`                 | `0`          | Vertical offset applied to the `background`                                    |
 | `clip`                     | `<float>`                   | `0.0`        | By how much the background clips the bar (i.e. transparent holes in the bar)   |
-| `image`                    | `<path>`, `app.<bundle-id>`, `app.<name>`, `media.cover` |              | The image to display in the bar                   |
+| `image`                    | `<path>`, `app.<bundle-id>`, `app.<name>`, `media.artwork` |              | The image to display in the bar                   |
 | `image.<image_property>`   |                             |              | Backgrounds support all `image` properties                                     |
 | `shadow.<shadow_property>` |                             |              | Backgrounds support all `shadow` properties                                    |
 

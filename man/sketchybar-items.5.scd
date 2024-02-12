@@ -328,7 +328,7 @@ Note:
 :  0.0
 :  By how much the background clips the bar (i.e. transparent holes in the bar)
 |  image
-:  <path>, app.<bundle-id>, app.<name>, media.cover
+:  <path>, app.<bundle-id>, app.<name>, media.artwork
 :  -
 :  The image to display in the bar
 |  image.<image_property>
