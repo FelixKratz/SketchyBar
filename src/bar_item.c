@@ -174,10 +174,6 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
 }
 
 void bar_item_needs_update(struct bar_item* bar_item) {
-  if (bar_item->group && bar_item != bar_item->group->members[0]) {
-      bar_item_needs_update(bar_item->group->members[0]);
-  }
-    
   bar_item->needs_update = true;
 }
 

@@ -137,10 +137,6 @@ void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y) {
                               group->members[0]->background.bounds.size.height);
 }
 
-void group_draw(struct group* group, CGContextRef context) {
-  background_draw(&group->members[0]->background, context);
-}
-
 void group_serialize(struct group* group, char* indent, FILE* rsp) {
     int counter = 0;
     for (int i = 1; i < group->num_members; i++) {

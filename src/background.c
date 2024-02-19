@@ -187,6 +187,15 @@ static void draw_rect(CGContextRef context, CGRect region, struct color* fill_co
 
 void background_draw(struct background* background, CGContextRef context) {
   if (!background->enabled) return;
+
+  if ((background->border_color.a == 0 || background->border_width == 0)
+      && (background->color.a == 0)
+      && !background->shadow.enabled
+      && !background->image.enabled                                      ) {
+    // The background is enabled but has no content.
+    return;
+  }
+
   CGRect background_bounds = background->bounds;
   background_bounds.origin.y += background->y_offset;
   if (background->shadow.enabled) {

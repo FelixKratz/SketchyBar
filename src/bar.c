@@ -191,8 +191,7 @@ void bar_draw(struct bar* bar, bool forced) {
     CGContextFlush(window->context);
   }
 
-  if (g_bar_manager.bar_needs_update)
-    CGContextFlush(bar->window.context);
+  if (g_bar_manager.bar_needs_update) CGContextFlush(bar->window.context);
 }
 
 static void bar_calculate_bounds_top_bottom(struct bar* bar) {
