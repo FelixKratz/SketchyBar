@@ -140,6 +140,7 @@ void text_init(struct text* text) {
   text->max_chars = 0;
   text->align = POSITION_LEFT;
   text->scroll = 0.f;
+  text->scroll_duration = 100;
 
   text->string = string_copy("");
   text_set_string(text, text->string, false);
@@ -175,6 +176,12 @@ static bool text_set_yoffset(struct text* text, int offset) {
   if (text->y_offset == offset) return false;
   text->y_offset = offset;
   return true;
+}
+
+static bool text_set_scroll_duration(struct text* text, int duration) {
+  if (duration < 0) return false;
+  text->scroll_duration = duration;
+  return false;
 }
 
 static bool text_set_width(struct text* text, int width) {
@@ -266,10 +273,10 @@ bool text_set_scroll(struct text* text, float scroll) {
 bool text_animate_scroll(struct text* text) {
   if (text->max_chars == 0) return false;
   if (text->scroll != 0) return false;
-  if (text->has_const_width && text->custom_width == 0) return false;
+  if (text->has_const_width && text->custom_width < text->width) return false;
   if (text->width == 0 || text->width == text->bounds.size.width) return false;
 
-  g_bar_manager.animator.duration = 100
+  g_bar_manager.animator.duration = text->scroll_duration
                                     * (text->bounds.size.width / text->width);
   g_bar_manager.animator.interp_function = INTERP_FUNCTION_LINEAR;
 
@@ -285,8 +292,8 @@ bool text_animate_scroll(struct text* text) {
                 text->scroll,
                 -max(text->width, 0));
 
-  g_bar_manager.animator.duration = 100;
-;
+  g_bar_manager.animator.duration = text->scroll_duration;
+
   ANIMATE_FLOAT(text_set_scroll, text, text->scroll, 0);
 
   g_bar_manager.animator.duration = 0;
@@ -471,6 +478,9 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
             text->y_offset,
             token_to_int(token));
 
+  } else if (token_equals(property, PROPERTY_SCROLL_DURATION)) {
+    struct token token = get_token(&message);
+    text_set_scroll_duration(text, token_to_int(token));
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {

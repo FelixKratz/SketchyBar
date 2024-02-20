@@ -22,6 +22,7 @@ struct text {
   int padding_right;
   uint32_t custom_width;
   uint32_t max_chars;
+  uint32_t scroll_duration;
   float scroll;
   float width;
 

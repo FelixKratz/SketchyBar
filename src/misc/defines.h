@@ -69,6 +69,7 @@
 #define PROPERTY_SCALE                         "scale"
 #define PROPERTY_STRING                        "string"
 #define PROPERTY_SCROLL_TEXTS                  "scroll_texts"
+#define PROPERTY_SCROLL_DURATION               "scroll_duration"
 
 #define PROPERTY_COLOR_HEX                     "hex"
 #define PROPERTY_COLOR_ALPHA                   "alpha"
