@@ -308,6 +308,9 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
     window_set_frame(bar_item_get_window(bar_item->group->members[0],
                                          bar->adid                   ),
                      bar_item->group->bounds                           );
+
+    if (bar_item->popup.drawing)
+      bar_calculate_popup_anchor_for_bar_item(bar, bar_item);
   }
 }
 
