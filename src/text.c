@@ -266,7 +266,8 @@ bool text_set_scroll(struct text* text, float scroll) {
 bool text_animate_scroll(struct text* text) {
   if (text->max_chars == 0) return false;
   if (text->scroll != 0) return false;
-  if (text->width == text->bounds.size.width) return false;
+  if (text->has_const_width && text->custom_width == 0) return false;
+  if (text->width == 0 || text->width == text->bounds.size.width) return false;
 
   g_bar_manager.animator.duration = 100
                                     * (text->bounds.size.width / text->width);
