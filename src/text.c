@@ -303,7 +303,6 @@ bool text_animate_scroll(struct text* text) {
 }
 
 void text_draw(struct text* text, CGContextRef context) {
-
   if (!text->drawing) return;
   if (text->background.enabled)
     background_draw(&text->background, context);

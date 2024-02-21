@@ -339,10 +339,14 @@ void image_serialize(struct image* image, char* indent, FILE* rsp) {
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
-  if (token_equals(property, PROPERTY_DRAWING))
+  if (token_equals(property, PROPERTY_STRING)) {
+    return image_load(image, token_to_string(get_token(&message)), rsp);
+  }
+  else if (token_equals(property, PROPERTY_DRAWING)) {
     return image_set_enabled(image,
                              evaluate_boolean_state(get_token(&message),
                              image->enabled)                            );
+  }
   else if (token_equals(property, PROPERTY_SCALE)) {
     ANIMATE_FLOAT(image_set_scale,
                   image,
