@@ -32,6 +32,7 @@
 
 #define DOMAIN_HOTLOAD                         "--hotload"
 #define DOMAIN_RELOAD                          "--reload"
+#define DOMAIN_ADD_FONT                        "--load-font"
 
 #define SUB_DOMAIN_ICON                        "icon"
 #define SUB_DOMAIN_LABEL                       "label"

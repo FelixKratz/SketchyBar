@@ -2,6 +2,25 @@
 #include "animation.h"
 #include "bar_manager.h"
 
+void font_register(char* font_path) {
+  CFStringRef url_string = CFStringCreateWithCString(kCFAllocatorDefault,
+                                                     font_path,
+                                                     kCFStringEncodingUTF8);
+  if (url_string) {
+    CFURLRef url_ref = CFURLCreateWithString(kCFAllocatorDefault,
+                                             url_string,
+                                             NULL                );
+    if (url_ref) {
+      CTFontManagerRegisterFontsForURL(url_ref,
+                                       kCTFontManagerScopeProcess,
+                                       NULL                       );
+      CFRelease(url_ref);
+    }
+    CFRelease(url_string);
+  }
+  free(font_path);
+}
+
 void font_create_ctfont(struct font* font) {
 
   CFStringRef family_ref = CFStringCreateWithCString(NULL,

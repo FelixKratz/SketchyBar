@@ -11,6 +11,8 @@ struct font {
   char* style;
 };
 
+void font_register(char* font_path);
+
 void font_init(struct font* font);
 void font_destroy(struct font* font);
 bool font_set(struct font* font, char* font_string, bool forced);

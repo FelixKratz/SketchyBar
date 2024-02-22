@@ -713,6 +713,9 @@ void handle_message_mach(struct mach_buffer* buffer) {
     } else if (token_equals(command, DOMAIN_HOTLOAD)) {
       struct token token = get_token(&message);
       hotload_set_state(evaluate_boolean_state(token, hotload_get_state()));
+    } else if (token_equals(command, DOMAIN_ADD_FONT)) {
+      struct token token = get_token(&message);
+      font_register(token_to_string(token));
     } else if (token_equals(command, DOMAIN_RELOAD)) {
       char* rbr_msg = get_batch_line(&message);
       char* cur = rbr_msg;
