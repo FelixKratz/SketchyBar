@@ -34,6 +34,7 @@ static void text_calculate_truncated_width(struct text* text, CFDictionaryRef at
       text->width = (uint32_t)(bounds.size.width + 1.5);
       CFRelease(attr_string);
       CFRelease(line);
+      CFRelease(string);
     }
   }
 }
