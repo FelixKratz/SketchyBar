@@ -258,20 +258,21 @@ static void popup_close_window(struct popup* popup) {
   window_close(&popup->window);
 }
 
+static bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
+  for (int i = 0; i < popup->num_items; i++) {
+    if (popup->items[i] == bar_item) return true;
+  }
+  return false;
+}
+
 void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
+  if (popup_contains_item(popup, bar_item)) return;
   popup->num_items++;
   popup->items = realloc(popup->items,
                          sizeof(struct bar_item*)*popup->num_items);
   popup->items[popup->num_items - 1] = bar_item;
   bar_item->parent = popup->host;
   popup->needs_ordering = true;
-}
-
-static bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) {
-  for (int i = 0; i < popup->num_items; i++) {
-    if (popup->items[i] == bar_item) return true;
-  }
-  return false;
 }
 
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
