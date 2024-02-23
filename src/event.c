@@ -210,15 +210,23 @@ static void event_mouse_exited(void* context) {
     return;
   }
 
+  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          NULL           );
+                                                          &window        );
 
   if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
       || (bar_manager_get_bar_by_point(&g_bar_manager, point)
         && bar_manager_get_popup_by_point(&g_bar_manager, point)
             != &bar_item->popup)) {
-    bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
+    CGEventRef event = CGEventCreate(NULL);
+    CGPoint cursor = CGEventGetLocation(event);
+    CFRelease(event);
+    CGRect window_rect = window ? window->frame : CGRectNull;
+    window_rect.origin = window ? window->origin : CGPointZero;
+    if (!CGRectContainsPoint(window_rect, cursor)) {
+      bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
+    }
   }
 }
 
