@@ -797,9 +797,8 @@ void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL,
                                     NULL                                  );
-  for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    bar_manager->bar_items[i]->mouse_over = false;
-  }
+
+  bar_manager_handle_mouse_exited(bar_manager, NULL);
 }
 
 void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t adid) {
