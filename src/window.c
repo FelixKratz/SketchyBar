@@ -24,7 +24,7 @@ static CFTypeRef window_create_region(struct window* window, CGRect frame) {
 }
 
 void window_create(struct window* window, CGRect frame) {
-  uint64_t set_tags = kCGSExposeFadeTagBit;
+  uint64_t set_tags = kCGSExposeFadeTagBit | kCGSPreventsActivationTagBit;
   uint64_t clear_tags = 0;
 
   window->origin = frame.origin;

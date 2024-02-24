@@ -58,7 +58,8 @@ extern CGError SLSShowSpaces(int cid, CFArrayRef space_list);
 extern CGError SLSHideSpaces(int cid, CFArrayRef space_list);
 extern CGError SLSSpaceAddWindowsAndRemoveFromSpaces(int cid, int sid, CFArrayRef array, int seven);
 
-#define kCGSExposeFadeTagBit            (1ULL <<  1)
+#define kCGSExposeFadeTagBit         (1ULL <<  1)
+#define kCGSPreventsActivationTagBit (1ULL <<  16)
 
 #define W_ABOVE  1
 #define W_OUT    0
