@@ -6,6 +6,7 @@
 extern char g_config_file[4096];
 extern char g_name[256];
 bool g_hotload = false;
+int64_t g_last_hotload = 0;
 
 void hotload_set_state(int state) {
   g_hotload = state;
@@ -68,15 +69,15 @@ void exec_config_file() {
   }
 }
 
-static void handler(ConstFSEventStreamRef stream,
-             void* context,
-             size_t count,
-             void* paths,
-             const FSEventStreamEventFlags* flags,
-             const FSEventStreamEventId* ids) {
+static void handler(ConstFSEventStreamRef stream, void* context, size_t count, void* paths, const FSEventStreamEventFlags* flags, const FSEventStreamEventId* ids) {
   if (g_hotload && count > 0) {
-    struct event event = { NULL, HOTLOAD };
-    event_post(&event); 
+    // Limit the hotload rate to avoid locking up the system on a hotload loop
+    int64_t time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
+    if (time - g_last_hotload > (1ULL << 30)) {
+      g_last_hotload = time;
+      struct event event = { NULL, HOTLOAD };
+      event_post(&event);
+    }
   }
 }
 
