@@ -149,6 +149,7 @@ void bar_draw(struct bar* bar, bool forced) {
     background.bounds.origin.y -= background.y_offset;
     background.shadow.enabled = false;
     background.enabled = true;
+    windows_freeze();
     CGContextClearRect(bar->window.context, bar->window.frame);
     background_draw(&background, bar->window.context);
   }
@@ -185,8 +186,8 @@ void bar_draw(struct bar* bar, bool forced) {
       window_assign_mouse_tracking_area(window, window->frame);
     }
 
+    windows_freeze();
     CGContextClearRect(window->context, window->frame);
-
     bar_item_draw(bar_item, window->context);
     CGContextFlush(window->context);
   }
