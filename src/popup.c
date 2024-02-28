@@ -329,6 +329,7 @@ bool popup_set_drawing(struct popup* popup, bool drawing) {
 void popup_draw(struct popup* popup) {
   if (!popup->drawing || popup->adid < 1 || popup->num_items == 0) return;
 
+  windows_freeze();
   if (!popup->window.id) popup_create_window(popup);
 
   window_apply_frame(&popup->window, false);
