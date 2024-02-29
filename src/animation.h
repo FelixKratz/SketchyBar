@@ -1,5 +1,5 @@
 #pragma once
-#include <CoreVideo/CVDisplayLink.h>
+#include <CoreVideo/CoreVideo.h>
 #include "misc/helpers.h"
 
 extern struct bar_manager g_bar_manager;
@@ -87,6 +87,8 @@ struct animation {
   bool locked;
   bool finished;
 
+  uint64_t initial_time;
+  uint64_t last_time;
   double duration;
   double counter;
   double offset;
@@ -105,7 +107,7 @@ void animation_setup(struct animation* animation, void* target, animator_functio
 struct animator {
   CVDisplayLinkRef display_link;
 
-  double time_scale;
+  double clock;
   uint32_t interp_function;
   uint32_t duration;
   struct animation** animations;
@@ -118,7 +120,7 @@ void animator_add(struct animator* animator, struct animation* animation);
 bool animator_cancel(struct animator* animator, void* target, animator_function* function);
 void animator_cancel_locked(struct animator* animator, void* target, animator_function* function);
 
-bool animator_update(struct animator* animator);
+bool animator_update(struct animator* animator, uint64_t time);
 void animator_lock(struct animator* animator);
 void animator_destroy(struct animator* animator);
 

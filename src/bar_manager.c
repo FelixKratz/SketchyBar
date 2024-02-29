@@ -509,9 +509,9 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
   }
 }
 
-void bar_manager_animator_refresh(struct bar_manager* bar_manager) {
+void bar_manager_animator_refresh(struct bar_manager* bar_manager, uint64_t time) {
   bar_manager_freeze(bar_manager);
-  if (animator_update(&bar_manager->animator)) {
+  if (animator_update(&bar_manager->animator, time)) {
     bar_manager_unfreeze(bar_manager);
 
     if (bar_manager->bar_needs_resize) bar_manager_resize(bar_manager);

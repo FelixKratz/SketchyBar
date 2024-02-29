@@ -61,7 +61,7 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
 void bar_manager_move_item(struct bar_manager* bar_manager, struct bar_item* item, struct bar_item* reference, bool before);
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification);
 
-void bar_manager_animator_refresh(struct bar_manager* bar_manager);
+void bar_manager_animator_refresh(struct bar_manager* bar_manager, uint64_t time);
 void bar_manager_update(struct bar_manager* bar_manager, bool forced);
 void bar_manager_update_space_components(struct bar_manager* bar_manager, bool forced);
 bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin);

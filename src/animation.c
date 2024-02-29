@@ -2,7 +2,7 @@
 #include "event.h"
 
 static CVReturn animation_frame_callback(CVDisplayLinkRef display_link, const CVTimeStamp* now, const CVTimeStamp* output_time, CVOptionFlags flags, CVOptionFlags* flags_out, void* context) {
-  struct event event = { NULL, ANIMATOR_REFRESH };
+  struct event event = { (void*)output_time->hostTime, ANIMATOR_REFRESH };
   event_post(&event);
   return kCVReturnSuccess;
 }
@@ -23,8 +23,9 @@ static void animation_lock(struct animation* animation) {
 }
 
 void animation_setup(struct animation* animation, void* target, animator_function* update_function, int initial_value, int final_value, uint32_t duration, char interp_function) {
-  animation->counter = 1;
-  animation->duration = duration;
+  // The animation duration is represented as a frame count equivalent on a
+  // 60Hz display. E.g. 120frames = 2 seconds
+  animation->duration = (double)duration / 60.0;
   animation->initial_value = initial_value;
   animation->final_value = final_value;
   animation->update_function = update_function;
@@ -47,23 +48,30 @@ void animation_setup(struct animation* animation, void* target, animator_functio
   }
 }
 
-static bool animation_update(struct animation* animation, double time_scale) {
+static bool animation_update(struct animation* animation, uint64_t time, uint64_t clock) {
   if (!animation->target || !animation->update_function) {
     return false;
   }
-
+  double dt = animation->last_time > 0
+              ? ((double)(time - animation->last_time) / clock)
+              : 0.0;
+  animation->last_time = time;
   if (animation->offset > 0) {
-    animation->offset-= time_scale;
+    animation->offset -= dt;
     return false;
   } 
 
-  bool final_frame = !((animation->duration > 1
-                     && animation->counter < animation->duration));
+  if (!animation->initial_time) animation->initial_time = time;
+  double t = animation->duration > 0
+             ? ((double)(time - animation->initial_time)
+               / (double)(animation->duration * clock))
+             : 1.0;
 
-  double slider = final_frame
-                  ? 1.0
-                  : animation->interp_function(animation->counter
-                                               / animation->duration);
+  bool final_frame = t >= 1.0;
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+
+  double slider = final_frame ? 1.0 : animation->interp_function(t);
 
   int value;
   if (animation->separate_bytes) {
@@ -92,7 +100,7 @@ static bool animation_update(struct animation* animation, double time_scale) {
     needs_update = animation->update_function(animation->target, value);
   }
 
-  animation->counter += time_scale;
+  animation->counter += dt;
 
   bool found_item = false;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -117,31 +125,21 @@ void animator_init(struct animator* animator) {
   animator->animation_count = 0;
   animator->interp_function = 0;
   animator->duration = 0;
-  animator->time_scale = 1.;
   animator->display_link = NULL;
 
   animator_renew_display_link(animator);
 }
 
 void animator_renew_display_link(struct animator* animator) {
-  bool running = false;
-  if (animator->display_link) {
-    running = CVDisplayLinkIsRunning(animator->display_link);
-  }
-
   animator_destroy_display_link(animator);
   CVDisplayLinkCreateWithActiveCGDisplays(&animator->display_link);
+
   CVDisplayLinkSetOutputCallback(animator->display_link,
                                  animation_frame_callback,
                                  animator                 );
 
-  CVTime refresh_period =
-       CVDisplayLinkGetNominalOutputVideoRefreshPeriod(animator->display_link);
-
-  animator->time_scale = 60.
-         * (double)refresh_period.timeValue / (double)refresh_period.timeScale;
-
-  if (running) CVDisplayLinkStart(animator->display_link);
+  animator->clock = CVGetHostClockFrequency();
+  CVDisplayLinkStart(animator->display_link);
 }
 
 void animator_destroy_display_link(struct animator* animator) {
@@ -182,10 +180,7 @@ void animator_add(struct animator* animator, struct animation* animation) {
                                         * ++animator->animation_count);
   animator->animations[animator->animation_count - 1] = animation;
 
-  if (animator->display_link
-      && !CVDisplayLinkIsRunning(animator->display_link)) {
-    CVDisplayLinkStart(animator->display_link);
-  }
+  if (!animator->display_link) animator_renew_display_link(animator);
 }
 
 static void animator_remove(struct animator* animator, struct animation* animation) {
@@ -211,12 +206,6 @@ static void animator_remove(struct animator* animator, struct animation* animati
   }
 
   animation_destroy(animation);
-
-  if (animator->animation_count == 0
-      && animator->display_link
-      && CVDisplayLinkIsRunning(animator->display_link)) {
-    CVDisplayLinkStop(animator->display_link);
-  }
 }
 
 void animator_cancel_locked(struct animator* animator, void* target, animator_function* function) {
@@ -261,7 +250,7 @@ bool animator_cancel(struct animator* animator, void* target, animator_function*
   return needs_update;
 }
 
-bool animator_update(struct animator* animator) {
+bool animator_update(struct animator* animator, uint64_t time) {
   bool needs_refresh = false;
   struct animation* remove[animator->animation_count];
   memset(remove, 0, animator->animation_count);
@@ -269,7 +258,8 @@ bool animator_update(struct animator* animator) {
 
   for (uint32_t i = 0; i < animator->animation_count; i++) {
     needs_refresh |= animation_update(animator->animations[i],
-                                      animator->time_scale    );
+                                      time,
+                                      animator->clock         );
 
     if (animator->animations[i]->finished) {
       remove[remove_count++] = animator->animations[i];
@@ -280,6 +270,7 @@ bool animator_update(struct animator* animator) {
     animator_remove(animator, remove[i]);
   }
 
+  if (animator->animation_count == 0) animator_destroy_display_link(animator);
   return needs_refresh;
 }
 

@@ -59,7 +59,7 @@ static void event_shell_refresh(void* context) {
 }
 
 static void event_animator_refresh(void* context) {
-  bar_manager_animator_refresh(&g_bar_manager);
+  bar_manager_animator_refresh(&g_bar_manager, (uint64_t)context);
 }
 
 static void event_mach_message(void* context) {

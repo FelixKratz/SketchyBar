@@ -1081,7 +1081,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                       (bool (*)(void*, int))&bar_item_set_width,
                       bar_item->custom_width,
                       -1,
-                      1,
+                      0,
                       INTERP_FUNCTION_LINEAR               );
       animator_add(&g_bar_manager.animator, animation);
     }

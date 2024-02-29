@@ -495,7 +495,7 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
                       (bool (*)(void*, int))&text_set_width,
                       text->custom_width,
                       -1,
-                      1,
+                      0,
                       INTERP_FUNCTION_LINEAR               );
       animator_add(&g_bar_manager.animator, animation);
     }
@@ -532,7 +532,7 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
                         (bool (*)(void*, int))&text_set_width,
                         text->custom_width,
                         -1,
-                        1,
+                        0,
                         INTERP_FUNCTION_LINEAR               );
         animator_add(&g_bar_manager.animator, animation);
       }
