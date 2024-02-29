@@ -1,4 +1,5 @@
 #include "bar_manager.h"
+#include "event.h"
 #include "workspace.h"
 #include "mach.h"
 #include "mouse.h"
@@ -39,7 +40,6 @@ extern int RunApplicationEventLoop(void);
 
 int g_connection;
 CFTypeRef g_transaction;
-pthread_mutex_t g_event_mutex;
 
 struct bar_manager g_bar_manager;
 struct mach_server g_mach_server;
@@ -168,12 +168,12 @@ static void parse_arguments(int argc, char **argv) {
   exit(client_send_message(argc, argv));
 }
 
-void space_events(uint32_t event, void* data, size_t data_length, void* context) {
+static void space_events(uint32_t event, void* data, size_t data_length, void* context) {
   struct event ev = { NULL, SPACE_CHANGED };
   event_post(&ev);
 }
 
-void system_events(uint32_t event, void* data, size_t data_length, void* context) {
+static void system_events(uint32_t event, void* data, size_t data_length, void* context) {
   if (event == 1322) {
     g_disable_capture = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
   } else if (event == 905) {
@@ -201,11 +201,6 @@ int main(int argc, char **argv) {
     error("%s: 'System Settings' -> 'Desktop & Dock' -> 'Displays have separate spaces' needs to be enabled for sketchybar to work properly.\n", g_name);
   }
 
-  pthread_mutexattr_t mattr;
-  pthread_mutexattr_init(&mattr);
-  pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&g_event_mutex, &mattr);
-
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
   SLSRegisterNotifyProc((void*)system_events, 905, NULL);
   SLSRegisterNotifyProc((void*)system_events, 1401, NULL);
@@ -216,6 +211,9 @@ int main(int argc, char **argv) {
     SLSRegisterNotifyProc((void*)space_events, 1327, NULL);
     SLSRegisterNotifyProc((void*)space_events, 1328, NULL);
   }
+
+  struct event init = { NULL, INIT_MUTEX };
+  event_post(&init);
 
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);

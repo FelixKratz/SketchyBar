@@ -368,17 +368,33 @@ static callback_type* event_handler[] = {
   [SPACE_WINDOWS_CHANGED]      = event_space_windows_changed,
 };
 
-extern pthread_mutex_t g_event_mutex;
 void event_post(struct event *event) {
+  static bool initialized = false;
+  static pthread_mutex_t event_mutex;
+
+  if (!initialized && event->type == INIT_MUTEX) {
+    pthread_mutexattr_t mattr;
+    pthread_mutexattr_init(&mattr);
+    pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&event_mutex, &mattr);
+    initialized = true;
+    return;
+  } else if (event->type == INIT_MUTEX) {
+    error("Trying to reinitialize the event mutex! abort..\n");
+  } else if (!initialized) error("The event mutex is not ready! abort..\n");
+
   if (event->type == ANIMATOR_REFRESH) {
-    // If the mutex is locked, we drop the animation refresh cycle to avoid
-    // deadlocking occuring due to the CVDisplayLink
-    if (pthread_mutex_trylock(&g_event_mutex) != 0) return;
-  } else {
-    pthread_mutex_lock(&g_event_mutex);
-  }
+    // We try to lock the mutex up to 1ms and then concede (skip the frame) to
+    // avoid deadlocking occuring due to the CVDisplayLink.
+    int locked;
+    for (int i = 0; i < 10; i++) {
+      if ((locked = pthread_mutex_trylock(&event_mutex)) == 0) break;
+      usleep(100);
+    }
+    if (locked != 0) return;
+  } else pthread_mutex_lock(&event_mutex);
 
   event_handler[event->type](event->context);
   windows_unfreeze();
-  pthread_mutex_unlock(&g_event_mutex);
+  pthread_mutex_unlock(&event_mutex);
 }

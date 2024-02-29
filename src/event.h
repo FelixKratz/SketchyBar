@@ -32,6 +32,7 @@ enum event_type {
   DISTRIBUTED_NOTIFICATION,
   HOTLOAD,
 
+  INIT_MUTEX,
   EVENT_TYPE_COUNT
 };
 
