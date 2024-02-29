@@ -697,6 +697,15 @@ void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
   background_clip_bar(&bar_item->label.background, offset, bar);
 }
 
+void* draw_item_proc(void* context) {
+  struct { struct window* window; struct bar_item bar_item; }* info = context;
+  CGContextClearRect(info->window->context, info->window->frame);
+  bar_item_draw(&info->bar_item, info->window->context);
+  CGContextFlush(info->window->context);
+  free(context);
+  return NULL;
+}
+
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
   background_draw(&bar_item->background, context);
   if (bar_item->type == BAR_COMPONENT_GROUP) return;

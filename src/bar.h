@@ -30,3 +30,4 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
 void bar_change_space(struct bar* bar, uint64_t dsid);
 
 void context_set_font_smoothing(CGContextRef context, bool smoothing);
+void join_render_threads();

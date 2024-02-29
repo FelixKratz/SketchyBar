@@ -5,6 +5,17 @@
 #include "misc/helpers.h"
 #include "window.h"
 
+#define MAX_RENDER_THREADS 10
+static pthread_t g_render_threads[MAX_RENDER_THREADS];
+static uint32_t g_used_threads = 0;
+
+void join_render_threads() {
+  for (int i = 0; i < g_used_threads; i++)
+    pthread_join(g_render_threads[i], NULL);
+  g_used_threads = 0;
+}
+
+
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
 
@@ -187,9 +198,25 @@ void bar_draw(struct bar* bar, bool forced) {
     }
 
     windows_freeze();
-    CGContextClearRect(window->context, window->frame);
-    bar_item_draw(bar_item, window->context);
-    CGContextFlush(window->context);
+    if (g_used_threads < MAX_RENDER_THREADS) {
+      uint32_t thread_id = g_used_threads++;
+      struct draw_item_payload {
+        struct window* window;
+        struct bar_item bar_item;
+      }* context = malloc(sizeof(struct draw_item_payload));
+      // We need to perform a shallow copy of the item here because
+      // the cached bounds will be invalidated when drawing the next bar.
+      context->bar_item = *bar_item;
+      context->window = window;
+      pthread_create(&g_render_threads[thread_id],
+                     NULL,
+                     draw_item_proc,
+                     context        );
+    } else {
+      CGContextClearRect(window->context, window->frame);
+      bar_item_draw(bar_item, window->context);
+      CGContextFlush(window->context);
+    }
   }
 
   if (g_bar_manager.bar_needs_update) CGContextFlush(bar->window.context);

@@ -132,6 +132,7 @@ void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid);
 
 CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
 uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_height, uint32_t x, uint32_t y);
+void* draw_item_proc(void* context);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar);
 void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar);

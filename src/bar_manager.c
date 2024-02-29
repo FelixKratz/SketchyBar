@@ -429,6 +429,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   }
 
   bar_manager_clear_needs_update(bar_manager);
+  join_render_threads();
 }
 
 void bar_manager_resize(struct bar_manager* bar_manager) {
