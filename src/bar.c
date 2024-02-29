@@ -10,11 +10,12 @@ static pthread_t g_render_threads[MAX_RENDER_THREADS];
 static uint32_t g_used_threads = 0;
 
 void join_render_threads() {
+  static int count = 0;
+  printf("%d Threaded!\n", count++);
   for (int i = 0; i < g_used_threads; i++)
     pthread_join(g_render_threads[i], NULL);
   g_used_threads = 0;
 }
-
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
@@ -148,7 +149,7 @@ static void bar_check_for_clip_updates(struct bar* bar) {
   }
 }
 
-void bar_draw(struct bar* bar, bool forced) {
+void bar_draw(struct bar* bar, bool forced, bool threaded) {
   if (bar->sid < 1 || bar->adid < 1) return;
 
   if (g_bar_manager.might_need_clipping)
@@ -198,7 +199,7 @@ void bar_draw(struct bar* bar, bool forced) {
     }
 
     windows_freeze();
-    if (g_used_threads < MAX_RENDER_THREADS) {
+    if (threaded && g_used_threads < MAX_RENDER_THREADS) {
       uint32_t thread_id = g_used_threads++;
       struct draw_item_payload {
         struct window* window;

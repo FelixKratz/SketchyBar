@@ -575,7 +575,7 @@ static void handle_domain_order(FILE* rsp, struct token domain, char* message) {
   }
 
   bar_manager_sort(&g_bar_manager, ordering, count);
-  bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_refresh(&g_bar_manager, false, false);
 }
 
 void handle_message_mach(struct mach_buffer* buffer) {
@@ -749,7 +749,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
 
   animator_lock(&g_bar_manager.animator);
   bar_manager_unfreeze(&g_bar_manager);
-  bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_refresh(&g_bar_manager, false, false);
 
   if (rsp) fclose(rsp);
 

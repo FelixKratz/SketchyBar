@@ -100,7 +100,7 @@ void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did);
 void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did);
 void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did);
 void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did);
-void bar_manager_refresh(struct bar_manager* bar_manager, bool forced);
+void bar_manager_refresh(struct bar_manager* bar_manager, bool forced, bool threaded);
 void bar_manager_resize(struct bar_manager* bar_manager);
 
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager);

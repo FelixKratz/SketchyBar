@@ -43,7 +43,7 @@ static void event_display_resized(void* context) {
 static void event_menu_bar_hidden_changed(void* context) {
   bar_manager_resize(&g_bar_manager);
   g_bar_manager.bar_needs_update = true;
-  bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_refresh(&g_bar_manager, false, false);
 }
 
 static void event_system_woke(void* context) {
@@ -99,7 +99,7 @@ static void event_mouse_up(void* context) {
                     point_in_window_coords);
 
   if (bar_item && bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false);
+    bar_manager_refresh(&g_bar_manager, false, false);
 }
 
 static void event_mouse_dragged(void* context) {
@@ -122,7 +122,7 @@ static void event_mouse_dragged(void* context) {
   bar_item_on_drag(bar_item, point_in_window_coords);
 
   if (bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false);
+    bar_manager_refresh(&g_bar_manager, false, false);
 }
 
 static void event_mouse_entered(void* context) {
@@ -296,7 +296,7 @@ static void event_mouse_scrolled(void* context) {
   bar_item_on_scroll(bar_item, scroll_delta + g_scroll_info.delta_y);
 
   if (bar_item && bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false);
+    bar_manager_refresh(&g_bar_manager, false, false);
 
   g_scroll_info.delta_y = 0;
 }

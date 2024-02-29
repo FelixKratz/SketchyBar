@@ -406,7 +406,7 @@ void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
     bar_item_reset_associated_bar(bar_manager->bar_items[i]);
 }
 
-void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
+void bar_manager_refresh(struct bar_manager* bar_manager, bool forced, bool threaded) {
   if (bar_manager->frozen) return;
   if (forced) {
     bar_manager_reset_bar_association(bar_manager);
@@ -421,7 +421,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
     if (forced
         || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
       bar_calculate_bounds(bar_manager->bars[i]);
-      bar_draw(bar_manager->bars[i], false);
+      bar_draw(bar_manager->bars[i], false, threaded);
       if (bar_manager->needs_ordering) {
         bar_order_item_windows(bar_manager->bars[i]);
       }
@@ -429,7 +429,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   }
 
   bar_manager_clear_needs_update(bar_manager);
-  join_render_threads();
+  if (threaded) join_render_threads();
 }
 
 void bar_manager_resize(struct bar_manager* bar_manager) {
@@ -515,7 +515,7 @@ void bar_manager_animator_refresh(struct bar_manager* bar_manager, uint64_t time
     bar_manager_unfreeze(bar_manager);
 
     if (bar_manager->bar_needs_resize) bar_manager_resize(bar_manager);
-    bar_manager_refresh(bar_manager, false);
+    bar_manager_refresh(bar_manager, false, true);
   }
   bar_manager_unfreeze(bar_manager);
 }
@@ -547,7 +547,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     }
   }
 
-  if (needs_refresh || forced) bar_manager_refresh(bar_manager, forced);
+  if (needs_refresh || forced) bar_manager_refresh(bar_manager, forced, false);
 }
 
 void bar_manager_reset(struct bar_manager* bar_manager) {
@@ -743,7 +743,7 @@ void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did) 
       bar_resize(bar_manager->bars[i]);
     }
   }
-  bar_manager_refresh(bar_manager, false);
+  bar_manager_refresh(bar_manager, false, false);
 }
 
 void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
@@ -757,7 +757,7 @@ void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
     }
   }
   bar_manager->needs_ordering = true;
-  bar_manager_refresh(bar_manager, true);
+  bar_manager_refresh(bar_manager, true, false);
   bar_manager_handle_display_change(bar_manager);
 }
 
@@ -775,7 +775,7 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager_freeze(bar_manager);
   bar_manager_reset(bar_manager);
   bar_manager_unfreeze(bar_manager);
-  bar_manager_refresh(bar_manager, true);
+  bar_manager_refresh(bar_manager, true, false);
 
   bar_manager_handle_display_change(bar_manager);
   bar_manager_handle_space_change(bar_manager, true);
@@ -909,7 +909,7 @@ void bar_manager_handle_media_cover_change(struct bar_manager* bar_manager, CGIm
     }
   }
 
-  if (needs_refresh) bar_manager_refresh(bar_manager, false);
+  if (needs_refresh) bar_manager_refresh(bar_manager, false, false);
 }
 
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info) {
@@ -980,7 +980,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
 
 
   bar_manager_unfreeze(bar_manager);
-  bar_manager_refresh(bar_manager, force_refresh);
+  bar_manager_refresh(bar_manager, force_refresh, false);
   env_vars_destroy(&env_vars);
 }
 
@@ -996,7 +996,7 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
                                     COMMAND_SUBSCRIBE_DISPLAY_CHANGE,
                                     &env_vars                        );
 
-  bar_manager_refresh(bar_manager, false);
+  bar_manager_refresh(bar_manager, false, false);
   env_vars_destroy(&env_vars);
 }
 
