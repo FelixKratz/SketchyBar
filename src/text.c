@@ -287,14 +287,21 @@ bool text_animate_scroll(struct text* text) {
                 text->scroll,
                 max(text->bounds.size.width, 0));
 
-  g_bar_manager.animator.duration = 1;
-  ANIMATE_FLOAT(text_set_scroll,
-                text,
-                text->scroll,
-                -max(text->width, 0));
+  struct animation* animation = animation_create();
+  float initial_value = text->scroll;
+  float final_value = -max(text->width, 0);
+
+  animation_setup(animation,
+                  (void*)text,
+                  (bool (*)(void*, int))text_set_scroll,
+                  *(int*)&initial_value,
+                  *(int*)&final_value,
+                  0,
+                  INTERP_FUNCTION_LINEAR );
+  animation->as_float = true;
+  animator_add(&g_bar_manager.animator, animation);
 
   g_bar_manager.animator.duration = text->scroll_duration;
-
   ANIMATE_FLOAT(text_set_scroll, text, text->scroll, 0);
 
   g_bar_manager.animator.duration = 0;
