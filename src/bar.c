@@ -10,8 +10,6 @@ static pthread_t g_render_threads[MAX_RENDER_THREADS];
 static uint32_t g_used_threads = 0;
 
 void join_render_threads() {
-  static int count = 0;
-  printf("%d Threaded!\n", count++);
   for (int i = 0; i < g_used_threads; i++)
     pthread_join(g_render_threads[i], NULL);
   g_used_threads = 0;
