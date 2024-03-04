@@ -86,12 +86,10 @@ struct animation {
   bool as_float;
   bool locked;
   bool finished;
+  bool waiting;
 
   uint64_t initial_time;
-  uint64_t last_time;
   double duration;
-  double counter;
-  double offset;
 
   int initial_value;
   int final_value;
@@ -99,6 +97,9 @@ struct animation {
 
   void* target;
   animator_function* update_function;
+
+  struct animation* next;
+  struct animation* previous;
 };
 
 struct animation* animation_create();

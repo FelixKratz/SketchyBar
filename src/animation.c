@@ -49,17 +49,11 @@ void animation_setup(struct animation* animation, void* target, animator_functio
 }
 
 static bool animation_update(struct animation* animation, uint64_t time, uint64_t clock) {
-  if (!animation->target || !animation->update_function) {
+  if (!animation->target
+      || !animation->update_function
+      || animation->waiting         ) {
     return false;
   }
-  double dt = animation->last_time > 0
-              ? ((double)(time - animation->last_time) / clock)
-              : 0.0;
-  animation->last_time = time;
-  if (animation->offset > 0) {
-    animation->offset -= dt;
-    return false;
-  } 
 
   if (!animation->initial_time) animation->initial_time = time;
   double t = animation->duration > 0
@@ -100,8 +94,6 @@ static bool animation_update(struct animation* animation, uint64_t time, uint64_
     needs_update = animation->update_function(animation->target, value);
   }
 
-  animation->counter += dt;
-
   bool found_item = false;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     if (needs_update
@@ -117,6 +109,11 @@ static bool animation_update(struct animation* animation, uint64_t time, uint64_
   if (!found_item && needs_update) g_bar_manager.bar_needs_update = true;
 
   animation->finished = final_frame;
+  if (animation->finished && animation->next) {
+    animation->next->previous = NULL;
+    animation->next->waiting = false;
+    animation->next = NULL;
+  }
   return needs_update;
 }
 
@@ -159,18 +156,22 @@ void animator_lock(struct animator* animator) {
 static void animator_calculate_offset_for_animation(struct animator* animator, struct animation* animation) {
   if (animator->animation_count < 1) return;
 
-  double offset = 0;
   struct animation* previous = NULL;
-  for (uint32_t i = 0; i < animator->animation_count; i++) {
+  for (int i = animator->animation_count - 1; i >= 0; i--) {
     struct animation* current = animator->animations[i];
     if (current->target == animation->target
         && current->update_function == animation->update_function) {
-      offset += current->duration - current->counter;
       previous = current;
+      break;
     }
   }
-  animation->offset = offset;
-  if (previous) animation->initial_value = previous->final_value;
+
+  if (previous) {
+    animation->initial_value = previous->final_value;
+    previous->next = animation;
+    animation->previous = previous;
+    animation->waiting = true;
+  }
 }
 
 void animator_add(struct animator* animator, struct animation* animation) {
@@ -204,6 +205,9 @@ static void animator_remove(struct animator* animator, struct animation* animati
            tmp,
            sizeof(struct animation*)*animator->animation_count);
   }
+
+  if (animation->previous) animation->previous->next = NULL;
+  if (animation->next) animation->next->previous = NULL;
 
   animation_destroy(animation);
 }
