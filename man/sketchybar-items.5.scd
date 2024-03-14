@@ -260,7 +260,7 @@ Note:
 :  <string>
 :  -
 :  Sets the text to the specified string
-|  scroll_speed
+|  scroll_duration
 :  <positive_integer>
 :  100
 :  Sets the scroll speed of text trucated by max_chars on items with scroll_texts enabled
