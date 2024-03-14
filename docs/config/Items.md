@@ -86,6 +86,7 @@ A list of properties available to the *set* command is listed below (components 
 | `font.style`                       | `<string>`                        | `Bold`                     | The font style to be used for the `text`                                                     |
 | `font.size`                        | `<float>`                         | `14.0`                     | The font size to be used for the `text`                                                      |
 | `string`                           | `<string>`                        |                            | Sets the text to the specified string                                                        |
+| `scroll_duration`                        | `<positive_integer>`              | `100`                        | Sets the scroll speed of text trucated by `max_chars` on items with `scroll_texts` enabled |
 | `max_chars`                        | `<positive_integer>`              | `0`                        | Sets the maximum characters to display (can be scrolled via the items `scroll_texts` property) |
 | `width`                            | `<positive_integer>` or `dynamic` | `dynamic`                  | Makes the `text` use a fixed `width` given in points                                         |
 | `align`                            | `center`, `left`, `right`         | `left`                     | Aligns the `text` in its container when it has a fixed `width` larger than the content width |
@@ -122,6 +123,7 @@ A list of properties available to the *set* command is listed below (components 
 | `padding_left`             | `<integer>`                 | `0`          | Padding to the left of the image |
 | `padding_right`            | `<integer>`                 | `0`          | Padding to the right of the image  |
 | `y_offset`                 | `<integer>`                 | `0`          | Vertical offset applied to the image |
+| `string`                    | `<path>`, `app.<bundle-id>`, `app.<name>`, `media.artwork` |              | The image to display in the bar                   |
 | `shadow.<shadow_property>` |                             |              | Images support all `shadow` properties |
 
 ### Shadow properties

@@ -125,7 +125,7 @@ in the command line.
 
 The config path for this additional bar is in _$HOME/.config/bottom_bar/_. Of
 course *bottom_bar* is only an example and can be freely replaced with any other
-identifier.
+identifier. The name of the bar is available in the environment variable $BAR_NAME in all scripts, making it possible to create bar-agnostic scripts by replacing sketchybar with $BAR_NAME.
 
 You can bootstrap the additional bar by invoking it at the very end of your
 main bar's configuration file.

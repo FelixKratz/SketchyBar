@@ -260,6 +260,10 @@ Note:
 :  <string>
 :  -
 :  Sets the text to the specified string
+|  scroll_speed
+:  <positive_integer>
+:  100
+:  Sets the scroll speed of text trucated by max_chars on items with scroll_texts enabled
 |  max_chars
 :  <positive_integer>
 :  0
@@ -378,6 +382,10 @@ Note:
 :  <integer>
 :  0
 :  Vertical offset applied to the image
+|  string
+:  <path>, app.<bundle-id>, app.<name>, media.artwork
+:  
+:  The image to display in the bar
 |  shadow.<shadow_property>
 :  -
 :  -

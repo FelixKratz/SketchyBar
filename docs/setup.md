@@ -48,6 +48,12 @@ brew install --cask font-hack-nerd-font
 if you experience missing icons you might need to install it. Any font
 of your liking can be used in sketchybar.
 
+If you want to load fonts from a non standard directory, you can use
+```bash
+sketchybar --load-font <path>
+```
+to load a font file from any `<path>`.
+
 ### Plugins
 When you use/create additional plugins, make sure that they are made executable via
 ```bash

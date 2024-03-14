@@ -101,7 +101,7 @@ commandline.
 
 The config path for this additional bar is in `$HOME/.config/bottom_bar/`.
 Of course `bottom_bar` is only an example and can be freely replaced with any
-other identifier.
+other identifier. The name of the bar is available in the environment variable `$BAR_NAME` in all scripts, making it possible to create bar-agnostic scripts by replacing `sketchybar` with `$BAR_NAME`.
 
 ## Performance optimizations
 *SketchyBar* can be configured to have a *very* small performance footprint. In the following I will highlight some optimizations that can be used to reduce the footprint further. 
