@@ -332,8 +332,8 @@ void popup_draw(struct popup* popup) {
   windows_freeze();
   if (!popup->window.id) popup_create_window(popup);
 
-  if (!window_apply_frame(&popup->window, false)
-      && !popup->host->needs_update             ) return;
+  if (!window_apply_frame(&popup->window, false) && !popup->host->needs_update)
+    return;
 
   CGContextClearRect(popup->window.context, popup->background.bounds);
 
