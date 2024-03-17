@@ -389,6 +389,7 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                "%s\"y_offset\": %d,\n"
                "%s\"font\": \"%s:%s:%.2f\",\n"
                "%s\"width\": %d,\n"
+               "%s\"scroll_duration\": %d,\n"
                "%s\"align\": \"%s\",\n"
                "%s\"background\": {\n",
                indent, text->string,
@@ -401,6 +402,7 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                indent, text->y_offset,
                indent, text->font.family, text->font.style, text->font.size,
                indent, text->custom_width,
+               indent, text->scroll_duration,
                indent, align, indent                                        );
 
   char deeper_indent[strlen(indent) + 2];

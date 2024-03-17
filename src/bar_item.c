@@ -882,9 +882,10 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"associated_display_mask\": %u,\n"
                "\t\t\"ignore_association\": \"%s\",\n"
                "\t\t\"y_offset\": %d,\n"
-               "\t\t\"width\": %d,\n"
                "\t\t\"padding_left\": %d,\n"
                "\t\t\"padding_right\": %d,\n"
+               "\t\t\"scroll_texts\": \"%s\",\n"
+               "\t\t\"width\": %d,\n"
                "\t\t\"background\": {\n",
                bar_item->name,
                type,
@@ -896,6 +897,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->y_offset,
                bar_item->background.padding_left,
                bar_item->background.padding_right,
+               format_bool(bar_item->scroll_texts),
                bar_item->has_const_width ? bar_item->custom_width : -1);
 
   background_serialize(&bar_item->background, "\t\t\t", rsp, true);
