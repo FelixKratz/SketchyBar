@@ -802,7 +802,7 @@ void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
   bar_manager_handle_mouse_exited(bar_manager, NULL);
 }
 
-void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t adid) {
+void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t adid, uint32_t modifier) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char delta_ver_str[32];
@@ -813,9 +813,13 @@ void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, i
 
   char info_str[256];
   snprintf(info_str, 256, "{\n"
-                          "\t\"delta\": %d\n"
+                          "\t\"delta\": %d,\n"
+                          "\t\"modifier\": \"%s\",\n"
+                          "\t\"modfier_code\": %u\n"
                           "}\n",
-                          scroll_delta       );
+                          scroll_delta,
+                          get_modifier_description(modifier),
+                          modifier                           );
 
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(info_str));
 
@@ -824,6 +828,10 @@ void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, i
   env_vars_set(&env_vars,
                string_copy("DID"),
                string_copy(adid_str));
+
+  env_vars_set(&env_vars,
+               string_copy("MODIFIER"),
+               string_copy(get_modifier_description(modifier)));
 
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_SCROLLED_GLOBAL,

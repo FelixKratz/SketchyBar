@@ -256,16 +256,20 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
   env_vars_destroy(&env_vars);
 }
 
-void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta) {
+void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta, uint32_t modifier) {
   if (!bar_item) return;
 
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char info_str[256];
   snprintf(info_str, 256, "{\n"
-                          "\t\"delta\": %d\n"
+                          "\t\"delta\": %d,\n"
+                          "\t\"modifier\": \"%s\",\n"
+                          "\t\"modfier_code\": %u\n"
                           "}\n",
-                          scroll_delta       );
+                          scroll_delta,
+                          get_modifier_description(modifier),
+                          modifier                           );
 
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(info_str));
 
@@ -274,6 +278,11 @@ void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta) {
   env_vars_set(&env_vars,
                string_copy("SCROLL_DELTA"),
                string_copy(delta_ver_str));
+
+  env_vars_set(&env_vars,
+               string_copy("MODIFIER"),
+               string_copy(get_modifier_description(modifier)));
+
 
   if (bar_item->update_mask & UPDATE_MOUSE_SCROLLED)
     bar_item_update(bar_item,

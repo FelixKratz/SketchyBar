@@ -242,6 +242,7 @@ static void event_mouse_scrolled(void* context) {
   int scroll_delta
     = CGEventGetIntegerValueField(context,
         kCGScrollWheelEventDeltaAxis1);
+  uint32_t modifier_keys = CGEventGetFlags(context);
 
   uint64_t event_time = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
   if (g_scroll_info.timestamp + SCROLL_TIMEOUT > event_time) {
@@ -263,7 +264,8 @@ static void event_mouse_scrolled(void* context) {
       bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
                                                scroll_delta
                                                + g_scroll_info.delta_y,
-                                               bar->adid               );
+                                               bar->adid,
+                                               modifier_keys           );
     }
 
     g_scroll_info.delta_y = 0;
@@ -278,7 +280,8 @@ static void event_mouse_scrolled(void* context) {
       bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
                                                scroll_delta
                                                + g_scroll_info.delta_y,
-                                               bar->adid               );
+                                               bar->adid,
+                                               modifier_keys           );
     }
 
     g_scroll_info.delta_y = 0;
@@ -293,7 +296,9 @@ static void event_mouse_scrolled(void* context) {
     bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, NULL);
   }
 
-  bar_item_on_scroll(bar_item, scroll_delta + g_scroll_info.delta_y);
+  bar_item_on_scroll(bar_item,
+                     scroll_delta + g_scroll_info.delta_y,
+                     modifier_keys                        );
 
   if (bar_item && bar_item->needs_update)
     bar_manager_refresh(&g_bar_manager, false, false);
