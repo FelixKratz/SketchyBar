@@ -93,6 +93,10 @@ void window_clear(struct window* window) {
   window->needs_resize = false;
 }
 
+void window_flush(struct window* window) {
+  SLSFlushWindowContentRegion(g_connection, window->id, NULL);
+}
+
 void windows_freeze() {
   if (g_transaction) return;
 

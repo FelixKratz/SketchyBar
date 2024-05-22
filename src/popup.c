@@ -345,6 +345,7 @@ void popup_draw(struct popup* popup) {
   popup->background.shadow.enabled = shadow;
 
   CGContextFlush(popup->window.context);
+  window_flush(&popup->window);
 
   if (popup->needs_ordering) {
     popup_order_windows(popup);

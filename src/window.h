@@ -1,6 +1,7 @@
 #pragma once
 #include "misc/helpers.h"
 
+extern CGError SLSFlushWindowContentRegion(int cid, uint32_t wid, void* dirty);
 extern CFTypeRef SLSTransactionCreate(int cid);
 extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
@@ -85,6 +86,7 @@ void window_init(struct window* window);
 void window_create(struct window* window, CGRect frame);
 void window_close(struct window* window);
 void window_clear(struct window* window);
+void window_flush(struct window* window);
 
 void window_move(struct window* window, CGPoint point);
 void window_set_frame(struct window* window, CGRect frame);

@@ -215,10 +215,14 @@ void bar_draw(struct bar* bar, bool forced, bool threaded) {
       CGContextClearRect(window->context, window->frame);
       bar_item_draw(bar_item, window->context);
       CGContextFlush(window->context);
+      window_flush(window);
     }
   }
 
-  if (g_bar_manager.bar_needs_update) CGContextFlush(bar->window.context);
+  if (g_bar_manager.bar_needs_update) {
+    CGContextFlush(bar->window.context);
+    window_flush(&bar->window);
+  }
 }
 
 static void bar_calculate_bounds_top_bottom(struct bar* bar) {

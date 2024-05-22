@@ -711,6 +711,7 @@ void* draw_item_proc(void* context) {
   CGContextClearRect(info->window->context, info->window->frame);
   bar_item_draw(&info->bar_item, info->window->context);
   CGContextFlush(info->window->context);
+  window_flush(info->window);
   free(context);
   return NULL;
 }
