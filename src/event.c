@@ -280,7 +280,7 @@ static void event_mouse_scrolled(void* context) {
       bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
                                                scroll_delta
                                                + g_scroll_info.delta_y,
-                                               bar->adid,
+                                               popup->adid,
                                                modifier_keys           );
     }
 
