@@ -113,7 +113,10 @@ bool g_media_events = false;
 
 - (void)media_change:(NSNotification *)notification {
   if (!g_media_events) return;
-  MRMediaRemoteGetNowPlayingApplicationDisplayName(0, dispatch_get_main_queue(), ^(CFStringRef name) {
+  MRMediaRemoteGetNowPlayingApplicationDisplayName(0, dispatch_get_main_queue(), ^(CFStringRef name_nr) {
+    if (!name_nr) return;
+
+    CFStringRef name = CFStringCreateCopy(CFAllocatorGetDefault(), name_nr);
     @autoreleasepool {
       MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(NSDictionary* dict) {
         @autoreleasepool {
@@ -155,6 +158,8 @@ bool g_media_events = false;
             }
           }
         }
+
+        CFRelease(name);
       });
     }
   });
