@@ -42,7 +42,6 @@ sketchybar --config <path>
 ### Fonts
 The default sketchybar font is the Hack Nerd Font:
 ```bash
-brew tap homebrew/cask-fonts
 brew install --cask font-hack-nerd-font
 ```
 if you experience missing icons you might need to install it. Any font
