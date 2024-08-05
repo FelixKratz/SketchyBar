@@ -40,6 +40,7 @@ extern int RunApplicationEventLoop(void);
 
 int g_connection;
 CFTypeRef g_transaction;
+int g_space_management_mode;
 
 struct bar_manager g_bar_manager;
 struct mach_server g_mach_server;
@@ -136,7 +137,10 @@ static inline void init_misc_settings(void) {
   signal(SIGPIPE, SIG_IGN);
   CGSetLocalEventsSuppressionInterval(0.0f);
   CGEnableEventStateCombining(false);
+
   g_connection = SLSMainConnectionID();
+  g_space_management_mode = SLSGetSpaceManagementMode(g_connection);
+
   g_volume_events = false;
   g_brightness_events = false;
 }
@@ -196,10 +200,6 @@ int main(int argc, char **argv) {
   pid_for_task(mach_task_self(), &g_pid);
   init_misc_settings();
   acquire_lockfile();
-
-  if (SLSGetSpaceManagementMode(g_connection) != 1) {
-    error("%s: 'System Settings' -> 'Desktop & Dock' -> 'Displays have separate spaces' needs to be enabled for sketchybar to work properly.\n", g_name);
-  }
 
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
   SLSRegisterNotifyProc((void*)system_events, 905, NULL);
