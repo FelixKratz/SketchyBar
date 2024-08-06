@@ -244,10 +244,10 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                                       - center_length) / 2 - 1;
 
   uint32_t bar_center_right_first_item_x = (bar->window.frame.size.width
-                                            + notch_width) / 2 - 1;
+                                            + notch_width) / 2;
 
   uint32_t bar_center_left_first_item_x = (bar->window.frame.size.width
-                                           - notch_width) / 2 - 1;
+                                           - notch_width) / 2;
 
   uint32_t* next_position = NULL;
   uint32_t y = bar->window.frame.size.height / 2;
@@ -364,10 +364,10 @@ static void bar_calculate_bounds_left_right(struct bar* bar) {
                                       - center_length) / 2 - 1;
 
   uint32_t bar_center_right_first_item_y = (bar->window.frame.size.height
-                                            + notch_width) / 2 - 1;
+                                            + notch_width) / 2;
 
   uint32_t bar_center_left_first_item_y = (bar->window.frame.size.height
-                                           - notch_width) / 2 - 1;
+                                           - notch_width) / 2 ;
 
   uint32_t* next_position = NULL;
 
