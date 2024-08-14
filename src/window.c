@@ -30,19 +30,26 @@ void window_create(struct window* window, CGRect frame) {
   window->origin = frame.origin;
   window->frame.origin = CGPointZero;
   window->frame.size = frame.size;
-
   frame.origin = CGPointZero;
-  CFTypeRef frame_region = window_create_region(window, frame);
-  uint64_t id;
-  SLSNewWindow(g_connection,
-               kCGBackingStoreBuffered,
-               window->origin.x,
-               window->origin.y,
-               frame_region,
-               &id                     );
 
-  window->id = (uint32_t)id;
+  uint32_t id;
+  CFTypeRef frame_region = window_create_region(window, frame);
+  CFTypeRef empty_region = CGRegionCreateEmptyRegion();
+  SLSNewWindowWithOpaqueShapeAndContext(g_connection,
+                                        kCGBackingStoreBuffered,
+                                        frame_region,
+                                        empty_region,
+                                        13 | (1 << 18),
+                                        &set_tags,
+                                        window->origin.x,
+                                        window->origin.y,
+                                        64,
+                                        &id,
+                                        NULL                    );
+  CFRelease(empty_region);
   CFRelease(frame_region);
+
+  window->id = id;
 
   SLSSetWindowResolution(g_connection, window->id, 2.0f);
   SLSSetWindowTags(g_connection, window->id, &set_tags, 64);

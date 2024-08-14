@@ -10,8 +10,10 @@ extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t
 extern CGError SLSTransactionCommitUsingMethod(CFTypeRef transaction, uint32_t method);
 extern CGError SLSTransactionCommit(CFTypeRef transaction, uint32_t async);
 
+extern CFTypeRef CGRegionCreateEmptyRegion(void);
 extern CGError SLSDisableUpdate(int cid);
 extern CGError SLSReenableUpdate(int cid);
+extern CGError SLSNewWindowWithOpaqueShapeAndContext(int cid, int type, CFTypeRef region, CFTypeRef opaque_shape, int options, uint64_t *tags, float x, float y, int tag_size, uint32_t *wid, void *context);
 extern CGError SLSNewWindow(int cid, int type, float x, float y, CFTypeRef region, uint64_t *wid);
 extern CGError SLSReleaseWindow(int cid, uint32_t wid);
 extern CGError SLSSetWindowTags(int cid, uint32_t wid, uint64_t* tags, int tag_size);
