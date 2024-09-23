@@ -473,6 +473,10 @@ bool bar_item_set_position(struct bar_item* bar_item, char* position) {
       return false;
   }
 
+  if (bar_item->parent != NULL){
+    popup_remove_item(&bar_item->parent->popup,bar_item);
+  }
+
   bar_item->position = position[0];
   if (position[0] != POSITION_POPUP)
     bar_item->align = position[0];
