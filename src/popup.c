@@ -267,6 +267,9 @@ static bool popup_contains_item(struct popup* popup, struct bar_item* bar_item) 
 
 void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   if (popup_contains_item(popup, bar_item)) return;
+  if (bar_item->parent) {
+    popup_remove_item(&bar_item->parent->popup, bar_item);
+  }
   popup->num_items++;
   popup->items = realloc(popup->items,
                          sizeof(struct bar_item*)*popup->num_items);

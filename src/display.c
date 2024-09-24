@@ -2,6 +2,7 @@
 
 extern int workspace_display_notch_height(uint32_t did);
 extern int g_connection;
+extern int g_space_management_mode;
 extern bool g_brightness_events;
 
 
@@ -19,115 +20,115 @@ static void brightness_handler(void* notification_center, uint32_t did, void* na
 }
 
 static DISPLAY_EVENT_HANDLER(display_handler) {
-    if (flags & kCGDisplayAddFlag) {
-        struct event event = { (void *)(intptr_t) did, DISPLAY_ADDED };
-        event_post(&event);
+  if (flags & kCGDisplayAddFlag) {
+    struct event event = { (void *)(intptr_t) did, DISPLAY_ADDED };
+    event_post(&event);
 
-        if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
-          DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
-    } else if (flags & kCGDisplayRemoveFlag) {
-        struct event event = { (void *)(intptr_t) did, DISPLAY_REMOVED };
-        event_post(&event);
+    if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
+      DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
+  } else if (flags & kCGDisplayRemoveFlag) {
+    struct event event = { (void *)(intptr_t) did, DISPLAY_REMOVED };
+    event_post(&event);
 
-        if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
-          DisplayServicesUnregisterForBrightnessChangeNotifications(did, did);
-    } else if (flags & kCGDisplayMovedFlag) {
-        struct event event = { (void *)(intptr_t) did, DISPLAY_MOVED };
-        event_post(&event);
-    } else if (flags & kCGDisplayDesktopShapeChangedFlag) {
-        struct event event = { (void *)(intptr_t) did, DISPLAY_RESIZED };
-        event_post(&event);
-    }
+    if (g_brightness_events && DisplayServicesCanChangeBrightness(did))
+      DisplayServicesUnregisterForBrightnessChangeNotifications(did, did);
+  } else if (flags & kCGDisplayMovedFlag) {
+    struct event event = { (void *)(intptr_t) did, DISPLAY_MOVED };
+    event_post(&event);
+  } else if (flags & kCGDisplayDesktopShapeChangedFlag) {
+    struct event event = { (void *)(intptr_t) did, DISPLAY_RESIZED };
+    event_post(&event);
+  }
 }
 
 CFStringRef display_uuid(uint32_t did) {
-    CFUUIDRef uuid_ref = CGDisplayCreateUUIDFromDisplayID(did);
-    if (!uuid_ref) return NULL;
+  CFUUIDRef uuid_ref = CGDisplayCreateUUIDFromDisplayID(did);
+  if (!uuid_ref) return NULL;
 
-    CFStringRef uuid_str = CFUUIDCreateString(NULL, uuid_ref);
-    CFRelease(uuid_ref);
+  CFStringRef uuid_str = CFUUIDCreateString(NULL, uuid_ref);
+  CFRelease(uuid_ref);
 
-    return uuid_str;
+  return uuid_str;
 }
 
 CGRect display_bounds(uint32_t did) {
-    return CGDisplayBounds(did);
+  return CGDisplayBounds(did);
 }
 
 uint64_t display_space_id(uint32_t did) {
-    CFStringRef uuid = display_uuid(did);
-    if (!uuid) return 0;
+  CFStringRef uuid = display_uuid(did);
+  if (!uuid) return 0;
 
-    uint64_t sid = SLSManagedDisplayGetCurrentSpace(g_connection, uuid);
-    CFRelease(uuid);
-    return sid;
+  uint64_t sid = SLSManagedDisplayGetCurrentSpace(g_connection, uuid);
+  CFRelease(uuid);
+  return sid;
 }
 
 uint64_t *display_space_list(uint32_t did, int *count) {
-    CFStringRef uuid = display_uuid(did);
-    if (!uuid) return NULL;
+  CFStringRef uuid = display_uuid(did);
+  if (!uuid) return NULL;
 
-    CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
-    if (!display_spaces_ref) return NULL;
+  CFArrayRef display_spaces_ref = SLSCopyManagedDisplaySpaces(g_connection);
+  if (!display_spaces_ref) return NULL;
 
-    uint64_t *space_list = NULL;
-    int display_spaces_count = CFArrayGetCount(display_spaces_ref);
+  uint64_t *space_list = NULL;
+  int display_spaces_count = CFArrayGetCount(display_spaces_ref);
 
-    for (int i = 0; i < display_spaces_count; ++i) {
-        CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
-        CFStringRef identifier = CFDictionaryGetValue(display_ref,
-                                                      CFSTR("Display Identifier"));
+  for (int i = 0; i < display_spaces_count; ++i) {
+    CFDictionaryRef display_ref = CFArrayGetValueAtIndex(display_spaces_ref, i);
+    CFStringRef identifier = CFDictionaryGetValue(display_ref,
+                                                  CFSTR("Display Identifier"));
 
-        if (!CFEqual(uuid, identifier)) continue;
+    if (!CFEqual(uuid, identifier)) continue;
 
-        CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
-        int spaces_count = CFArrayGetCount(spaces_ref);
+    CFArrayRef spaces_ref = CFDictionaryGetValue(display_ref, CFSTR("Spaces"));
+    int spaces_count = CFArrayGetCount(spaces_ref);
 
-        space_list = malloc(sizeof(uint64_t) * spaces_count);
-        *count = spaces_count;
+    space_list = malloc(sizeof(uint64_t) * spaces_count);
+    *count = spaces_count;
 
-        for (int j = 0; j < spaces_count; ++j) {
-            CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
-            CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
-            CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &space_list[j]);
-        }
+    for (int j = 0; j < spaces_count; ++j) {
+      CFDictionaryRef space_ref = CFArrayGetValueAtIndex(spaces_ref, j);
+      CFNumberRef sid_ref = CFDictionaryGetValue(space_ref, CFSTR("id64"));
+      CFNumberGetValue(sid_ref, CFNumberGetType(sid_ref), &space_list[j]);
     }
-    CFRelease(display_spaces_ref);
-    CFRelease(uuid);
+  }
+  CFRelease(display_spaces_ref);
+  CFRelease(uuid);
 
-    return space_list;
+  return space_list;
 }
 
 int display_arrangement(uint32_t did) {
-    if (display_active_display_count() == 1) {
-      uint32_t result = 0;
-      uint32_t count = 0;
-      CGGetActiveDisplayList(1, &result, &count);
-      if (did == result && count == 1) return 1;
-      else return 0;
-    }
+  if (display_active_display_count() == 1) {
+    uint32_t result = 0;
+    uint32_t count = 0;
+    CGGetActiveDisplayList(1, &result, &count);
+    if (did == result && count == 1) return 1;
+    else return 0;
+  }
 
-    CFStringRef uuid = display_uuid(did);
-    if (!uuid) return 0;
+  CFStringRef uuid = display_uuid(did);
+  if (!uuid) return 0;
 
-    CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
-    if (!displays) {
-      CFRelease(uuid);
-      return 0;
-    }
-
-    int result = 0;
-    int displays_count = CFArrayGetCount(displays);
-
-    for (int i = 0; i < displays_count; ++i) {
-        if (CFEqual(CFArrayGetValueAtIndex(displays, i), uuid)) {
-            result = i + 1;
-            break;
-        }
-    }
-    CFRelease(displays);
+  CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
+  if (!displays) {
     CFRelease(uuid);
-    return result;
+    return 0;
+  }
+
+  int result = 0;
+  int displays_count = CFArrayGetCount(displays);
+
+  for (int i = 0; i < displays_count; ++i) {
+    if (CFEqual(CFArrayGetValueAtIndex(displays, i), uuid)) {
+      result = i + 1;
+      break;
+    }
+  }
+  CFRelease(displays);
+  CFRelease(uuid);
+  return result;
 }
 
 uint32_t display_main_display_id(void) {
@@ -135,90 +136,109 @@ uint32_t display_main_display_id(void) {
 }
 
 static CFStringRef display_active_display_uuid(void) {
-  return SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
+  if (g_space_management_mode != 1) {
+    CGEventRef event = CGEventCreate(NULL);
+    if (!event) return NULL;
+    CGPoint cursor = CGEventGetLocation(event);
+    uint32_t count = 0;
+    uint32_t* dids = display_active_display_list(&count);
+    uint32_t mouse_did = 0;
+    for (uint32_t i = 0; i < count; i++) {
+      if (CGRectContainsPoint(CGDisplayBounds(dids[i]), cursor)) {
+        mouse_did = dids[i];
+        break;
+      }
+    }
+    if (dids) free(dids);
+    CFRelease(event);
+
+    return display_uuid(mouse_did);
+  } else return SLSCopyActiveMenuBarDisplayIdentifier(g_connection);
 }
 
 uint32_t display_active_display_id(void) {
-    if (display_active_display_count() == 1) {
-      uint32_t did = 0;
-      uint32_t count = 0;
-      CGGetActiveDisplayList(1, &did, &count);
-      if (count == 1) return did;
-      else {
-        printf("ERROR (id): No active display detected!\n");
-        return 0;
-      }
+  if (display_active_display_count() == 1) {
+    uint32_t did = 0;
+    uint32_t count = 0;
+    CGGetActiveDisplayList(1, &did, &count);
+    if (count == 1) return did;
+    else {
+      printf("ERROR (id): No active display detected!\n");
+      return 0;
     }
+  }
 
-    CFStringRef uuid = display_active_display_uuid();
-    CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL, uuid);
-    uint32_t result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
-    CFRelease(uuid_ref);
-    CFRelease(uuid);
-    return result;
+  CFStringRef uuid = display_active_display_uuid();
+  if (!uuid) return 0;
+  CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL, uuid);
+  uint32_t result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
+  CFRelease(uuid_ref);
+  CFRelease(uuid);
+  return result;
 }
 
 CFStringRef display_arrangement_display_uuid(int arrangement) {
-    CFStringRef result = NULL;
-    CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
+  CFStringRef result = NULL;
+  CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
 
-    int displays_count = CFArrayGetCount(displays);
-    for (int i = 0; i < displays_count; ++i) {
-        if ((i+1) != arrangement) continue;
-        result = CFRetain(CFArrayGetValueAtIndex(displays, i));
-        break;
-    }
+  int displays_count = CFArrayGetCount(displays);
+  for (int i = 0; i < displays_count; ++i) {
+    if ((i+1) != arrangement) continue;
+    result = CFRetain(CFArrayGetValueAtIndex(displays, i));
+    break;
+  }
 
-    CFRelease(displays);
-    return result;
+  CFRelease(displays);
+  return result;
 }
 
 uint32_t display_arrangement_display_id(int arrangement) {
-    uint32_t result = 0;
-    CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
+  uint32_t result = 0;
+  CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
 
-    int displays_count = CFArrayGetCount(displays);
-    for (int i = 0; i < displays_count; ++i) {
-        if ((i+1) != arrangement) continue;
-        CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL,
-                                                    CFArrayGetValueAtIndex(displays, i));
-        result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
-        CFRelease(uuid_ref);
-        break;
-    }
+  int displays_count = CFArrayGetCount(displays);
+  for (int i = 0; i < displays_count; ++i) {
+    if ((i+1) != arrangement) continue;
+    CFUUIDRef uuid_ref = CFUUIDCreateFromString(NULL,
+                                                CFArrayGetValueAtIndex(displays, i));
+    result = CGDisplayGetDisplayIDFromUUID(uuid_ref);
+    CFRelease(uuid_ref);
+    break;
+  }
 
-    CFRelease(displays);
-    return result;
+  CFRelease(displays);
+  return result;
 }
 
 uint32_t display_active_display_adid(void) {
-    if (display_active_display_count() == 1) return 1;
+  if (display_active_display_count() == 1) return 1;
 
-    CFStringRef uuid = display_active_display_uuid();
-    CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
-    if (!displays) {
-      CFRelease(uuid);
-      return 0;
-    }
-
-    int result = 0;
-    int displays_count = CFArrayGetCount(displays);
-
-    for (int i = 0; i < displays_count; ++i) {
-        if (CFEqual(CFArrayGetValueAtIndex(displays, i), uuid)) {
-            result = i + 1;
-            break;
-        }
-    }
-    CFRelease(displays);
+  CFStringRef uuid = display_active_display_uuid();
+  if (!uuid) return 0;
+  CFArrayRef displays = SLSCopyManagedDisplays(g_connection);
+  if (!displays) {
     CFRelease(uuid);
-    return result;
+    return 0;
+  }
+
+  int result = 0;
+  int displays_count = CFArrayGetCount(displays);
+
+  for (int i = 0; i < displays_count; ++i) {
+    if (CFEqual(CFArrayGetValueAtIndex(displays, i), uuid)) {
+      result = i + 1;
+      break;
+    }
+  }
+  CFRelease(displays);
+  CFRelease(uuid);
+  return result;
 }
 
 bool display_menu_bar_visible(void) {
-    int status = 0;
-    SLSGetMenuBarAutohideEnabled(g_connection, &status);
-    return !status;
+  int status = 0;
+  SLSGetMenuBarAutohideEnabled(g_connection, &status);
+  return !status;
 }
 
 CGRect display_menu_bar_rect(uint32_t did) {
@@ -229,9 +249,9 @@ CGRect display_menu_bar_rect(uint32_t did) {
   #elif __arm64__
   int notch_height = workspace_display_notch_height(did);
   if (notch_height) {
-      bounds.size.height = notch_height + 6;
+    bounds.size.height = notch_height + 6;
   } else {
-      bounds.size.height = 24;
+    bounds.size.height = 24;
   }
 
   bounds.size.width = CGDisplayPixelsWide(did);
@@ -241,26 +261,26 @@ CGRect display_menu_bar_rect(uint32_t did) {
 }
 
 uint32_t display_active_display_count(void) {
-    uint32_t count;
-    CGGetActiveDisplayList(0, NULL, &count);
-    return count;
+  uint32_t count;
+  CGGetActiveDisplayList(0, NULL, &count);
+  return count;
 }
 
 uint32_t *display_active_display_list(uint32_t *count) {
-    int display_count = display_active_display_count();
-    uint32_t *result = malloc(sizeof(uint32_t) * display_count);
-    CGGetActiveDisplayList(display_count, result, count);
-    return result;
+  int display_count = display_active_display_count();
+  uint32_t *result = malloc(sizeof(uint32_t) * display_count);
+  CGGetActiveDisplayList(display_count, result, count);
+  return result;
 }
 
 bool display_begin() {
-    return CGDisplayRegisterReconfigurationCallback(display_handler, NULL)
-            == kCGErrorSuccess;
+  return CGDisplayRegisterReconfigurationCallback(display_handler, NULL)
+          == kCGErrorSuccess;
 }
 
 bool display_end() {
-    return CGDisplayRemoveReconfigurationCallback(display_handler, NULL)
-            == kCGErrorSuccess;
+  return CGDisplayRemoveReconfigurationCallback(display_handler, NULL)
+          == kCGErrorSuccess;
 }
 
 void forced_brightness_event() {
@@ -280,4 +300,3 @@ void begin_receiving_brightness_events() {
     }
   }
 }
-

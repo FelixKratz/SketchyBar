@@ -3,6 +3,7 @@
 
 extern struct bar_manager g_bar_manager;
 extern int g_connection;
+extern int g_space_management_mode;
 
 static void event_distributed_notification(void* context) {
   bar_manager_handle_notification(&g_bar_manager, context);
@@ -397,7 +398,12 @@ void event_post(struct event *event) {
       usleep(100);
     }
     if (locked != 0) return;
-  } else pthread_mutex_lock(&event_mutex);
+  } else {
+    pthread_mutex_lock(&event_mutex);
+    if (g_space_management_mode != 1) {
+      bar_manager_poll_active_display(&g_bar_manager);
+    }
+  }
 
   event_handler[event->type](event->context);
   windows_unfreeze();

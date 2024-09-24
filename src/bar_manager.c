@@ -992,6 +992,13 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
   env_vars_destroy(&env_vars);
 }
 
+void bar_manager_poll_active_display(struct bar_manager* bar_manager) {
+  uint32_t aadid = display_active_display_adid();
+  if (aadid != bar_manager->active_adid) {
+    bar_manager_handle_display_change(bar_manager);
+  }
+}
+
 void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
   bar_manager->active_adid = display_active_display_adid();
   struct env_vars env_vars;
