@@ -80,6 +80,7 @@ If questions remain, feel free to consult the [Q&A](https://github.com/FelixKrat
 - By *starring* the project on GitHub
 - If this project has value to you, consider quantifying it and *donating* to a charity of your choice. If you want to let me know about your donation, you
 can contact me via [email](mailto:felix.kratz@tu-dortmund.de?Subject=Donation).
+- If you want to support me directly, you can do so via [ko-fi](https://ko-fi.com/felixkratz)
 
 ## Credits
 This project was forked from *[spacebar](https://github.com/cmacrae/spacebar)* and completely reimagined and rewritten. <br>
