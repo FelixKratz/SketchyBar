@@ -113,6 +113,7 @@
 #define PROPERTY_ALIGN                         "align"
 #define PROPERTY_NOTCH_WIDTH                   "notch_width"
 #define PROPERTY_NOTCH_OFFSET                  "notch_offset"
+#define PROPERTY_NOTCH_DISPLAY_HEIGHT          "notch_display_height"
 #define PROPERTY_HORIZONTAL                    "horizontal"
 
 #define DOMAIN_SUBSCRIBE                       "--subscribe"
