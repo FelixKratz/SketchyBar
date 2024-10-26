@@ -241,7 +241,7 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                                           0                                  );
 
   uint32_t bar_center_first_item_x = (bar->window.frame.size.width
-                                      - center_length) / 2 - 1;
+                                      - center_length) / 2;
 
   uint32_t bar_center_right_first_item_x = (bar->window.frame.size.width
                                             + notch_width) / 2;
