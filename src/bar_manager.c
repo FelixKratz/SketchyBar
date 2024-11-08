@@ -38,6 +38,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->topmost = false;
   bar_manager->notch_width = 200;
   bar_manager->notch_offset = 0;
+  bar_manager->notch_display_height = 0;
   bar_manager->active_adid = display_active_display_adid();
   bar_manager->might_need_clipping = false;
 
@@ -238,6 +239,14 @@ bool bar_manager_set_notch_offset(struct bar_manager* bar_manager, uint32_t offs
   if (bar_manager->notch_offset == offset) return false;
 
   bar_manager->notch_offset = offset;
+  bar_manager->bar_needs_resize = true;
+  return true;
+}
+
+bool bar_manager_set_notch_display_height(struct bar_manager* bar_manager, uint32_t offset) {
+  if (bar_manager->notch_display_height == offset) return false;
+
+  bar_manager->notch_display_height = offset;
   bar_manager->bar_needs_resize = true;
   return true;
 }

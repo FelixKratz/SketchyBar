@@ -465,6 +465,7 @@ void bar_calculate_bounds(struct bar* bar) {
 static CGRect bar_get_frame(struct bar *bar) {
   bool is_builtin = CGDisplayIsBuiltin(bar->did);
   int notch_offset = is_builtin ? g_bar_manager.notch_offset : 0;
+  int notch_display_height = is_builtin ? g_bar_manager.notch_display_height : 0;
 
 
   CGRect bounds = display_bounds(bar->did);
@@ -507,8 +508,15 @@ static CGRect bar_get_frame(struct bar *bar) {
       origin.y += menu.size.height;
     }
 
+
+    if (notch_display_height > 0) {
+      return (CGRect) {{origin.x, origin.y},
+                        {bounds.size.width,
+                        g_bar_manager.notch_display_height}};
+    }
+    
     return (CGRect) {{origin.x, origin.y},
-                     {bounds.size.width,
+                      {bounds.size.width,
                       g_bar_manager.background.bounds.size.height}};
   }
 }
