@@ -253,7 +253,6 @@ static void popup_create_window(struct popup* popup) {
 }
 
 static void popup_close_window(struct popup* popup) {
-  popup->drawing = false;
   if (popup == &g_bar_manager.default_item.popup) return;
   window_close(&popup->window);
 }
@@ -276,6 +275,9 @@ void popup_add_item(struct popup* popup, struct bar_item* bar_item) {
   popup->items[popup->num_items - 1] = bar_item;
   bar_item->parent = popup->host;
   popup->needs_ordering = true;
+  if (popup->num_items == 1){
+    popup_draw(popup);
+  }
 }
 
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
@@ -285,6 +287,7 @@ void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
     free(popup->items);
     popup->items = NULL;
     popup->num_items = 0;
+    popup_close_window(popup);
     return;
   }
 
