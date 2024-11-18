@@ -29,6 +29,7 @@ where possible settings are:
 | `border_color`   | `<argb_hex>`                             | `0xffff0000` | Color of the bars border                                                                                                          |
 | `position`       | `top`, `bottom`                          | `top`        | Position of the bar on the screen                                                                                                 |
 | `height`         | `<integer>`                              | `25`         | Height of the bar                                                                                                                 |
+| `notch_display_height`         | `<integer>`                              | `0`         | Override of the height of the bar on notched displays                                                                                                                 |
 | `margin`         | `<integer>`                              | `0`          | Margin around the bar                                                                                                             |
 | `y_offset`       | `<integer>`                              | `0`          | Vertical offset of the bar from its default position                                                                              |
 | `corner_radius`  | `<positive_integer>`                     | `0`          | Corner radius of the bar                                                                                                          |

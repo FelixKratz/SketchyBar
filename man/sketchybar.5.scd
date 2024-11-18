@@ -32,6 +32,10 @@ The possible settings to configure the bar include
 :  <integer>
 :  25
 :  Height of the bar
+|  notch_display_height
+:  <integer>
+:  0
+:  Override for the height of the bar on notched displays
 |  margin
 :  <integer>
 :  0
