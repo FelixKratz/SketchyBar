@@ -1033,12 +1033,17 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
-  usleep(100000);
-  bar_manager->sleeps = false;
-  bar_manager_display_changed(bar_manager);
-  bar_manager_custom_events_trigger(bar_manager,
-                                    COMMAND_SUBSCRIBE_SYSTEM_WOKE,
-                                    NULL                          );
+
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    usleep(100000);
+    dispatch_async(dispatch_get_main_queue(), ^{
+      bar_manager->sleeps = false;
+      bar_manager_display_changed(bar_manager);
+      bar_manager_custom_events_trigger(bar_manager,
+                                        COMMAND_SUBSCRIBE_SYSTEM_WOKE,
+                                        NULL                          );
+    });
+  });
 }
 
 void bar_manager_handle_notification(struct bar_manager* bar_manager, struct notification* notification) {
