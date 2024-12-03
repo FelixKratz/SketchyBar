@@ -7,6 +7,7 @@
 #include <time.h>
 #include "env_vars.h"
 #include "defines.h"
+#include "extern.h"
 
 #define array_count(a) (sizeof((a)) / sizeof(*(a)))
 #define max(a, b) (a > b ? a : b)
@@ -16,10 +17,6 @@
 #define MAXLEN 512
 #define FORK_TIMEOUT 60
 
-extern CFArrayRef SLSCopyManagedDisplaySpaces(int cid);
-extern uint32_t SLSGetActiveSpace(int cid);
-extern CFStringRef SLSCopyManagedDisplayForSpace(int cid, uint64_t sid);
-extern CFArrayRef SLSHWCaptureSpace(int64_t cid, int64_t sid, int64_t flags);
 extern int g_connection;
 
 struct signal_args {
