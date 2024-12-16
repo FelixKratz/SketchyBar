@@ -142,6 +142,7 @@
 #define COMMAND_QUERY_DEFAULTS                 "defaults"
 #define COMMAND_QUERY_BAR                      "bar"
 #define COMMAND_QUERY_EVENTS                   "events"
+#define COMMAND_QUERY_DISPLAYS                 "displays"
 
 #define ARGUMENT_COMMON_VAL_ON                 "on"
 #define ARGUMENT_COMMON_VAL_NOT_OFF            "!off"

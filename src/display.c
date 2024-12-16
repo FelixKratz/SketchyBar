@@ -1,4 +1,5 @@
 #include "display.h"
+#include "misc/helpers.h"
 
 extern int workspace_display_notch_height(uint32_t did);
 extern int g_connection;
@@ -299,4 +300,38 @@ void begin_receiving_brightness_events() {
       DisplayServicesRegisterForBrightnessChangeNotifications(did, did, (void*)brightness_handler);
     }
   }
+}
+
+void display_serialize(FILE* rsp) {
+  uint32_t count = 0;
+  uint32_t* display_ids = display_active_display_list(&count);
+  if (!display_ids) return;
+
+  fprintf(rsp, "[\n");
+  for (int i = 0; i < count; i++) {
+    fprintf(rsp, "\t{\n");
+
+    uint32_t did = display_arrangement_display_id(i + 1);
+    CFStringRef uuid_ref = display_uuid(did);
+    CGRect frame = CGDisplayBounds(did);
+    char* uuid = NULL;
+    if (uuid_ref) {
+      uuid = cfstring_copy(uuid_ref);
+      CFRelease(uuid_ref);
+    }
+
+    fprintf(rsp, "\t\t\"arrangement-id\":%d,\n", display_arrangement(did));
+    fprintf(rsp, "\t\t\"DirectDisplayID\":%d,\n", did);
+    fprintf(rsp, "\t\t\"UUID\":\"%s\",\n", uuid ? uuid : "<unknown>");
+    fprintf(rsp, "\t\t\"frame\":{\n\t\t\"x\":%.4f,\n\t\t\"y\":%.4f,\n\t\t\"w\":%.4f,\n\t\t\"h\":%.4f\n\t\t}\n", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+
+    if (i == count - 1)
+      fprintf(rsp, "\t}\n");
+    else
+      fprintf(rsp, "\t},\n");
+
+    if (uuid) free(uuid);
+  }
+  fprintf(rsp, "]\n");
+  free(display_ids);
 }
