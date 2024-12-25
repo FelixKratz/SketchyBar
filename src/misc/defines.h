@@ -1,7 +1,7 @@
 #pragma once
 
 #define DOMAIN_ADD                             "--add"
-#define COMMAND_ADD_ITEM                       "item"                                  
+#define COMMAND_ADD_ITEM                       "item"
 #define COMMAND_ADD_COMPONENT                  "component"
 #define COMMAND_ADD_EVENT                      "event"
 
@@ -107,6 +107,7 @@
 #define PROPERTY_SPACE                         "space"
 #define PROPERTY_TOPMOST                       "topmost"
 #define PROPERTY_STICKY                        "sticky"
+#define PROPERTY_SHOW_IN_FULLSCREEN            "show_in_fullscreen"
 #define PROPERTY_HIDDEN                        "hidden"
 #define PROPERTY_FONT_SMOOTHING                "font_smoothing"
 #define PROPERTY_SHADOW                        "shadow"
@@ -167,7 +168,7 @@
 #define ARGUMENT_DISPLAY_MAIN                  "main"
 #define ARGUMENT_DISPLAY_ALL                   "all"
 
-#define ARGUMENT_UPDATES_WHEN_SHOWN            "when_shown" 
+#define ARGUMENT_UPDATES_WHEN_SHOWN            "when_shown"
 #define ARGUMENT_DYNAMIC                       "dynamic"
 
 #define ARGUMENT_WINDOW                        "window"

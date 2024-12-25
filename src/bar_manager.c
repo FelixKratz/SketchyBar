@@ -44,6 +44,8 @@ void bar_manager_init(struct bar_manager* bar_manager) {
 
   bar_manager->sticky = true;
 
+  bar_manager->show_in_fullscreen = false;
+
   image_init(&bar_manager->current_artwork);
   background_init(&bar_manager->background);
   bar_manager->background.bounds.size.height = 25;
@@ -59,7 +61,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   custom_events_init(&bar_manager->custom_events);
 
   animator_init(&bar_manager->animator);
-  
+
   int shell_refresh_frequency = 1;
 
   bar_manager->clock = CFRunLoopTimerCreate(NULL,
@@ -259,6 +261,12 @@ bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smooth
   return true;
 }
 
+bool bar_manager_set_show_in_fullscreen(struct bar_manager* bar_manager, bool show_in_fullscreen) {
+    if (bar_manager->show_in_fullscreen == show_in_fullscreen) return false;
+    bar_manager->show_in_fullscreen = show_in_fullscreen;
+    return true;
+}
+
 bool bar_manager_set_hidden(struct bar_manager *bar_manager, uint32_t adid, bool hidden) {
   bar_manager->any_bar_hidden = false;
   if (adid > 0) {
@@ -342,7 +350,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
     struct bar_item* bar_item = bar_manager->bar_items[i];
     bool draws_item = bar_draws_item(bar, bar_item);
-    
+
     bool regular_update = bar_item->needs_update
                           && draws_item;
 
@@ -403,7 +411,7 @@ bool bar_manager_bar_needs_redraw(struct bar_manager* bar_manager, struct bar* b
 }
 
 void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) 
+  for (int i = 0; i < bar_manager->bar_item_count; i++)
     bar_manager->bar_items[i]->needs_update = false;
 
   bar_manager->needs_ordering = false;
@@ -411,7 +419,7 @@ void bar_manager_clear_needs_update(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
-  for (int i = 0; i < bar_manager->bar_item_count; i++) 
+  for (int i = 0; i < bar_manager->bar_item_count; i++)
     bar_item_reset_associated_bar(bar_manager->bar_items[i]);
 }
 
@@ -428,7 +436,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced, bool thre
 
   for (int i = 0; i < bar_manager->bar_count; ++i) {
     if (forced
-        || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) { 
+        || bar_manager_bar_needs_redraw(bar_manager, bar_manager->bars[i])) {
       bar_calculate_bounds(bar_manager->bars[i]);
       bar_draw(bar_manager->bars[i], false, threaded);
       if (bar_manager->needs_ordering) {
@@ -513,7 +521,7 @@ void bar_manager_update_space_components(struct bar_manager* bar_manager, bool f
         else {
           bar_item->updates = false;
         }
-      } 
+      }
     }
   }
 }
@@ -586,7 +594,7 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
     memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
     bar_manager->bars[0]->adid = display_arrangement(did);
-  } 
+  }
   else {
     uint32_t display_count = display_active_display_count();
     uint32_t bar_count = 0;
@@ -964,7 +972,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
     bar_manager->bars[i]->sid = mission_control_index(dsid);
 
     bool was_shown = bar_manager->bars[i]->shown;
-    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4;
+    bar_manager->bars[i]->shown = SLSSpaceGetType(g_connection, dsid) != 4 || bar_manager->show_in_fullscreen;
 
     bar_manager->needs_ordering |= !was_shown && bar_manager->bars[i]->shown;
     force_refresh |= !was_shown && bar_manager->bars[i]->shown;
@@ -1106,6 +1114,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                "%s\"hidden\": \"%s\",\n"
                "%s\"shadow\": \"%s\",\n"
                "%s\"font_smoothing\": \"%s\",\n"
+               "%s\"show_in_fullscreen\": \"%s\",\n"
                "%s\"blur_radius\": %u,\n"
                "%s\"margin\": %d,\n",
                indent, bar_manager->position == POSITION_BOTTOM
@@ -1115,6 +1124,7 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
                indent, format_bool(bar_manager->any_bar_hidden),
                indent, format_bool(bar_manager->shadow),
                indent, format_bool(bar_manager->font_smoothing),
+               indent, format_bool(bar_manager->show_in_fullscreen),
                indent, bar_manager->blur_radius,
                indent, bar_manager->margin         );
 
