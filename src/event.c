@@ -1,4 +1,6 @@
 #include "event.h"
+#include "bar_manager.h"
+#include "custom_events.h"
 #include "hotload.h"
 
 extern struct bar_manager g_bar_manager;
@@ -197,8 +199,18 @@ static void event_mouse_exited(void* context) {
         popup_target->mouse_over = true;
       }
       else {
-        popup->mouse_over = false;
         bar_target->mouse_over = true;
+        if (popup) {
+          popup->mouse_over = false;
+          bool has_complex_mask
+                  = popup->host->update_mask & (UPDATE_MOUSE_EXITED
+                                                | UPDATE_EXITED_GLOBAL);
+          if (has_complex_mask
+              && bar_manager_get_item_by_point(&g_bar_manager, point, NULL)
+                  != popup->host) {
+            bar_manager_handle_mouse_exited(&g_bar_manager, popup->host);
+          }
+        }
       }
     }
     return;
@@ -209,14 +221,13 @@ static void event_mouse_exited(void* context) {
                                                           wid,
                                                           &window        );
 
-  if (bar_item) {
-    if (!(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
-      || (bar_manager_get_bar_by_point(&g_bar_manager, point)
-        && bar_manager_get_popup_by_point(&g_bar_manager, point)
-            != &bar_item->popup)) {
-      bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
-    }
+  if (bar_item
+      && bar_item->update_mask & UPDATE_EXITED_GLOBAL
+      && bar_manager_get_popup_by_point(&g_bar_manager, point)
+         == &bar_item->popup) {
+    return;
   }
+  if (bar_item) bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
 }
 
 #define SCROLL_TIMEOUT 150000000
