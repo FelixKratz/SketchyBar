@@ -26,6 +26,7 @@ struct bar_manager {
   bool might_need_clipping;
   bool bar_needs_update;
   bool bar_needs_resize;
+  bool show_in_fullscreen;
 
   uint32_t displays;
   char position;
@@ -78,6 +79,7 @@ bool bar_manager_set_topmost(struct bar_manager* bar_manager, char level, bool t
 bool bar_manager_set_sticky(struct bar_manager *bar_manager, bool sticky);
 bool bar_manager_set_shadow(struct bar_manager* bar_manager, bool shadow);
 bool bar_manager_set_font_smoothing(struct bar_manager* bar_manager, bool smoothing);
+bool bar_manager_set_show_in_fullscreen(struct bar_manager* bar_manager, bool show_in_fullscreen);
 bool bar_manager_set_notch_width(struct bar_manager* bar_manager, uint32_t width);
 bool bar_manager_set_notch_offset(struct bar_manager* bar_manager, uint32_t offset);
 bool bar_manager_set_notch_display_height(struct bar_manager* bar_manager, uint32_t offset);

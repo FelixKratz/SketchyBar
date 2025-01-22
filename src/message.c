@@ -1,7 +1,9 @@
 #include "message.h"
 #include "app_windows.h"
+#include "bar_manager.h"
 #include "misc/defines.h"
 #include "hotload.h"
+#include "misc/helpers.h"
 #include "volume.h"
 #include "media.h"
 #include "wifi.h"
@@ -68,7 +70,7 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
   struct token token = get_token(&message);
   while (token.text && token.length > 0) {
     struct key_value_pair key_value_pair = get_key_value_pair(token.text, '=');
-    
+
     if (key_value_pair.key && key_value_pair.value) {
       env_vars_set(&env_vars,
                    string_copy(key_value_pair.key),
@@ -100,7 +102,7 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
 
 static void handle_domain_push(FILE* rsp, struct token domain, char* message) {
   struct token name = get_token(&message);
-  
+
   int item_index_for_name = bar_manager_get_item_index_for_name(&g_bar_manager,
                                                                 name.text    );
 
@@ -180,7 +182,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
                               token_to_string(event),
                               NULL                         );
     return;
-  } 
+  }
 
   struct token name = get_token(&message);
   struct token position = get_token(&message);
@@ -188,7 +190,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
   if (bar_manager_get_item_index_for_name(&g_bar_manager, name.text) >= 0) {
     respond(rsp, "[?] Add: Item '%s' already exists\n", name.text);
     return;
-  } 
+  }
   struct bar_item* bar_item = bar_manager_create_item(&g_bar_manager);
 
   if (!bar_item_set_type(bar_item, command.text)) {
@@ -216,7 +218,7 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
     if (bar_item->type == BAR_COMPONENT_GRAPH) {
       struct token width = get_token(&message);
       graph_setup(&bar_item->graph, token_to_uint32t(width));
-    } 
+    }
     else if (bar_item->type == BAR_COMPONENT_SLIDER) {
       struct token width = get_token(&message);
       slider_setup(&bar_item->slider, token_to_uint32t(width));
@@ -440,6 +442,11 @@ static bool handle_domain_bar(FILE *rsp, struct token domain, char *message) {
             &g_bar_manager,
             g_bar_manager.background.bounds.size.height,
             token_to_int(token)                         );
+  } else if (token_equals(command, PROPERTY_SHOW_IN_FULLSCREEN)) {
+      struct token token = get_token(&message);
+
+      needs_refresh = bar_manager_set_show_in_fullscreen(&g_bar_manager,
+          evaluate_boolean_state(token, g_bar_manager.show_in_fullscreen));
   } else
     needs_refresh = background_parse_sub_domain(&g_bar_manager.background, rsp, command, message);
 
@@ -452,7 +459,7 @@ static char* reformat_batch_key_value_pair(struct token token) {
   char* rbr_msg = malloc((strlen(key_value_pair.key) + (key_value_pair.value
                                                         ? strlen(key_value_pair.value)
                                                         : 0)
-                          + 3) * sizeof(char)                                         ); 
+                          + 3) * sizeof(char)                                         );
 
   pack_key_value_pair(rbr_msg, &key_value_pair);
   return rbr_msg;
@@ -739,7 +746,7 @@ void handle_message_mach(struct mach_buffer* buffer) {
 
       if (reload) {
         struct event event = { NULL, HOTLOAD };
-        event_post(&event); 
+        event_post(&event);
       }
     } else {
       char* rbr_msg = get_batch_line(&message);
