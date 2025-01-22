@@ -209,14 +209,11 @@ static void event_mouse_exited(void* context) {
                                                           wid,
                                                           &window        );
 
-if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
+  if (bar_item) {
+    if (!(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
       || (bar_manager_get_bar_by_point(&g_bar_manager, point)
         && bar_manager_get_popup_by_point(&g_bar_manager, point)
             != &bar_item->popup)) {
-    CGRect window_rect = window ? window->frame : CGRectNull;
-    window_rect.origin = window ? window->origin : CGPointZero;
-    window_rect = CGRectInset(window_rect, 1, 1);
-    if (!CGRectContainsPoint(window_rect, point)) {
       bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
     }
   }
