@@ -137,7 +137,6 @@ static void event_mouse_entered(void* context) {
       bar->mouse_over = true;
       bar_manager_handle_mouse_entered_global(&g_bar_manager);
     }
-
     return;
   }
 
@@ -149,18 +148,12 @@ static void event_mouse_entered(void* context) {
       popup->mouse_over = true;
       bar_manager_handle_mouse_entered_global(&g_bar_manager);
     }
-
     return;
   }
 
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
                                                           NULL          );
-
-  if (!bar_item) {
-    CGPoint point = CGEventGetLocation(context);
-    bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, NULL);
-  }
 
   bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
 }
@@ -190,6 +183,7 @@ static void event_mouse_exited(void* context) {
     // Handle global mouse exited event
     CGRect frame = origin_window->frame;
     frame.origin = origin_window->origin;
+    frame = CGRectInset(frame, 1, 1);
 
     bool over_origin = CGRectContainsPoint(frame, point);
 
@@ -207,7 +201,6 @@ static void event_mouse_exited(void* context) {
         bar_target->mouse_over = true;
       }
     }
-
     return;
   }
 
@@ -216,19 +209,13 @@ static void event_mouse_exited(void* context) {
                                                           wid,
                                                           &window        );
 
-  if (!bar_item || !(bar_item->update_mask & UPDATE_EXITED_GLOBAL)
-      || (bar_manager_get_bar_by_point(&g_bar_manager, point)
-        && bar_manager_get_popup_by_point(&g_bar_manager, point)
-            != &bar_item->popup)) {
-    CGEventRef event = CGEventCreate(NULL);
-    CGPoint cursor = CGEventGetLocation(event);
-    CFRelease(event);
-    CGRect window_rect = window ? window->frame : CGRectNull;
-    window_rect.origin = window ? window->origin : CGPointZero;
-    if (!CGRectContainsPoint(window_rect, cursor)) {
-      bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
-    }
+  if (bar_item
+      && bar_item->update_mask & UPDATE_EXITED_GLOBAL
+      && bar_manager_get_popup_by_point(&g_bar_manager, point)
+         == &bar_item->popup) {
+    return;
   }
+  bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
 }
 
 #define SCROLL_TIMEOUT 150000000
