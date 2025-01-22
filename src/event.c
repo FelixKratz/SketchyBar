@@ -163,9 +163,9 @@ static void event_mouse_entered(void* context) {
 static void event_mouse_exited(void* context) {
   uint32_t wid = get_wid_from_cg_event(context);
 
-  struct bar* bar,* bar_target;
-  struct popup* popup,* popup_target;
-  struct window* origin_window;
+  struct bar* bar = NULL,* bar_target = NULL;
+  struct popup* popup,* popup_target = NULL;
+  struct window* origin_window = NULL;
   bool over_target = false;
 
   CGPoint point = CGEventGetLocation(context);
@@ -191,15 +191,15 @@ static void event_mouse_exited(void* context) {
 
     if (!over_origin && !over_target) {
       if (bar) bar->mouse_over = false;
-      else popup->mouse_over = false;
+      else if (popup) popup->mouse_over = false;
       bar_manager_handle_mouse_exited_global(&g_bar_manager);
     } else if (!over_origin && over_target) {
       if (bar) {
         bar->mouse_over = false;
-        popup_target->mouse_over = true;
+        if (popup_target) popup_target->mouse_over = true;
       }
       else {
-        bar_target->mouse_over = true;
+        if (bar_target) bar_target->mouse_over = true;
         if (popup) {
           popup->mouse_over = false;
           bool has_complex_mask
