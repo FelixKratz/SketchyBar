@@ -375,6 +375,8 @@ static callback_type* event_handler[] = {
 };
 
 void event_post(struct event *event) {
+  if (event->type == EVENT_TYPE_UNKNOWN) return;
+
   static bool initialized = false;
   static pthread_mutex_t event_mutex;
 

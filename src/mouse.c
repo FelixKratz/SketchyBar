@@ -2,7 +2,6 @@
 #include "mouse.h"
 
 static const EventTypeSpec mouse_events [] = {
-    { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseEntered },
@@ -11,53 +10,22 @@ static const EventTypeSpec mouse_events [] = {
     { kEventClassMouse, kEventMouseScroll }
 };
 
+static int carbon_event_translation[] = {
+  [kEventMouseUp] = MOUSE_UP,
+  [kEventMouseDragged] = MOUSE_DRAGGED,
+  [kEventMouseEntered] = MOUSE_ENTERED,
+  [kEventMouseExited]  = MOUSE_EXITED,
+  [kEventMouseWheelMoved] = MOUSE_SCROLLED,
+  [kEventMouseScroll] = MOUSE_SCROLLED
+};
 
 static pascal OSStatus mouse_handler(EventHandlerCallRef next, EventRef e, void *data) {
-  switch (GetEventKind(e)) {
-    case kEventMouseUp: {
-      CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event, MOUSE_UP };
+  enum event_type event_type = carbon_event_translation[GetEventKind(e)];
 
-      event_post(&event);
-      CFRelease(cg_event);
-      break;
-    }
-    case kEventMouseDragged: {
-      CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event, MOUSE_DRAGGED };
-
-      event_post(&event);
-      CFRelease(cg_event);
-      break;
-    }
-    case kEventMouseEntered: {
-      CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event, MOUSE_ENTERED };
-
-      event_post(&event); 
-      CFRelease(cg_event);
-      break;
-    }
-    case kEventMouseExited: {
-      CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event, MOUSE_EXITED };
-
-      event_post(&event); 
-      CFRelease(cg_event);
-      break;
-    }
-    case kEventMouseScroll:
-    case kEventMouseWheelMoved: {
-      CGEventRef cg_event = CopyEventCGEvent(e);
-      struct event event = { (void *) cg_event, MOUSE_SCROLLED };
-
-      event_post(&event);
-      CFRelease(cg_event);
-      break;
-    }
-    default:
-      break;
-  }
+  CGEventRef cg_event = CopyEventCGEvent(e);
+  struct event event = { (void *) cg_event, event_type };
+  event_post(&event);
+  CFRelease(cg_event);
 
   return CallNextEventHandler(next, e);
 }
