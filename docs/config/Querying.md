@@ -33,3 +33,9 @@ The names of the menu bar items in the default macOS bar:
 ```bash
 sketchybar --query default_menu_items
 ```
+
+### Display Configuration Information
+The names of the menu bar items in the default macOS bar:
+```bash
+sketchybar --query displays
+```

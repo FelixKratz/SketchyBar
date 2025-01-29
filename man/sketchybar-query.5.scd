@@ -31,6 +31,10 @@ Sketchybar can be queried for information about a number of things.
 	default macOS bar. This is useful for configuring aliases (see
 	*sketchybar-components*(5)).
 
+*--query displays*
+	Output a json structure with info about the connected displays.
+
+
 # SEE ALSO
 
 *sketchybar*(1)++
