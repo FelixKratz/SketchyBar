@@ -255,45 +255,46 @@ static void event_mouse_scrolled(void* context) {
       = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
   }
 
-
-  struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
-  if (bar) {
-    // Handle global mouse scrolled event
-    if (bar->mouse_over
-        && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
-      bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
-                                               scroll_delta
-                                               + g_scroll_info.delta_y,
-                                               bar->adid,
-                                               modifier_keys           );
-    }
-
-    g_scroll_info.delta_y = 0;
-    return;
-  }
-
-  struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
-  if (popup) {
-    // Handle global mouse scrolled event
-    if (popup->mouse_over
-        && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
-      bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
-                                               scroll_delta
-                                               + g_scroll_info.delta_y,
-                                               popup->adid,
-                                               modifier_keys           );
-    }
-
-    g_scroll_info.delta_y = 0;
-    return;
-  }
-
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
                                                           NULL           );
 
   if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
     bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, NULL);
+  }
+
+  if (!bar_item) {
+    struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    if (bar) {
+      // Handle global mouse scrolled event
+      if (bar->mouse_over
+          && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
+                                                 scroll_delta
+                                                 + g_scroll_info.delta_y,
+                                                 bar->adid,
+                                                 modifier_keys           );
+      }
+
+      g_scroll_info.delta_y = 0;
+      return;
+    }
+
+    struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+    if (popup) {
+      // Handle global mouse scrolled event
+      if (popup->mouse_over
+          && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
+        bar_manager_handle_mouse_scrolled_global(&g_bar_manager,
+                                                 scroll_delta
+                                                 + g_scroll_info.delta_y,
+                                                 popup->adid,
+                                                 modifier_keys           );
+      }
+
+      g_scroll_info.delta_y = 0;
+      return;
+    }
   }
 
   bar_item_on_scroll(bar_item,
