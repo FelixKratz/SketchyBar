@@ -81,13 +81,13 @@ static void event_mouse_up(void* context) {
                                                           wid,
                                                           &window        );
 
-  struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
-  struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
-  if (!bar_item && !popup && !bar) return;
-
   if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
     bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, &window);
   }
+
+  struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+  struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+  if (!bar_item && !popup && !bar) return;
 
   CGPoint point_in_window_coords = CGPointZero;
   if (bar_item && window) {
