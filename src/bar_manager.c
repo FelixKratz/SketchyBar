@@ -755,27 +755,11 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
 }
 
 void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did) {
-  for (int i = 0; i < bar_manager->bar_count; i++) {
-    if (bar_manager->bars[i]->did == did) {
-      bar_resize(bar_manager->bars[i]);
-    }
-  }
-  bar_manager_refresh(bar_manager, false, false);
+  bar_manager_display_changed(bar_manager);
 }
 
 void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
-  for (int i = 0; i < bar_manager->bar_count; i++) {
-    struct bar* bar = bar_manager->bars[i];
-    if (bar->did == did) {
-      bar_resize(bar);
-      bar->adid = display_arrangement(bar->did);
-      bar->dsid = display_space_id(bar->did);
-      bar->sid = mission_control_index(bar->dsid);
-    }
-  }
-  bar_manager->needs_ordering = true;
-  bar_manager_refresh(bar_manager, true, false);
-  bar_manager_handle_display_change(bar_manager);
+  bar_manager_display_changed(bar_manager);
 }
 
 void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did) {
