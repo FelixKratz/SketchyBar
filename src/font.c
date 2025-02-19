@@ -50,6 +50,36 @@ void font_create_ctfont(struct font* font) {
   CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes(attr);
 
   if (font->ct_font) CFRelease(font->ct_font);
+
+
+  if (font->features) {
+    CFAllocatorRef default_allocator = CFAllocatorGetDefault();
+    
+    char* features_copy = string_copy(font->features);
+    char* feature = strtok(features_copy, ",");
+
+    while (feature) {
+      int feat_name = 0;
+      int feat_value = 0;
+
+      if (sscanf(feature, "%d:%d", &feat_name, &feat_value) == 2) {
+        CFNumberRef name = CFNumberCreate(default_allocator, kCFNumberIntType, &feat_name);
+        CFNumberRef value = CFNumberCreate(default_allocator, kCFNumberIntType, &feat_value);
+
+        descriptor = CTFontDescriptorCreateCopyWithFeature(descriptor, name, value);
+
+        CFRelease(name);
+        CFRelease(value);
+      }
+
+      feature = strtok(NULL, ",");
+    }
+
+    free(feature);
+    free(features_copy);
+    CFRelease(default_allocator);
+  }
+
   font->ct_font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
 
   CFRelease(descriptor);
@@ -101,6 +131,19 @@ bool font_set_size(struct font* font, float size) {
   return true;
 }
 
+bool font_set_features(struct font* font, char* features) {
+  if (!features) return false;
+  if (font->features && string_equals(font->features, features)) {
+    free(features);
+    return false;
+  }
+  if (font->features) free(font->features);
+  font->features = features;
+  font->font_changed = true;
+
+  return true;
+}
+
 bool font_set(struct font* font, char* font_string, bool forced) {
   if (!font_string) return false;
 
@@ -125,11 +168,13 @@ void font_clear_pointers(struct font* font) {
   font->ct_font = NULL;
   font->family = NULL;
   font->style = NULL;
+  font->features = NULL;
 }
 
 void font_destroy(struct font* font) {
   if (font->style) free(font->style);
   if (font->family) free(font->family);
+  if (font->features) free(font->features);
   if (font->ct_font) CFRelease(font->ct_font);
   font_clear_pointers(font);
 }
@@ -148,6 +193,9 @@ bool font_parse_sub_domain(struct font* font, FILE* rsp, struct token property, 
   } else if (token_equals(property, PROPERTY_FONT_STYLE)) {
     struct token token = get_token(&message);
     needs_refresh = font_set_style(font, token_to_string(token), false);
+  } else if (token_equals(property, PROPERTY_FONT_FEATURES)) {
+    struct token token = get_token(&message);
+    needs_refresh = font_set_features(font, token_to_string(token));
   } else {
     respond(rsp, "[!] Text: Invalid property '%s'\n", property.text);
   }

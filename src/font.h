@@ -9,6 +9,7 @@ struct font {
   float size;
   char* family;
   char* style;
+  char* features;
 };
 
 void font_register(char* font_path);

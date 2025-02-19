@@ -81,6 +81,7 @@
 #define PROPERTY_FONT_FAMILY                   "family"
 #define PROPERTY_FONT_STYLE                    "style"
 #define PROPERTY_FONT_SIZE                     "size"
+#define PROPERTY_FONT_FEATURES                 "features"
 
 #define PROPERTY_UPDATES                       "updates"
 #define PROPERTY_POSITION                      "position"
