@@ -65,7 +65,9 @@ void font_create_ctfont(struct font* font) {
         CFNumberRef name = CFNumberCreate(NULL, kCFNumberIntType, &feat_name);
         CFNumberRef value = CFNumberCreate(NULL, kCFNumberIntType, &feat_value);
 
-        descriptor = CTFontDescriptorCreateCopyWithFeature(descriptor, name, value);
+        CTFontDescriptorRef new_descriptor = CTFontDescriptorCreateCopyWithFeature(descriptor, name, value);
+        CFRelease(descriptor);
+        descriptor = new_descriptor;
 
         CFRelease(name);
         CFRelease(value);
