@@ -53,7 +53,6 @@ void font_create_ctfont(struct font* font) {
 
 
   if (font->features) {
-    CFAllocatorRef default_allocator = CFAllocatorGetDefault();
     
     char* features_copy = string_copy(font->features);
     char* feature = strtok(features_copy, ",");
@@ -63,8 +62,8 @@ void font_create_ctfont(struct font* font) {
       int feat_value = 0;
 
       if (sscanf(feature, "%d:%d", &feat_name, &feat_value) == 2) {
-        CFNumberRef name = CFNumberCreate(default_allocator, kCFNumberIntType, &feat_name);
-        CFNumberRef value = CFNumberCreate(default_allocator, kCFNumberIntType, &feat_value);
+        CFNumberRef name = CFNumberCreate(NULL, kCFNumberIntType, &feat_name);
+        CFNumberRef value = CFNumberCreate(NULL, kCFNumberIntType, &feat_value);
 
         descriptor = CTFontDescriptorCreateCopyWithFeature(descriptor, name, value);
 
@@ -77,7 +76,6 @@ void font_create_ctfont(struct font* font) {
 
     free(feature);
     free(features_copy);
-    CFRelease(default_allocator);
   }
 
   font->ct_font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
