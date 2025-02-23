@@ -178,16 +178,24 @@ static inline char* get_type_description(uint32_t type) {
 }
 
 static inline char* get_modifier_description(uint32_t modifier) {
-  if (modifier & kCGEventFlagMaskShift)
-    return "shift";
-  else if (modifier & kCGEventFlagMaskControl)
-    return "ctrl";
-  else if (modifier & kCGEventFlagMaskAlternate)
-    return "alt";
-  else if (modifier & kCGEventFlagMaskCommand)
-    return "cmd";
-  else 
-    return "none";
+    static char description[64];
+    description[0] = '\0';
+
+    if (modifier & kCGEventFlagMaskShift)
+        strcat(description, "shift,");
+    if (modifier & kCGEventFlagMaskControl)
+        strcat(description, "ctrl,");
+    if (modifier & kCGEventFlagMaskAlternate)
+        strcat(description, "alt,");
+    if (modifier & kCGEventFlagMaskCommand)
+        strcat(description, "cmd,");
+
+    int len = strlen(description);
+    if (len > 0 && description[len - 1] == ',') {
+        description[len - 1] = '\0';
+    }
+
+    return description[0] ? description : "none";
 }
 
 static inline char** token_split(struct token token, char split, uint32_t* count) {
