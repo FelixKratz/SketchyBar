@@ -140,7 +140,6 @@ void font_create_ctfont(struct font* font) {
       feature = strtok(NULL, ",");
     }
 
-    free(feature);
     free(features_copy);
   }
 
