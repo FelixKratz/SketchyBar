@@ -717,7 +717,6 @@ struct popup* bar_manager_get_popup_by_point(struct bar_manager* bar_manager, CG
     if (CGRectContainsPoint(frame, point)) return &bar_item->popup;
   }
   return NULL;
-
 }
 
 struct bar* bar_manager_get_bar_by_point(struct bar_manager* bar_manager, CGPoint point) {
@@ -754,23 +753,9 @@ void bar_manager_custom_events_trigger(struct bar_manager* bar_manager, char* na
   }
 }
 
-void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did) {
-  bar_manager_display_changed(bar_manager);
-}
-
-void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
-  bar_manager_display_changed(bar_manager);
-}
-
-void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did) {
-  bar_manager_display_changed(bar_manager);
-}
-
-void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
-  bar_manager_display_changed(bar_manager);
-}
-
-void bar_manager_display_changed(struct bar_manager* bar_manager) {
+void bar_manager_handle_display_event(struct bar_manager* bar_manager,
+                                      uint32_t did,
+                                      void (*display_event_handler)(struct bar_manager*)) {
   bar_manager->active_adid = display_active_display_adid();
 
   bar_manager_freeze(bar_manager);
@@ -778,9 +763,40 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
   bar_manager_unfreeze(bar_manager);
   bar_manager_refresh(bar_manager, true, false);
 
-  bar_manager_handle_display_change(bar_manager);
+  display_event_handler(bar_manager);
+
   bar_manager_handle_space_change(bar_manager, true);
   animator_renew_display_link(&bar_manager->animator);
+}
+
+void bar_manager_display_resized(struct bar_manager* bar_manager, uint32_t did) {
+  bar_manager_handle_display_event(bar_manager,
+                                   did,
+                                   bar_manager_handle_display_resized);
+}
+
+void bar_manager_display_moved(struct bar_manager* bar_manager, uint32_t did) {
+  bar_manager_handle_display_event(bar_manager,
+                                   did,
+                                   bar_manager_handle_display_moved);
+}
+
+void bar_manager_display_removed(struct bar_manager* bar_manager, uint32_t did) {
+  bar_manager_handle_display_event(bar_manager,
+                                   did,
+                                   bar_manager_handle_display_removed);
+}
+
+void bar_manager_display_added(struct bar_manager *bar_manager, uint32_t did) {
+  bar_manager_handle_display_event(bar_manager,
+                                   did,
+                                   bar_manager_handle_display_added);
+}
+
+void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  bar_manager_handle_display_event(bar_manager,
+                                   0,
+                                   bar_manager_handle_display_change);
 }
 
 void bar_manager_cancel_drag(struct bar_manager* bar_manager) {
@@ -1016,7 +1032,83 @@ void bar_manager_handle_display_change(struct bar_manager* bar_manager) {
   env_vars_destroy(&env_vars);
 }
 
-void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
+void bar_manager_handle_display_resized(struct bar_manager *bar_manager) {
+  // TODO
+  bar_manager->active_adid = display_active_display_adid();
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char adid_str[3];
+  snprintf(adid_str, 3, "%d", bar_manager->active_adid);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(adid_str));
+
+  bar_manager_custom_events_trigger(
+      bar_manager, COMMAND_SUBSCRIBE_DISPLAY_RESIZED, &env_vars);
+
+  bar_manager_refresh(bar_manager, false, false);
+  env_vars_destroy(&env_vars);
+}
+void bar_manager_handle_display_moved(struct bar_manager *bar_manager) {
+  // TODO
+  bar_manager->active_adid = display_active_display_adid();
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char adid_str[3];
+  snprintf(adid_str, 3, "%d", bar_manager->active_adid);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(adid_str));
+
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_DISPLAY_MOVED, &env_vars);
+
+  bar_manager_refresh(bar_manager, false, false);
+  env_vars_destroy(&env_vars);
+}
+void bar_manager_handle_display_removed(struct bar_manager *bar_manager) {
+  uint32_t active_display_count = display_active_display_count();
+
+  // this would probably be more robust and reliable if we
+  // cache display UUIDs and diff those instead
+  bool active_display_removed =
+      bar_manager->active_displays > active_display_count;
+  uint32_t removed_display_id = bar_manager->active_displays;
+  if (active_display_removed) {
+    printf("[Sketchybar]: removed display ID %d\n", removed_display_id);
+  }
+  // TODO
+  bar_manager->active_adid = display_active_display_adid();
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char removed_display_id_str[3];
+  snprintf(removed_display_id_str, 3, "%d", removed_display_id);
+  env_vars_set(&env_vars, string_copy("INFO"),
+               string_copy(removed_display_id_str));
+
+  bar_manager_custom_events_trigger(
+      bar_manager, COMMAND_SUBSCRIBE_DISPLAY_REMOVED, &env_vars);
+
+  bar_manager_refresh(bar_manager, false, false);
+  env_vars_destroy(&env_vars);
+}
+void bar_manager_handle_display_added(struct bar_manager *bar_manager) {
+  // this would probably be more robust and reliable if we
+  // cache display UUIDs and diff those instead
+  uint32_t active_display_count = display_active_display_count();
+  printf("[Sketchybar]: display added event. active display count %d\n",
+         active_display_count);
+  // TODO
+  bar_manager->active_adid = display_active_display_adid();
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  char added_display[3];
+  snprintf(added_display, 3, "%d", active_display_count);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(added_display));
+
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_DISPLAY_ADDED, &env_vars);
+
+  bar_manager_refresh(bar_manager, false, false);
+  env_vars_destroy(&env_vars);
+}
+void bar_manager_handle_system_will_sleep(struct bar_manager *bar_manager) {
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SYSTEM_WILL_SLEEP,
                                     NULL                                );
