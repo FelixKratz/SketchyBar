@@ -1,7 +1,9 @@
 #include "bar_manager.h"
 #include "bar.h"
 #include "bar_item.h"
+#include "custom_events.h"
 #include "event.h"
+#include "misc/defines.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
 #include "wifi.h"
@@ -1062,6 +1064,16 @@ void bar_manager_handle_display_moved(struct bar_manager *bar_manager) {
   bar_manager_refresh(bar_manager, false, false);
   env_vars_destroy(&env_vars);
 }
+void notify_items_on_removed_display(struct bar_manager *bar_manager, uint32_t removed_display_id, struct env_vars *env_vars) {
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    struct bar_item* bar_item = bar_manager->bar_items[i];
+    bool item_is_on_removed_display = bar_item->associated_display &  ( 1 << removed_display_id);
+    if(!item_is_on_removed_display) {
+      continue;
+    }
+    bar_item_update(bar_item, COMMAND_SUBSCRIBE_DISPLAY_REMOVED, true, env_vars);
+  }
+}
 void bar_manager_handle_display_removed(struct bar_manager *bar_manager) {
   uint32_t active_display_count = display_active_display_count();
 
@@ -1084,6 +1096,8 @@ void bar_manager_handle_display_removed(struct bar_manager *bar_manager) {
 
   bar_manager_custom_events_trigger(
       bar_manager, COMMAND_SUBSCRIBE_DISPLAY_REMOVED, &env_vars);
+
+  notify_items_on_removed_display(bar_manager, removed_display_id, &env_vars);
 
   bar_manager_refresh(bar_manager, false, false);
   env_vars_destroy(&env_vars);
