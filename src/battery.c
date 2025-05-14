@@ -4,12 +4,35 @@
 /* Put escaped quotation marks around something */
 #define q(x) "\""x"\""
 
+/* Safely store a CFStringRef in a char[] */
+char *mkstring(CFStringRef s1) {
+  if (! s1) { return NULL; }
+
+  long length = CFStringGetLength(s1) + 1;
+  if (length <= 1) { return(NULL); }
+
+  char *s2 = malloc(length);
+  if (! s2) { return(NULL); }
+
+  CFStringGetCString(s1, s2, length, kCFStringEncodingUTF8);
+  return(s2);
+}
+
+/* Store a CFNumberRef in a long */
+long mknumber(CFNumberRef n1) {
+  long n2;
+
+  CFNumberGetValue(n1, kCFNumberIntType, &n2);
+
+  return(n2);
+}
+
 void battery_handler(void *context) {
   /* Power source (UPS Power, Battery Power, AC Power) */
-  char source[16];
+  char *source;
 
   /* Battery health (Poor, Fair, Good) */
-  char health[8];
+  char *health;
 
   /* Battery capacities */
   int current, max = 1;
@@ -19,10 +42,17 @@ void battery_handler(void *context) {
   int empty, full;
 
   /* Transport (Serial, USB, Ethernet, Internal) */
-  char transport[16];
+  char *transport;
 
-  /* Final JSON payload to be posted */
-  char json[1024];
+  /*
+    Final JSON payload to be posted.  Largest possible payload is 135
+    bytes plus the lengths of the string values.
+
+    {"source":"","health":"","percentage":100,"current":100,"max":100,
+    "charging":false,"empty":9223372036854775807,"full":9223372036854775807,"transport":""}
+  */
+  int length = 256;
+  char *json;
 
   /* Get the list of power sources */
   CFTypeRef info = IOPSCopyPowerSourcesInfo();
@@ -32,46 +62,41 @@ void battery_handler(void *context) {
   /* TODO: What if there is more than one power source? */
   for (CFIndex i = 0; i < CFArrayGetCount(sources); ++i) {
     /* Dictionary containing health, capacity, charging, and transport data */
-    CFDictionaryRef cfDescription = IOPSGetPowerSourceDescription(info, CFArrayGetValueAtIndex(sources, i));
-    if (!cfDescription) continue;
+    CFDictionaryRef cfDesc = IOPSGetPowerSourceDescription(info, CFArrayGetValueAtIndex(sources, i));
+    if (! cfDesc) continue;
 
     /* Source */
-    CFStringRef cfSource = IOPSGetProvidingPowerSourceType(info);
-    CFStringGetCString(cfSource, source, sizeof(source), kCFStringEncodingUTF8);
+    source = mkstring(IOPSGetProvidingPowerSourceType(info));
+    length += strlen(source);
 
     /* Health */
-    CFStringRef cfHealth = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSBatteryHealthKey));
-    CFStringGetCString(cfHealth, health, sizeof(health), kCFStringEncodingUTF8);
+    health = mkstring(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSBatteryHealthKey)));
+    length += strlen(health);
 
     /* Capacity */
-    CFNumberRef currentCap = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSCurrentCapacityKey));
-    CFNumberRef maxCap = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSMaxCapacityKey));
+    current = mknumber(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSCurrentCapacityKey)));
+    max = mknumber(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSMaxCapacityKey)));
 
-    if (currentCap && maxCap) {
-      CFNumberGetValue(currentCap, kCFNumberIntType, &current);
-      CFNumberGetValue(maxCap, kCFNumberIntType, &max);
-
-      percentage = ((double) current / (double) max) * 100;
+    if ((current) && (max) && (max > 0)) {
+      percentage = ((double)current / (double)max) * 100;
     }
 
     /* Time to full/empty */
-    CFNumberRef cfFull = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSTimeToFullChargeKey));
-    CFNumberGetValue(cfFull, kCFNumberIntType, &full);
-
-    CFNumberRef cfEmpty = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSTimeToEmptyKey));
-    CFNumberGetValue(cfEmpty, kCFNumberIntType, &empty);
+    full = mknumber(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSTimeToFullChargeKey)));
+    empty = mknumber(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSTimeToEmptyKey)));
 
     /* Transport */
-    CFStringRef cfTransport = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSTransportTypeKey));
-    CFStringGetCString(cfTransport, transport, sizeof(transport), kCFStringEncodingUTF8);
+    transport = mkstring(CFDictionaryGetValue(cfDesc, CFSTR(kIOPSTransportTypeKey)));
+    length += strlen(transport);
 
     /* Charging */
-    CFBooleanRef charging = CFDictionaryGetValue(cfDescription, CFSTR(kIOPSIsChargingKey));
+    CFBooleanRef charging = CFDictionaryGetValue(cfDesc, CFSTR(kIOPSIsChargingKey));
 
     /* Post event in JSON format */
-    snprintf(json, sizeof(json),
+    json = malloc(length);
+    snprintf(json, length,
 	     /* source      health      percentage current max     charge  empty   full    transport */
-             "{ %s: \"%s\", %s: \"%s\", %s: %0.0f, %s: %d, %s: %d, %s: %s, %s: %d, %s: %d, %s: \"%s\" }",
+             "{%s:\"%s\",%s:\"%s\",%s:%0.0f,%s:%d,%s:%d,%s:%s,%s:%d,%s:%d,%s:\"%s\"}",
              q("source"), source,
              q("health"), health,
 	     q("percentage"), percentage,
@@ -83,6 +108,12 @@ void battery_handler(void *context) {
 	     q("transport"), transport);
     struct event event = {(void *)json, BATTERY_CHANGED};
     event_post(&event);
+
+    /* Free mallocated memory */
+    free(source);
+    free(health);
+    free(transport);
+    free(json);
   }
 
   CFRelease(info);
