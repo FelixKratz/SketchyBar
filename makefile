@@ -1,4 +1,4 @@
-CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
+CFLAGS   = -std=c99 -Wall -O3 -ffast-math -fvisibility=hidden -fno-common
 
 LIBS     = -framework Carbon \
 					 -framework AppKit \
@@ -18,7 +18,7 @@ _OBJ = alias.o background.o bar_item.o custom_events.o event.o graph.o \
 			 image.o mouse.o shadow.o font.o text.o message.o mouse.o bar.o color.o \
 			 window.o bar_manager.o display.o group.o mach.o popup.o \
 			 animation.o workspace.om volume.o slider.o power.o wifi.om media.om \
-			 hotload.o app_windows.o
+			 hotload.o app_windows.o battery.o
 
 OBJ  = $(patsubst %, $(ODIR)/%, $(_OBJ))
 

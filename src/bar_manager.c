@@ -7,6 +7,7 @@
 #include "wifi.h"
 #include "volume.h"
 #include "power.h"
+#include "battery.h"
 #include "mouse.h"
 #include "media.h"
 #include "app_windows.h"
@@ -546,6 +547,7 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     forced_volume_event();
     forced_brightness_event();
     forced_power_event();
+    forced_battery_event();
     forced_front_app_event();
     forced_media_change_event();
     forced_space_windows_event();
@@ -894,6 +896,16 @@ void bar_manager_handle_power_source_change(struct bar_manager* bar_manager, cha
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(state));
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE,
+                                    &env_vars                             );
+  env_vars_destroy(&env_vars);
+}
+
+void bar_manager_handle_battery_change(struct bar_manager* bar_manager, char* state) {
+  struct env_vars env_vars;
+  env_vars_init(&env_vars);
+  env_vars_set(&env_vars, string_copy("INFO"), string_copy(state));
+  bar_manager_custom_events_trigger(bar_manager,
+                                    COMMAND_SUBSCRIBE_BATTERY_CHANGE,
                                     &env_vars                             );
   env_vars_destroy(&env_vars);
 }
