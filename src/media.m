@@ -1,6 +1,8 @@
 #include "event.h"
 #include <Foundation/Foundation.h>
 
+// The media remote private framework was locked for use on macOS 15.3.
+
 extern void MRMediaRemoteRegisterForNowPlayingNotifications(dispatch_queue_t queue);
 extern void MRMediaRemoteGetNowPlayingInfo(dispatch_queue_t queue, void (^block)(NSDictionary* dict));
 extern void MRMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_queue_t queue, void (^block)(BOOL playing));
