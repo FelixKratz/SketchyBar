@@ -35,6 +35,7 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_VOLUME_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BATTERY_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_WIFI_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MEDIA_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SPACE_WINDOWS_CHANGE), NULL);

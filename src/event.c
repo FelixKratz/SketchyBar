@@ -324,6 +324,10 @@ static void event_power_source_changed(void* context) {
   bar_manager_handle_power_source_change(&g_bar_manager, (char*)context);
 }
 
+static void event_battery_changed(void* context) {
+  bar_manager_handle_battery_change(&g_bar_manager, (char*)context);
+}
+
 static void event_media_changed(void* context) {
   bar_manager_handle_media_change(&g_bar_manager, (char*)context);
 }
@@ -372,6 +376,7 @@ static callback_type* event_handler[] = {
   [MACH_MESSAGE]               = event_mach_message,
   [HOTLOAD]                    = event_hotload,
   [SPACE_WINDOWS_CHANGED]      = event_space_windows_changed,
+  [BATTERY_CHANGED]            = event_battery_changed,
 };
 
 void event_post(struct event *event) {

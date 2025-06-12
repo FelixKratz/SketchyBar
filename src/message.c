@@ -8,6 +8,7 @@
 #include "media.h"
 #include "wifi.h"
 #include "power.h"
+#include "battery.h"
 
 extern struct bar_manager g_bar_manager;
 
@@ -94,6 +95,8 @@ static void handle_domain_trigger(FILE* rsp, struct token domain, char* message)
     forced_network_event();
   } else if (token_equals(event, COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE)) {
     forced_power_event();
+  } else if (token_equals(event, COMMAND_SUBSCRIBE_BATTERY_CHANGE)) {
+    forced_battery_event();
   } else {
     bar_manager_custom_events_trigger(&g_bar_manager, event.text, &env_vars);
   }
