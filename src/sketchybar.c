@@ -5,7 +5,6 @@
 #include "mouse.h"
 #include "message.h"
 #include "power.h"
-#include "battery.h"
 #include "wifi.h"
 #include "misc/help.h"
 #include "media.h"
@@ -231,7 +230,6 @@ int main(int argc, char **argv) {
     error("%s: could not initialize daemon! abort..\n", g_name);
 
   begin_receiving_power_events();
-  begin_receiving_battery_events();
   begin_receiving_network_events();
   initialize_media_events();
 

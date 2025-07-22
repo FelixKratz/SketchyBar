@@ -20,6 +20,7 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events->events = NULL;
 
   // System Events
+  // The order here must match the #defines in custom_events.h
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SPACE_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_CHANGE), NULL);
@@ -35,10 +36,10 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_VOLUME_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BRIGHTNESS_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_POWER_SOURCE_CHANGE), NULL);
-  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BATTERY_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_WIFI_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MEDIA_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SPACE_WINDOWS_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_BATTERY_CHANGE), NULL);
 }
 
 void custom_events_append(struct custom_events* custom_events, char* name, char* notification) {

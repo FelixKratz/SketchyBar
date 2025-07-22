@@ -7,7 +7,6 @@
 #include "wifi.h"
 #include "volume.h"
 #include "power.h"
-#include "battery.h"
 #include "mouse.h"
 #include "media.h"
 #include "app_windows.h"
@@ -547,7 +546,6 @@ void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
     forced_volume_event();
     forced_brightness_event();
     forced_power_event();
-    forced_battery_event();
     forced_front_app_event();
     forced_media_change_event();
     forced_space_windows_event();
