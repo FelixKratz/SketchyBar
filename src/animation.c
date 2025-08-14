@@ -84,6 +84,7 @@ static bool animation_update(struct animation* animation, uint64_t time, uint64_
     value = (1. - slider) * animation->initial_value
             + slider * animation->final_value
             + 0.5;
+    if (final_frame) value = animation->final_value;
   }
 
   bool needs_update;
