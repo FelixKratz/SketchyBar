@@ -1,4 +1,4 @@
-CFLAGS   = -std=c99 -Wall -Ofast -ffast-math -fvisibility=hidden -fno-common
+CFLAGS   = -std=c99 -Wall -O3 -ffast-math -fvisibility=hidden -fno-common
 
 LIBS     = -framework Carbon \
 					 -framework AppKit \
