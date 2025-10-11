@@ -189,6 +189,8 @@ static inline char* get_modifier_description(uint32_t modifier) {
         strcat(description, "alt,");
     if (modifier & kCGEventFlagMaskCommand)
         strcat(description, "cmd,");
+    if (modifier & kCGEventFlagMaskSecondaryFn)
+        strcat(description, "fn,");
 
     int len = strlen(description);
     if (len > 0 && description[len - 1] == ',') {
