@@ -91,6 +91,7 @@
 #define PROPERTY_SCRIPT                        "script"
 #define PROPERTY_CLICK_SCRIPT                  "click_script"
 #define PROPERTY_ICON                          "icon"
+#define PROPERTY_XOFFSET                       "x_offset"
 #define PROPERTY_YOFFSET                       "y_offset"
 #define PROPERTY_WIDTH                         "width"
 #define PROPERTY_LABEL                         "label"
