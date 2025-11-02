@@ -22,8 +22,8 @@ where the events are:
 | `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
 | `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
 | `power_source_change`  | When the devices power source is changed                                                            | new power source (`AC` or `BATTERY`)   |
-| `wifi_change`          | When the device connects of disconnects from wifi                                                   | new WiFi SSID or empty on disconnect (not working on Sonoma) |
-| `media_change`         | When a change in now playing media is performed (experimental)                                      | media info in a JSON structure         |
+| `wifi_change`          | When the device connects of disconnects from wifi                                                   | new WiFi SSID or empty on disconnect (not working since macOS Sonoma) |
+| `media_change`         | When a change in now playing media is performed (deprecated on macOS 26.0)                                      | media info in a JSON structure         |
 | `system_will_sleep`    | When the system prepares to sleep                                                                   |                                        |
 | `system_woke`          | When the system has awaken from sleep                                                               |                                        |
 | `mouse.entered`        | When the mouse enters over an item                                                                  |                                        |
