@@ -1,4 +1,7 @@
 #include "alias.h"
+#include "misc/helpers.h"
+#include <CoreFoundation/CFBase.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 void print_all_menu_items(FILE* rsp) {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
@@ -52,7 +55,12 @@ void print_all_menu_items(FILE* rsp) {
     if (layer != MENUBAR_LAYER) continue;
     CGRect bounds = CGRectNull;
     if (!CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds)) continue;
-    owner[item_count] = cfstring_copy(owner_ref);
+    char* owner_copy = cfstring_copy(owner_ref);
+    if (string_equals(owner_copy, "Window Server")) {
+      free(owner_copy);
+      continue;
+    }
+    owner[item_count] = owner_copy;
     name[item_count] = cfstring_copy(name_ref);
     x_pos[item_count++] = bounds.origin.x;
   }
