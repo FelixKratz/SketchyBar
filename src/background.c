@@ -18,6 +18,7 @@ void background_init(struct background* background) {
   background->padding_left = 0;
   background->padding_right = 0;
   background->corner_radius = 0;
+  background->x_offset = 0;
   background->y_offset = 0;
 
   color_init(&background->color, 0x00000000);
@@ -85,6 +86,12 @@ static bool background_set_corner_radius(struct background* background, uint32_t
   return true;
 }
 
+static bool background_set_xoffset(struct background* background, int offset) {
+  if (background->x_offset == offset) return false;
+  background->x_offset = offset;
+  return true;
+}
+
 static bool background_set_yoffset(struct background* background, int offset) {
   if (background->y_offset == offset) return false;
   background->y_offset = offset;
@@ -108,6 +115,7 @@ bool background_clip_needs_update(struct background* background, struct bar* bar
   struct background* clip = background_get_clip(background, bar->adid);
   if (!CGRectEqualToRect(background->bounds, clip->bounds)) return true;
   if (background->corner_radius != clip->corner_radius) return true;
+  if (background->x_offset != clip->x_offset) return true;
   if (background->y_offset != clip->y_offset) return true;
   return false;
 }
@@ -151,7 +159,7 @@ void background_clip_bar(struct background* background, int offset, struct bar* 
   background_update_clip(background, clip);
 
   CGRect background_bounds = background->bounds;
-  background_bounds.origin.x += offset;
+  background_bounds.origin.x += offset + background->x_offset;
   background_bounds.origin.y += background->y_offset;
 
   clip_rect(bar->window.context,
@@ -197,6 +205,7 @@ void background_draw(struct background* background, CGContextRef context) {
   }
 
   CGRect background_bounds = background->bounds;
+  background_bounds.origin.x += background->x_offset;
   background_bounds.origin.y += background->y_offset;
   if (background->shadow.enabled) {
     CGRect bounds = shadow_get_bounds(&background->shadow, background_bounds);
@@ -245,6 +254,7 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                "%s\"corner_radius\": %u,\n"
                "%s\"padding_left\": %d,\n"
                "%s\"padding_right\": %d,\n"
+               "%s\"x_offset\": %d,\n"
                "%s\"y_offset\": %d,\n"
                "%s\"clip\": %f,\n",
                indent, format_bool(background->enabled),
@@ -255,6 +265,7 @@ void background_serialize(struct background* background, char* indent, FILE* rsp
                indent, background->corner_radius,
                indent, background->padding_left,
                indent, background->padding_right,
+               indent, background->x_offset,
                indent, background->y_offset,
                indent, background->clip                                                       );
 
@@ -332,6 +343,13 @@ bool background_parse_sub_domain(struct background* background, FILE* rsp, struc
             background,
             background->padding_right,
             token_to_int(token)         );
+  }
+  else if (token_equals(property, PROPERTY_XOFFSET)) {
+    struct token token = get_token(&message);
+    ANIMATE(background_set_xoffset,
+            background,
+            background->x_offset,
+            token_to_int(token)    );
   }
   else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);

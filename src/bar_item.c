@@ -579,7 +579,7 @@ void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
 }
 
 CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item) {
-  CGPoint offset; 
+  CGPoint offset;
   offset.x = (int)((bar_item->background.shadow.enabled
                 ? max(-bar_item->background.shadow.offset.x, 0)
                 : 0)
@@ -594,6 +594,9 @@ CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item) {
                 : 0)
              + (bar_item->label.shadow.enabled
                 ? max(-bar_item->label.shadow.offset.x, 0)
+                : 0)
+             + (bar_item->background.enabled
+                ? max(-bar_item->background.x_offset, 0)
                 : 0));
 
   offset.y = (int)((bar_item->background.shadow.enabled
@@ -610,6 +613,9 @@ CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item) {
                  : 0)
               + (bar_item->label.shadow.enabled
                  ? max(bar_item->label.shadow.offset.x, 0)
+                 : 0)
+              + (bar_item->background.enabled
+                 ? max(bar_item->background.x_offset, 0)
                  : 0));
   return offset;
 }
