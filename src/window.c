@@ -1,5 +1,6 @@
 #include "window.h"
 #include "bar_manager.h"
+#include "misc/helpers.h"
 
 extern struct bar_manager g_bar_manager;
 extern int64_t g_disable_capture;
@@ -161,12 +162,19 @@ bool window_apply_frame(struct window* window, bool forced) {
   if (window->needs_resize || forced) {
     CFTypeRef frame_region = window_create_region(window, window->frame);
 
-    if (__builtin_available(macOS 13.0, *)) {
+    if (__builtin_available(macOS 26.0, *)) {
+      SLSSetWindowShape(g_connection, window->id,
+                                      window->origin.x,
+                                      window->origin.y,
+                                      frame_region);
+    }
+    else if (__builtin_available(macOS 13.0, *)) {
       // Ventura and later
       SLSSetWindowShape(g_connection, window->id,
                                       g_nirvana.x,
                                       g_nirvana.y,
                                       frame_region);
+      window_move(window, window->origin);
     } else {
       // Monterey and previous
       if (window->parent) {
@@ -180,10 +188,10 @@ bool window_apply_frame(struct window* window, bool forced) {
         CGContextFlush(window->context);
         window_order(window, window->parent, window->order_mode);
       }
+      window_move(window, window->origin);
     }
 
     CFRelease(frame_region);
-    window_move(window, window->origin);
 
     window->needs_move = false;
     window->needs_resize = false;
