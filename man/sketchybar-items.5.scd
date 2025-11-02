@@ -327,6 +327,10 @@ Note:
 :  <integer>
 :  0
 :  Vertical offset applied to the background
+|  x_offset
+:  <integer>
+:  0
+:  Horizontal offset applied to the background
 |  clip
 :  <float>
 :  0.0

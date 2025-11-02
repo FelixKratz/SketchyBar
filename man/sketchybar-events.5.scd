@@ -115,9 +115,9 @@ the system is sleeping.
 :  new power source (AC or BATTERY)
 |  wifi_change
 :  When the device connects of disconnects from wifi
-:  new WiFi SSID or empty on disconnect (not working on Sonoma)
+:  new WiFi SSID or empty on disconnect (not working since macOS Sonoma)
 |  media_change
-:  When a change in now playing media is performed (experimental)
+:  When a change in now playing media is performed (deprecated since macOS 26)
 :  media info in a JSON structure
 |  system_will_sleep
 :  When the system prepares to sleep
