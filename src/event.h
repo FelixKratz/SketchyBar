@@ -33,6 +33,7 @@ enum event_type {
   HOTLOAD,
 
   INIT_MUTEX,
+  BATTERY_CHANGED,
   EVENT_TYPE_COUNT
 };
 
