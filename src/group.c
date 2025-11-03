@@ -75,13 +75,17 @@ void group_add_member(struct group* group, struct bar_item* item) {
 }
 
 uint32_t group_get_length(struct group* group, struct bar* bar) {
-  int len = group->last_window->origin.x
-            + group->last_window->frame.size.width
-            + group->last_item->background.padding_right
-            + group->first_item->background.padding_left
-            - group->first_window->origin.x;
+    if (group->num_members == 0) return 0;
 
-  return max(len, 0);
+    struct bar_item* bracket = group->members[0];
+
+    int left_edge  = group->first_window->origin.x - bracket->background.padding_left;
+    int right_edge = group->last_window->origin.x
+                   + group->last_window->frame.size.width
+                   + bracket->background.padding_right;
+
+    int len = right_edge - left_edge;
+    return (len > 0) ? (uint32_t)len : 0;
 }
 
 void group_remove_member(struct group* group, struct bar_item* bar_item) {
@@ -107,34 +111,39 @@ void group_destroy(struct group* group) {
 }
 
 void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y) {
-  group->first_item = group_get_first_member(group, bar);
-  group->first_window = bar_item_get_window(group->first_item, bar->adid);
+    group->first_item   = group_get_first_member(group, bar);
+    group->first_window = bar_item_get_window(group->first_item, bar->adid);
 
-  group->last_item = group_get_last_member(group, bar);
-  group->last_window = bar_item_get_window(group->last_item, bar->adid);
+    group->last_item    = group_get_last_member(group, bar);
+    group->last_window  = bar_item_get_window(group->last_item, bar->adid);
 
-  if (!group->first_window || !group->last_window) {
-    group->bounds.origin = g_nirvana;
-    return;
-  }
+    if (!group->first_window || !group->last_window) {
+        group->bounds.origin = g_nirvana;
+        return;
+    }
 
-  uint32_t group_length = group_get_length(group, bar);
-  CGPoint shadow_offsets = bar_item_calculate_shadow_offsets(group->members[0]);
-  
+    uint32_t group_length   = group_get_length(group, bar);
+    CGPoint  shadow_offsets = bar_item_calculate_shadow_offsets(group->members[0]);
+    struct   bar_item* bracket = group->members[0];
 
-  group->bounds = (CGRect){{group->first_window->origin.x
-                            - group->first_item->background.padding_left,
-                            group->first_window->origin.y},
-                           {group_length
-                            + shadow_offsets.x
-                            + shadow_offsets.y,
-                           group->first_window->frame.size.height}};
-  
-  background_calculate_bounds(&group->members[0]->background,
-                              max(shadow_offsets.x, 0),
-                              y + group->members[0]->y_offset,
-                              group_get_length(group, bar),
-                              group->members[0]->background.bounds.size.height);
+    group->bounds = (CGRect){
+        {
+            group->first_window->origin.x - bracket->background.padding_left,
+            group->first_window->origin.y
+        },
+        {
+            group_length + shadow_offsets.x + shadow_offsets.y,
+            group->first_window->frame.size.height
+        }
+    };
+
+    background_calculate_bounds(
+        &bracket->background,
+        max(shadow_offsets.x, 0),
+        y + bracket->y_offset,
+        group_length,
+        bracket->background.bounds.size.height
+    );
 }
 
 void group_serialize(struct group* group, char* indent, FILE* rsp) {
@@ -145,4 +154,3 @@ void group_serialize(struct group* group, char* indent, FILE* rsp) {
       fprintf(rsp, "%s\"%s\"", indent, group->members[i]->name);
     }
 }
-
