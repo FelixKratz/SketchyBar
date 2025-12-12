@@ -21,6 +21,8 @@ static cached_app_t* g_cached_apps = NULL;
 static int g_cached_apps_count = 0;
 static pthread_mutex_t g_cache_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool g_initialized = false;
+static uint64_t g_last_refresh_time = 0;
+static const uint64_t CACHE_REFRESH_INTERVAL_NS = 5000000000ULL; // 5 seconds in nanoseconds
 
 // Helper to calculate distance between two points
 static double point_distance(CGPoint a, CGPoint b) {
@@ -65,7 +67,18 @@ static void free_cached_app(cached_app_t* app) {
 }
 
 void source_pid_cache_refresh(void) {
+    // Throttle refreshes to avoid performance issues
+    uint64_t now = clock_gettime_nsec_np(CLOCK_MONOTONIC);
+
     pthread_mutex_lock(&g_cache_mutex);
+
+    // Check throttle inside the lock to avoid race conditions
+    if (g_last_refresh_time > 0 && (now - g_last_refresh_time) < CACHE_REFRESH_INTERVAL_NS) {
+        pthread_mutex_unlock(&g_cache_mutex);
+        return; // Skip refresh if we refreshed recently
+    }
+
+    g_last_refresh_time = now;
 
     // Free existing cache
     if (g_cached_apps) {

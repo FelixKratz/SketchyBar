@@ -88,7 +88,11 @@ void print_all_menu_items(FILE* rsp) {
   }
 
   if (item_count > 0) {
-    fprintf(rsp, "[\n");
+    fprintf(rsp, "Available menu bar items for aliases:\n");
+    fprintf(rsp, "=====================================\n\n");
+    fprintf(rsp, "%-30s  %s\n", "APP NAME", "ALIAS COMMAND");
+    fprintf(rsp, "%-30s  %s\n", "--------", "-------------");
+
     int counter = 0;
     for (int i = 0; i < item_count; i++) {
       float current_pos = x_pos[0];
@@ -103,19 +107,24 @@ void print_all_menu_items(FILE* rsp) {
 
       if (!name[current_pos_id] || !owner[current_pos_id]) continue;
       if (strcmp(name[current_pos_id], "") != 0) {
-        if (counter++ > 0) {
-          fprintf(rsp, ", \n");
-        }
-        fprintf(rsp, "\t\"%s,%s\"", owner[current_pos_id],
-                                    name[current_pos_id]  );
+        // Show clean app name on the left, full alias command on the right
+        fprintf(rsp, "%-30s  --add alias \"%s,%s\" <position>\n",
+                owner[current_pos_id],
+                owner[current_pos_id],
+                name[current_pos_id]);
+        counter++;
       }
       x_pos[current_pos_id] = -9999.f;
     }
-    fprintf(rsp, "\n]\n");
+    fprintf(rsp, "\nFound %d menu bar items.\n", counter);
+    fprintf(rsp, "Position can be: left, center, right\n");
+
     for (int i = 0; i < window_count; i++) {
       if (owner[i]) free(owner[i]);
       if (name[i]) free(name[i]);
     }
+  } else {
+    fprintf(rsp, "No menu bar items found.\n");
   }
   CFRelease(window_list);
 }
@@ -197,6 +206,7 @@ static void alias_find_window(struct alias* alias) {
     bool owner_matches = alias->owner && strcmp(alias->owner, resolved_owner) == 0;
     bool name_matches = (alias->name && strcmp(alias->name, name) == 0)
                         || (!alias->name && strcmp(name, "") != 0);
+
 
     if (resolved_owner != owner) free(resolved_owner);
     free(owner);
