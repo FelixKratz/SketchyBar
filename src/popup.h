@@ -10,6 +10,8 @@ struct popup {
   bool drawing;
   bool horizontal;
   bool overrides_cell_size;
+  bool overrides_cell_width;
+  bool fill_row;
   bool mouse_over;
   bool needs_ordering;
   bool topmost;
@@ -18,6 +20,9 @@ struct popup {
 
   uint32_t adid;
   uint32_t cell_size;
+  uint32_t cell_width;
+  uint32_t cell_padding;
+  uint32_t columns;
   uint32_t blur_radius;
   int y_offset;
 

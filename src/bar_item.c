@@ -34,6 +34,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->event_port = 0;
   bar_item->shadow = false;
   bar_item->scroll_texts = false;
+  bar_item->line_break = false;
   bar_item->mouse_over = false;
 
   bar_item->has_const_width = false;
@@ -905,6 +906,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"padding_left\": %d,\n"
                "\t\t\"padding_right\": %d,\n"
                "\t\t\"scroll_texts\": \"%s\",\n"
+               "\t\t\"line_break\": \"%s\",\n"
                "\t\t\"width\": %d,\n"
                "\t\t\"background\": {\n",
                bar_item->name,
@@ -918,6 +920,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->background.padding_left,
                bar_item->background.padding_right,
                format_bool(bar_item->scroll_texts),
+               format_bool(bar_item->line_break),
                bar_item->has_const_width ? bar_item->custom_width : -1);
 
   background_serialize(&bar_item->background, "\t\t\t", rsp, true);
@@ -1087,6 +1090,10 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
   } else if (token_equals(property, PROPERTY_SCROLL_TEXTS)) {
     bar_item->scroll_texts = evaluate_boolean_state(get_token(&message),
                                                     bar_item->scroll_texts);
+  } else if (token_equals(property, PROPERTY_LINE_BREAK)) {
+    bar_item->line_break = evaluate_boolean_state(get_token(&message),
+                                                  bar_item->line_break);
+    needs_refresh = true;
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
     if (token_equals(token, ARGUMENT_DYNAMIC)) {

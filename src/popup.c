@@ -19,6 +19,11 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   
   popup->num_items = 0;
   popup->cell_size = 30;
+  popup->cell_width = 0;
+  popup->cell_padding = 0;
+  popup->columns = 0;
+  popup->overrides_cell_width = false;
+  popup->fill_row = false;
   popup->items = NULL;
   popup->host = host;
   background_init(&popup->background);
@@ -111,9 +116,7 @@ static void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struc
 void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
   uint32_t y = popup->background.border_width;
   uint32_t x = 0;
-  uint32_t total_item_width = 0;
   uint32_t width = 0;
-  uint32_t height = 0;
 
   if (popup->background.enabled
       && popup->background.image.enabled) {
@@ -122,71 +125,223 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
   }
 
   if (popup->horizontal) {
+    // Row-based horizontal layout: items flow left-to-right.
+    // Row breaks triggered by: line_break=on per item, or columns=N auto-wrap.
+    // cell_width overrides per-item width for uniform grid cells.
+
+    bool has_columns = popup->columns > 0;
+    bool has_cell_width = popup->overrides_cell_width && popup->cell_width > 0;
+
+    // First pass: partition items into rows, compute per-row dimensions
+    uint32_t row_widths[popup->num_items + 1];
+    uint32_t row_heights[popup->num_items + 1];
+    uint32_t row_item_counts[popup->num_items + 1];
+    memset(row_widths, 0, sizeof(row_widths));
+    memset(row_heights, 0, sizeof(row_heights));
+    memset(row_item_counts, 0, sizeof(row_item_counts));
+    uint32_t row_count = 0;
+    bool first_visible = true;
+
     for (int j = 0; j < popup->num_items; j++) {
       struct bar_item* bar_item = popup->items[j];
       if (!bar_item->drawing) continue;
       if (bar_item->type == BAR_COMPONENT_GROUP) continue;
+
+      // Determine if we need a row break before this item
+      bool row_break = false;
+      if (!first_visible) {
+        if (bar_item->line_break) row_break = true;
+        else if (has_columns && row_item_counts[row_count] >= popup->columns)
+          row_break = true;
+      }
+      if (row_break) row_count++;
+      first_visible = false;
+
       uint32_t cell_height = max(bar_item_get_height(bar_item),
                                  popup->cell_size              );
 
-      total_item_width += bar_item->background.padding_right
-                          + bar_item->background.padding_left
-                          + bar_item_get_length(bar_item, false);
+      uint32_t item_w = has_cell_width
+                        ? popup->cell_width
+                        : (bar_item->background.padding_right
+                           + bar_item->background.padding_left
+                           + bar_item_get_length(bar_item, false));
 
-      if (cell_height > height && popup->horizontal) height = cell_height;
+      // Add padding before this item (not the first in its row)
+      if (row_item_counts[row_count] > 0)
+        row_widths[row_count] += popup->cell_padding;
+
+      row_widths[row_count] += item_w;
+      row_item_counts[row_count]++;
+
+      if (cell_height > row_heights[row_count])
+        row_heights[row_count] = cell_height;
     }
+    if (!first_visible) row_count++;
 
     if (popup->background.enabled
-        && popup->background.image.enabled) {
+        && popup->background.image.enabled
+        && row_count > 0) {
       uint32_t image_height = image_get_size(&popup->background.image).height;
-      if (image_height > height) height = image_height;
-      
-      x = (width - total_item_width) / 2;
+      if (image_height > row_heights[0]) row_heights[0] = image_height;
+    }
+
+    uint32_t max_row_width = 0;
+    for (uint32_t r = 0; r < row_count; r++) {
+      if (row_widths[r] > max_row_width) max_row_width = row_widths[r];
+    }
+
+    // Compute the full content width (used for stretching shorter rows)
+    uint32_t content_width = max_row_width;
+
+    // Second pass: position items row by row
+    uint32_t current_row = 0;
+    uint32_t col_in_row = 0;
+    first_visible = true;
+    uint32_t x_inset = popup->background.border_width;
+    x = x_inset;
+
+    if (popup->background.enabled
+        && popup->background.image.enabled
+        && row_count > 0) {
+      x = (width - row_widths[0]) / 2;
+    }
+
+    for (int j = 0; j < popup->num_items; j++) {
+      struct bar_item* bar_item = popup->items[j];
+      if (!bar_item->drawing) continue;
+      if (bar_item->type == BAR_COMPONENT_GROUP) continue;
+
+      bool row_break = false;
+      if (!first_visible) {
+        if (bar_item->line_break) row_break = true;
+        else if (has_columns && col_in_row >= popup->columns)
+          row_break = true;
+      }
+
+      if (row_break) {
+        y += row_heights[current_row] + popup->cell_padding;
+        current_row++;
+        col_in_row = 0;
+        x = x_inset;
+        if (popup->background.enabled
+            && popup->background.image.enabled) {
+          x = (width - row_widths[current_row]) / 2;
+        }
+      } else if (!first_visible && col_in_row > 0) {
+        x += popup->cell_padding;
+      }
+      first_visible = false;
+
+      // Compute per-row cell width: when fill_row is enabled, stretch
+      // items to fill the full content width in shorter rows.
+      uint32_t n = row_item_counts[current_row];
+      uint32_t row_cell_width = 0;
+      if (has_cell_width && n > 0) {
+        row_cell_width = popup->fill_row
+                         ? (content_width
+                            - (n - 1) * popup->cell_padding) / n
+                         : popup->cell_width;
+      }
+
+      uint32_t item_height = row_heights[current_row];
+      uint32_t item_x = max((int)x + (has_cell_width ? 0
+                            : bar_item->background.padding_left), 0);
+      uint32_t item_y = item_height / 2;
+
+      // Temporarily override the item's width so bar_item_calculate_bounds
+      // lays out content (icon, label, background) to fill the grid cell.
+      // Restored immediately after — only affects this layout pass.
+      bool saved_const_width = bar_item->has_const_width;
+      uint32_t saved_custom_width = bar_item->custom_width;
+      if (row_cell_width > 0 && !bar_item->has_const_width) {
+        bar_item->has_const_width = true;
+        bar_item->custom_width = row_cell_width;
+      }
+
+      bar_item_calculate_bounds(bar_item, item_height, 0, item_y);
+
+      bar_item->has_const_width = saved_const_width;
+      bar_item->custom_width = saved_custom_width;
+
+      uint32_t display_width = row_cell_width > 0
+                               ? row_cell_width
+                               : bar_item_get_length(bar_item, true);
+
+      uint32_t advance = row_cell_width > 0
+                         ? row_cell_width
+                         : (bar_item->background.padding_right
+                            + bar_item->background.padding_left
+                            + bar_item_get_length(bar_item, false));
+
+      if (popup->adid > 0) {
+        CGRect frame = {{popup->anchor.x + item_x,
+                         popup->anchor.y + y},
+                        {display_width,
+                         item_height             }  };
+
+        window_set_frame(bar_item_get_window(bar_item, popup->adid), frame);
+      }
+
+      if (bar_item->popup.drawing)
+        popup_calculate_popup_anchor_for_bar_item(popup, bar_item, bar);
+
+      x += advance;
+      col_in_row++;
+    }
+
+    // Add final row height
+    if (row_count > 0) y += row_heights[current_row];
+
+    if (!popup->background.enabled || !popup->background.image.enabled) {
+      width = max_row_width + 2 * popup->background.border_width;
+    }
+  } else {
+    // Vertical layout (unchanged)
+    for (int j = 0; j < popup->num_items; j++) {
+      struct bar_item* bar_item = popup->items[j];
+      if (!bar_item->drawing) continue;
+      if (bar_item->type == BAR_COMPONENT_GROUP) continue;
+
+      uint32_t cell_height = max(bar_item_get_height(bar_item),
+                                 popup->cell_size              );
+
+      uint32_t item_x = max((int)x + bar_item->background.padding_left, 0);
+      uint32_t item_height = cell_height;
+      uint32_t item_y = item_height / 2;
+
+      uint32_t item_width = bar_item->background.padding_right
+                            + bar_item->background.padding_left
+                            + bar_item_calculate_bounds(bar_item,
+                                                        item_height,
+                                                        0,
+                                                        item_y      );
+
+      uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
+      if (popup->adid > 0) {
+        CGRect frame = {{popup->anchor.x + item_x,
+                         popup->anchor.y + y},
+                        {bar_item_display_length,
+                         item_height             }  };
+
+        window_set_frame(bar_item_get_window(bar_item, popup->adid), frame);
+      }
+
+      if (bar_item->popup.drawing)
+        popup_calculate_popup_anchor_for_bar_item(popup, bar_item, bar);
+
+      if (item_width > width) width = item_width;
+      y += cell_height;
+    }
+
+    if (!popup->background.enabled || !popup->background.image.enabled) {
+      width += popup->background.border_width;
     }
   }
 
-  for (int j = 0; j < popup->num_items; j++) {
-    struct bar_item* bar_item = NULL;
-    bar_item = popup->items[j];
-    if (!bar_item->drawing) continue;
-    if (bar_item->type == BAR_COMPONENT_GROUP) continue;
-
-    uint32_t cell_height = max(bar_item_get_height(bar_item),
-                               popup->cell_size              );
-
-    uint32_t item_x = max((int)x + bar_item->background.padding_left, 0);
-    uint32_t item_height = popup->horizontal ? height : cell_height;
-    uint32_t item_y = item_height / 2;
-
-    uint32_t item_width = bar_item->background.padding_right
-                          + bar_item->background.padding_left
-                          + bar_item_calculate_bounds(bar_item,
-                                                      item_height,
-                                                      0,
-                                                      item_y      );
-
-    uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
-    if (popup->adid > 0) {
-      CGRect frame = {{popup->anchor.x + item_x,
-                       popup->anchor.y + y},
-                      {bar_item_display_length,
-                       item_height             }  };
-
-      window_set_frame(bar_item_get_window(bar_item, popup->adid), frame);
-    }
-
-    if (bar_item->popup.drawing)
-      popup_calculate_popup_anchor_for_bar_item(popup, bar_item, bar);
-
-    if (item_width > width && !popup->horizontal) width = item_width;
-    if (popup->horizontal) x += item_width;
-    else y += cell_height;
-  }
-
+  // Groups (brackets) — compute bounds for group background items
   for (int j = 0; j < popup->num_items; j++) {
     if (popup->adid <= 0) break;
-    struct bar_item* bar_item = NULL;
-    bar_item = popup->items[j];
+    struct bar_item* bar_item = popup->items[j];
     if (!bar_item->drawing) continue;
     if (bar_item->type != BAR_COMPONENT_GROUP) continue;
 
@@ -196,7 +351,7 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
                         popup->cell_size                                 );
     }
 
-    uint32_t item_height = popup->horizontal ? height : cell_height;
+    uint32_t item_height = cell_height;
     uint32_t item_y = item_height / 2;
 
     group_calculate_bounds(bar_item->group, bar, item_y);
@@ -206,16 +361,6 @@ void popup_calculate_bounds(struct popup* popup, struct bar* bar) {
                      bar_item->group->bounds                           );
   }
 
-
-  if (popup->horizontal) {
-    if (!popup->background.enabled || !popup->background.image.enabled) {
-      width = x + popup->background.border_width;
-    }
-    y += height;
-  }
-  else if (!popup->background.enabled || !popup->background.image.enabled) {
-    width += popup->background.border_width;
-  }
   y += popup->background.border_width;
 
   popup->background.bounds.size.width = width;
@@ -405,6 +550,10 @@ void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
   fprintf(rsp, "%s\"drawing\": \"%s\",\n"
                "%s\"horizontal\": \"%s\",\n"
                "%s\"height\": %d,\n"
+               "%s\"cell_width\": %d,\n"
+               "%s\"cell_padding\": %u,\n"
+               "%s\"fill_row\": \"%s\",\n"
+               "%s\"columns\": %u,\n"
                "%s\"blur_radius\": %u,\n"
                "%s\"y_offset\": %d,\n"
                "%s\"align\": \"%s\",\n"
@@ -412,6 +561,10 @@ void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
                indent, format_bool(popup->drawing),
                indent, format_bool(popup->horizontal),
                indent, popup->overrides_cell_size ? popup->cell_size : -1,
+               indent, popup->overrides_cell_width ? (int)popup->cell_width : -1,
+               indent, popup->cell_padding,
+               indent, format_bool(popup->fill_row),
+               indent, popup->columns,
                indent, popup->blur_radius,
                indent, popup->y_offset,
                indent, align, indent                                      );
@@ -438,6 +591,26 @@ static bool popup_set_cell_size(struct popup* popup, int size) {
   if (popup->cell_size == size && popup->overrides_cell_size) return false;
   popup->overrides_cell_size = true;
   popup->cell_size = size;
+  return true;
+}
+
+static bool popup_set_cell_width(struct popup* popup, int width) {
+  if (popup->cell_width == (uint32_t)width && popup->overrides_cell_width)
+    return false;
+  popup->overrides_cell_width = true;
+  popup->cell_width = width;
+  return true;
+}
+
+static bool popup_set_cell_padding(struct popup* popup, int padding) {
+  if (popup->cell_padding == (uint32_t)padding) return false;
+  popup->cell_padding = padding;
+  return true;
+}
+
+static bool popup_set_columns(struct popup* popup, int columns) {
+  if (popup->columns == (uint32_t)columns) return false;
+  popup->columns = columns;
   return true;
 }
 
@@ -474,6 +647,25 @@ bool popup_parse_sub_domain(struct popup* popup, FILE* rsp, struct token propert
             popup->blur_radius,
             token_to_int(get_token(&message)));
     return false;
+  } else if (token_equals(property, PROPERTY_CELL_WIDTH)) {
+    ANIMATE(popup_set_cell_width,
+            popup,
+            popup->cell_width,
+            token_to_int(get_token(&message)));
+  } else if (token_equals(property, PROPERTY_CELL_PADDING)) {
+    ANIMATE(popup_set_cell_padding,
+            popup,
+            popup->cell_padding,
+            token_to_int(get_token(&message)));
+  } else if (token_equals(property, PROPERTY_FILL_ROW)) {
+    popup->fill_row = evaluate_boolean_state(get_token(&message),
+                                             popup->fill_row     );
+    return true;
+  } else if (token_equals(property, PROPERTY_COLUMNS)) {
+    ANIMATE(popup_set_columns,
+            popup,
+            popup->columns,
+            token_to_int(get_token(&message)));
   } else if (token_equals(property, PROPERTY_TOPMOST)) {
     return popup_set_topmost(popup,
                              evaluate_boolean_state(get_token(&message),
