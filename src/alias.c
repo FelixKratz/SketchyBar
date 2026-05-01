@@ -1,5 +1,6 @@
 #include "alias.h"
 #include "misc/helpers.h"
+#include "source_pid.h"
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -15,6 +16,13 @@ void print_all_menu_items(FILE* rsp) {
   }
 
 #endif
+
+  // On macOS 26+, check if we need to use accessibility API workaround
+  bool use_source_pid_workaround = source_pid_needs_workaround();
+  if (use_source_pid_workaround) {
+    source_pid_cache_refresh();
+  }
+
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
@@ -55,18 +63,36 @@ void print_all_menu_items(FILE* rsp) {
     if (layer != MENUBAR_LAYER) continue;
     CGRect bounds = CGRectNull;
     if (!CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds)) continue;
+
     char* owner_copy = cfstring_copy(owner_ref);
     if (string_equals(owner_copy, "Window Server")) {
       free(owner_copy);
       continue;
     }
+
+    // On macOS 26+, try to find the real source application name
+    // when the owner is "Control Centre" (items are now owned by Control Center)
+    if (use_source_pid_workaround &&
+        (string_equals(owner_copy, "Control Centre") ||
+         string_equals(owner_copy, "Control Center"))) {
+      char* source_name = source_name_for_window(bounds);
+      if (source_name) {
+        free(owner_copy);
+        owner_copy = source_name;
+      }
+    }
+
     owner[item_count] = owner_copy;
     name[item_count] = cfstring_copy(name_ref);
     x_pos[item_count++] = bounds.origin.x;
   }
 
   if (item_count > 0) {
-    fprintf(rsp, "[\n");
+    fprintf(rsp, "Available menu bar items for aliases:\n");
+    fprintf(rsp, "=====================================\n\n");
+    fprintf(rsp, "%-30s  %s\n", "APP NAME", "ALIAS COMMAND");
+    fprintf(rsp, "%-30s  %s\n", "--------", "-------------");
+
     int counter = 0;
     for (int i = 0; i < item_count; i++) {
       float current_pos = x_pos[0];
@@ -81,19 +107,24 @@ void print_all_menu_items(FILE* rsp) {
 
       if (!name[current_pos_id] || !owner[current_pos_id]) continue;
       if (strcmp(name[current_pos_id], "") != 0) {
-        if (counter++ > 0) {
-          fprintf(rsp, ", \n");
-        }
-        fprintf(rsp, "\t\"%s,%s\"", owner[current_pos_id],
-                                    name[current_pos_id]  );
+        // Show clean app name on the left, full alias command on the right
+        fprintf(rsp, "%-30s  --add alias \"%s,%s\" <position>\n",
+                owner[current_pos_id],
+                owner[current_pos_id],
+                name[current_pos_id]);
+        counter++;
       }
       x_pos[current_pos_id] = -9999.f;
     }
-    fprintf(rsp, "\n]\n");
+    fprintf(rsp, "\nFound %d menu bar items.\n", counter);
+    fprintf(rsp, "Position can be: left, center, right\n");
+
     for (int i = 0; i < window_count; i++) {
       if (owner[i]) free(owner[i]);
       if (name[i]) free(name[i]);
     }
+  } else {
+    fprintf(rsp, "No menu bar items found.\n");
   }
   CFRelease(window_list);
 }
@@ -132,6 +163,12 @@ static void alias_find_window(struct alias* alias) {
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
+  // On macOS 26+, check if we need to use accessibility API workaround
+  bool use_source_pid_workaround = source_pid_needs_workaround();
+  if (use_source_pid_workaround) {
+    source_pid_cache_refresh();
+  }
+
   for (int i = 0; i < window_count; ++i) {
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
@@ -145,18 +182,39 @@ static void alias_find_window(struct alias* alias) {
     CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
     if (!name_ref) continue;
     if (!owner_ref) continue;
+
+    // Get bounds first (needed for source PID lookup on macOS 26+)
+    CFDictionaryRef bounds_ref = CFDictionaryGetValue(dictionary, kCGWindowBounds);
+    if (!bounds_ref) continue;
+    CGRect bounds;
+    if (!CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds)) continue;
+
     char* owner = cfstring_copy(owner_ref);
     char* name = cfstring_copy(name_ref);
 
-    if (!(alias->owner && strcmp(alias->owner, owner) == 0
-          && ((alias->name && strcmp(alias->name, name) == 0)
-              || (!alias->name && strcmp(name, "") != 0)     ))) {
-      free(owner);
-      free(name);
-      continue;
+    // On macOS 26+, resolve the real owner name if it's Control Centre
+    char* resolved_owner = owner;
+    if (use_source_pid_workaround &&
+        (string_equals(owner, "Control Centre") ||
+         string_equals(owner, "Control Center"))) {
+      char* source_name = source_name_for_window(bounds);
+      if (source_name) {
+        resolved_owner = source_name;
+      }
     }
+
+    bool owner_matches = alias->owner && strcmp(alias->owner, resolved_owner) == 0;
+    bool name_matches = (alias->name && strcmp(alias->name, name) == 0)
+                        || (!alias->name && strcmp(name, "") != 0);
+
+
+    if (resolved_owner != owner) free(resolved_owner);
     free(owner);
     free(name);
+
+    if (!(owner_matches && name_matches)) {
+      continue;
+    }
 
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
     if (!layer_ref) continue;
@@ -165,19 +223,26 @@ static void alias_find_window(struct alias* alias) {
     CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
     if (layer != MENUBAR_LAYER) continue;
 
-    CFNumberGetValue(owner_pid_ref,
-                     CFNumberGetType(owner_pid_ref),
-                     &alias->pid                    );
+    // Get the source PID on macOS 26+, otherwise use the window owner PID
+    if (use_source_pid_workaround) {
+      pid_t source_pid = source_pid_for_window(bounds);
+      if (source_pid != 0) {
+        alias->pid = source_pid;
+      } else {
+        CFNumberGetValue(owner_pid_ref,
+                         CFNumberGetType(owner_pid_ref),
+                         &alias->pid                    );
+      }
+    } else {
+      CFNumberGetValue(owner_pid_ref,
+                       CFNumberGetType(owner_pid_ref),
+                       &alias->pid                    );
+    }
 
     CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary,
                                                      kCGWindowNumber);
 
     if (!window_id_ref) continue;
-    CFDictionaryRef bounds_ref = CFDictionaryGetValue(dictionary, kCGWindowBounds);
-    if (!bounds_ref) continue;
-
-    CGRect bounds;
-    CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds);
 
     uint64_t wid;
     CFNumberGetValue(window_id_ref,
