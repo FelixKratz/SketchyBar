@@ -1,4 +1,5 @@
 #include "display.h"
+#include "display_nsscreen.h"
 #include "misc/helpers.h"
 
 extern int workspace_display_notch_height(uint32_t did);
@@ -248,11 +249,16 @@ CGRect display_menu_bar_rect(uint32_t did) {
   #ifdef __x86_64__
   SLSGetRevealedMenuBarBounds(&bounds, g_connection, display_space_id(did));
   #elif __arm64__
-  int notch_height = workspace_display_notch_height(did);
-  if (notch_height) {
-    bounds.size.height = notch_height + 6;
+  int top_inset = display_nsscreen_top_inset(did);
+  if (top_inset >= 0) {
+    bounds.size.height = top_inset;
   } else {
-    bounds.size.height = 24;
+    int notch_height = workspace_display_notch_height(did);
+    if (notch_height) {
+      bounds.size.height = notch_height + 6;
+    } else {
+      bounds.size.height = 24;
+    }
   }
 
   bounds.size.width = CGDisplayPixelsWide(did);
