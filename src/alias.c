@@ -3,31 +3,81 @@
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CoreFoundation.h>
 
-void print_all_menu_items(FILE* rsp) {
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
-  if (__builtin_available(macOS 11.0, *)) {
-    if (!CGRequestScreenCaptureAccess()) {
-      respond(rsp, "[!] Query (default_menu_items): Screen Recording "
-                   "Permissions not given. Restart SketchyBar after granting "
-                   "permissions.\n");
-      return;
+struct menu_item {
+  char* owner;
+  char* name;
+
+  float x_pos;
+  uint32_t wid;
+  uint64_t layer;
+
+  CGRect bounds;
+};
+
+void menu_item_init(struct menu_item* menu_item) {
+  memset(menu_item, 0, sizeof(struct menu_item)); 
+  menu_item->x_pos = g_nirvana.x;
+}
+
+void menu_item_clear(struct menu_item* menu_item) {
+  if (menu_item->name) free(menu_item->name);
+  if (menu_item->owner) free(menu_item->owner);
+  memset(menu_item, 0, sizeof(struct menu_item)); 
+}
+
+struct menu_item_list {
+  struct menu_item* menu_items;
+  uint32_t menu_item_count;
+};
+
+void menu_item_list_init(struct menu_item_list* menu_item_list, uint32_t menu_item_count) {
+  menu_item_list->menu_items = malloc(sizeof(struct menu_item)*menu_item_count);
+  menu_item_list->menu_item_count = menu_item_count;
+  for (int i = 0; i < menu_item_count; i++) {
+    menu_item_init(menu_item_list->menu_items + i);
+  }
+}
+
+void menu_item_list_sort(struct menu_item_list* menu_item_list) {
+  struct menu_item tmp;
+  for (int i = 0; i < menu_item_list->menu_item_count; i++) {
+    float highest_value = g_nirvana.x;
+    uint32_t highest_value_index = 0;
+    for (int j = i; j < menu_item_list->menu_item_count; j++) {
+      if (menu_item_list->menu_items[j].x_pos > highest_value) {
+        highest_value = menu_item_list->menu_items[j].x_pos;
+        highest_value_index = j;
+      }
+    }
+    if (i != highest_value_index) {
+      tmp = menu_item_list->menu_items[i];
+      menu_item_list->menu_items[i]
+                            = menu_item_list->menu_items[highest_value_index];
+      menu_item_list->menu_items[highest_value_index] = tmp;
     }
   }
+}
 
-#endif
+void menu_item_list_clear(struct menu_item_list* menu_item_list) {
+  if (menu_item_list->menu_items) {
+    for (int i = 0; i < menu_item_list->menu_item_count; i++) {
+      menu_item_clear(menu_item_list->menu_items + i);
+    }
+    free(menu_item_list->menu_items);
+  }
+  memset(menu_item_list, 0, sizeof(struct menu_item_list)); 
+}
+
+struct menu_item_list get_menu_item_list() {
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
 
-  float x_pos[window_count];
-  char* owner[window_count];
-  char* name[window_count];
-  memset(owner, 0, sizeof(owner));
-  memset(name, 0, sizeof(name));
+  struct menu_item_list menu_item_list;
+  menu_item_list_init(&menu_item_list, window_count);
 
   int item_count = 0;
   for (int i = 0; i < window_count; ++i) {
-    x_pos[i] = -9999.f;
     CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
     if (!dictionary) continue;
 
@@ -41,8 +91,12 @@ void print_all_menu_items(FILE* rsp) {
     CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
     CFDictionaryRef bounds_ref = CFDictionaryGetValue(dictionary,
                                                       kCGWindowBounds);
+    CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary,
+                                                     kCGWindowNumber);
 
-    if (!name_ref || !owner_ref || !owner_pid_ref || !layer_ref || !bounds_ref)
+
+    if (!name_ref || !owner_ref || !owner_pid_ref || !layer_ref || !bounds_ref
+        || !window_id_ref)
       continue;
 
     long long int layer = 0;
@@ -60,42 +114,54 @@ void print_all_menu_items(FILE* rsp) {
       free(owner_copy);
       continue;
     }
-    owner[item_count] = owner_copy;
-    name[item_count] = cfstring_copy(name_ref);
-    x_pos[item_count++] = bounds.origin.x;
+
+    uint64_t wid;
+    CFNumberGetValue(window_id_ref,
+                     CFNumberGetType(window_id_ref),
+                     &wid                           );
+    
+    struct menu_item* menu_item = menu_item_list.menu_items + item_count++;
+    menu_item->owner = owner_copy;
+    menu_item->name = cfstring_copy(name_ref);
+    menu_item->x_pos = bounds.origin.x;
+    menu_item->wid = wid;
+    menu_item->layer = layer;
+    menu_item->bounds = bounds;
   }
 
-  if (item_count > 0) {
+  menu_item_list.menu_item_count = item_count;
+  menu_item_list_sort(&menu_item_list);
+  return menu_item_list;
+}
+
+void print_all_menu_items(FILE* rsp) {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000
+  if (__builtin_available(macOS 11.0, *)) {
+    if (!CGRequestScreenCaptureAccess()) {
+      respond(rsp, "[!] Query (default_menu_items): Screen Recording "
+                   "Permissions not given. Restart SketchyBar after granting "
+                   "permissions.\n");
+      return;
+    }
+  }
+
+#endif
+  struct menu_item_list menu_item_list = get_menu_item_list();
+  if (menu_item_list.menu_item_count > 0) {
     fprintf(rsp, "[\n");
     int counter = 0;
-    for (int i = 0; i < item_count; i++) {
-      float current_pos = x_pos[0];
-      uint32_t current_pos_id = 0;
-      for (int j = 0; j < window_count; j++) {
-        if (!name[j] || !owner[j]) continue;
-        if (x_pos[j] > current_pos) {
-          current_pos = x_pos[j];
-          current_pos_id = j;
-        }
+    for (int i = 0; i < menu_item_list.menu_item_count; i++) {
+      struct menu_item* item = menu_item_list.menu_items + i;
+      if (counter++ > 0) {
+        fprintf(rsp, ", \n");
       }
-
-      if (!name[current_pos_id] || !owner[current_pos_id]) continue;
-      if (strcmp(name[current_pos_id], "") != 0) {
-        if (counter++ > 0) {
-          fprintf(rsp, ", \n");
-        }
-        fprintf(rsp, "\t\"%s,%s\"", owner[current_pos_id],
-                                    name[current_pos_id]  );
-      }
-      x_pos[current_pos_id] = -9999.f;
+      fprintf(rsp, "\t\"%s,%s(%d)\"", item->owner,
+                                      item->name,
+                                      counter     );
     }
     fprintf(rsp, "\n]\n");
-    for (int i = 0; i < window_count; i++) {
-      if (owner[i]) free(owner[i]);
-      if (name[i]) free(name[i]);
-    }
   }
-  CFRelease(window_list);
+  menu_item_list_clear(&menu_item_list);
 }
 
 void alias_get_permission(struct alias* alias) { 
@@ -128,71 +194,31 @@ void alias_init(struct alias* alias) {
 }
 
 static void alias_find_window(struct alias* alias) {
-  CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
-                                                      kCGNullWindowID        );
-  int window_count = CFArrayGetCount(window_list);
-
-  for (int i = 0; i < window_count; ++i) {
-    CFDictionaryRef dictionary = CFArrayGetValueAtIndex(window_list, i);
-    if (!dictionary) continue;
-
-    CFStringRef owner_ref = CFDictionaryGetValue(dictionary,
-                                                 kCGWindowOwnerName);
-
-    CFNumberRef owner_pid_ref = CFDictionaryGetValue(dictionary,
-                                                     kCGWindowOwnerPID);
-
-    CFStringRef name_ref = CFDictionaryGetValue(dictionary, kCGWindowName);
-    if (!name_ref) continue;
-    if (!owner_ref) continue;
-    char* owner = cfstring_copy(owner_ref);
-    char* name = cfstring_copy(name_ref);
-
-    if (!(alias->owner && strcmp(alias->owner, owner) == 0
-          && ((alias->name && strcmp(alias->name, name) == 0)
-              || (!alias->name && strcmp(name, "") != 0)     ))) {
-      free(owner);
-      free(name);
-      continue;
+  struct menu_item_list menu_item_list = get_menu_item_list();
+  
+  for (int i = 0; i < menu_item_list.menu_item_count; ++i) {
+    struct menu_item* item = menu_item_list.menu_items + i;
+    if (!alias->owner || strcmp(alias->owner, item->owner) != 0) continue;
+    if (!alias->name || strcmp(alias->name, item->name) != 0) {
+      if (alias->name) {
+        char indexed_name[strlen(alias->name) + 32];
+        snprintf(indexed_name, strlen(alias->name) + 32,
+                               "%s(%d)",
+                               item->name,
+                               i + 1                    );
+        if (strcmp(alias->name, indexed_name) != 0) continue; 
+      } else if (strcmp(item->name, "") != 0) continue;
     }
-    free(owner);
-    free(name);
 
-    CFNumberRef layer_ref = CFDictionaryGetValue(dictionary, kCGWindowLayer);
-    if (!layer_ref) continue;
+    alias->window.id = item->wid;
+    alias->window.frame.size = item->bounds.size;
+    alias->window.origin = item->bounds.origin;
 
-    uint64_t layer = 0;
-    CFNumberGetValue(layer_ref, CFNumberGetType(layer_ref), &layer);
-    if (layer != MENUBAR_LAYER) continue;
-
-    CFNumberGetValue(owner_pid_ref,
-                     CFNumberGetType(owner_pid_ref),
-                     &alias->pid                    );
-
-    CFNumberRef window_id_ref = CFDictionaryGetValue(dictionary,
-                                                     kCGWindowNumber);
-
-    if (!window_id_ref) continue;
-    CFDictionaryRef bounds_ref = CFDictionaryGetValue(dictionary, kCGWindowBounds);
-    if (!bounds_ref) continue;
-
-    CGRect bounds;
-    CGRectMakeWithDictionaryRepresentation(bounds_ref, &bounds);
-
-    uint64_t wid;
-    CFNumberGetValue(window_id_ref,
-                     CFNumberGetType(window_id_ref),
-                     &wid                           );
-
-    alias->window.id = (uint32_t)wid;
-    alias->window.frame.size = bounds.size;
-    alias->window.origin = bounds.origin;
-
-    CFRelease(window_list);
+    menu_item_list_clear(&menu_item_list);
     return;
   }
   alias->window.id = 0;
-  CFRelease(window_list);
+  menu_item_list_clear(&menu_item_list);
 }
 
 static bool alias_update_image(struct alias* alias, bool forced) {
