@@ -101,6 +101,11 @@
 #define PROPERTY_EVENT_PORT                    "mach_helper"
 #define PROPERTY_PERCENTAGE                    "percentage"
 #define PROPERTY_MAX_CHARS                     "max_chars"
+#define PROPERTY_LINE_BREAK                    "line_break"
+#define PROPERTY_COLUMNS                       "columns"
+#define PROPERTY_CELL_WIDTH                    "cell_width"
+#define PROPERTY_CELL_PADDING                  "cell_padding"
+#define PROPERTY_FILL_ROW                      "fill_row"
 
 #define DOMAIN_BAR                             "--bar"
 #define PROPERTY_POSITION                      "position"

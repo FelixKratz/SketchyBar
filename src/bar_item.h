@@ -38,6 +38,7 @@ struct bar_item {
   bool shadow;
   bool has_const_width;
   bool scroll_texts;
+  bool line_break;
   char align;
   uint32_t custom_width;
   uint32_t blur_radius;
