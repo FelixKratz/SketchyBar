@@ -1270,6 +1270,18 @@ void bar_item_parse_subscribe_message(struct bar_item* bar_item, char* message, 
 
     bar_item->update_mask |= event_flag;
 
+    /* bar_manager_custom_events_trigger will not call bar_item_update
+       for an item until its update_mask has been set.
+
+       Setting it *before* calling begin_receiving_battery_events lets
+       it update the bar_item immediately after subscribing.  If we
+       set it afterwards we have to wait for the next power source
+       change notification, which will take at least 1 minute, and may
+       never occur. */
+    if (event_flag & UPDATE_BATTERY_CHANGE) {
+      begin_receiving_battery_events();
+    }
+
     if (!event_flag) {
       respond(rsp, "[?] Event: '%s' not found\n", event.text);
     }
