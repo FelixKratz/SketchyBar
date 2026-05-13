@@ -153,15 +153,15 @@ void ring_draw(struct ring* ring, CGContextRef context) {
   CGPoint center = CGPointMake(ring->bounds.origin.x + ring->bounds.size.width / 2.f,
                                ring->bounds.origin.y + ring->bounds.size.height / 2.f);
 
-  float start = ring->start_angle * deg_to_rad;
-  bool cg_clockwise = !ring->clockwise;
+  float start = -ring->start_angle * deg_to_rad;
+  bool cg_clockwise = ring->clockwise;
 
   CGContextSaveGState(context);
   CGContextSetLineWidth(context, line_width);
   CGContextSetLineCap(context, ring_line_cap(ring->cap));
 
   if (ring->track_color.a > 0.f) {
-    float end = start + (ring->clockwise ? ring_full_circle : -ring_full_circle);
+    float end = start + (ring->clockwise ? -ring_full_circle : ring_full_circle);
     CGContextSetRGBStrokeColor(context,
                                ring->track_color.r,
                                ring->track_color.g,
@@ -173,7 +173,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
 
   if (ring->color.a > 0.f && ring->value > 0.f) {
     float delta = ring_clamp_value(ring->value) * ring_full_circle;
-    float end = start + (ring->clockwise ? delta : -delta);
+    float end = start + (ring->clockwise ? -delta : delta);
     CGContextSetRGBStrokeColor(context,
                                ring->color.r,
                                ring->color.g,
