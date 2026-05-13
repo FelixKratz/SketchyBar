@@ -106,6 +106,15 @@ static bool ring_set_track_color(struct ring* ring, uint32_t color) {
   return color_set_hex(&ring->track_color, color);
 }
 
+static bool ring_set_marker_icon(struct ring* ring, char* icon) {
+  bool changed = false;
+  if (!ring->marker.drawing) {
+    ring->marker.drawing = true;
+    changed = true;
+  }
+  return text_set_string(&ring->marker, icon, false) || changed;
+}
+
 void ring_init(struct ring* ring) {
   ring->enabled = true;
   ring->clockwise = true;
@@ -118,6 +127,21 @@ void ring_init(struct ring* ring) {
 
   color_init(&ring->color, 0xffffffff);
   color_init(&ring->track_color, 0x33ffffff);
+  text_init(&ring->marker);
+  ring->marker.drawing = false;
+  ring->marker.background.enabled = false;
+  ring->marker.padding_left = 0;
+  ring->marker.padding_right = 0;
+}
+
+void ring_clear_pointers(struct ring* ring) {
+  text_clear_pointers(&ring->marker);
+}
+
+void ring_copy(struct ring* ring, struct ring* source) {
+  text_copy(&ring->marker, &source->marker);
+  image_copy(&ring->marker.background.image,
+             source->marker.background.image.image_ref);
 }
 
 void ring_setup(struct ring* ring, uint32_t width) {
@@ -138,14 +162,56 @@ void ring_calculate_bounds(struct ring* ring, uint32_t x, uint32_t y) {
   ring->bounds.origin.y = y - (float)ring->width / 2.f;
   ring->bounds.size.width = ring->width;
   ring->bounds.size.height = ring->width;
+
+  if (!ring->marker.drawing) return;
+
+  float line_width = ring->line_width > 0.f
+                     ? min(ring->line_width, (float)ring->width)
+                     : 0.f;
+  float radius = ((float)ring->width - line_width) / 2.f;
+  if (radius < 0.f) radius = 0.f;
+
+  CGPoint center = CGPointMake(ring->bounds.origin.x + ring->bounds.size.width / 2.f,
+                               ring->bounds.origin.y + ring->bounds.size.height / 2.f);
+  float angle = -ring->start_angle * deg_to_rad;
+  CGPoint marker_center = CGPointMake(center.x + cosf(angle) * radius,
+                                      center.y + sinf(angle) * radius);
+  uint32_t marker_width = text_get_length(&ring->marker, false);
+  uint32_t marker_text_width = text_get_length(&ring->marker, true);
+  float marker_x = marker_center.x - marker_width / 2.f;
+
+  if (ring->marker.align == POSITION_CENTER && ring->marker.has_const_width)
+    ring->marker.bounds.origin.x = marker_x
+                                   + (float)((int)ring->marker.custom_width
+                                             - (int)marker_text_width) / 2.f;
+  else if (ring->marker.align == POSITION_RIGHT && ring->marker.has_const_width)
+    ring->marker.bounds.origin.x = marker_x
+                                   + (int)ring->marker.custom_width
+                                   - (int)marker_text_width;
+  else
+    ring->marker.bounds.origin.x = marker_x;
+
+  ring->marker.bounds.origin.y = marker_center.y
+                                 - ((ring->marker.line.ascent
+                                     - ring->marker.line.descent) / 2);
 }
 
 void ring_draw(struct ring* ring, CGContextRef context) {
-  if (!ring->enabled || ring->width == 0 || ring->line_width <= 0.f) return;
-  if (ring->track_color.a == 0.f && (ring->color.a == 0.f || ring->value <= 0.f)) return;
+  if (!ring->enabled || ring->width == 0) return;
+
+  bool draws_arc = ring->line_width > 0.f
+                   && (ring->track_color.a > 0.f
+                       || (ring->color.a > 0.f && ring->value > 0.f));
+  if (!draws_arc) {
+    text_draw(&ring->marker, context);
+    return;
+  }
 
   float line_width = min(ring->line_width, (float)ring->width);
-  if (line_width <= 0.f) return;
+  if (line_width <= 0.f) {
+    text_draw(&ring->marker, context);
+    return;
+  }
 
   float radius = ((float)ring->width - line_width) / 2.f;
   if (radius < 0.f) return;
@@ -184,6 +250,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
   }
 
   CGContextRestoreGState(context);
+  text_draw(&ring->marker, context);
 }
 
 void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
@@ -195,7 +262,7 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                "%s\"width\": \"%u\",\n"
                "%s\"start_angle\": \"%f\",\n"
                "%s\"clockwise\": \"%s\",\n"
-               "%s\"cap\": \"%s\"",
+               "%s\"cap\": \"%s\",\n",
                indent, ring->value,
                indent, ring->value * 100.f,
                indent, ring->color.hex,
@@ -205,10 +272,18 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                indent, ring->start_angle,
                indent, ring_bool_string(ring->clockwise),
                indent, ring_cap_string(ring->cap));
+
+  char deeper_indent[strlen(indent) + 2];
+  snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
+
+  fprintf(rsp, "%s\"marker\": {\n", indent);
+  text_serialize(&ring->marker, deeper_indent, rsp);
+  fprintf(rsp, "\n%s}", indent);
 }
 
 void ring_destroy(struct ring* ring) {
-  (void)ring;
+  text_destroy(&ring->marker);
+  ring_clear_pointers(ring);
 }
 
 bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, char* message) {
@@ -287,6 +362,9 @@ bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, 
       needs_refresh = ring_set_cap(ring, cap);
     }
   }
+  else if (token_equals(property, SUB_DOMAIN_MARKER)) {
+    needs_refresh = ring_set_marker_icon(ring, token_to_string(get_token(&message)));
+  }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
     if (key_value_pair.key && key_value_pair.value) {
@@ -297,6 +375,12 @@ bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, 
       }
       else if (token_equals(subdom, PROPERTY_TRACK_COLOR)) {
         return color_parse_sub_domain(&ring->track_color, rsp, entry, message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_MARKER)) {
+        if (token_equals(entry, PROPERTY_ICON)) {
+          return ring_set_marker_icon(ring, token_to_string(get_token(&message)));
+        }
+        return text_parse_sub_domain(&ring->marker, rsp, entry, message);
       }
       else {
         respond(rsp, "[!] Ring: Invalid subdomain '%s'\n", subdom.text);

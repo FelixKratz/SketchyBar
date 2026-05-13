@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "color.h"
+#include "text.h"
 
 struct ring {
   bool enabled;
@@ -18,9 +18,12 @@ struct ring {
   CGRect bounds;
   struct color color;
   struct color track_color;
+  struct text marker;
 };
 
 void ring_init(struct ring* ring);
+void ring_clear_pointers(struct ring* ring);
+void ring_copy(struct ring* ring, struct ring* source);
 void ring_setup(struct ring* ring, uint32_t width);
 uint32_t ring_get_length(struct ring* ring);
 uint32_t ring_get_height(struct ring* ring);

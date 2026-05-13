@@ -840,6 +840,7 @@ static void bar_item_clear_pointers(struct bar_item* bar_item) {
   text_clear_pointers(&bar_item->label);
   background_clear_pointers(&bar_item->background);
   slider_clear_pointers(&bar_item->slider);
+  ring_clear_pointers(&bar_item->ring);
   popup_clear_pointers(&bar_item->popup);
   bar_item->popup.host = bar_item;
 }
@@ -848,6 +849,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
   text_destroy(&bar_item->slider.knob);
+  ring_destroy(&bar_item->ring);
   
   char* name = bar_item->name;
   char* script = bar_item->script;
@@ -863,6 +865,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   text_copy(&bar_item->icon, &ancestor->icon);
   text_copy(&bar_item->label, &ancestor->label);
   text_copy(&bar_item->slider.knob, &ancestor->slider.knob);
+  ring_copy(&bar_item->ring, &ancestor->ring);
 
   if (ancestor->script)
     bar_item_set_script(bar_item, string_copy(ancestor->script));
