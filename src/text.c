@@ -251,10 +251,14 @@ static uint32_t badge_get_box_width(struct badge* badge) {
 static const char* badge_anchor_to_string(enum badge_anchor anchor) {
   switch (anchor) {
     case BADGE_ANCHOR_TOP_LEFT: return "top_left";
+    case BADGE_ANCHOR_TOP_CENTER: return "top_center";
     case BADGE_ANCHOR_TOP_RIGHT: return "top_right";
-    case BADGE_ANCHOR_BOTTOM_LEFT: return "bottom_left";
-    case BADGE_ANCHOR_BOTTOM_RIGHT: return "bottom_right";
+    case BADGE_ANCHOR_CENTER_LEFT: return "center_left";
     case BADGE_ANCHOR_CENTER: return "center";
+    case BADGE_ANCHOR_CENTER_RIGHT: return "center_right";
+    case BADGE_ANCHOR_BOTTOM_LEFT: return "bottom_left";
+    case BADGE_ANCHOR_BOTTOM_CENTER: return "bottom_center";
+    case BADGE_ANCHOR_BOTTOM_RIGHT: return "bottom_right";
     default: return "invalid";
   }
 }
@@ -263,17 +267,29 @@ static bool badge_parse_anchor(struct token token, enum badge_anchor* anchor) {
   if (token_equals(token, "top_left")) {
     *anchor = BADGE_ANCHOR_TOP_LEFT;
     return true;
+  } else if (token_equals(token, "top_center") || token_equals(token, "top_centre")) {
+    *anchor = BADGE_ANCHOR_TOP_CENTER;
+    return true;
   } else if (token_equals(token, "top_right")) {
     *anchor = BADGE_ANCHOR_TOP_RIGHT;
+    return true;
+  } else if (token_equals(token, "center_left") || token_equals(token, "centre_left") || token_equals(token, "left_center") || token_equals(token, "left_centre")) {
+    *anchor = BADGE_ANCHOR_CENTER_LEFT;
+    return true;
+  } else if (token_equals(token, "center") || token_equals(token, "centre")) {
+    *anchor = BADGE_ANCHOR_CENTER;
+    return true;
+  } else if (token_equals(token, "center_right") || token_equals(token, "centre_right") || token_equals(token, "right_center") || token_equals(token, "right_centre")) {
+    *anchor = BADGE_ANCHOR_CENTER_RIGHT;
     return true;
   } else if (token_equals(token, "bottom_left")) {
     *anchor = BADGE_ANCHOR_BOTTOM_LEFT;
     return true;
+  } else if (token_equals(token, "bottom_center") || token_equals(token, "bottom_centre")) {
+    *anchor = BADGE_ANCHOR_BOTTOM_CENTER;
+    return true;
   } else if (token_equals(token, "bottom_right")) {
     *anchor = BADGE_ANCHOR_BOTTOM_RIGHT;
-    return true;
-  } else if (token_equals(token, "center")) {
-    *anchor = BADGE_ANCHOR_CENTER;
     return true;
   }
 
@@ -334,21 +350,37 @@ static void badge_calculate_bounds(struct badge* badge, CGRect parent) {
       box.origin.x = CGRectGetMinX(parent);
       box.origin.y = CGRectGetMaxY(parent) - box.size.height;
       break;
+    case BADGE_ANCHOR_TOP_CENTER:
+      box.origin.x = CGRectGetMidX(parent) - box.size.width / 2.f;
+      box.origin.y = CGRectGetMaxY(parent) - box.size.height;
+      break;
     case BADGE_ANCHOR_TOP_RIGHT:
       box.origin.x = CGRectGetMaxX(parent) - box.size.width;
       box.origin.y = CGRectGetMaxY(parent) - box.size.height;
+      break;
+    case BADGE_ANCHOR_CENTER_LEFT:
+      box.origin.x = CGRectGetMinX(parent);
+      box.origin.y = CGRectGetMidY(parent) - box.size.height / 2.f;
+      break;
+    case BADGE_ANCHOR_CENTER:
+      box.origin.x = CGRectGetMidX(parent) - box.size.width / 2.f;
+      box.origin.y = CGRectGetMidY(parent) - box.size.height / 2.f;
+      break;
+    case BADGE_ANCHOR_CENTER_RIGHT:
+      box.origin.x = CGRectGetMaxX(parent) - box.size.width;
+      box.origin.y = CGRectGetMidY(parent) - box.size.height / 2.f;
       break;
     case BADGE_ANCHOR_BOTTOM_LEFT:
       box.origin.x = CGRectGetMinX(parent);
       box.origin.y = CGRectGetMinY(parent);
       break;
+    case BADGE_ANCHOR_BOTTOM_CENTER:
+      box.origin.x = CGRectGetMidX(parent) - box.size.width / 2.f;
+      box.origin.y = CGRectGetMinY(parent);
+      break;
     case BADGE_ANCHOR_BOTTOM_RIGHT:
       box.origin.x = CGRectGetMaxX(parent) - box.size.width;
       box.origin.y = CGRectGetMinY(parent);
-      break;
-    case BADGE_ANCHOR_CENTER:
-      box.origin.x = CGRectGetMidX(parent) - box.size.width / 2.f;
-      box.origin.y = CGRectGetMidY(parent) - box.size.height / 2.f;
       break;
   }
 
@@ -477,7 +509,7 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
     if (!badge_parse_anchor(token, &anchor)) {
       respond(rsp,
               "[!] Badge: Invalid anchor '%.*s' "
-              "(expected top_left|top_right|bottom_left|bottom_right|center)\n",
+              "(expected top_left|top_center|top_right|center_left|center|center_right|bottom_left|bottom_center|bottom_right)\n",
               token.length,
               token.text);
       return false;
