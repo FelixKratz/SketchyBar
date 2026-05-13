@@ -25,6 +25,8 @@ static const char help_str[] = {
   "Special components, see https://felixkratz.github.io/SketchyBar/config/components\n"
   "      --add graph <name> <position> <width in points>\n"
   "                                  \tAdd graph component\n"
+  "      --add ring <name> <position> <diameter>\n"
+  "                                  \tAdd ring component\n"
   "      --push <name> <data point> ... <data point>\n"
   "                                  \tPush data points to a graph\n"
   "      --add space <name> <position>\tAdd space component\n"

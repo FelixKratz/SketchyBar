@@ -38,6 +38,7 @@
 #define SUB_DOMAIN_LABEL                       "label"
 #define SUB_DOMAIN_BACKGROUND                  "background"
 #define SUB_DOMAIN_GRAPH                       "graph"
+#define SUB_DOMAIN_RING                        "ring"
 #define SUB_DOMAIN_ALIAS                       "alias"
 #define SUB_DOMAIN_POPUP                       "popup"
 #define SUB_DOMAIN_SHADOW                      "shadow"
@@ -55,6 +56,7 @@
 
 #define PROPERTY_FONT                          "font"
 #define PROPERTY_COLOR                         "color"
+#define PROPERTY_TRACK_COLOR                   "track_color"
 #define PROPERTY_HIGHLIGHT                     "highlight"
 #define PROPERTY_HIGHLIGHT_COLOR               "highlight_color"
 #define PROPERTY_PADDING_LEFT                  "padding_left"
@@ -65,6 +67,9 @@
 #define PROPERTY_CORNER_RADIUS                 "corner_radius"
 #define PROPERTY_FILL_COLOR                    "fill_color"
 #define PROPERTY_LINE_WIDTH                    "line_width"
+#define PROPERTY_START_ANGLE                   "start_angle"
+#define PROPERTY_CLOCKWISE                     "clockwise"
+#define PROPERTY_CAP                           "cap"
 #define PROPERTY_BLUR_RADIUS                   "blur_radius"
 #define PROPERTY_DRAWING                       "drawing"
 #define PROPERTY_CLIP                          "clip"
@@ -105,6 +110,7 @@
 #define PROPERTY_IGNORE_ASSOCIATION            "ignore_association"
 #define PROPERTY_EVENT_PORT                    "mach_helper"
 #define PROPERTY_PERCENTAGE                    "percentage"
+#define PROPERTY_VALUE                         "value"
 #define PROPERTY_MAX_CHARS                     "max_chars"
 
 #define DOMAIN_BAR                             "--bar"
@@ -190,6 +196,7 @@
 #define POSITION_CENTER_RIGHT 'e'
 
 #define TYPE_GRAPH  "graph"
+#define TYPE_RING  "ring"
 #define TYPE_SPACE  "space"
 #define TYPE_ALIAS  "alias"
 #define TYPE_GROUP  "bracket"

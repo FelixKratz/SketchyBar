@@ -3,6 +3,7 @@
 #include "alias.h"
 #include "custom_events.h"
 #include "graph.h"
+#include "ring.h"
 #include "group.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
@@ -12,6 +13,7 @@
 
 #define BAR_ITEM             'i'
 #define BAR_COMPONENT_GRAPH  'g'
+#define BAR_COMPONENT_RING   'r'
 #define BAR_COMPONENT_SPACE  's'
 #define BAR_COMPONENT_ALIAS  'a'
 #define BAR_COMPONENT_GROUP  'b'
@@ -69,6 +71,10 @@ struct bar_item {
   // Graph Data
   bool has_graph;
   struct graph graph;
+
+  // Ring Data
+  bool has_ring;
+  struct ring ring;
 
   // Alias Data
   bool has_alias;

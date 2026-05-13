@@ -43,6 +43,8 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   
   bar_item->has_alias = false;
   bar_item->has_graph = false;
+  bar_item->has_ring = false;
+  bar_item->has_slider = false;
 
   bar_item->name = NULL;
   bar_item->script = NULL;
@@ -59,6 +61,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   graph_init(&bar_item->graph);
   alias_init(&bar_item->alias);
   slider_init(&bar_item->slider);
+  ring_init(&bar_item->ring);
   
   if (default_item) bar_item_inherit_from_item(bar_item, default_item);
 }
@@ -410,6 +413,8 @@ bool bar_item_set_type(struct bar_item* bar_item, char* type) {
     bar_item->type = BAR_COMPONENT_GRAPH;
   } else if (string_equals(type, TYPE_SLIDER)) {
     bar_item->type = BAR_COMPONENT_SLIDER;
+  } else if (string_equals(type, TYPE_RING)) {
+    bar_item->type = BAR_COMPONENT_RING;
   } else {
     bar_item->type = BAR_ITEM;
     success = string_equals(type, TYPE_ITEM);
@@ -444,6 +449,9 @@ bool bar_item_set_type(struct bar_item* bar_item, char* type) {
   }
   else if (bar_item->type == BAR_COMPONENT_SLIDER) {
     bar_item->has_slider = true;
+  }
+  else if (bar_item->type == BAR_COMPONENT_RING) {
+    bar_item->has_ring = true;
   }
   else if (bar_item->type == BAR_COMPONENT_GROUP) {
     bar_item->group = group_create();
@@ -495,6 +503,7 @@ static uint32_t bar_item_get_content_length(struct bar_item* bar_item) {
   int length = text_get_length(&bar_item->icon, false)
          + text_get_length(&bar_item->label, false)
          + (bar_item->has_graph  ? graph_get_length(&bar_item->graph) : 0)
+         + (bar_item->has_ring   ? ring_get_length(&bar_item->ring) : 0)
          + (bar_item->has_slider ? slider_get_length(&bar_item->slider) : 0)
          + (bar_item->has_alias  ? alias_get_length(&bar_item->alias) : 0);
  
@@ -522,9 +531,10 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   uint32_t label_height = text_get_height(&bar_item->label);
   uint32_t icon_height = text_get_height(&bar_item->icon);
   uint32_t alias_height = alias_get_height(&bar_item->alias);
+  uint32_t ring_height = bar_item->has_ring ? ring_get_height(&bar_item->ring) : 0;
   
   uint32_t text_height = max(label_height, icon_height);
-  uint32_t item_height = max(text_height, alias_height);
+  uint32_t item_height = max(max(text_height, alias_height), ring_height);
 
   uint32_t background_height = 0;
   if (bar_item->background.enabled) {
@@ -640,6 +650,8 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   uint32_t sandwich_position = label_position;
   if (bar_item->has_graph) {
     label_position += graph_get_length(&bar_item->graph);
+  } else if (bar_item->has_ring) {
+    label_position += ring_get_length(&bar_item->ring);
   } else if (bar_item->has_alias) {
     label_position += alias_get_length(&bar_item->alias); 
   } else if (bar_item->has_slider) {
@@ -665,6 +677,11 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
                             sandwich_position,
                             content_y + bar_item->y_offset);
 
+
+  if (bar_item->has_ring)
+    ring_calculate_bounds(&bar_item->ring,
+                          sandwich_position,
+                          content_y + bar_item->y_offset);
   if (bar_item->has_graph) {
     uint32_t height = bar_item->background.enabled
                       ? (bar_item->background.bounds.size.height
@@ -797,6 +814,7 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
   if (bar_item->has_alias) alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph) graph_draw(&bar_item->graph, context);
   if (bar_item->has_slider) slider_draw(&bar_item->slider, context);
+  if (bar_item->has_ring) ring_draw(&bar_item->ring, context);
 
   text_draw_badge(&bar_item->icon, context);
   text_draw_badge(&bar_item->label, context);
@@ -887,6 +905,7 @@ void bar_item_destroy(struct bar_item* bar_item, bool free_memory) {
   graph_destroy(&bar_item->graph);
   alias_destroy(&bar_item->alias);
   slider_destroy(&bar_item->slider);
+  ring_destroy(&bar_item->ring);
 
   if (bar_item->group && bar_item->type == BAR_COMPONENT_GROUP)
     group_destroy(bar_item->group);
@@ -919,6 +938,9 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
       break;
     case BAR_COMPONENT_SLIDER:
       snprintf(type, 32, "slider");
+      break;
+    case BAR_COMPONENT_RING:
+      snprintf(type, 32, "ring");
       break;
     case BAR_COMPONENT_GRAPH:
       snprintf(type, 32, "graph");
@@ -1049,8 +1071,11 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
     fprintf(rsp, ",\n\t\"slider\": {\n");
     slider_serialize(&bar_item->slider, "\t\t", rsp);
     fprintf(rsp, "\n\t}");
+  } else if (bar_item->type == BAR_COMPONENT_RING) {
+    fprintf(rsp, ",\n\t\"ring\": {\n");
+    ring_serialize(&bar_item->ring, "\t\t", rsp);
+    fprintf(rsp, "\n\t}");
   }
-
   fprintf(rsp, "\n}\n");
 }
 
@@ -1114,6 +1139,16 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
                                                 message           );
       } else {
         respond(rsp, "[!] Item (%s): Trying to set a slider property on a non-slider item\n", bar_item->name);
+      }
+    }
+    else if (token_equals(subdom, SUB_DOMAIN_RING)) {
+      if (bar_item->has_ring || bar_item == &g_bar_manager.default_item) {
+        needs_refresh = ring_parse_sub_domain(&bar_item->ring,
+                                              rsp,
+                                              entry,
+                                              message         );
+      } else {
+        respond(rsp, "[!] Item (%s): Trying to set a ring property on a non-ring item\n", bar_item->name);
       }
     }
     else {
