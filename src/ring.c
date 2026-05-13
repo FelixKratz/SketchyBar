@@ -7,6 +7,8 @@
 #define RING_CAP_BUTT   'b'
 #define RING_CAP_ROUND  'r'
 #define RING_CAP_SQUARE 's'
+#define RING_MARKER_POSITION_START  's'
+#define RING_MARKER_POSITION_CENTER 'c'
 
 static const float ring_full_circle = 2.f * M_PI;
 
@@ -37,6 +39,22 @@ static CGLineCap ring_line_cap(char cap) {
     case RING_CAP_ROUND:
     default: return kCGLineCapRound;
   }
+}
+
+static const char* ring_marker_position_string(char marker_position) {
+  switch (marker_position) {
+    case RING_MARKER_POSITION_CENTER: return "center";
+    case RING_MARKER_POSITION_START:
+    default: return "start";
+  }
+}
+
+static char ring_marker_position_from_token(struct token token) {
+  if (token_equals(token, "start")) return RING_MARKER_POSITION_START;
+  if (token_equals(token, "center") || token_equals(token, "centre"))
+    return RING_MARKER_POSITION_CENTER;
+
+  return 0;
 }
 
 static char ring_cap_from_token(struct token token) {
@@ -98,6 +116,12 @@ static bool ring_set_cap(struct ring* ring, char cap) {
   return true;
 }
 
+static bool ring_set_marker_position(struct ring* ring, char marker_position) {
+  if (ring->marker_position == marker_position) return false;
+  ring->marker_position = marker_position;
+  return true;
+}
+
 static bool ring_set_color(struct ring* ring, uint32_t color) {
   return color_set_hex(&ring->color, color);
 }
@@ -123,6 +147,7 @@ void ring_init(struct ring* ring) {
   ring->line_width = 2.f;
   ring->start_angle = 270.f;
   ring->cap = RING_CAP_ROUND;
+  ring->marker_position = RING_MARKER_POSITION_START;
   ring->bounds = (CGRect){{0, 0}, {0, 0}};
 
   color_init(&ring->color, 0xffffffff);
@@ -173,27 +198,19 @@ void ring_calculate_bounds(struct ring* ring, uint32_t x, uint32_t y) {
 
   CGPoint center = CGPointMake(ring->bounds.origin.x + ring->bounds.size.width / 2.f,
                                ring->bounds.origin.y + ring->bounds.size.height / 2.f);
-  float angle = -ring->start_angle * deg_to_rad;
-  CGPoint marker_center = CGPointMake(center.x + cosf(angle) * radius,
-                                      center.y + sinf(angle) * radius);
+  CGPoint marker_center;
+  if (ring->marker_position == RING_MARKER_POSITION_CENTER) {
+    marker_center = center;
+  } else {
+    float angle = -ring->start_angle * deg_to_rad;
+    marker_center = CGPointMake(center.x + cosf(angle) * radius,
+                                center.y + sinf(angle) * radius);
+  }
+
   uint32_t marker_width = text_get_length(&ring->marker, false);
-  uint32_t marker_text_width = text_get_length(&ring->marker, true);
-  float marker_x = marker_center.x - marker_width / 2.f;
-
-  if (ring->marker.align == POSITION_CENTER && ring->marker.has_const_width)
-    ring->marker.bounds.origin.x = marker_x
-                                   + (float)((int)ring->marker.custom_width
-                                             - (int)marker_text_width) / 2.f;
-  else if (ring->marker.align == POSITION_RIGHT && ring->marker.has_const_width)
-    ring->marker.bounds.origin.x = marker_x
-                                   + (int)ring->marker.custom_width
-                                   - (int)marker_text_width;
-  else
-    ring->marker.bounds.origin.x = marker_x;
-
-  ring->marker.bounds.origin.y = marker_center.y
-                                 - ((ring->marker.line.ascent
-                                     - ring->marker.line.descent) / 2);
+  text_calculate_bounds_f(&ring->marker,
+                          marker_center.x - marker_width / 2.f,
+                          marker_center.y);
 }
 
 void ring_draw(struct ring* ring, CGContextRef context) {
@@ -204,12 +221,14 @@ void ring_draw(struct ring* ring, CGContextRef context) {
                        || (ring->color.a > 0.f && ring->value > 0.f));
   if (!draws_arc) {
     text_draw(&ring->marker, context);
+    text_draw_badge(&ring->marker, context);
     return;
   }
 
   float line_width = min(ring->line_width, (float)ring->width);
   if (line_width <= 0.f) {
     text_draw(&ring->marker, context);
+    text_draw_badge(&ring->marker, context);
     return;
   }
 
@@ -251,6 +270,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
 
   CGContextRestoreGState(context);
   text_draw(&ring->marker, context);
+  text_draw_badge(&ring->marker, context);
 }
 
 void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
@@ -262,7 +282,8 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                "%s\"width\": \"%u\",\n"
                "%s\"start_angle\": \"%f\",\n"
                "%s\"clockwise\": \"%s\",\n"
-               "%s\"cap\": \"%s\",\n",
+               "%s\"cap\": \"%s\",\n"
+               "%s\"marker_position\": \"%s\",\n",
                indent, ring->value,
                indent, ring->value * 100.f,
                indent, ring->color.hex,
@@ -271,7 +292,8 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                indent, ring->width,
                indent, ring->start_angle,
                indent, ring_bool_string(ring->clockwise),
-               indent, ring_cap_string(ring->cap));
+               indent, ring_cap_string(ring->cap),
+               indent, ring_marker_position_string(ring->marker_position));
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
@@ -379,6 +401,15 @@ bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, 
       else if (token_equals(subdom, SUB_DOMAIN_MARKER)) {
         if (token_equals(entry, PROPERTY_ICON)) {
           return ring_set_marker_icon(ring, token_to_string(get_token(&message)));
+        }
+        if (token_equals(entry, PROPERTY_POSITION)) {
+          struct token token = get_token(&message);
+          char marker_position = ring_marker_position_from_token(token);
+          if (marker_position == 0) {
+            respond(rsp, "[!] Ring: Invalid marker position '%s'\n", token.text);
+            return false;
+          }
+          return ring_set_marker_position(ring, marker_position);
         }
         return text_parse_sub_domain(&ring->marker, rsp, entry, message);
       }

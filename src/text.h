@@ -84,6 +84,7 @@ void text_copy(struct text* text, struct text* source);
 
 bool text_animate_scroll(struct text* text);
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y);
+void text_calculate_bounds_f(struct text* text, float x, float y);
 void text_draw(struct text* text, CGContextRef context);
 void text_draw_badge(struct text* text, CGContextRef context);
 void text_destroy(struct text* text);

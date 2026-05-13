@@ -15,6 +15,7 @@ struct ring {
   float line_width;
   float start_angle;
   char cap;
+  char marker_position;
   CGRect bounds;
   struct color color;
   struct color track_color;

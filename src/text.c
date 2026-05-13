@@ -823,8 +823,8 @@ void text_destroy(struct text* text) {
   text_clear_pointers(text);
 }
 
-void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
-  CGFloat x_pos = (CGFloat)x + text->x_offset;
+static void text_calculate_bounds_at(struct text* text, float x, float y) {
+  CGFloat x_pos = x + text->x_offset;
 
   if (text->align == POSITION_CENTER && text->has_const_width)
     text->bounds.origin.x = x_pos + ((int)text->custom_width
@@ -835,8 +835,8 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   else
     text->bounds.origin.x = x_pos;
 
-  text->bounds.origin.y = (CGFloat)y - ((text->line.ascent
-                                         - text->line.descent) / 2);
+  text->bounds.origin.y = y - ((text->line.ascent
+                                - text->line.descent) / 2);
 
   if (text->background.enabled) {
     uint32_t height = text->background.overrides_height
@@ -863,6 +863,14 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   }
 
   badge_calculate_bounds(&text->badge, badge_parent);
+}
+
+void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
+  text_calculate_bounds_at(text, x, y);
+}
+
+void text_calculate_bounds_f(struct text* text, float x, float y) {
+  text_calculate_bounds_at(text, x, y);
 }
 
 bool text_set_scroll(struct text* text, float scroll) {
