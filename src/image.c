@@ -1,8 +1,12 @@
 #include "image.h"
 #include "misc/helpers.h"
 #include "shadow.h"
+#include "symbol.h"
 #include "workspace.h"
 #include "media.h"
+
+#define IMAGE_SYMBOL_POINT_SIZE    32.0
+#define IMAGE_SYMBOL_RASTER_SCALE  2.0
 
 void image_init(struct image* image) {
   image->enabled = false;
@@ -19,8 +23,15 @@ void image_init(struct image* image) {
   image->padding_right = 0;
   image->link = NULL;
 
+  image->is_symbol = false;
+  image->symbol_name = NULL;
+  image->variable_value = 0.f;
+  image->variable_value_mode = IMAGE_SYMBOL_MODE_AUTOMATIC;
+  image->symbol_color_set = false;
+
   shadow_init(&image->shadow);
   color_init(&image->border_color, 0xcccccccc);
+  color_init(&image->symbol_color, 0xffffffff);
 }
 
 bool image_set_enabled(struct image* image, bool enabled) {
@@ -38,11 +49,12 @@ bool image_set_link(struct image* image, struct image* link) {
 
 bool image_load(struct image* image, char* path, FILE* rsp) {
   if (!path) return false;
+  char* source = string_copy(path);
   char* app = string_copy(path);
-  if (image->path) free(image->path);
-  image->path = string_copy(path);
   char* res_path = resolve_path(path);
   CGImageRef new_image_ref = NULL;
+  char* symbol_name = NULL;
+  bool is_symbol = false;
   float scale = 1.f;
 
   struct key_value_pair app_kv = get_key_value_pair(app, '.');
@@ -55,6 +67,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
       respond(rsp, "[!] Image: Invalid application name: '%s'\n", app_kv.value);
       free(res_path);
       free(app);
+      free(source);
       return false;
     }
   } else if (app_kv.key && app_kv.value && strcmp(app_kv.key, "space") == 0) {
@@ -65,13 +78,49 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
       respond(rsp, "[!] Image: Invalid Space ID: '%s'\n", app_kv.value);
       free(res_path);
       free(app);
+      free(source);
       return false;
     }
-  } else if (strcmp(path, "media.artwork") == 0) {
+  } else if (strcmp(source, "media.artwork") == 0) {
+    if (image->path) free(image->path);
+    image->path = source;
+    source = NULL;
+    if (image->symbol_name) {
+      free(image->symbol_name);
+      image->symbol_name = NULL;
+    }
+    image->is_symbol = false;
     free(res_path);
     free(app);
     begin_receiving_media_events();
     return image_set_link(image, &g_bar_manager.current_artwork);
+  } else if (app_kv.key && app_kv.value && strcmp(app_kv.key, "sf") == 0) {
+    if (!symbol_variable_rendering_available()) {
+      respond(rsp, "[!] Image: SF Symbol variable rendering requires macOS 13 or later\n");
+      free(res_path);
+      free(app);
+      free(source);
+      return false;
+    }
+    scale = IMAGE_SYMBOL_RASTER_SCALE;
+    CGImageRef sym_image = symbol_create_image(app_kv.value,
+                                               (double)image->variable_value,
+                                               image->variable_value_mode,
+                                               IMAGE_SYMBOL_POINT_SIZE
+                                               * IMAGE_SYMBOL_RASTER_SCALE,
+                                               image->symbol_color.hex,
+                                               image->symbol_color_set);
+    if (sym_image) {
+      symbol_name = string_copy(app_kv.value);
+      is_symbol = true;
+      new_image_ref = sym_image;
+    } else {
+      respond(rsp, "[!] Image: Invalid SF Symbol name: '%s'\n", app_kv.value);
+      free(res_path);
+      free(app);
+      free(source);
+      return false;
+    }
   } else if (file_exists(res_path)) {
     CGDataProviderRef data_provider = CGDataProviderCreateWithFilename(res_path);
     if (data_provider) {
@@ -91,6 +140,7 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
       respond(rsp, "[!] Image: Invalid Image Format: '%s'\n", app_kv.value);
       free(res_path);
       free(app);
+      free(source);
       return false;
     }
   }
@@ -98,21 +148,35 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     image_destroy(image);
     free(res_path);
     free(app);
+    free(source);
     return false;
   } else {
     respond(rsp, "[!] Image: File '%s' not found\n", res_path);
     free(res_path);
     free(app);
+    free(source);
     return false;
   }
 
   if (new_image_ref) {
-    image_set_image(image,
-                    new_image_ref,
-                    (CGRect){{0,0},
-                             {CGImageGetWidth(new_image_ref) / scale,
-                              CGImageGetHeight(new_image_ref) / scale }},
-                    true                                        );
+    bool result = image_set_image(image,
+                                  new_image_ref,
+                                  (CGRect){{0,0},
+                                           {CGImageGetWidth(new_image_ref) / scale,
+                                            CGImageGetHeight(new_image_ref) / scale }},
+                                  true                                        );
+    if (image->path) free(image->path);
+    image->path = source;
+    source = NULL;
+
+    if (image->symbol_name) free(image->symbol_name);
+    image->symbol_name = symbol_name;
+    symbol_name = NULL;
+    image->is_symbol = is_symbol;
+
+    free(res_path);
+    free(app);
+    return result;
   }
   else {
     if (new_image_ref) CFRelease(new_image_ref);
@@ -120,8 +184,10 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     fprintf(rsp, "Could not open image file at: %s\n", res_path);
   }
 
+  if (symbol_name) free(symbol_name);
   free(res_path);
   free(app);
+  free(source);
   return true;
 }
 
@@ -182,6 +248,53 @@ bool image_set_scale(struct image* image, float scale) {
   image->bounds = (CGRect){{image->bounds.origin.x, image->bounds.origin.y},
                            {image->size.width * image->scale,
                             image->size.height * image->scale}};
+  return true;
+}
+
+static bool image_render_symbol(struct image* image) {
+  if (!image->is_symbol || !image->symbol_name) return false;
+  CGImageRef new_image_ref = symbol_create_image(image->symbol_name,
+                                                 (double)image->variable_value,
+                                                 image->variable_value_mode,
+                                                 IMAGE_SYMBOL_POINT_SIZE
+                                                 * IMAGE_SYMBOL_RASTER_SCALE,
+                                                 image->symbol_color.hex,
+                                                 image->symbol_color_set);
+  if (!new_image_ref) return false;
+  return image_set_image(image,
+                         new_image_ref,
+                         (CGRect){{0,0},
+                                  {CGImageGetWidth(new_image_ref)
+                                   / IMAGE_SYMBOL_RASTER_SCALE,
+                                   CGImageGetHeight(new_image_ref)
+                                   / IMAGE_SYMBOL_RASTER_SCALE}},
+                         false);
+}
+
+bool image_set_variable_value(struct image* image, float value) {
+  if (value < 0.f) value = 0.f;
+  if (value > 1.f) value = 1.f;
+  if (image->variable_value == value) return false;
+  image->variable_value = value;
+  if (image->is_symbol) return image_render_symbol(image);
+  return false;
+}
+
+bool image_set_variable_value_mode(struct image* image, int mode) {
+  if (mode == image->variable_value_mode) return false;
+  image->variable_value_mode = mode;
+  if (image->is_symbol) return image_render_symbol(image);
+  return true;
+}
+
+bool image_set_symbol_color(struct image* image, uint32_t color) {
+  bool changed = color_set_hex(&image->symbol_color, color);
+  if (!image->symbol_color_set) {
+    image->symbol_color_set = true;
+    changed = true;
+  }
+  if (!changed) return false;
+  if (image->is_symbol) return image_render_symbol(image);
   return true;
 }
 
@@ -287,6 +400,9 @@ void image_draw(struct image* image, CGContextRef context) {
     CFRelease(path);
   }
 
+  if (image->is_symbol)
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+
   CGContextDrawImage(context,
                      image->bounds,
                      image->link ? image->link->image_ref : image->image_ref);
@@ -319,12 +435,15 @@ void image_clear_pointers(struct image* image) {
   image->image_ref = NULL;
   image->data_ref = NULL;
   image->path = NULL;
+  image->symbol_name = NULL;
+  image->is_symbol = false;
 }
 
 void image_destroy(struct image* image) {
   CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
   if (image->path) free(image->path);
+  if (image->symbol_name) free(image->symbol_name);
   image_clear_pointers(image);
 }
 
@@ -335,6 +454,25 @@ void image_serialize(struct image* image, char* indent, FILE* rsp) {
                indent, image->path,
                indent, format_bool(image->enabled),
                indent, image->scale                );
+
+  if (image->is_symbol) {
+    char* mode_name = ARGUMENT_VAR_MODE_AUTOMATIC;
+    if (image->variable_value_mode == IMAGE_SYMBOL_MODE_COLOR)
+      mode_name = ARGUMENT_VAR_MODE_COLOR;
+    else if (image->variable_value_mode == IMAGE_SYMBOL_MODE_DRAW)
+      mode_name = ARGUMENT_VAR_MODE_DRAW;
+
+    fprintf(rsp, ",\n%s\"symbol\": \"%s\""
+                 ",\n%s\"percentage\": %f"
+                 ",\n%s\"variable_value_mode\": \"%s\"",
+                 indent, image->symbol_name ? image->symbol_name : "",
+                 indent, image->variable_value,
+                 indent, mode_name                                    );
+
+    if (image->symbol_color_set)
+      fprintf(rsp, ",\n%s\"symbol_color\": \"0x%x\"",
+              indent, image->symbol_color.hex);
+  }
 }
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
@@ -389,6 +527,44 @@ bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token propert
                   image,
                   image->border_color.hex,
                   token_to_int(token));
+  }
+  else if (token_equals(property, PROPERTY_PERCENTAGE)) {
+    struct token token = get_token(&message);
+    float new_value;
+    if (token.length > 0 && memchr(token.text, '.', token.length)) {
+      new_value = token_to_float(token);
+    } else {
+      new_value = (float)token_to_int(token) / 100.f;
+    }
+    if (new_value < 0.f) new_value = 0.f;
+    if (new_value > 1.f) new_value = 1.f;
+    ANIMATE_FLOAT(image_set_variable_value,
+                  image,
+                  image->variable_value,
+                  new_value);
+  }
+  else if (token_equals(property, PROPERTY_SYMBOL_COLOR)) {
+    struct token token = get_token(&message);
+    ANIMATE_BYTES(image_set_symbol_color,
+                  image,
+                  image->symbol_color.hex,
+                  token_to_int(token));
+  }
+  else if (token_equals(property, PROPERTY_VARIABLE_VALUE_MODE)) {
+    struct token token = get_token(&message);
+    int mode = IMAGE_SYMBOL_MODE_AUTOMATIC;
+    if (token_equals(token, ARGUMENT_VAR_MODE_COLOR)) {
+      mode = IMAGE_SYMBOL_MODE_COLOR;
+    } else if (token_equals(token, ARGUMENT_VAR_MODE_DRAW)) {
+      mode = IMAGE_SYMBOL_MODE_DRAW;
+    } else if (!token_equals(token, ARGUMENT_VAR_MODE_AUTOMATIC)) {
+      respond(rsp,
+              "[?] Image: Invalid variable_value_mode '%.*s' "
+              "(expected automatic|color|draw)\n",
+              token.length, token.text);
+      return false;
+    }
+    needs_refresh = image_set_variable_value_mode(image, mode);
   }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text,

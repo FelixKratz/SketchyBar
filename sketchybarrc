@@ -87,5 +87,16 @@ sketchybar --add item clock right \
            --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
            --subscribe battery system_woke power_source_change
 
+##### SF Symbols variable rendering (optional, macOS 13+) #####
+# Use any SF Symbol as the image source by prefixing it with "sf.". Symbols
+# with variable values (battery, wifi, speaker, ...) honor the new
+# background.image.percentage property, which accepts integers (0..100) or
+# floats (0.0..1.0) and animates via the standard --animate system.
+#
+# sketchybar --set battery background.image=sf.battery.100percent.circle \
+#                          background.image.percentage=75 \
+#                          background.image.symbol_color=0xff25be6a
+# sketchybar --animate sin 60 --set battery background.image.percentage=25
+
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
