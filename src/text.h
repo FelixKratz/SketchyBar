@@ -39,6 +39,7 @@ struct badge {
   struct font font;
   struct text_line line;
   struct color color;
+  struct background background;
 };
 
 struct text {
@@ -49,6 +50,7 @@ struct text {
   char align;
   char* string;
 
+  int x_offset;
   int y_offset;
   int padding_left;
   int padding_right;
