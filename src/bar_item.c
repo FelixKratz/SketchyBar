@@ -736,6 +736,9 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
   if (bar_item->has_alias) alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph) graph_draw(&bar_item->graph, context);
   if (bar_item->has_slider) slider_draw(&bar_item->slider, context);
+
+  text_draw_badge(&bar_item->icon, context);
+  text_draw_badge(&bar_item->label, context);
 }
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid) {
