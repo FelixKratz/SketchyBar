@@ -20,6 +20,7 @@ struct ring {
   struct color color;
   struct color track_color;
   struct text marker;
+  struct badge badge;
 };
 
 void ring_init(struct ring* ring);

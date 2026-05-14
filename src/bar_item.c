@@ -117,6 +117,8 @@ bool bar_item_update(struct bar_item* bar_item, char* sender, bool forced, struc
     text_animate_scroll(&bar_item->label);
     if (bar_item->type == BAR_COMPONENT_SLIDER)
       text_animate_scroll(&bar_item->slider.knob);
+    if (bar_item->type == BAR_COMPONENT_RING)
+      text_animate_scroll(&bar_item->ring.marker);
   }
 
   bar_item->counter++;

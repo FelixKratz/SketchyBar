@@ -153,6 +153,9 @@ void ring_init(struct ring* ring) {
   color_init(&ring->color, 0xffffffff);
   color_init(&ring->track_color, 0x33ffffff);
   text_init(&ring->marker);
+  badge_init(&ring->badge);
+  ring->marker.advance_centering = true;
+  ring->badge.advance_centering = true;
   ring->marker.drawing = false;
   ring->marker.background.enabled = false;
   ring->marker.padding_left = 0;
@@ -161,10 +164,12 @@ void ring_init(struct ring* ring) {
 
 void ring_clear_pointers(struct ring* ring) {
   text_clear_pointers(&ring->marker);
+  badge_clear_pointers(&ring->badge);
 }
 
 void ring_copy(struct ring* ring, struct ring* source) {
   text_copy(&ring->marker, &source->marker);
+  badge_copy(&ring->badge, &source->badge);
   image_copy(&ring->marker.background.image,
              source->marker.background.image.image_ref);
 }
@@ -187,6 +192,8 @@ void ring_calculate_bounds(struct ring* ring, uint32_t x, uint32_t y) {
   ring->bounds.origin.y = y - (float)ring->width / 2.f;
   ring->bounds.size.width = ring->width;
   ring->bounds.size.height = ring->width;
+
+  badge_calculate_bounds(&ring->badge, ring->bounds);
 
   if (!ring->marker.drawing) return;
 
@@ -222,6 +229,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
   if (!draws_arc) {
     text_draw(&ring->marker, context);
     text_draw_badge(&ring->marker, context);
+    badge_draw(&ring->badge, context);
     return;
   }
 
@@ -229,6 +237,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
   if (line_width <= 0.f) {
     text_draw(&ring->marker, context);
     text_draw_badge(&ring->marker, context);
+    badge_draw(&ring->badge, context);
     return;
   }
 
@@ -271,6 +280,7 @@ void ring_draw(struct ring* ring, CGContextRef context) {
   CGContextRestoreGState(context);
   text_draw(&ring->marker, context);
   text_draw_badge(&ring->marker, context);
+  badge_draw(&ring->badge, context);
 }
 
 void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
@@ -282,8 +292,7 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                "%s\"width\": \"%u\",\n"
                "%s\"start_angle\": \"%f\",\n"
                "%s\"clockwise\": \"%s\",\n"
-               "%s\"cap\": \"%s\",\n"
-               "%s\"marker_position\": \"%s\",\n",
+               "%s\"cap\": \"%s\",\n",
                indent, ring->value,
                indent, ring->value * 100.f,
                indent, ring->color.hex,
@@ -292,19 +301,26 @@ void ring_serialize(struct ring* ring, char* indent, FILE* rsp) {
                indent, ring->width,
                indent, ring->start_angle,
                indent, ring_bool_string(ring->clockwise),
-               indent, ring_cap_string(ring->cap),
-               indent, ring_marker_position_string(ring->marker_position));
+               indent, ring_cap_string(ring->cap));
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
 
-  fprintf(rsp, "%s\"marker\": {\n", indent);
+  fprintf(rsp, "%s\"marker\": {\n"
+               "%s\"position\": \"%s\",\n",
+               indent,
+               deeper_indent,
+               ring_marker_position_string(ring->marker_position));
   text_serialize(&ring->marker, deeper_indent, rsp);
+  fprintf(rsp, "\n%s},\n", indent);
+  fprintf(rsp, "%s\"badge\": {\n", indent);
+  badge_serialize(&ring->badge, deeper_indent, rsp);
   fprintf(rsp, "\n%s}", indent);
 }
 
 void ring_destroy(struct ring* ring) {
   text_destroy(&ring->marker);
+  badge_destroy(&ring->badge);
   ring_clear_pointers(ring);
 }
 
@@ -387,6 +403,9 @@ bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, 
   else if (token_equals(property, SUB_DOMAIN_MARKER)) {
     needs_refresh = ring_set_marker_icon(ring, token_to_string(get_token(&message)));
   }
+  else if (token_equals(property, SUB_DOMAIN_BADGE)) {
+    return badge_set_value(&ring->badge, token_to_string(get_token(&message)));
+  }
   else {
     struct key_value_pair key_value_pair = get_key_value_pair(property.text, '.');
     if (key_value_pair.key && key_value_pair.value) {
@@ -412,6 +431,9 @@ bool ring_parse_sub_domain(struct ring* ring, FILE* rsp, struct token property, 
           return ring_set_marker_position(ring, marker_position);
         }
         return text_parse_sub_domain(&ring->marker, rsp, entry, message);
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_BADGE)) {
+        return badge_parse_sub_domain(&ring->badge, rsp, entry, message);
       }
       else {
         respond(rsp, "[!] Ring: Invalid subdomain '%s'\n", subdom.text);

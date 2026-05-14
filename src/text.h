@@ -24,6 +24,7 @@ enum badge_anchor {
 struct badge {
   bool drawing;
   bool has_const_width;
+  bool advance_centering;
 
   char align;
   char* string;
@@ -34,6 +35,7 @@ struct badge {
   int text_y_offset;
   uint32_t custom_width;
   float width;
+  float advance;
 
   CGRect bounds;
 
@@ -48,6 +50,7 @@ struct text {
   bool highlight;
   bool drawing;
   bool has_const_width;
+  bool advance_centering;
 
   char align;
   char* string;
@@ -61,6 +64,7 @@ struct text {
   uint32_t scroll_duration;
   float scroll;
   float width;
+  float advance;
 
   CGRect bounds;
 
@@ -91,3 +95,13 @@ void text_destroy(struct text* text);
 
 void text_serialize(struct text* text, char* indent, FILE* rsp);
 bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, char* message);
+
+void badge_init(struct badge* badge);
+void badge_clear_pointers(struct badge* badge);
+void badge_copy(struct badge* badge, struct badge* source);
+void badge_calculate_bounds(struct badge* badge, CGRect parent);
+void badge_draw(struct badge* badge, CGContextRef context);
+void badge_destroy(struct badge* badge);
+void badge_serialize(struct badge* badge, char* indent, FILE* rsp);
+bool badge_set_value(struct badge* badge, char* string);
+bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token property, char* message);
