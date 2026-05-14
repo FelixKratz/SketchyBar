@@ -609,13 +609,8 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
                   entry.text  );
         }
       }
-      else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND)) {
-        if (token_equals(entry, PROPERTY_CLIP)) {
-          respond(rsp, "[!] Badge: Invalid background property '%s'\n", entry.text);
-          return false;
-        }
+      else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
         return background_parse_sub_domain(&badge->background, rsp, entry, message);
-      }
       else
         respond(rsp, "[!] Badge: Invalid subdomain '%s'\n", subdom.text);
     } else {
@@ -816,6 +811,7 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
     badge_parent = text->bounds;
     badge_parent.origin.x += text->padding_left;
     badge_parent.origin.y += text->y_offset;
+    badge_parent.size.width = text->width;
   }
 
   badge_calculate_bounds(&text->badge, badge_parent);
