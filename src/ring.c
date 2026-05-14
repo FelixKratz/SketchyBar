@@ -214,7 +214,12 @@ void ring_calculate_bounds(struct ring* ring, uint32_t x, uint32_t y) {
                                 center.y + sinf(angle) * radius);
   }
 
-  uint32_t marker_width = text_get_length(&ring->marker, false);
+  float marker_width = ring->marker.advance_centering
+                       && !ring->marker.has_const_width
+                       ? ring->marker.advance
+                       : text_get_length(&ring->marker, false);
+  if (marker_width < 0.f) marker_width = 0.f;
+
   text_calculate_bounds_f(&ring->marker,
                           marker_center.x - marker_width / 2.f,
                           marker_center.y);

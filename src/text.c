@@ -565,7 +565,8 @@ void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
 
 bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token property, char* message) {
   bool needs_refresh = false;
-  if (token_equals(property, PROPERTY_STRING)) {
+  if (token_equals(property, PROPERTY_STRING)
+      || token_equals(property, PROPERTY_VALUE)) {
     return badge_set_string(badge, token_to_string(get_token(&message)), false);
   } else if (token_equals(property, PROPERTY_VALUE)) {
     return badge_set_value(badge, token_to_string(get_token(&message)));
