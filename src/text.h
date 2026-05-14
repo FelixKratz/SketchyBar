@@ -30,6 +30,8 @@ struct badge {
 
   int x_offset;
   int y_offset;
+  int text_x_offset;
+  int text_y_offset;
   uint32_t custom_width;
   float width;
 

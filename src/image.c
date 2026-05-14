@@ -234,7 +234,7 @@ CGSize image_get_size(struct image* image) {
                              + 2*abs(image->y_offset) };
 }
 
-void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
+void image_calculate_bounds(struct image* image, CGFloat x, CGFloat y) {
   if (image->link && image->link->image_ref) {
     float internal_scale = 32.f / CGImageGetHeight(image->link->image_ref);
     CGRect bounds = (CGRect){{0,0},

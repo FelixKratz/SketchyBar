@@ -194,6 +194,15 @@ static bool badge_set_string(struct badge* badge, char* string, bool forced) {
   badge_prepare_line(badge);
   return true;
 }
+static bool badge_set_value(struct badge* badge, char* string) {
+  if (!string) return false;
+
+  bool drawing = string[0] != '\0';
+  bool changed = badge->drawing != drawing;
+  badge->drawing = drawing;
+  return badge_set_string(badge, string, false) || changed;
+}
+
 
 static bool badge_set_font(struct badge* badge, char* font_string, bool forced) {
   return font_set(&badge->font, font_string, forced);
@@ -214,6 +223,18 @@ static bool badge_set_yoffset(struct badge* badge, int offset) {
   badge->y_offset = offset;
   return true;
 }
+static bool badge_set_text_xoffset(struct badge* badge, int offset) {
+  if (badge->text_x_offset == offset) return false;
+  badge->text_x_offset = offset;
+  return true;
+}
+
+static bool badge_set_text_yoffset(struct badge* badge, int offset) {
+  if (badge->text_y_offset == offset) return false;
+  badge->text_y_offset = offset;
+  return true;
+}
+
 
 static bool badge_set_width(struct badge* badge, int width) {
   if (width < 0) {
@@ -304,6 +325,8 @@ static void badge_init(struct badge* badge) {
   badge->align = POSITION_CENTER;
   badge->x_offset = 0;
   badge->y_offset = 0;
+  badge->text_x_offset = 0;
+  badge->text_y_offset = 0;
   badge->custom_width = 0;
   badge->width = 0.f;
   badge->anchor = BADGE_ANCHOR_BOTTOM_RIGHT;
@@ -329,6 +352,8 @@ static void badge_copy(struct badge* badge, struct badge* source) {
   badge->align = source->align;
   badge->x_offset = source->x_offset;
   badge->y_offset = source->y_offset;
+  badge->text_x_offset = source->text_x_offset;
+  badge->text_y_offset = source->text_y_offset;
   badge->custom_width = source->custom_width;
   badge->anchor = source->anchor;
 
@@ -394,22 +419,25 @@ static void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   box.origin.x += badge->x_offset;
   box.origin.y += badge->y_offset;
 
-  if (badge->align == POSITION_CENTER && badge->has_const_width)
+  if (badge->align == POSITION_CENTER && badge->has_const_width) {
     badge->bounds.origin.x = box.origin.x
                              + (CGFloat)((int)box_width - (int)text_width) / 2.f;
-  else if (badge->align == POSITION_RIGHT && badge->has_const_width)
+  } else if (badge->align == POSITION_RIGHT && badge->has_const_width) {
     badge->bounds.origin.x = box.origin.x
                              + (int)box_width - (int)text_width;
-  else
+  } else {
     badge->bounds.origin.x = box.origin.x;
+  }
+  badge->bounds.origin.x += badge->text_x_offset;
 
   badge->bounds.origin.y = CGRectGetMidY(box)
                            - ((badge->line.ascent
                                - badge->line.descent) / 2);
+  badge->bounds.origin.y += badge->text_y_offset;
 
   if (badge->background.enabled)
     background_calculate_bounds(&badge->background,
-                                CGRectGetMidX(box),
+                                box.origin.x,
                                 CGRectGetMidY(box),
                                 box.size.width,
                                 box.size.height);
@@ -471,6 +499,10 @@ static void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
                "%s\"width\": %d,\n"
                "%s\"align\": \"%s\",\n"
                "%s\"anchor\": \"%s\",\n"
+               "%s\"text\": {\n"
+               "%s\t\"x_offset\": %d,\n"
+               "%s\t\"y_offset\": %d\n"
+               "%s},\n"
                "%s\"background\": {\n",
                indent, badge->string,
                indent, format_bool(badge->drawing),
@@ -481,6 +513,10 @@ static void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
                indent, badge->has_const_width ? badge->custom_width : -1,
                indent, align,
                indent, badge_anchor_to_string(badge->anchor),
+               indent,
+               indent, badge->text_x_offset,
+               indent, badge->text_y_offset,
+               indent,
                indent);
 
   char deeper_indent[strlen(indent) + 2];
@@ -551,8 +587,35 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
         return font_parse_sub_domain(&badge->font, rsp, entry, message);
       else if (token_equals(subdom, SUB_DOMAIN_COLOR))
         return color_parse_sub_domain(&badge->color, rsp, entry, message);
-      else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND))
+      else if (token_equals(subdom, SUB_DOMAIN_TEXT)
+               || token_equals(subdom, SUB_DOMAIN_GLYPH)) {
+        if (token_equals(entry, PROPERTY_XOFFSET)) {
+          struct token token = get_token(&message);
+          ANIMATE(badge_set_text_xoffset,
+                  badge,
+                  badge->text_x_offset,
+                  token_to_int(token));
+        }
+        else if (token_equals(entry, PROPERTY_YOFFSET)) {
+          struct token token = get_token(&message);
+          ANIMATE(badge_set_text_yoffset,
+                  badge,
+                  badge->text_y_offset,
+                  token_to_int(token));
+        }
+        else {
+          respond(rsp, "[!] Badge: Invalid %s property '%s'\n",
+                  subdom.text,
+                  entry.text  );
+        }
+      }
+      else if (token_equals(subdom, SUB_DOMAIN_BACKGROUND)) {
+        if (token_equals(entry, PROPERTY_CLIP)) {
+          respond(rsp, "[!] Badge: Invalid background property '%s'\n", entry.text);
+          return false;
+        }
         return background_parse_sub_domain(&badge->background, rsp, entry, message);
+      }
       else
         respond(rsp, "[!] Badge: Invalid subdomain '%s'\n", subdom.text);
     } else {
@@ -718,17 +781,19 @@ void text_destroy(struct text* text) {
 }
 
 void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
+  CGFloat x_pos = (CGFloat)x + text->x_offset;
+
   if (text->align == POSITION_CENTER && text->has_const_width)
-    text->bounds.origin.x = x + text->x_offset + ((int)text->custom_width
+    text->bounds.origin.x = x_pos + ((int)text->custom_width
                                  - (int)text_get_length(text, true)) / 2.f;
   else if (text->align == POSITION_RIGHT && text->has_const_width)
-    text->bounds.origin.x = x + text->x_offset + (int)text->custom_width
+    text->bounds.origin.x = x_pos + (int)text->custom_width
                             - (int)text_get_length(text, true);
   else
-    text->bounds.origin.x = x + text->x_offset;
+    text->bounds.origin.x = x_pos;
 
-  text->bounds.origin.y =(uint32_t)(y - ((text->line.ascent
-                                          - text->line.descent) / 2));
+  text->bounds.origin.y = (CGFloat)y - ((text->line.ascent
+                                         - text->line.descent) / 2);
 
   if (text->background.enabled) {
     uint32_t height = text->background.overrides_height
@@ -736,7 +801,7 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
                       : text->bounds.size.height;
 
     background_calculate_bounds(&text->background,
-                                x + text->x_offset,
+                                x_pos,
                                 y,
                                 text_get_length(text, false),
                                 height                       );
@@ -848,6 +913,7 @@ void text_draw(struct text* text, CGContextRef context) {
 }
 
 void text_draw_badge(struct text* text, CGContextRef context) {
+  if (!text->drawing) return;
   badge_draw(&text->badge, context);
 }
 
@@ -1054,11 +1120,7 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
 
     return changed;
   } else if (token_equals(property, SUB_DOMAIN_BADGE)) {
-    struct token dummy = { PROPERTY_STRING, strlen(PROPERTY_STRING) };
-    return badge_parse_sub_domain(&text->badge,
-                                  rsp,
-                                  dummy,
-                                  message       );
+    return badge_set_value(&text->badge, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_MAX_CHARS)) {
     return text_set_max_chars(text, token_to_int(get_token(&message)));
   }
