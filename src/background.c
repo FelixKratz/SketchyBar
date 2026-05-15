@@ -175,7 +175,9 @@ void background_calculate_bounds(struct background* background, CGFloat x, CGFlo
   background->bounds.size.height = height;
 
   if (background->image.enabled)
-    image_calculate_bounds(&background->image, x, y);
+    image_calculate_bounds(&background->image,
+                           x + background->x_offset,
+                           y + background->y_offset);
 }
 
 static void draw_rect(CGContextRef context, CGRect region, struct color* fill_color, uint32_t corner_radius, uint32_t line_width, struct color* stroke_color) {

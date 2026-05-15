@@ -582,8 +582,18 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
     if (token_equals(token, ARGUMENT_DYNAMIC)) {
       ANIMATE(badge_set_width,
               badge,
-              badge_get_box_width(badge),
-              -1);
+              badge->custom_width,
+              badge_get_box_width(badge));
+
+      struct animation* animation = animation_create();
+      animation_setup(animation,
+                      badge,
+                      (bool (*)(void*, int))&badge_set_width,
+                      badge->custom_width,
+                      -1,
+                      0,
+                      INTERP_FUNCTION_LINEAR               );
+      animator_add(&g_bar_manager.animator, animation);
     }
     else {
       ANIMATE(badge_set_width,
@@ -842,7 +852,7 @@ void text_calculate_bounds(struct text* text, uint32_t x, uint32_t y) {
   } else {
     badge_parent = text->bounds;
     badge_parent.origin.x += text->padding_left;
-    badge_parent.origin.y += text->y_offset;
+    badge_parent.origin.y += text->y_offset - text->line.descent;
     badge_parent.size.width = text->width;
   }
 
@@ -1121,7 +1131,8 @@ bool text_parse_sub_domain(struct text* text, FILE* rsp, struct token property, 
     char prev = text->align;
     text->align = get_token(&message).text[0];
     return prev != text->align;
-  } else if (token_equals(property, PROPERTY_STRING)) {
+  } else if (token_equals(property, PROPERTY_STRING)
+             || token_equals(property, PROPERTY_VALUE)) {
     uint32_t pre_width = text_get_length(text, false);
     bool changed = text_set_string(text,
                                    token_to_string(get_token(&message)),

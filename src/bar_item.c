@@ -703,8 +703,12 @@ bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* b
                || background_clip_needs_update(&bar_item->icon.badge.background, bar)
                || background_clip_needs_update(&bar_item->label.badge.background, bar);
 
-  if (bar_item->has_slider)
-    needs_update |= background_clip_needs_update(&bar_item->slider.knob.badge.background, bar);
+  if (bar_item->has_slider) {
+    needs_update |= background_clip_needs_update(&bar_item->slider.background, bar)
+                 || background_clip_needs_update(&bar_item->slider.foreground, bar)
+                 || background_clip_needs_update(&bar_item->slider.knob.background, bar)
+                 || background_clip_needs_update(&bar_item->slider.knob.badge.background, bar);
+  }
 
   return needs_update;
 }
@@ -716,7 +720,10 @@ bool bar_item_clips_bar(struct bar_item* bar_item) {
          || background_clips_bar(&bar_item->icon.badge.background)
          || background_clips_bar(&bar_item->label.badge.background)
          || (bar_item->has_slider
-             && background_clips_bar(&bar_item->slider.knob.badge.background));
+             && (background_clips_bar(&bar_item->slider.background)
+                 || background_clips_bar(&bar_item->slider.foreground)
+                 || background_clips_bar(&bar_item->slider.knob.background)
+                 || background_clips_bar(&bar_item->slider.knob.badge.background)));
 }
 
 void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
@@ -725,8 +732,12 @@ void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
   background_clip_bar(&bar_item->label.background, offset, bar);
   background_clip_bar(&bar_item->icon.badge.background, offset, bar);
   background_clip_bar(&bar_item->label.badge.background, offset, bar);
-  if (bar_item->has_slider)
+  if (bar_item->has_slider) {
+    background_clip_bar(&bar_item->slider.background, offset, bar);
+    background_clip_bar(&bar_item->slider.foreground, offset, bar);
+    background_clip_bar(&bar_item->slider.knob.background, offset, bar);
     background_clip_bar(&bar_item->slider.knob.badge.background, offset, bar);
+  }
 }
 
 void* draw_item_proc(void* context) {
