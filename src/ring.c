@@ -168,6 +168,18 @@ void ring_clear_pointers(struct ring* ring) {
 }
 
 void ring_copy(struct ring* ring, struct ring* source) {
+  ring->enabled = source->enabled;
+  ring->clockwise = source->clockwise;
+  ring->width = source->width;
+  ring->value = source->value;
+  ring->line_width = source->line_width;
+  ring->start_angle = source->start_angle;
+  ring->cap = source->cap;
+  ring->marker_position = source->marker_position;
+  ring->bounds = source->bounds;
+  ring->color = source->color;
+  ring->track_color = source->track_color;
+
   text_copy(&ring->marker, &source->marker);
   badge_copy(&ring->badge, &source->badge);
   image_copy(&ring->marker.background.image,
