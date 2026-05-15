@@ -266,7 +266,14 @@ static uint32_t badge_get_box_width(struct badge* badge) {
   if (badge->has_const_width)
     return badge->custom_width;
 
-  return badge_get_text_width(badge);
+  uint32_t width = badge_get_text_width(badge);
+  if (badge->background.enabled && badge->background.image.enabled) {
+    CGSize image_size = image_get_size(&badge->background.image);
+    if (image_size.width > width)
+      width = image_size.width;
+  }
+
+  return width;
 }
 
 static const char* badge_anchor_to_string(enum badge_anchor anchor) {
@@ -360,6 +367,14 @@ static void badge_copy(struct badge* badge, struct badge* source) {
   font_set_family(&badge->font, string_copy(source->font.family), true);
   font_set_style(&badge->font, string_copy(source->font.style), true);
   font_set_size(&badge->font, source->font.size);
+  if (badge->font.features) {
+    free(badge->font.features);
+    badge->font.features = NULL;
+  }
+  if (source->font.features) {
+    badge->font.features = string_copy(source->font.features);
+    badge->font.font_changed = true;
+  }
   badge_set_string(badge, string_copy(source->string), true);
   color_set_hex(&badge->color, source->color.hex);
   badge->background = source->background;
@@ -375,6 +390,13 @@ static void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   uint32_t box_height = badge->background.overrides_height
                         ? badge->background.bounds.size.height
                         : badge->bounds.size.height;
+  if (!badge->background.overrides_height
+      && badge->background.enabled
+      && badge->background.image.enabled) {
+    CGSize image_size = image_get_size(&badge->background.image);
+    if (image_size.height > box_height)
+      box_height = image_size.height;
+  }
   CGRect box = {{0, 0}, {box_width, box_height}};
 
   switch (badge->anchor) {
@@ -529,6 +551,8 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
   bool needs_refresh = false;
   if (token_equals(property, PROPERTY_STRING)) {
     return badge_set_string(badge, token_to_string(get_token(&message)), false);
+  } else if (token_equals(property, PROPERTY_VALUE)) {
+    return badge_set_value(badge, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_DRAWING)) {
     bool prev = badge->drawing;
     badge->drawing = evaluate_boolean_state(get_token(&message), badge->drawing);
@@ -555,10 +579,18 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
             token_to_int(token));
   } else if (token_equals(property, PROPERTY_WIDTH)) {
     struct token token = get_token(&message);
-    ANIMATE(badge_set_width,
-            badge,
-            badge_get_box_width(badge),
-            token_to_int(token));
+    if (token_equals(token, ARGUMENT_DYNAMIC)) {
+      ANIMATE(badge_set_width,
+              badge,
+              badge_get_box_width(badge),
+              -1);
+    }
+    else {
+      ANIMATE(badge_set_width,
+              badge,
+              badge_get_box_width(badge),
+              token_to_int(token));
+    }
   } else if (token_equals(property, PROPERTY_ALIGN)) {
     char prev = badge->align;
     badge->align = get_token(&message).text[0];
