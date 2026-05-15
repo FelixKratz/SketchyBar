@@ -262,10 +262,7 @@ static uint32_t badge_get_text_width(struct badge* badge) {
   return badge->width < 0 ? 0 : (uint32_t)badge->width;
 }
 
-static uint32_t badge_get_box_width(struct badge* badge) {
-  if (badge->has_const_width)
-    return badge->custom_width;
-
+static uint32_t badge_get_natural_box_width(struct badge* badge) {
   uint32_t width = badge_get_text_width(badge);
   if (badge->background.enabled && badge->background.image.enabled) {
     CGSize image_size = image_get_size(&badge->background.image);
@@ -274,6 +271,12 @@ static uint32_t badge_get_box_width(struct badge* badge) {
   }
 
   return width;
+}
+
+static uint32_t badge_get_box_width(struct badge* badge) {
+  return badge->has_const_width
+         ? badge->custom_width
+         : badge_get_natural_box_width(badge);
 }
 
 static const char* badge_anchor_to_string(enum badge_anchor anchor) {
@@ -512,6 +515,7 @@ static void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
       break;
   }
 
+  char* escaped_string = escape_string(badge->string);
   fprintf(rsp, "%s\"value\": \"%s\",\n"
                "%s\"drawing\": \"%s\",\n"
                "%s\"color\": \"0x%x\",\n"
@@ -526,7 +530,7 @@ static void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
                "%s\t\"y_offset\": %d\n"
                "%s},\n"
                "%s\"background\": {\n",
-               indent, badge->string,
+               indent, escaped_string ? escaped_string : "",
                indent, format_bool(badge->drawing),
                indent, badge->color.hex,
                indent, badge->x_offset,
@@ -540,6 +544,8 @@ static void badge_serialize(struct badge* badge, char* indent, FILE* rsp) {
                indent, badge->text_y_offset,
                indent,
                indent);
+
+  if (escaped_string) free(escaped_string);
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);
@@ -583,7 +589,7 @@ static bool badge_parse_sub_domain(struct badge* badge, FILE* rsp, struct token 
       ANIMATE(badge_set_width,
               badge,
               badge->custom_width,
-              badge_get_box_width(badge));
+              badge_get_natural_box_width(badge));
 
       struct animation* animation = animation_create();
       animation_setup(animation,
