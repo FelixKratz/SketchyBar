@@ -281,7 +281,7 @@ void image_draw(struct image* image, CGContextRef context) {
                          image->corner_radius);
 
     CGContextAddPath(context, path);
-    CGContextDrawPath(context, kCGPathFillStroke);
+    CGContextDrawPath(context, kCGPathFill);
     CFRelease(path);
     CGContextRestoreGState(context);
   } 

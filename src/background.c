@@ -170,7 +170,7 @@ void background_clip_bar(struct background* background, int offset, struct bar* 
 
 void background_calculate_bounds(struct background* background, CGFloat x, CGFloat y, uint32_t width, uint32_t height) {
   background->bounds.origin.x = x;
-  background->bounds.origin.y = y - height / 2;
+  background->bounds.origin.y = y - (CGFloat)height / 2.f;
   background->bounds.size.width = width;
   background->bounds.size.height = height;
 
@@ -184,7 +184,14 @@ static void draw_rect(CGContextRef context, CGRect region, struct color* fill_co
   bool draw_stroke = stroke_color && stroke_color->a > 0.f && line_width > 0;
   if (draw_stroke) {
     CGContextSetLineWidth(context, line_width);
-    CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
+    CGContextSetRGBStrokeColor(context,
+                               stroke_color->r,
+                               stroke_color->g,
+                               stroke_color->b,
+                               stroke_color->a);
+  } else {
+    CGContextSetLineWidth(context, 0.f);
+    CGContextSetRGBStrokeColor(context, 0.f, 0.f, 0.f, 0.f);
   }
   CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
 

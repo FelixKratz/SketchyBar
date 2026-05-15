@@ -441,10 +441,10 @@ static void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   box.origin.x += badge->x_offset;
   box.origin.y += badge->y_offset;
 
-  if (badge->align == POSITION_CENTER && badge->has_const_width) {
+  if (badge->align == POSITION_CENTER) {
     badge->bounds.origin.x = box.origin.x
                              + (CGFloat)((int)box_width - (int)text_width) / 2.f;
-  } else if (badge->align == POSITION_RIGHT && badge->has_const_width) {
+  } else if (badge->align == POSITION_RIGHT) {
     badge->bounds.origin.x = box.origin.x
                              + (int)box_width - (int)text_width;
   } else {
