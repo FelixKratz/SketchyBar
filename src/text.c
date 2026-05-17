@@ -258,7 +258,8 @@ static uint32_t badge_get_text_width(struct badge* badge) {
   if (badge->font.font_changed)
     badge_set_string(badge, badge->string, true);
 
-  return badge->width < 0 ? 0 : (uint32_t)badge->width;
+  float width = badge->advance_centering ? badge->advance : badge->width;
+  return width < 0.f ? 0 : (uint32_t)width;
 }
 
 static uint32_t badge_get_natural_box_width(struct badge* badge) {
@@ -448,12 +449,15 @@ void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   box.origin.y += badge->y_offset;
 
   if (badge->advance_centering) {
-    if (badge->align == POSITION_CENTER && badge->has_const_width)
-      badge->bounds.origin.x = CGRectGetMidX(box) - badge->advance / 2.f;
-    else if (badge->align == POSITION_RIGHT && badge->has_const_width)
-      badge->bounds.origin.x = CGRectGetMaxX(box) - badge->advance;
-    else
+    if (badge->align == POSITION_CENTER) {
+      badge->bounds.origin.x = box.origin.x
+                               + ((CGFloat)box_width - (CGFloat)text_width) / 2.f;
+    } else if (badge->align == POSITION_RIGHT) {
+      badge->bounds.origin.x = box.origin.x
+                               + (CGFloat)box_width - (CGFloat)text_width;
+    } else {
       badge->bounds.origin.x = box.origin.x;
+    }
   } else if (badge->align == POSITION_CENTER) {
     badge->bounds.origin.x = box.origin.x
                              + (CGFloat)((int)box_width - (int)text_width) / 2.f;
@@ -810,7 +814,10 @@ uint32_t text_get_length(struct text* text, bool override) {
     text_set_string(text, text->string, true);
   }
 
-  int len = text->width + text->padding_left + text->padding_right;
+  float width = text->advance_centering && text->max_chars == 0
+                ? text->advance
+                : text->width;
+  int len = (int)width + text->padding_left + text->padding_right;
   if ((!text->has_const_width || override)
       && text->background.enabled
       && text->background.image.enabled) {
@@ -839,18 +846,7 @@ void text_destroy(struct text* text) {
 }
 
 static void text_calculate_bounds_at(struct text* text, float x, float y) {
-  if (text->advance_centering) {
-    if (text->align == POSITION_CENTER && text->has_const_width)
-      text->bounds.origin.x = x + text->x_offset
-                              + text->custom_width / 2.f
-                              - text->advance / 2.f;
-    else if (text->align == POSITION_RIGHT && text->has_const_width)
-      text->bounds.origin.x = x + text->x_offset
-                              + (int)text->custom_width
-                              - text->advance;
-    else
-      text->bounds.origin.x = x + text->x_offset;
-  } else if (text->align == POSITION_CENTER && text->has_const_width) {
+  if (text->align == POSITION_CENTER && text->has_const_width) {
     text->bounds.origin.x = x + text->x_offset + ((int)text->custom_width
                                  - (int)text_get_length(text, true)) / 2.f;
   } else if (text->align == POSITION_RIGHT && text->has_const_width) {
@@ -884,7 +880,9 @@ static void text_calculate_bounds_at(struct text* text, float x, float y) {
     badge_parent = text->bounds;
     badge_parent.origin.x += text->padding_left;
     badge_parent.origin.y += text->y_offset - text->line.descent;
-    badge_parent.size.width = text->width;
+    badge_parent.size.width = text->advance_centering && text->max_chars == 0
+                              ? text->advance
+                              : text->width;
   }
 
   badge_calculate_bounds(&text->badge, badge_parent);
