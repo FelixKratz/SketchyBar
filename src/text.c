@@ -1,6 +1,14 @@
 #include "text.h"
 #include "bar_manager.h"
 
+static uint32_t ceil_positive_float_to_uint32(float value) {
+  if (!(value > 0.f)) return 0;
+  if (value >= (float)UINT32_MAX) return UINT32_MAX;
+
+  uint32_t integer = (uint32_t)value;
+  return value > (float)integer ? integer + 1 : integer;
+}
+
 static void text_calculate_truncated_width(struct text* text, CFDictionaryRef attributes) {
   if (text->max_chars > 0) {
     uint32_t len = strlen(text->string) + 4;
@@ -254,23 +262,22 @@ static bool badge_set_anchor(struct badge* badge, enum badge_anchor anchor) {
   return true;
 }
 
-static uint32_t badge_get_text_width(struct badge* badge) {
+static CGFloat badge_get_text_width(struct badge* badge) {
   if (badge->font.font_changed)
     badge_set_string(badge, badge->string, true);
 
-  float width = badge->advance_centering ? badge->advance : badge->width;
-  return width < 0.f ? 0 : (uint32_t)width;
+  return badge->advance_centering ? badge->advance : badge->width;
 }
 
 static uint32_t badge_get_natural_box_width(struct badge* badge) {
-  uint32_t width = badge_get_text_width(badge);
+  CGFloat width = badge_get_text_width(badge);
   if (badge->background.enabled && badge->background.image.enabled) {
     CGSize image_size = image_get_size(&badge->background.image);
     if (image_size.width > width)
       width = image_size.width;
   }
 
-  return width;
+  return ceil_positive_float_to_uint32(width);
 }
 
 static uint32_t badge_get_box_width(struct badge* badge) {
@@ -393,7 +400,7 @@ void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   if (!badge->drawing) return;
 
   uint32_t box_width = badge_get_box_width(badge);
-  uint32_t text_width = badge_get_text_width(badge);
+  CGFloat text_width = badge_get_text_width(badge);
   uint32_t box_height = badge->background.overrides_height
                         ? badge->background.bounds.size.height
                         : badge->bounds.size.height;
@@ -451,10 +458,10 @@ void badge_calculate_bounds(struct badge* badge, CGRect parent) {
   if (badge->advance_centering) {
     if (badge->align == POSITION_CENTER) {
       badge->bounds.origin.x = box.origin.x
-                               + ((CGFloat)box_width - (CGFloat)text_width) / 2.f;
+                               + ((CGFloat)box_width - text_width) / 2.f;
     } else if (badge->align == POSITION_RIGHT) {
       badge->bounds.origin.x = box.origin.x
-                               + (CGFloat)box_width - (CGFloat)text_width;
+                               + (CGFloat)box_width - text_width;
     } else {
       badge->bounds.origin.x = box.origin.x;
     }
@@ -817,7 +824,9 @@ uint32_t text_get_length(struct text* text, bool override) {
   float width = text->advance_centering && text->max_chars == 0
                 ? text->advance
                 : text->width;
-  int len = (int)width + text->padding_left + text->padding_right;
+  int len = (int)ceil_positive_float_to_uint32(width)
+            + text->padding_left
+            + text->padding_right;
   if ((!text->has_const_width || override)
       && text->background.enabled
       && text->background.image.enabled) {
