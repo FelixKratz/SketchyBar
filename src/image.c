@@ -11,6 +11,7 @@ void image_init(struct image* image) {
   image->bounds = CGRectNull;
   image->size = CGSizeZero;
   image->scale = 1.0;
+  image->rotation = 0.0;
   image->path = NULL;
   image->corner_radius = 0;
   image->border_width = 0;
@@ -185,6 +186,13 @@ bool image_set_scale(struct image* image, float scale) {
   return true;
 }
 
+bool image_set_rotation(struct image* image, float rotation) {
+  if (image->rotation == rotation) return false;
+
+  image->rotation = rotation;
+  return true;
+}
+
 bool image_set_corner_radius(struct image* image, uint32_t corner_radius) {
   if (image->corner_radius == corner_radius) return false;
 
@@ -255,6 +263,15 @@ void image_draw(struct image* image, CGContextRef context) {
   if ((!image->link && !image->image_ref)
       || (image->link && !image->link->image_ref)) return;
 
+  CGContextSaveGState(context);
+  if (image->rotation != 0.0) {
+    CGPoint center = (CGPoint){ image->bounds.origin.x + image->bounds.size.width / 2,
+                                image->bounds.origin.y + image->bounds.size.height / 2 };
+    CGContextTranslateCTM(context, center.x, center.y);
+    CGContextRotateCTM(context, image->rotation * deg_to_rad);
+    CGContextTranslateCTM(context, -center.x, -center.y);
+  }
+
   if (image->shadow.enabled) {
     CGContextSaveGState(context);
     CGRect sbounds = shadow_get_bounds(&image->shadow, image->bounds);
@@ -270,17 +287,21 @@ void image_draw(struct image* image, CGContextRef context) {
     CGContextDrawPath(context, kCGPathFillStroke);
     CFRelease(path);
     CGContextRestoreGState(context);
-  } 
+  }
 
   CGContextSaveGState(context);
-  if (image->bounds.size.height > 2*image->corner_radius
-      && image->bounds.size.width > 2*image->corner_radius) {
+  float corner_radius = image->corner_radius;
+  if (corner_radius > image->bounds.size.height / 2.f || corner_radius > image->bounds.size.width / 2.f)
+    corner_radius = image->bounds.size.height > image->bounds.size.width ? image->bounds.size.width / 2.f : image->bounds.size.height / 2.f;
+
+  if (image->bounds.size.height >= 2*corner_radius
+      && image->bounds.size.width >= 2*corner_radius) {
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathAddRoundedRect(path,
                          NULL,
                          image->bounds,
-                         image->corner_radius,
-                         image->corner_radius);
+                         corner_radius,
+                         corner_radius);
 
     CGContextAddPath(context, path);
     CGContextClip(context);
@@ -291,8 +312,8 @@ void image_draw(struct image* image, CGContextRef context) {
                      image->bounds,
                      image->link ? image->link->image_ref : image->image_ref);
 
-  if (image->bounds.size.height > 2*image->corner_radius
-      && image->bounds.size.width > 2*image->corner_radius) {
+  if (image->bounds.size.height >= 2*corner_radius
+      && image->bounds.size.width >= 2*corner_radius) {
     CGContextSetLineWidth(context, 2*image->border_width);
     CGContextSetRGBStrokeColor(context,
                                image->border_color.r,
@@ -305,13 +326,14 @@ void image_draw(struct image* image, CGContextRef context) {
     CGPathAddRoundedRect(path,
                          NULL,
                          image->bounds,
-                         image->corner_radius,
-                         image->corner_radius);
+                         corner_radius,
+                         corner_radius);
 
     CGContextAddPath(context, path);
     CGContextDrawPath(context, kCGPathFillStroke);
     CFRelease(path);
   }
+  CGContextRestoreGState(context);
   CGContextRestoreGState(context);
 }
 
@@ -331,10 +353,12 @@ void image_destroy(struct image* image) {
 void image_serialize(struct image* image, char* indent, FILE* rsp) {
   fprintf(rsp, "%s\"value\": \"%s\",\n"
                "%s\"drawing\": \"%s\",\n"
-               "%s\"scale\": %f",
+               "%s\"scale\": %f,\n"
+               "%s\"rotation\": %f",
                indent, image->path,
                indent, format_bool(image->enabled),
-               indent, image->scale                );
+               indent, image->scale,
+               indent, image->rotation             );
 }
 
 bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token property, char* message) {
@@ -351,6 +375,12 @@ bool image_parse_sub_domain(struct image* image, FILE* rsp, struct token propert
     ANIMATE_FLOAT(image_set_scale,
                   image,
                   image->scale,
+                  token_to_float(get_token(&message)));
+  }
+  else if (token_equals(property, PROPERTY_ROTATION)) {
+    ANIMATE_FLOAT(image_set_rotation,
+                  image,
+                  image->rotation,
                   token_to_float(get_token(&message)));
   }
   else if (token_equals(property, PROPERTY_CORNER_RADIUS)) {
