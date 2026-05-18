@@ -270,17 +270,21 @@ void image_draw(struct image* image, CGContextRef context) {
     CGContextDrawPath(context, kCGPathFillStroke);
     CFRelease(path);
     CGContextRestoreGState(context);
-  } 
+  }
 
   CGContextSaveGState(context);
-  if (image->bounds.size.height > 2*image->corner_radius
-      && image->bounds.size.width > 2*image->corner_radius) {
+  float corner_radius = image->corner_radius;
+  if (corner_radius > image->bounds.size.height / 2.f || corner_radius > image->bounds.size.width / 2.f)
+    corner_radius = image->bounds.size.height > image->bounds.size.width ? image->bounds.size.width / 2.f : image->bounds.size.height / 2.f;
+
+  if (image->bounds.size.height >= 2*corner_radius
+      && image->bounds.size.width >= 2*corner_radius) {
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathAddRoundedRect(path,
                          NULL,
                          image->bounds,
-                         image->corner_radius,
-                         image->corner_radius);
+                         corner_radius,
+                         corner_radius);
 
     CGContextAddPath(context, path);
     CGContextClip(context);
@@ -291,8 +295,8 @@ void image_draw(struct image* image, CGContextRef context) {
                      image->bounds,
                      image->link ? image->link->image_ref : image->image_ref);
 
-  if (image->bounds.size.height > 2*image->corner_radius
-      && image->bounds.size.width > 2*image->corner_radius) {
+  if (image->bounds.size.height >= 2*corner_radius
+      && image->bounds.size.width >= 2*corner_radius) {
     CGContextSetLineWidth(context, 2*image->border_width);
     CGContextSetRGBStrokeColor(context,
                                image->border_color.r,
@@ -305,8 +309,8 @@ void image_draw(struct image* image, CGContextRef context) {
     CGPathAddRoundedRect(path,
                          NULL,
                          image->bounds,
-                         image->corner_radius,
-                         image->corner_radius);
+                         corner_radius,
+                         corner_radius);
 
     CGContextAddPath(context, path);
     CGContextDrawPath(context, kCGPathFillStroke);
