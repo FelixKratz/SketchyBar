@@ -8,6 +8,7 @@ struct image {
   bool enabled;
 
   float scale;
+  float rotation;
   CGSize size;
   CGRect bounds;
   
@@ -35,6 +36,7 @@ void image_copy(struct image* image, CGImageRef source);
 bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced);
 bool image_load(struct image* image, char* path, FILE* rsp);
 bool image_set_scale(struct image* image, float scale);
+bool image_set_rotation(struct image* image, float rotation);
 
 CGSize image_get_size(struct image* image);
 void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y);
