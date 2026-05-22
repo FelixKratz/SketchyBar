@@ -3,6 +3,7 @@
 #include "alias.h"
 #include "custom_events.h"
 #include "graph.h"
+#include "ring.h"
 #include "group.h"
 #include "misc/env_vars.h"
 #include "misc/helpers.h"
@@ -12,6 +13,7 @@
 
 #define BAR_ITEM             'i'
 #define BAR_COMPONENT_GRAPH  'g'
+#define BAR_COMPONENT_RING   'r'
 #define BAR_COMPONENT_SPACE  's'
 #define BAR_COMPONENT_ALIAS  'a'
 #define BAR_COMPONENT_GROUP  'b'
@@ -69,6 +71,10 @@ struct bar_item {
   // Graph Data
   bool has_graph;
   struct graph graph;
+
+  // Ring Data
+  bool has_ring;
+  struct ring ring;
 
   // Alias Data
   bool has_alias;
@@ -136,7 +142,7 @@ void* draw_item_proc(void* context);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar);
 void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar);
-bool bar_item_clips_bar(struct bar_item* bar_item);
+bool bar_item_clips_bar(struct bar_item* bar_item, struct bar* bar);
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid);
 
