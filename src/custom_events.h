@@ -19,6 +19,7 @@
 #define UPDATE_WIFI_CHANGE          (1ULL << 15)
 #define UPDATE_MEDIA_CHANGE         (1ULL << 16)
 #define UPDATE_SPACE_WINDOWS_CHANGE (1ULL << 17)
+#define UPDATE_BATTERY_CHANGE       (1ULL << 18)
 
 extern void* g_workspace_context;
 extern void workspace_create_custom_observer(void** context, char* name);
