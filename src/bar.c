@@ -116,7 +116,7 @@ static void bar_check_for_clip_updates(struct bar* bar) {
       struct bar_item* bar_item = g_bar_manager.bar_items[i];
       struct window* window = bar_item_get_window(bar_item, bar->adid);
 
-      bool clips_bar = bar_item_clips_bar(bar_item);
+      bool clips_bar = bar_item_clips_bar(bar_item, bar);
       if (!clips_bar || (!bar_draws_item(bar, bar_item))) {
 
         if (clips_bar && !CGPointEqualToPoint(window->origin, g_nirvana)) {

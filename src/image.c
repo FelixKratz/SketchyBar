@@ -95,10 +95,15 @@ bool image_load(struct image* image, char* path, FILE* rsp) {
     }
   }
   else if (strlen(res_path) == 0) {
+    bool changed = image->enabled
+                   || image->image_ref
+                   || image->data_ref
+                   || image->link
+                   || !CGRectIsNull(image->bounds);
     image_destroy(image);
     free(res_path);
     free(app);
-    return false;
+    return changed;
   } else {
     respond(rsp, "[!] Image: File '%s' not found\n", res_path);
     free(res_path);
@@ -146,11 +151,20 @@ void image_copy(struct image* image, CGImageRef source) {
 
 bool image_set_image(struct image* image, CGImageRef new_image_ref, CGRect bounds, bool forced) {
   if (!new_image_ref) {
+    bool changed = image->enabled
+                   || image->image_ref
+                   || image->data_ref
+                   || image->link
+                   || !CGRectIsNull(image->bounds);
     if (image->image_ref) CGImageRelease(image->image_ref);
     if (image->data_ref) CFRelease(image->data_ref);
     image->image_ref = NULL;
     image->data_ref = NULL;
-    return false;
+    image->link = NULL;
+    image->enabled = false;
+    image->size = CGSizeZero;
+    image->bounds = CGRectNull;
+    return changed;
   }
   if (image->link) image_set_link(image, NULL);
   CFDataRef new_data_ref = CGDataProviderCopyData(CGImageGetDataProvider(new_image_ref));
@@ -234,7 +248,7 @@ CGSize image_get_size(struct image* image) {
                              + 2*abs(image->y_offset) };
 }
 
-void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y) {
+void image_calculate_bounds(struct image* image, CGFloat x, CGFloat y) {
   if (image->link && image->link->image_ref) {
     float internal_scale = 32.f / CGImageGetHeight(image->link->image_ref);
     CGRect bounds = (CGRect){{0,0},
@@ -267,7 +281,7 @@ void image_draw(struct image* image, CGContextRef context) {
                          image->corner_radius);
 
     CGContextAddPath(context, path);
-    CGContextDrawPath(context, kCGPathFillStroke);
+    CGContextDrawPath(context, kCGPathFill);
     CFRelease(path);
     CGContextRestoreGState(context);
   } 
@@ -322,10 +336,14 @@ void image_clear_pointers(struct image* image) {
 }
 
 void image_destroy(struct image* image) {
-  CGImageRelease(image->image_ref);
+  if (image->image_ref) CGImageRelease(image->image_ref);
   if (image->data_ref) CFRelease(image->data_ref);
   if (image->path) free(image->path);
   image_clear_pointers(image);
+  image->link = NULL;
+  image->enabled = false;
+  image->size = CGSizeZero;
+  image->bounds = CGRectNull;
 }
 
 void image_serialize(struct image* image, char* indent, FILE* rsp) {
