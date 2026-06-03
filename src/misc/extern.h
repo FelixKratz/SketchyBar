@@ -46,8 +46,8 @@ extern CFTypeRef SLSTransactionCreate(int cid);
 extern CGError SLSTransactionOrderWindow(CFTypeRef transaction, uint32_t wid, int mode, uint32_t relativeToWID);
 extern CGError SLSTransactionSetWindowLevel(CFTypeRef transaction, uint32_t wid, int level);
 extern CGError SLSTransactionSetWindowShape(CFTypeRef transaction, uint32_t wid, float x_offset, float y_offset, CFTypeRef shape);
+extern CGError SLSTransactionSetSurfaceBounds(CFTypeRef transaction, uint32_t wid, uint32_t sid, CGRect bounds);
 extern CGError SLSTransactionMoveWindowWithGroup(CFTypeRef transaction, uint32_t wid, CGPoint point);
-extern CGError SLSTransactionCommitUsingMethod(CFTypeRef transaction, uint32_t method);
 extern CGError SLSTransactionCommit(CFTypeRef transaction, uint32_t async);
 
 extern CFTypeRef CGRegionCreateEmptyRegion(void);

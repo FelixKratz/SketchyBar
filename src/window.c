@@ -1,21 +1,27 @@
 #include "window.h"
 #include "bar_manager.h"
 #include "misc/helpers.h"
+#include "surface.h"
+#include "layer.h"
+#include <pthread.h>
 
 extern struct bar_manager g_bar_manager;
 extern int64_t g_disable_capture;
+extern CGError (* SBSLSTransactionAddPostDecodeAction)(CFTypeRef, void (^)());
+
 int g_space = 0;
 
 void window_init(struct window* window) {
   window->context = NULL;
+  window->surface = NULL;
   window->parent = NULL;
   window->frame = CGRectNull;
   window->id = 0;
   window->origin = CGPointZero;
-  window->surface_id = 0;
   window->needs_move = false;
   window->needs_resize = false;
   window->order_mode = W_ABOVE;
+  window->refc = 1;
 }
 
 static CFTypeRef window_create_region(struct window* window, CGRect frame) {
@@ -24,7 +30,27 @@ static CFTypeRef window_create_region(struct window* window, CGRect frame) {
   return frame_region;
 }
 
-void window_create(struct window* window, CGRect frame) {
+struct window* window_create() {
+  struct window* window = malloc(sizeof(struct window));
+  memset(window, 0, sizeof(struct window));
+  window_init(window);
+  return window;
+}
+
+void window_destroy(struct window* window) {
+  if (--window->refc > 0) return;
+  window_close(window);
+  free(window);
+}
+
+static void window_clear_background(struct window* window) {
+  if (window->context) {
+    CGContextClearRect(window->context, window->frame);
+    CGContextFlush(window->context);
+  }
+}
+
+void window_open(struct window* window, CGRect frame) {
   uint64_t set_tags = kCGSExposeFadeTagBit | kCGSPreventsActivationTagBit;
   uint64_t clear_tags = 0;
 
@@ -58,8 +84,10 @@ void window_create(struct window* window, CGRect frame) {
   SLSSetWindowOpacity(g_connection, window->id, 0);
 
   window->context = SLWindowContextCreate(g_connection, window->id, NULL);
+  window_clear_background(window);
 
   CGContextSetInterpolationQuality(window->context, kCGInterpolationNone);
+  window->surface = surface_create(window);
   window->needs_move = false;
   window->needs_resize = false;
 
@@ -93,31 +121,37 @@ void window_create(struct window* window, CGRect frame) {
 
 void window_clear(struct window* window) {
   window->context = NULL;
+  window->surface = NULL;
   window->parent = NULL;
   window->id = 0;
   window->origin = CGPointZero;
   window->frame = CGRectNull;
   window->needs_move = false;
   window->needs_resize = false;
+  window->refc = 1;
 }
 
 void window_flush(struct window* window) {
-  SLSFlushWindowContentRegion(g_connection, window->id, NULL);
+  surface_flush(window->surface);
 }
 
 void windows_freeze() {
   if (g_transaction) return;
 
-  SLSDisableUpdate(g_connection);
+  if (__builtin_available(macOS 26.0, *)) { }
+  else SLSDisableUpdate(g_connection);
+
   g_transaction = SLSTransactionCreate(g_connection);
 }
 
 void windows_unfreeze() {
   if (g_transaction) {
-    SLSTransactionCommit(g_transaction, 0);
+    SLSTransactionCommit(g_transaction, 0x0);
     CFRelease(g_transaction);
     g_transaction = NULL;
-    SLSReenableUpdate(g_connection);
+
+    if (__builtin_available(macOS 26.0, *)) { }
+    else SLSReenableUpdate(g_connection);
   }
 }
 
@@ -155,18 +189,40 @@ void window_move(struct window* window, CGPoint point) {
     CFRelease(array);
     CFRelease(number);
   }
+
+}
+
+static void window_defer_update(struct window* window) {
+  void (^block)() = ^{
+    if (!window->surface) return;
+    if (--window->refc <= 0) window_destroy(window);
+    else {
+      layer_set_bounds(window->surface->layer, window->frame);
+      window_flush(window);
+    }
+  };
+
+  if (pthread_main_np()) dispatch_async(dispatch_get_main_queue(), block);
+  else dispatch_sync(dispatch_get_main_queue(), block);
 }
 
 bool window_apply_frame(struct window* window, bool forced) {
-  windows_freeze();
   if (window->needs_resize || forced) {
+    windows_freeze();
     CFTypeRef frame_region = window_create_region(window, window->frame);
+    window->refc++;
 
     if (__builtin_available(macOS 26.0, *)) {
-      SLSSetWindowShape(g_connection, window->id,
-                                      window->origin.x,
-                                      window->origin.y,
-                                      frame_region);
+      SLSTransactionSetWindowShape(g_transaction, window->id,
+                                                  window->origin.x,
+                                                  window->origin.y,
+                                                  frame_region);
+      window_move(window, window->origin);
+      if (SBSLSTransactionAddPostDecodeAction) {
+        SBSLSTransactionAddPostDecodeAction(g_transaction, ^{
+          window_defer_update(window);
+        });
+      } else window_defer_update(window);
     }
     else if (__builtin_available(macOS 13.0, *)) {
       // Ventura and later
@@ -174,7 +230,9 @@ bool window_apply_frame(struct window* window, bool forced) {
                                       g_nirvana.x,
                                       g_nirvana.y,
                                       frame_region);
+      window_clear_background(window);
       window_move(window, window->origin);
+      window_defer_update(window);
     } else {
       // Monterey and previous
       if (window->parent) {
@@ -182,15 +240,16 @@ bool window_apply_frame(struct window* window, bool forced) {
       }
 
       SLSSetWindowShape(g_connection, window->id, 0, 0, frame_region);
+      window_clear_background(window);
 
       if (window->parent) {
-        CGContextClearRect(window->context, window->frame);
-        CGContextFlush(window->context);
         window_order(window, window->parent, window->order_mode);
       }
       window_move(window, window->origin);
+      window_defer_update(window);
     }
 
+    surface_resize(window->surface, window);
     CFRelease(frame_region);
 
     window->needs_move = false;
@@ -219,18 +278,16 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
 
 void window_close(struct window* window) {
   if (!window->id) return;
-  windows_unfreeze();
 
   SLSOrderWindow(g_connection, window->id, 0, 0);
-  CGContextRelease(window->context);
+  surface_destroy(window->surface);
+  if (window->context) CGContextRelease(window->context);
   SLSReleaseWindow(g_connection, window->id);
-
   window_clear(window);
 }
 
 void window_set_level(struct window* window, uint32_t level) {
   windows_freeze();
-
   if (__builtin_available(macOS 14.0, *)) {
     // Sonoma and later
     SLSTransactionSetWindowLevel(g_transaction, window->id, level);
@@ -264,10 +321,7 @@ void window_assign_mouse_tracking_area(struct window* window, CGRect rect) {
 
 void window_set_blur_radius(struct window* window, uint32_t blur_radius) {
   SLSSetWindowBackgroundBlurRadius(g_connection, window->id, blur_radius);
-}
-
-void context_set_font_smoothing(CGContextRef context, bool smoothing) {
-  CGContextSetAllowsFontSmoothing(context, smoothing);
+  if (window->context) window_clear_background(window);
 }
 
 void window_disable_shadow(struct window* window) {

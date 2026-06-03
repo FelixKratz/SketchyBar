@@ -5,6 +5,7 @@
 #include "power.h"
 #include "media.h"
 #include "app_windows.h"
+#include "window.h"
 
 struct bar_item* bar_item_create() {
   struct bar_item* bar_item = malloc(sizeof(struct bar_item));
@@ -552,19 +553,17 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
   }
 
   if (!bar_item->windows[adid - 1]) {
-    bar_item->windows[adid - 1] = malloc(sizeof(struct window));
-    window_init(bar_item->windows[adid - 1]);
-    window_create(bar_item->windows[adid - 1],
-                  (CGRect){{g_nirvana.x,g_nirvana.y}, {1, 1}});
-    if (!bar_item->shadow) window_disable_shadow(bar_item->windows[adid - 1]);
-    window_set_blur_radius(bar_item->windows[adid - 1], bar_item->blur_radius);
-    context_set_font_smoothing(bar_item->windows[adid - 1]->context,
-                               g_bar_manager.font_smoothing         );
+    struct window* window = window_create();
+    window_open(window, (CGRect){{g_nirvana.x, g_nirvana.y}, {1, 1}});
+    if (!bar_item->shadow) window_disable_shadow(window);
+    window_set_blur_radius(window, bar_item->blur_radius);
     
     if (bar_item->parent)
       bar_item->parent->popup.needs_ordering = true;
     else
       g_bar_manager.needs_ordering = true;
+
+    bar_item->windows[adid - 1] = window;
   }
 
   return bar_item->windows[adid - 1];
@@ -572,8 +571,7 @@ struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
 
 void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid) {
   if (bar_item->num_windows >= adid && bar_item->windows[adid - 1]) {
-    window_close(bar_item->windows[adid - 1]);
-    free(bar_item->windows[adid - 1]);
+    window_destroy(bar_item->windows[adid - 1]);
     bar_item->windows[adid - 1] = NULL;
   }
 }
@@ -714,16 +712,6 @@ void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
   background_clip_bar(&bar_item->background, offset, bar);
   background_clip_bar(&bar_item->icon.background, offset, bar);
   background_clip_bar(&bar_item->label.background, offset, bar);
-}
-
-void* draw_item_proc(void* context) {
-  struct { struct window* window; struct bar_item bar_item; }* info = context;
-  CGContextClearRect(info->window->context, info->window->frame);
-  bar_item_draw(&info->bar_item, info->window->context);
-  CGContextFlush(info->window->context);
-  window_flush(info->window);
-  free(context);
-  return NULL;
 }
 
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {

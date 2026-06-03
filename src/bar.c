@@ -5,16 +5,6 @@
 #include "misc/helpers.h"
 #include "window.h"
 
-#define MAX_RENDER_THREADS 10
-static pthread_t g_render_threads[MAX_RENDER_THREADS];
-static uint32_t g_used_threads = 0;
-
-void join_render_threads() {
-  for (int i = 0; i < g_used_threads; i++)
-    pthread_join(g_render_threads[i], NULL);
-  g_used_threads = 0;
-}
-
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
 
@@ -147,7 +137,7 @@ static void bar_check_for_clip_updates(struct bar* bar) {
   }
 }
 
-void bar_draw(struct bar* bar, bool forced, bool threaded) {
+void bar_draw(struct bar* bar, bool forced) {
   if (bar->sid < 1 || bar->adid < 1) return;
 
   if (g_bar_manager.might_need_clipping)
@@ -159,9 +149,8 @@ void bar_draw(struct bar* bar, bool forced, bool threaded) {
     background.bounds.origin.y -= background.y_offset;
     background.shadow.enabled = false;
     background.enabled = true;
-    windows_freeze();
-    CGContextClearRect(bar->window.context, bar->window.frame);
-    background_draw(&background, bar->window.context);
+    CGContextClearRect(bar->window.surface->context, bar->window.frame);
+    background_draw(&background, bar->window.surface->context);
   }
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -188,39 +177,22 @@ void bar_draw(struct bar* bar, bool forced, bool threaded) {
                         bar                                     );
     }
 
-    if (!window_apply_frame(window, forced) && !bar_item->needs_update)
-      continue;
+    bool resized = window_apply_frame(window, forced);
+    if (!resized && !bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
         || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
       window_assign_mouse_tracking_area(window, window->frame);
     }
 
-    windows_freeze();
-    if (threaded && g_used_threads < MAX_RENDER_THREADS) {
-      uint32_t thread_id = g_used_threads++;
-      struct draw_item_payload {
-        struct window* window;
-        struct bar_item bar_item;
-      }* context = malloc(sizeof(struct draw_item_payload));
-      // We need to perform a shallow copy of the item here because
-      // the cached bounds will be invalidated when drawing the next bar.
-      context->bar_item = *bar_item;
-      context->window = window;
-      pthread_create(&g_render_threads[thread_id],
-                     NULL,
-                     draw_item_proc,
-                     context        );
-    } else {
-      CGContextClearRect(window->context, window->frame);
-      bar_item_draw(bar_item, window->context);
-      CGContextFlush(window->context);
-      window_flush(window);
-    }
+    CGContextClearRect(window->surface->context, window->frame);
+    bar_item_draw(bar_item, window->surface->context);
+    CGContextFlush(window->surface->context);
+    if (!resized) window_flush(window);
   }
 
   if (g_bar_manager.bar_needs_update) {
-    CGContextFlush(bar->window.context);
+    CGContextFlush(bar->window.surface->context);
     window_flush(&bar->window);
   }
 }
@@ -543,12 +515,10 @@ void bar_set_hidden(struct bar* bar, bool hidden) {
 
 static void bar_create_window(struct bar* bar) {
   window_init(&bar->window);
-  window_create(&bar->window, bar_get_frame(bar));
+  window_open(&bar->window, bar_get_frame(bar));
   window_assign_mouse_tracking_area(&bar->window, bar->window.frame);
   window_set_blur_radius(&bar->window, g_bar_manager.blur_radius);
   if (!g_bar_manager.shadow) window_disable_shadow(&bar->window);
-
-  context_set_font_smoothing(bar->window.context, g_bar_manager.font_smoothing);
 }
 
 void bar_change_space(struct bar* bar, uint64_t dsid) {

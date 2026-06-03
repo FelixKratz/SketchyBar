@@ -162,7 +162,7 @@ void background_clip_bar(struct background* background, int offset, struct bar* 
   background_bounds.origin.x += offset + background->x_offset;
   background_bounds.origin.y += background->y_offset;
 
-  clip_rect(bar->window.context,
+  clip_rect(bar->window.surface->context,
             background_bounds,
             background->clip,
             background->corner_radius);

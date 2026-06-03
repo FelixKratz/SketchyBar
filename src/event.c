@@ -46,7 +46,7 @@ static void event_display_resized(void* context) {
 static void event_menu_bar_hidden_changed(void* context) {
   bar_manager_resize(&g_bar_manager);
   g_bar_manager.bar_needs_update = true;
-  bar_manager_refresh(&g_bar_manager, false, false);
+  bar_manager_refresh(&g_bar_manager, false);
 }
 
 static void event_system_woke(void* context) {
@@ -102,7 +102,7 @@ static void event_mouse_up(void* context) {
                     point_in_window_coords);
 
   if (bar_item && bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false, false);
+    bar_manager_refresh(&g_bar_manager, false);
 }
 
 static void event_mouse_dragged(void* context) {
@@ -125,7 +125,7 @@ static void event_mouse_dragged(void* context) {
   bar_item_on_drag(bar_item, point_in_window_coords);
 
   if (bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false, false);
+    bar_manager_refresh(&g_bar_manager, false);
 }
 
 static void event_mouse_entered(void* context) {
@@ -302,7 +302,7 @@ static void event_mouse_scrolled(void* context) {
                      modifier_keys                        );
 
   if (bar_item && bar_item->needs_update)
-    bar_manager_refresh(&g_bar_manager, false, false);
+    bar_manager_refresh(&g_bar_manager, false);
 
   g_scroll_info.delta_y = 0;
 }
@@ -374,40 +374,19 @@ static callback_type* event_handler[] = {
   [SPACE_WINDOWS_CHANGED]      = event_space_windows_changed,
 };
 
-void event_post(struct event *event) {
-  if (event->type == EVENT_TYPE_UNKNOWN) return;
 
-  static bool initialized = false;
-  static pthread_mutex_t event_mutex;
-
-  if (!initialized && event->type == INIT_MUTEX) {
-    pthread_mutexattr_t mattr;
-    pthread_mutexattr_init(&mattr);
-    pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&event_mutex, &mattr);
-    initialized = true;
-    return;
-  } else if (event->type == INIT_MUTEX) {
-    error("Trying to reinitialize the event mutex! abort..\n");
-  } else if (!initialized) error("The event mutex is not ready! abort..\n");
-
-  if (event->type == ANIMATOR_REFRESH) {
-    // We try to lock the mutex up to 1ms and then concede (skip the frame) to
-    // avoid deadlocking occuring due to the CVDisplayLink.
-    int locked;
-    for (int i = 0; i < 10; i++) {
-      if ((locked = pthread_mutex_trylock(&event_mutex)) == 0) break;
-      usleep(100);
-    }
-    if (locked != 0) return;
-  } else {
-    pthread_mutex_lock(&event_mutex);
-    if (g_space_management_mode != 1) {
-      bar_manager_poll_active_display(&g_bar_manager);
-    }
+void event_execute(struct event* event) {
+  if (g_space_management_mode != 1) {
+    bar_manager_poll_active_display(&g_bar_manager);
   }
-
   event_handler[event->type](event->context);
   windows_unfreeze();
-  pthread_mutex_unlock(&event_mutex);
+}
+
+void event_post(struct event* event) {
+  if (event->type == EVENT_TYPE_UNKNOWN) return;
+
+  if (pthread_main_np() == 0) {
+    dispatch_sync(dispatch_get_main_queue(), ^{ event_execute(event); });
+  } else event_execute(event); 
 }

@@ -235,19 +235,11 @@ static void popup_create_window(struct popup* popup) {
 
   if (popup == &g_bar_manager.default_item.popup) return;
 
-  window_create(&popup->window,(CGRect){{popup->anchor.x, popup->anchor.y},
+  window_open(&popup->window,(CGRect){{popup->anchor.x, popup->anchor.y},
                                       {popup->background.bounds.size.width,
                                        popup->background.bounds.size.height}});
 
-  if (!popup->background.shadow.enabled)
-    window_disable_shadow(&popup->window);
-
-  CGContextSetInterpolationQuality(popup->window.context,
-                                   kCGInterpolationNone);
-
-  context_set_font_smoothing(popup->window.context,
-                             g_bar_manager.font_smoothing);
-
+  window_disable_shadow(&popup->window);
   window_set_blur_radius(&popup->window, popup->blur_radius);
   popup->needs_ordering = true;
 }
@@ -341,16 +333,16 @@ void popup_draw(struct popup* popup) {
   if (!window_apply_frame(&popup->window, false) && !popup->host->needs_update)
     return;
 
-  CGContextClearRect(popup->window.context, popup->background.bounds);
+  CGContextClearRect(popup->window.surface->context, popup->background.bounds);
 
   window_assign_mouse_tracking_area(&popup->window, popup->window.frame);
 
   bool shadow = popup->background.shadow.enabled;
   popup->background.shadow.enabled = false;
-  background_draw(&popup->background, popup->window.context);
+  background_draw(&popup->background, popup->window.surface->context);
   popup->background.shadow.enabled = shadow;
 
-  CGContextFlush(popup->window.context);
+  CGContextFlush(popup->window.surface->context);
   window_flush(&popup->window);
 
   if (popup->needs_ordering) {

@@ -10,6 +10,7 @@
 #include "media.h"
 #include "hotload.h"
 #include <libgen.h>
+#include <dlfcn.h>
 
 #define LCFILE_PATH_FMT  "/tmp/%s_%s.lock"
 
@@ -37,6 +38,8 @@ extern CGError SLSRegisterNotifyProc(void* callback, uint32_t event, void* conte
 extern int SLSGetSpaceManagementMode(int cid);
 extern int SLSMainConnectionID(void);
 extern int RunApplicationEventLoop(void);
+
+CGError (* SBSLSTransactionAddPostDecodeAction)(CFTypeRef, void (^)()) = NULL;
 
 int g_connection;
 CFTypeRef g_transaction;
@@ -146,6 +149,15 @@ static inline void init_misc_settings(void) {
 }
 #pragma clang diagnostic pop
 
+static void load_symbols() {
+  if (__builtin_available(macOS 26.0, *)) {
+    void* lib = dlopen("/System/Library/PrivateFrameworks/SkyLight.framework/SkyLight", RTLD_LAZY | RTLD_LOCAL);
+    if (lib) {
+      SBSLSTransactionAddPostDecodeAction = dlsym(lib, "SLSTransactionAddPostDecodeAction");
+    }
+  }
+}
+
 static void parse_arguments(int argc, char **argv) {
   if ((string_equals(argv[1], VERSION_OPT_LONG))
       || (string_equals(argv[1], VERSION_OPT_SHRT))) {
@@ -199,6 +211,7 @@ int main(int argc, char **argv) {
 
   pid_for_task(mach_task_self(), &g_pid);
   init_misc_settings();
+  load_symbols();
   acquire_lockfile();
 
   SLSRegisterNotifyProc((void*)system_events, 904, NULL);
@@ -211,9 +224,6 @@ int main(int argc, char **argv) {
     SLSRegisterNotifyProc((void*)space_events, 1327, NULL);
     SLSRegisterNotifyProc((void*)space_events, 1328, NULL);
   }
-
-  struct event init = { NULL, INIT_MUTEX };
-  event_post(&init);
 
   workspace_event_handler_init(&g_workspace_context);
   bar_manager_init(&g_bar_manager);

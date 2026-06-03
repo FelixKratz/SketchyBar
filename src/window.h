@@ -1,5 +1,5 @@
 #pragma once
-#include "misc/helpers.h"
+#include "surface.h"
 
 #define kCGSExposeFadeTagBit         (1ULL <<  1)
 #define kCGSPreventsActivationTagBit (1ULL <<  16)
@@ -17,15 +17,19 @@ struct window {
   bool needs_resize;
 
   uint32_t id;
-  uint32_t surface_id;
+  int32_t refc;
 
   CGRect frame;
   CGPoint origin;
   CGContextRef context;
+  struct surface* surface;
 };
 
+struct window* window_create();
+void window_destroy(struct window* window);
+
 void window_init(struct window* window);
-void window_create(struct window* window, CGRect frame);
+void window_open(struct window* window, CGRect frame);
 void window_close(struct window* window);
 void window_clear(struct window* window);
 void window_flush(struct window* window);
@@ -42,8 +46,6 @@ void window_order(struct window* window, struct window* parent, int mode);
 void window_assign_mouse_tracking_area(struct window* window, CGRect rect);
 
 CGImageRef window_capture(struct window* window, bool* disabled);
-
-void context_set_font_smoothing(CGContextRef context, bool smoothing);
 
 void windows_freeze();
 void windows_unfreeze();
