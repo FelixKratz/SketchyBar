@@ -23,6 +23,10 @@ void custom_events_init(struct custom_events* custom_events) {
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_FRONT_APP_SWITCHED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SPACE_CHANGE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_CHANGE), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_RESIZED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_REMOVED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_MOVED), NULL);
+  custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_DISPLAY_ADDED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_SYSTEM_WOKE), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_ENTERED), NULL);
   custom_events_append(custom_events, string_copy(COMMAND_SUBSCRIBE_MOUSE_EXITED), NULL);
