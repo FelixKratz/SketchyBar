@@ -27,7 +27,7 @@
 #define HELP_OPT_SHRT    "-h"
 
 #define MAJOR 2
-#define MINOR 23
+#define MINOR 24
 #define PATCH 0
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
