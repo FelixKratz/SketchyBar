@@ -69,20 +69,26 @@ static void text_prepare_line(struct text* text) {
 
   text->line.line = CTLineCreateWithAttributedString(attr_string);
 
-  CTLineGetTypographicBounds(text->line.line,
-                             &text->line.ascent,
-                             &text->line.descent,
-                             NULL                );
+  double typographic_width = CTLineGetTypographicBounds(text->line.line,
+                                                        &text->line.ascent,
+                                                        &text->line.descent,
+                                                        NULL                );
 
   text->bounds = CTLineGetBoundsWithOptions(text->line.line,
                                             kCTLineBoundsUseGlyphPathBounds);
 
+  // extra 1px padding for width and height to prevent clipping
   text->bounds.size.width = (uint32_t) (text->bounds.size.width + 1.5);
   text->bounds.size.height = (uint32_t) (text->bounds.size.height + 1.5);
   text->bounds.origin.x = (int32_t) (text->bounds.origin.x + 0.5);
   text->bounds.origin.y = (int32_t) (text->bounds.origin.y + 0.5);
 
-  text->width = text->bounds.size.width;
+  // when typographical_width is enabled, we don't need the extra 1px padding
+  // to prevent clipping, as it already accounts for the full advance width
+  if (text->font.typographical_width)
+    text->width = (uint32_t) (typographic_width + 0.5);
+  else
+    text->width = text->bounds.size.width;
 
   CFRelease(string);
   CFRelease(attr_string);
@@ -122,6 +128,7 @@ void text_copy(struct text* text, struct text* source) {
   font_set_family(&text->font, string_copy(source->font.family), true);
   font_set_style(&text->font, string_copy(source->font.style), true);
   font_set_size(&text->font, source->font.size);
+  font_set_typographical_width(&text->font, source->font.typographical_width);
   text_set_string(text, string_copy(source->string), true);
 }
 
