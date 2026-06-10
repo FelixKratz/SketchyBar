@@ -6,6 +6,7 @@ struct font {
   CTFontRef ct_font;
 
   bool font_changed;
+  bool typographical_width;
   float size;
   char* family;
   char* style;
@@ -20,6 +21,7 @@ bool font_set(struct font* font, char* font_string, bool forced);
 bool font_set_size(struct font* font, float size);
 bool font_set_family(struct font* font, char* family, bool forced);
 bool font_set_style(struct font* font, char* style, bool forced);
+bool font_set_typographical_width(struct font* font, bool typographical_width);
 void font_create_ctfont(struct font* font);
 void font_clear_pointers(struct font* font);
 

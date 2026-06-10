@@ -156,6 +156,7 @@ void font_init(struct font* font) {
   font->size = 14.f;
   font->style = string_copy("Bold");
   font->family = string_copy("Hack Nerd Font");
+  font->typographical_width = false;
   font_create_ctfont(font);
 }
 
@@ -189,6 +190,15 @@ bool font_set_size(struct font* font, float size) {
   if (font->size == size) return false;
 
   font->size = size;
+  font->font_changed = true;
+
+  return true;
+}
+
+bool font_set_typographical_width(struct font* font, bool typographical_width) {
+  if (font->typographical_width == typographical_width) return false;
+
+  font->typographical_width = typographical_width;
   font->font_changed = true;
 
   return true;
@@ -259,6 +269,9 @@ bool font_parse_sub_domain(struct font* font, FILE* rsp, struct token property, 
   } else if (token_equals(property, PROPERTY_FONT_FEATURES)) {
     struct token token = get_token(&message);
     needs_refresh = font_set_features(font, token_to_string(token));
+  } else if (token_equals(property, PROPERTY_FONT_TYPOGRAPHICAL_WIDTH)) {
+    struct token token = get_token(&message);
+    needs_refresh = font_set_typographical_width(font, evaluate_boolean_state(token, font->typographical_width));
   } else {
     respond(rsp, "[!] Text: Invalid property '%s'\n", property.text);
   }
