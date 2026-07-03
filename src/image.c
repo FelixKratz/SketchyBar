@@ -287,9 +287,22 @@ void image_draw(struct image* image, CGContextRef context) {
     CFRelease(path);
   }
 
+  // App icons, space previews and media artwork arrive at native size and get
+  // scaled down, so they need smoothing; the context default is
+  // kCGInterpolationNone to keep pixel-exact icons crisp (window.c).
+  bool rescaled_source = (image->link != NULL)
+                         || (image->path
+                             && (strncmp(image->path, "app.", 4) == 0
+                                 || strncmp(image->path, "space.", 6) == 0));
+  if (rescaled_source)
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+
   CGContextDrawImage(context,
                      image->bounds,
                      image->link ? image->link->image_ref : image->image_ref);
+
+  if (rescaled_source)
+    CGContextSetInterpolationQuality(context, kCGInterpolationNone);
 
   if (image->bounds.size.height > 2*image->corner_radius
       && image->bounds.size.width > 2*image->corner_radius) {
