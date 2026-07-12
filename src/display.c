@@ -250,7 +250,7 @@ CGRect display_menu_bar_rect(uint32_t did) {
   SLSGetRevealedMenuBarBounds(&bounds, g_connection, display_space_id(did));
   #elif __arm64__
   int top_inset = display_nsscreen_top_inset(did);
-  if (top_inset >= 0) {
+  if (top_inset > 0) {
     bounds.size.height = top_inset;
   } else {
     int notch_height = workspace_display_notch_height(did);
