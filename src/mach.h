@@ -8,6 +8,12 @@
 
 #define MACH_BS_NAME_FMT "git.felix.%s"
 
+// If the receiver's port queue is full (e.g. a wedged daemon that stopped
+// draining messages), an untimed mach_msg send blocks forever. Clients
+// spawned per event (--trigger) would then pile up until the process table
+// is exhausted, so give up after this timeout instead.
+#define MACH_SEND_TIMEOUT_MS 5000
+
 struct mach_message {
   mach_msg_header_t header;
   mach_msg_size_t msgh_descriptor_count;
