@@ -63,6 +63,7 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
     if (mach_port_insert_right(task, response_port,
                                      response_port,
                                      MACH_MSG_TYPE_MAKE_SEND)!= KERN_SUCCESS) {
+      mach_port_mod_refs(task, response_port, MACH_PORT_RIGHT_RECEIVE, -1);
       return NULL;
     }
   }
@@ -93,13 +94,21 @@ char* mach_send_message(mach_port_t port, char* message, uint32_t len, bool awai
   msg.descriptor.deallocate = false;
   msg.descriptor.type = MACH_MSG_OOL_DESCRIPTOR;
 
-  mach_msg(&msg.header,
-           MACH_SEND_MSG,
-           sizeof(struct mach_message),
-           0,
-           MACH_PORT_NULL,
-           MACH_MSG_TIMEOUT_NONE,
-           MACH_PORT_NULL             );
+  mach_msg_return_t ret = mach_msg(&msg.header,
+                                   MACH_SEND_MSG | MACH_SEND_TIMEOUT,
+                                   sizeof(struct mach_message),
+                                   0,
+                                   MACH_PORT_NULL,
+                                   MACH_SEND_TIMEOUT_MS,
+                                   MACH_PORT_NULL                      );
+
+  if (ret != MACH_MSG_SUCCESS) {
+    if (await_response) {
+      mach_port_mod_refs(task, response_port, MACH_PORT_RIGHT_RECEIVE, -1);
+      mach_port_deallocate(task, response_port);
+    }
+    return NULL;
+  }
 
   if (await_response) {
     struct mach_buffer buffer = { 0 };

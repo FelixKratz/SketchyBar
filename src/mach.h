@@ -8,6 +8,9 @@
 
 #define MACH_BS_NAME_FMT "git.felix.%s"
 
+// Prevent a full Mach queue from blocking the event loop indefinitely.
+#define MACH_SEND_TIMEOUT_MS 100
+
 struct mach_message {
   mach_msg_header_t header;
   mach_msg_size_t msgh_descriptor_count;
