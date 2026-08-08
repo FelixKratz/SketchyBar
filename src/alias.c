@@ -131,6 +131,7 @@ struct menu_item_list get_menu_item_list() {
 
   menu_item_list.menu_item_count = item_count;
   menu_item_list_sort(&menu_item_list);
+  CFRelease(window_list);
   return menu_item_list;
 }
 
