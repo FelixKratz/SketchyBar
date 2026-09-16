@@ -68,6 +68,7 @@
 #define PROPERTY_DISTANCE                      "distance"
 #define PROPERTY_ANGLE                         "angle"
 #define PROPERTY_SCALE                         "scale"
+#define PROPERTY_ROTATION                      "rotation"
 #define PROPERTY_STRING                        "string"
 #define PROPERTY_SCROLL_TEXTS                  "scroll_texts"
 #define PROPERTY_SCROLL_DURATION               "scroll_duration"
