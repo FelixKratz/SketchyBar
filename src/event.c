@@ -69,6 +69,13 @@ static void event_mach_message(void* context) {
   handle_message_mach(context);
 }
 
+static void event_mouse_down(void* context) {
+  // macOS 27 raises the bar window above its items on click
+  uint32_t wid = get_wid_from_cg_event(context);
+  struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+  if (bar) bar_order_item_windows(bar);
+}
+
 static void event_mouse_up(void* context) {
   CGPoint point = CGEventGetLocation(context);
   uint32_t wid = get_wid_from_cg_event(context);
@@ -352,6 +359,7 @@ static callback_type* event_handler[] = {
   [DISPLAY_MOVED]              = event_display_moved,
   [DISPLAY_RESIZED]            = event_display_resized,
   [DISPLAY_CHANGED]            = event_display_changed,
+  [MOUSE_DOWN]                 = event_mouse_down,
   [MOUSE_UP]                   = event_mouse_up,
   [MOUSE_DRAGGED]              = event_mouse_dragged,
   [MOUSE_ENTERED]              = event_mouse_entered,

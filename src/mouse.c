@@ -2,6 +2,7 @@
 #include "mouse.h"
 
 static const EventTypeSpec mouse_events [] = {
+    { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseEntered },
@@ -11,6 +12,7 @@ static const EventTypeSpec mouse_events [] = {
 };
 
 static int carbon_event_translation[] = {
+  [kEventMouseDown] = MOUSE_DOWN,
   [kEventMouseUp] = MOUSE_UP,
   [kEventMouseDragged] = MOUSE_DRAGGED,
   [kEventMouseEntered] = MOUSE_ENTERED,
