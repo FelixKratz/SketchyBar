@@ -60,6 +60,12 @@ A list of properties available to the *set* command is listed below (components 
 | `label`                 | `<string>` |           | Label of the item                    |
 | `label.<text_property>` |            |           | Labels support all *text* properties |
 
+### Tooltip property
+
+| <property\> | <value\>   | default   | description                                                                 |
+| :-------:   | :------:   | :-------: | -----------                                                                 |
+| `tooltip`   | `<string>` |           | Text shown in a small window next to the item while the mouse hovers it (an empty string disables it) |
+
 ### Scripting properties
 
 | <property\>    | <value\>                  | default   | description                                                                                                                            |
