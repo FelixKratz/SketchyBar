@@ -181,7 +181,8 @@ void bar_draw(struct bar* bar, bool forced) {
     if (!resized && !bar_item->needs_update) continue;
 
     if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
-        || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
+        || bar_item->update_mask & UPDATE_MOUSE_EXITED
+        || bar_item->tooltip) {
       window_assign_mouse_tracking_area(window, window->frame);
     }
 

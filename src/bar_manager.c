@@ -61,6 +61,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   custom_events_init(&bar_manager->custom_events);
 
   animator_init(&bar_manager->animator);
+  tooltip_init(&bar_manager->tooltip);
 
   int shell_refresh_frequency = 1;
 
@@ -837,9 +838,9 @@ void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, i
   env_vars_destroy(&env_vars);
 }
 
-void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item) {
+void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item, struct window* window) {
   if (!bar_item) return;
-  bar_item_mouse_entered(bar_item);
+  bar_item_mouse_entered(bar_item, window);
 }
 
 void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item) {
