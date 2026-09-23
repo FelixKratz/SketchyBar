@@ -103,6 +103,10 @@ static void event_mouse_up(void* context) {
 
   if (bar_item && bar_item->needs_update)
     bar_manager_refresh(&g_bar_manager, false);
+
+  // macOS raises the clicked window. Empty bar chrome is the bar window, so
+  // restore item windows above it after the click.
+  if (bar) bar_order_item_windows(bar);
 }
 
 static void event_mouse_dragged(void* context) {
