@@ -13,6 +13,7 @@ void popup_init(struct popup* popup, struct bar_item* host) {
   popup->anchor = (CGPoint){0, 0};
   popup->y_offset = 0;
   popup->adid = 0;
+  popup->target_adid = 0;
   popup->align = POSITION_LEFT;
   popup->blur_radius = 0;
   popup->topmost = true;
@@ -72,7 +73,7 @@ static void popup_order_windows(struct popup* popup) {
 }
 
 static void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item, struct bar* bar) {
-  if (popup->adid != g_bar_manager.active_adid) return;
+  if (popup->adid != bar->adid) return;
   struct window* window = bar_item_get_window(bar_item, popup->adid);
 
   if (!bar_item->popup.overrides_cell_size)
@@ -309,18 +310,46 @@ void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {
   popup->adid = adid;
 }
 
+void popup_set_target_adid(struct popup* popup, uint32_t adid) {
+  if (popup->target_adid == adid) return;
+
+  popup->target_adid = adid;
+  if (!popup->drawing) return;
+
+  popup->needs_ordering = true;
+  if (popup->host) bar_item_needs_update(popup->host);
+
+  for (int i = 0; i < popup->num_items; i++) {
+    bar_item_needs_update(popup->items[i]);
+  }
+}
+
+uint32_t popup_get_target_adid(struct popup* popup) {
+  if (popup->target_adid > 0) return popup->target_adid;
+
+  if (popup->host && popup->host->parent) {
+    return popup_get_target_adid(&popup->host->parent->popup);
+  }
+
+  return g_bar_manager.active_adid;
+}
+
 void popup_clear_pointers(struct popup* popup) {
   popup->items = NULL;
   popup->num_items = 0;
   popup->host = NULL;
+  popup->target_adid = 0;
   window_clear(&popup->window);
 }
 
 bool popup_set_drawing(struct popup* popup, bool drawing) {
   if (popup->drawing == drawing) return false;
-  if (!drawing) popup_close_window(popup);
+  if (!drawing) {
+    popup_close_window(popup);
+    popup->adid = 0;
+    popup->target_adid = 0;
+  }
   popup->drawing = drawing;
-  popup->adid = 0;
   return true;
 }
 
