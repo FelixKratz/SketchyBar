@@ -72,6 +72,7 @@ extern CGError SLSAddActivationRegion(uint32_t cid, uint32_t wid, CFTypeRef regi
 extern CGError SLSAddTrackingRect(uint32_t cid, uint32_t wid, CGRect rect);
 extern CGError SLSClearActivationRegion(uint32_t cid, uint32_t wid);
 extern CGError SLSRemoveAllTrackingAreas(uint32_t cid, uint32_t wid);
+extern CGError SLSFindWindowAndOwner(int cid, int zero, int one, int zero_again, CGPoint* screen_point, CGPoint* window_point, uint32_t* wid, int* wcid);
 extern CGError SLSMoveWindow(int cid, uint32_t wid, CGPoint* point);
 extern CGError SLSWindowSetShadowProperties(uint32_t wid, CFDictionaryRef properties);
 extern CGError SLSAddWindowToWindowOrderingGroup(int cid, uint32_t parent_wid, uint32_t child_wid, int order);

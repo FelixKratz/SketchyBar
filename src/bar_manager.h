@@ -108,6 +108,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced);
 void bar_manager_resize(struct bar_manager* bar_manager);
 
 void bar_manager_poll_active_display(struct bar_manager* bar_manager);
+void bar_manager_clear_mouse_over(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t did, uint32_t modifier);
