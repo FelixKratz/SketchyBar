@@ -178,6 +178,8 @@ void bar_manager_remove_item(struct bar_manager* bar_manager, struct bar_item* b
   }
 
   bar_item_destroy(bar_item, true);
+  // The ordering chain ran through the removed item's windows.
+  bar_manager->needs_ordering = true;
 }
 
 bool bar_manager_set_margin(struct bar_manager* bar_manager, int margin) {

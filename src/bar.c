@@ -86,6 +86,9 @@ void bar_order_item_windows(struct bar* bar) {
 
   struct window* previous_window = NULL;
   struct window* first_window = NULL;
+  struct window* chain[g_bar_manager.bar_item_count + 1];
+  struct window* items[g_bar_manager.bar_item_count + 1];
+  int group_count = 0, item_count = 0;
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
     if (bar_item->position == POSITION_POPUP) continue;
@@ -96,6 +99,7 @@ void bar_order_item_windows(struct bar* bar) {
     if (!first_window) first_window = window;
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
+      chain[group_count++] = window;
       if (first_window)
         window_order(window, first_window, W_BELOW);
       else
@@ -103,11 +107,16 @@ void bar_order_item_windows(struct bar* bar) {
       continue;
     }
 
+    items[item_count++] = window;
     if (previous_window) window_order(window, previous_window, W_ABOVE);
     else window_order(window, &bar->window, W_ABOVE);
 
     previous_window = window;
   }
+
+  // Brackets sit between the bar and the items.
+  memcpy(chain + group_count, items, sizeof(struct window*) * item_count);
+  windows_set_order_chain(&bar->window, chain, group_count + item_count);
 }
 
 static void bar_check_for_clip_updates(struct bar* bar) {
