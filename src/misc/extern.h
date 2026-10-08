@@ -38,6 +38,7 @@ extern CGError SLSGetCurrentCursorLocation(int cid, CGPoint *point);
 extern CFStringRef SLSCopyActiveMenuBarDisplayIdentifier(int cid);
 extern CGError SLSGetMenuBarAutohideEnabled(int cid, int *enabled);
 extern CGError SLSGetRevealedMenuBarBounds(CGRect *rect, int cid, uint64_t sid);
+extern CGError SLSGetDisplayMenubarHeight(uint32_t did, uint32_t *height);
 extern CFStringRef SLSCopyBestManagedDisplayForPoint(int cid, CGPoint point);
 extern CGError SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool override);
 extern CGError SLSSetMenuBarAutohideEnabled(int cid, bool enabled);

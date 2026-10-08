@@ -250,8 +250,14 @@ CGRect display_menu_bar_rect(uint32_t did) {
   SLSGetRevealedMenuBarBounds(&bounds, g_connection, display_space_id(did));
   #elif __arm64__
   int top_inset = display_nsscreen_top_inset(did);
+  uint32_t menu_bar_height = 0;
   if (top_inset > 0) {
     bounds.size.height = top_inset;
+  } else if (SLSGetDisplayMenubarHeight(did, &menu_bar_height) == kCGErrorSuccess
+             && menu_bar_height > 0) {
+    // visibleFrame reserves no space for the overlay menu bar of a
+    // non-main display on Tahoe; the window server still reports its height.
+    bounds.size.height = menu_bar_height;
   } else {
     int notch_height = workspace_display_notch_height(did);
     if (notch_height) {
