@@ -5,6 +5,8 @@
 #include "misc/helpers.h"
 #include "window.h"
 
+extern int workspace_display_notch_height(uint32_t did);
+
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (!bar_item->drawing || !bar->shown || bar->hidden) return false;
 
@@ -207,8 +209,8 @@ void bar_draw(struct bar* bar, bool forced) {
 }
 
 static void bar_calculate_bounds_top_bottom(struct bar* bar) {
-  bool is_builtin = CGDisplayIsBuiltin(bar->did);
-  uint32_t notch_width = is_builtin ? g_bar_manager.notch_width : 0;
+  bool has_notch = workspace_display_notch_height(bar->did) > 0;
+  uint32_t notch_width = has_notch ? g_bar_manager.notch_width : 0;
 
   uint32_t center_length = bar_manager_length_for_bar_side(&g_bar_manager,
                                                            bar,
@@ -444,9 +446,11 @@ void bar_calculate_bounds(struct bar* bar) {
 }
 
 static CGRect bar_get_frame(struct bar *bar) {
-  bool is_builtin = CGDisplayIsBuiltin(bar->did);
-  int notch_offset = is_builtin ? g_bar_manager.notch_offset : 0;
-  int notch_display_height = is_builtin ? g_bar_manager.notch_display_height : 0;
+  bool has_notch = workspace_display_notch_height(bar->did) > 0;
+  int notch_offset = has_notch ? g_bar_manager.notch_offset : 0;
+  int notch_display_height = has_notch
+                             ? g_bar_manager.notch_display_height
+                             : 0;
 
 
   CGRect bounds = display_bounds(bar->did);
