@@ -24,14 +24,15 @@ bool bar_draws_item(struct bar* bar, struct bar_item* bar_item) {
     if (bar_item->position == POSITION_POPUP
         && (!bar_item->parent
             || !bar_item->parent->popup.drawing
-            || (bar->adid != g_bar_manager.active_adid)))
+            || (bar->adid
+                != popup_get_target_adid(&bar_item->parent->popup))))
       return false;
 
     return true;
 }
 
 static void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_item* bar_item) {
-  if (bar->adid != g_bar_manager.active_adid) return;
+  if (bar->adid != popup_get_target_adid(&bar_item->popup)) return;
   struct window* window = bar_item_get_window(bar_item, bar->adid);
 
   if (!bar_item->popup.overrides_cell_size) {
@@ -177,7 +178,8 @@ void bar_draw(struct bar* bar, bool forced) {
 
     bar_item_append_associated_bar(bar_item, bar->adid);
 
-    if (bar_item->popup.drawing && bar->adid == g_bar_manager.active_adid)
+    if (bar_item->popup.drawing
+        && bar->adid == popup_get_target_adid(&bar_item->popup))
       popup_draw(&bar_item->popup);
 
     if (g_bar_manager.bar_needs_update) {
