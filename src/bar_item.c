@@ -692,26 +692,87 @@ uint32_t bar_item_calculate_bounds(struct bar_item* bar_item, uint32_t bar_heigh
   return bar_item_length;
 }
 
+static bool background_has_clip_for_bar(struct background* background, struct bar* bar) {
+  if (bar->adid < 1 || background->num_clips < bar->adid) return false;
+  return background->clips[bar->adid - 1] != NULL;
+}
+
+static void background_clear_clip_for_bar(struct background* background, struct bar* bar) {
+  if (!background_has_clip_for_bar(background, bar)) return;
+  free(background->clips[bar->adid - 1]);
+  background->clips[bar->adid - 1] = NULL;
+}
+
+static bool text_badge_clips_bar(struct text* text) {
+  return text->drawing
+         && text->badge.drawing
+         && background_clips_bar(&text->badge.background);
+}
+
+static bool text_badge_clip_needs_update_for_bar(struct text* text,
+                                                 struct bar* bar   ) {
+  if (text_badge_clips_bar(text))
+    return background_clip_needs_update(&text->badge.background, bar);
+
+  return background_has_clip_for_bar(&text->badge.background, bar);
+}
+
+static void text_badge_clip_bar(struct text* text, int offset, struct bar* bar) {
+  if (text_badge_clips_bar(text))
+    background_clip_bar(&text->badge.background, offset, bar);
+  else
+    background_clear_clip_for_bar(&text->badge.background, bar);
+}
+
 bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar) {
   bool needs_update = false;
 
   needs_update |= background_clip_needs_update(&bar_item->background, bar)
                || background_clip_needs_update(&bar_item->icon.background, bar)
-               || background_clip_needs_update(&bar_item->label.background, bar);
+               || background_clip_needs_update(&bar_item->label.background, bar)
+               || text_badge_clip_needs_update_for_bar(&bar_item->icon, bar)
+               || text_badge_clip_needs_update_for_bar(&bar_item->label, bar);
+
+  if (bar_item->has_slider) {
+    needs_update |= background_clip_needs_update(&bar_item->slider.background, bar)
+                 || background_clip_needs_update(&bar_item->slider.foreground, bar)
+                 || background_clip_needs_update(&bar_item->slider.knob.background, bar)
+                 || text_badge_clip_needs_update_for_bar(&bar_item->slider.knob,
+                                                         bar                    );
+  }
 
   return needs_update;
 }
 
-bool bar_item_clips_bar(struct bar_item* bar_item) {
+bool bar_item_clips_bar(struct bar_item* bar_item, struct bar* bar) {
   return background_clips_bar(&bar_item->background)
          || background_clips_bar(&bar_item->icon.background)
-         || background_clips_bar(&bar_item->label.background);
+         || background_clips_bar(&bar_item->label.background)
+         || text_badge_clips_bar(&bar_item->icon)
+         || background_has_clip_for_bar(&bar_item->icon.badge.background, bar)
+         || text_badge_clips_bar(&bar_item->label)
+         || background_has_clip_for_bar(&bar_item->label.badge.background, bar)
+         || (bar_item->has_slider
+             && (background_clips_bar(&bar_item->slider.background)
+                 || background_clips_bar(&bar_item->slider.foreground)
+                 || background_clips_bar(&bar_item->slider.knob.background)
+                 || text_badge_clips_bar(&bar_item->slider.knob)
+                 || background_has_clip_for_bar(&bar_item->slider.knob.badge.background,
+                                                bar                                  )));
 }
 
 void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar) {
   background_clip_bar(&bar_item->background, offset, bar);
   background_clip_bar(&bar_item->icon.background, offset, bar);
   background_clip_bar(&bar_item->label.background, offset, bar);
+  text_badge_clip_bar(&bar_item->icon, offset, bar);
+  text_badge_clip_bar(&bar_item->label, offset, bar);
+  if (bar_item->has_slider) {
+    background_clip_bar(&bar_item->slider.background, offset, bar);
+    background_clip_bar(&bar_item->slider.foreground, offset, bar);
+    background_clip_bar(&bar_item->slider.knob.background, offset, bar);
+    text_badge_clip_bar(&bar_item->slider.knob, offset, bar);
+  }
 }
 
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
@@ -724,6 +785,9 @@ void bar_item_draw(struct bar_item* bar_item, CGContextRef context) {
   if (bar_item->has_alias) alias_draw(&bar_item->alias, context);
   if (bar_item->has_graph) graph_draw(&bar_item->graph, context);
   if (bar_item->has_slider) slider_draw(&bar_item->slider, context);
+
+  text_draw_badge(&bar_item->icon, context);
+  text_draw_badge(&bar_item->label, context);
 }
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid) {
