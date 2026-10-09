@@ -128,13 +128,194 @@ static void event_mouse_dragged(void* context) {
     bar_manager_refresh(&g_bar_manager, false);
 }
 
+// Exit events cannot be judged from geometry alone. Their location can lag
+// behind the pointer, and another application's window can overlap the edge
+// of the bar (e.g. the resize border of a window placed right below it), so a
+// point inside the bar frame can already be over a foreign window. Ask the
+// window server which window is under the cursor right now, and resolve the
+// bar or popup it belongs to. Returns whether that window is ours; the cursor
+// position is written to point.
+static bool cursor_surface(CGPoint* point, struct bar** bar_out,
+                                           struct popup** popup_out) {
+  *bar_out = NULL;
+  *popup_out = NULL;
+
+  CGEventRef event = CGEventCreate(NULL);
+  if (event) {
+    *point = CGEventGetLocation(event);
+    CFRelease(event);
+  }
+
+  CGPoint window_point;
+  uint32_t wid = 0;
+  int wcid = 0;
+  bool own_window;
+  if (SLSFindWindowAndOwner(g_connection, 0, 1, 0, point,
+                            &window_point, &wid, &wcid) != kCGErrorSuccess) {
+    wid = 0;
+    own_window = bar_manager_get_bar_by_point(&g_bar_manager, *point)
+                 || bar_manager_get_popup_by_point(&g_bar_manager, *point);
+  } else {
+    own_window = wcid == g_connection;
+  }
+  if (!own_window) return false;
+
+  if (wid) {
+    *bar_out = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
+    if (!*bar_out)
+      *popup_out = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+
+    struct bar_item* bar_item = NULL;
+    if (!*bar_out && !*popup_out)
+      bar_item = bar_manager_get_item_by_wid(&g_bar_manager, wid, NULL);
+    if (bar_item && bar_item->parent)
+      *popup_out = &bar_item->parent->popup;
+  }
+
+  if (!*bar_out && !*popup_out) {
+    *bar_out = bar_manager_get_bar_by_point(&g_bar_manager, *point);
+    if (!*bar_out)
+      *popup_out = bar_manager_get_popup_by_point(&g_bar_manager, *point);
+  }
+  return true;
+}
+
+static void set_mouse_over(struct bar* bar, struct popup* popup) {
+  bar_manager_clear_mouse_over(&g_bar_manager);
+  if (bar) bar->mouse_over = true;
+  else if (popup) popup->mouse_over = true;
+}
+
+// The popup of a bar item usually sits a few points away from its host, and
+// a window placed right below the bar can overlap its edge. On the way from
+// the host into the popup the pointer then crosses a strip that is over no
+// window of ours. Treat the column from the host to the popup, across the
+// width of the popup, as part of the popup.
+static struct popup* popup_bridge_at_point(CGPoint point) {
+  for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
+    struct bar_item* bar_item = g_bar_manager.bar_items[i];
+    if (!bar_item->drawing || !bar_item->popup.drawing) continue;
+
+    struct popup* popup = &bar_item->popup;
+    if (popup->adid < 1) continue;
+
+    struct window* host = bar_item_get_window(bar_item, popup->adid);
+    if (!host) continue;
+
+    CGRect popup_frame = { popup->window.origin, popup->window.frame.size };
+    CGRect host_frame = { host->origin, host->frame.size };
+    CGFloat top = fmin(CGRectGetMinY(host_frame), CGRectGetMinY(popup_frame));
+    CGFloat bottom = fmax(CGRectGetMaxY(host_frame),
+                          CGRectGetMaxY(popup_frame));
+
+    CGRect bridge = { { popup_frame.origin.x, top },
+                      { popup_frame.size.width, bottom - top } };
+    if (CGRectContainsPoint(bridge, point)) return popup;
+  }
+  return NULL;
+}
+
+// No window of ours reports the pointer leaving the bridge, so poll the
+// cursor while it rests there.
+static CFRunLoopTimerRef g_bridge_timer = NULL;
+
+static void bridge_watch_stop(void) {
+  if (!g_bridge_timer) return;
+  CFRunLoopTimerInvalidate(g_bridge_timer);
+  CFRelease(g_bridge_timer);
+  g_bridge_timer = NULL;
+}
+
+static void bridge_watch_tick(CFRunLoopTimerRef timer, void* info) {
+  CGPoint point = CGPointZero;
+  struct bar* bar;
+  struct popup* popup;
+  bool own_window = cursor_surface(&point, &bar, &popup);
+
+  if (!own_window && popup_bridge_at_point(point)) return;
+  bridge_watch_stop();
+
+  // The watch only runs while the pointer counts as inside a popup, so a
+  // departure to a foreign window is a global exit, even if the popup or its
+  // host was removed in the meantime.
+  if (own_window) set_mouse_over(bar, popup);
+  else bar_manager_handle_mouse_exited_global(&g_bar_manager);
+  windows_unfreeze();
+}
+
+static void bridge_watch_start(void) {
+  if (g_bridge_timer) return;
+  g_bridge_timer = CFRunLoopTimerCreate(NULL,
+                                        CFAbsoluteTimeGetCurrent() + 0.05,
+                                        0.05,
+                                        0,
+                                        0,
+                                        bridge_watch_tick,
+                                        NULL                              );
+  CFRunLoopAddTimer(CFRunLoopGetMain(), g_bridge_timer, kCFRunLoopCommonModes);
+}
+
+// The bar and popup windows sit behind the item and bracket windows that
+// cover them, so the pointer often enters or leaves the bar through an item
+// window alone. Resolve the global mouse state for those events as well,
+// otherwise mouse.exited.global never fires after the pointer leaves
+// through an item.
+static void global_mouse_entered_from_item(struct bar* bar,
+                                           struct popup* popup) {
+  if (bar_manager_mouse_over_any_bar(&g_bar_manager)
+      || bar_manager_mouse_over_any_popup(&g_bar_manager)) {
+    return;
+  }
+  if (!bar && !popup) return;
+
+  set_mouse_over(bar, popup);
+  bar_manager_handle_mouse_entered_global(&g_bar_manager);
+}
+
+// Called for every exit from one of our windows. Moves the hover state to
+// the bar or popup under the cursor, or sends mouse.exited.global and
+// returns true when the cursor is over neither. The cursor position is
+// written to point.
+static bool global_mouse_exited(CGPoint* point) {
+  struct bar* bar;
+  struct popup* popup;
+  bool own_window = cursor_surface(point, &bar, &popup);
+
+  if (own_window) bridge_watch_stop();
+  else {
+    popup = popup_bridge_at_point(*point);
+    if (popup) bridge_watch_start();
+    else bridge_watch_stop();
+  }
+
+  if (!bar && !popup) {
+    if (!bar_manager_mouse_over_any_bar(&g_bar_manager)
+        && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
+      return false;
+    }
+    bar_manager_handle_mouse_exited_global(&g_bar_manager);
+    return true;
+  }
+
+  set_mouse_over(bar, popup);
+  return false;
+}
+
 static void event_mouse_entered(void* context) {
   uint32_t wid = get_wid_from_cg_event(context);
+
+  // An entry that is handled after the pointer already left again must not
+  // mark the bar as hovered: no exit would follow to clear it.
+  CGPoint point = CGEventGetLocation(context);
+  struct bar* cursor_bar;
+  struct popup* cursor_popup;
+  bool own_window = cursor_surface(&point, &cursor_bar, &cursor_popup);
 
   struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
   if (bar) {
     // Handle global mouse entered event
-    if (!bar->mouse_over
+    if (own_window
+        && !bar->mouse_over
         && !bar_manager_mouse_over_any_popup(&g_bar_manager)) {
       bar->mouse_over = true;
       bar_manager_handle_mouse_entered_global(&g_bar_manager);
@@ -145,7 +326,8 @@ static void event_mouse_entered(void* context) {
   struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
   if (popup) {
     // Handle global mouse entered event
-    if (!popup->mouse_over
+    if (own_window
+        && !popup->mouse_over
         && !bar_manager_mouse_over_any_bar(&g_bar_manager)) {
       popup->mouse_over = true;
       bar_manager_handle_mouse_entered_global(&g_bar_manager);
@@ -157,77 +339,55 @@ static void event_mouse_entered(void* context) {
                                                           wid,
                                                           NULL          );
 
+  if (bar_item && own_window)
+    global_mouse_entered_from_item(cursor_bar, cursor_popup);
   bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
 }
 
 static void event_mouse_exited(void* context) {
   uint32_t wid = get_wid_from_cg_event(context);
-
-  struct bar* bar = NULL,* bar_target = NULL;
-  struct popup* popup,* popup_target = NULL;
-  struct window* origin_window = NULL;
-  bool over_target = false;
-
   CGPoint point = CGEventGetLocation(context);
-  if ((bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid))) {
-    origin_window = &bar->window;
-    popup_target = bar_manager_get_popup_by_point(&g_bar_manager,
-                                                  point          );
-    over_target = (popup_target != NULL);
-  }
-  else if ((popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid))) {
-    origin_window = &popup->window;
-    bar_target = bar_manager_get_bar_by_point(&g_bar_manager, point);
-    over_target = (bar_target != NULL);
-  }
 
-  if (bar || popup) {
-    // Handle global mouse exited event
-    CGRect frame = origin_window->frame;
-    frame.origin = origin_window->origin;
-    frame = CGRectInset(frame, 1, 1);
+  struct popup* popup = NULL;
+  if (bar_manager_get_bar_by_wid(&g_bar_manager, wid)
+      || (popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid))) {
+    bool exited = global_mouse_exited(&point);
 
-    bool over_origin = CGRectContainsPoint(frame, point);
-
-    if (!over_origin && !over_target) {
-      if (bar) bar->mouse_over = false;
-      else if (popup) popup->mouse_over = false;
-      bar_manager_handle_mouse_exited_global(&g_bar_manager);
-    } else if (!over_origin && over_target) {
-      if (bar) {
-        bar->mouse_over = false;
-        if (popup_target) popup_target->mouse_over = true;
-      }
-      else {
-        if (bar_target) bar_target->mouse_over = true;
-        if (popup) {
-          popup->mouse_over = false;
-          bool has_complex_mask
-                  = popup->host->update_mask & (UPDATE_MOUSE_EXITED
-                                                | UPDATE_EXITED_GLOBAL);
-          if (has_complex_mask
-              && bar_manager_get_item_by_point(&g_bar_manager, point, NULL)
-                  != popup->host) {
-            bar_manager_handle_mouse_exited(&g_bar_manager, popup->host);
-          }
-        }
+    // Leaving a popup for the bar exits its host, unless the pointer is
+    // back on the host itself.
+    if (!exited && popup
+        && !bar_manager_get_popup_by_point(&g_bar_manager, point)
+        && bar_manager_get_bar_by_point(&g_bar_manager, point)) {
+      bool has_complex_mask
+              = popup->host->update_mask & (UPDATE_MOUSE_EXITED
+                                            | UPDATE_EXITED_GLOBAL);
+      if (has_complex_mask
+          && bar_manager_get_item_by_point(&g_bar_manager, point, NULL)
+              != popup->host) {
+        bar_manager_handle_mouse_exited(&g_bar_manager, popup->host);
       }
     }
     return;
   }
 
-  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          &window        );
+                                                          NULL          );
+  if (!bar_item) return;
 
-  if (bar_item
-      && bar_item->update_mask & UPDATE_EXITED_GLOBAL
+  // mouse.exited.global already sends mouse.exited to every item.
+  bool exited = global_mouse_exited(&point);
+  if (exited) return;
+
+  // A queued exit can arrive after a global exit already notified every item.
+  if (!bar_item->mouse_over) return;
+
+  if (bar_item->update_mask & UPDATE_EXITED_GLOBAL
       && bar_manager_get_popup_by_point(&g_bar_manager, point)
          == &bar_item->popup) {
     return;
   }
-  if (bar_item) bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
+  bar_manager_handle_mouse_exited(&g_bar_manager, bar_item);
 }
 
 #define SCROLL_TIMEOUT 150000000

@@ -792,7 +792,18 @@ void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager) {
                                     NULL                                   );
 }
 
+void bar_manager_clear_mouse_over(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    bar_manager->bars[i]->mouse_over = false;
+  }
+  for (int i = 0; i < bar_manager->bar_item_count; i++) {
+    bar_manager->bar_items[i]->popup.mouse_over = false;
+  }
+}
+
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager) {
+  // The pointer is over no bar and no popup, whichever window reported it.
+  bar_manager_clear_mouse_over(bar_manager);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_MOUSE_EXITED_GLOBAL,
                                     NULL                                  );

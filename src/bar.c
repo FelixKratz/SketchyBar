@@ -180,10 +180,10 @@ void bar_draw(struct bar* bar, bool forced) {
     bool resized = window_apply_frame(window, forced);
     if (!resized && !bar_item->needs_update) continue;
 
-    if (bar_item->update_mask & UPDATE_MOUSE_ENTERED
-        || bar_item->update_mask & UPDATE_MOUSE_EXITED) {
-      window_assign_mouse_tracking_area(window, window->frame);
-    }
+    // Every item window tracks the mouse, not only subscribed ones: these
+    // windows cover the bar window, so the global mouse state can only be
+    // resolved from their entered and exited events.
+    window_assign_mouse_tracking_area(window, window->frame);
 
     CGContextClearRect(window->surface->context, window->frame);
     bar_item_draw(bar_item, window->surface->context);
