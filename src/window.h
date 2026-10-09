@@ -43,6 +43,7 @@ void window_set_blur_radius(struct window* window, uint32_t blur_radius);
 void window_disable_shadow(struct window* window);
 void window_set_level(struct window* window, uint32_t level);
 void window_order(struct window* window, struct window* parent, int mode);
+void windows_set_order_chain(struct window* root, struct window** windows, int count);
 void window_assign_mouse_tracking_area(struct window* window, CGRect rect);
 
 CGImageRef window_capture(struct window* window, bool* disabled);

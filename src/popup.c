@@ -49,6 +49,9 @@ static void popup_order_windows(struct popup* popup) {
 
   struct window* previous_window = NULL;
   struct window* first_window = NULL;
+  struct window* chain[popup->num_items + 1];
+  struct window* items[popup->num_items + 1];
+  int group_count = 0, item_count = 0;
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
 
@@ -57,6 +60,7 @@ static void popup_order_windows(struct popup* popup) {
     if (!first_window) first_window = window;
 
     if (bar_item->type == BAR_COMPONENT_GROUP) {
+      chain[group_count++] = window;
       if (first_window)
         window_order(window, first_window, W_BELOW);
       else
@@ -64,11 +68,16 @@ static void popup_order_windows(struct popup* popup) {
       continue;
     }
 
+    items[item_count++] = window;
     if (previous_window) window_order(window, previous_window, W_ABOVE);
     else window_order(window, &popup->window, W_ABOVE);
 
     previous_window = window;
   }
+
+  // Brackets sit between the popup background and the items.
+  memcpy(chain + group_count, items, sizeof(struct window*) * item_count);
+  windows_set_order_chain(&popup->window, chain, group_count + item_count);
 }
 
 static void popup_calculate_popup_anchor_for_bar_item(struct popup* popup, struct bar_item* bar_item, struct bar* bar) {
@@ -293,6 +302,8 @@ void popup_remove_item(struct popup* popup, struct bar_item* bar_item) {
   popup->items = realloc(popup->items,
                          sizeof(struct bar_item*)*popup->num_items);
   memcpy(popup->items, tmp, sizeof(struct bar_item*)*popup->num_items);
+  // The ordering chain ran through the removed item's windows.
+  popup->needs_ordering = true;
 }
 
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid) {

@@ -279,6 +279,7 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
 void window_close(struct window* window) {
   if (!window->id) return;
 
+  SLSRemoveFromOrderingGroup(g_connection, window->id);
   SLSOrderWindow(g_connection, window->id, 0, 0);
   surface_destroy(window->surface);
   if (window->context) CGContextRelease(window->context);
@@ -311,6 +312,30 @@ void window_order(struct window* window, struct window* parent, int mode) {
   } else {
     // Ventura and previous
     SLSOrderWindow(g_connection, window->id, mode, parent ? parent->id : 0);
+  }
+}
+
+// A click brings the clicked window to the front of its level, even though
+// our windows carry kCGSPreventsActivationTagBit (observed on macOS 27). A
+// click on a bracket or on the empty bar then lifts that background above the
+// item windows it should sit behind. Link the windows into one ordering chain,
+// bottom to top, with each window the only ordering child of the one below
+// it: the window server then keeps the whole stack together, whichever window
+// it brings forward.
+void windows_set_order_chain(struct window* root,
+                             struct window** windows,
+                             int count                ) {
+  struct window* parent = root;
+  for (int i = 0; i < count; i++) {
+    struct window* window = windows[i];
+    if (!window || !window->id) continue;
+
+    SLSRemoveFromOrderingGroup(g_connection, window->id);
+    SLSAddWindowToWindowOrderingGroup(g_connection,
+                                      parent->id,
+                                      window->id,
+                                      W_ABOVE     );
+    parent = window;
   }
 }
 
