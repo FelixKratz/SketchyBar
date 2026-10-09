@@ -10,6 +10,7 @@
 #include "mouse.h"
 #include "media.h"
 #include "app_windows.h"
+#include "display_recovery.h"
 
 extern void forced_front_app_event();
 
@@ -34,6 +35,7 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->margin = 0;
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
+  bar_manager->display_recovery_pending = false;
   bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager->topmost = false;
   bar_manager->notch_width = 200;
@@ -424,7 +426,8 @@ void bar_manager_reset_bar_association(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
-  if (bar_manager->frozen) return;
+  if (bar_manager->frozen || bar_manager->sleeps
+      || !display_active_display_count()) return;
   if (forced) {
     bar_manager_reset_bar_association(bar_manager);
     for (int j = 0; j < bar_manager->bar_item_count; j++) {
@@ -449,6 +452,7 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
 }
 
 void bar_manager_resize(struct bar_manager* bar_manager) {
+  if (bar_manager->sleeps || !display_active_display_count()) return;
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_resize(bar_manager->bars[i]);
 
@@ -538,6 +542,7 @@ void bar_manager_animator_refresh(struct bar_manager* bar_manager, uint64_t time
 
 void bar_manager_update(struct bar_manager* bar_manager, bool forced) {
   if ((bar_manager->frozen && !forced) || bar_manager->sleeps) return;
+  if (bar_manager->display_recovery_pending) bar_manager_display_changed(bar_manager);
 
   if (forced) {
     bar_manager_handle_space_change(bar_manager, true);
@@ -772,10 +777,46 @@ void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
 }
 
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  uint32_t active_count = display_active_display_count();
+  if (bar_manager->sleeps || !active_count || active_count > 32
+      || bar_manager->bar_count > 32) {
+    bar_manager->display_recovery_pending = true;
+    return;
+  }
+
+  struct display_recovery_slot previous[32] = {0}, current[32] = {0};
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < bar_manager->bar_count; ++i)
+    previous[i] = (struct display_recovery_slot){bar_manager->bars[i]->did,
+                                               bar_manager->bars[i]->adid, true};
+  for (uint32_t i = 1; i <= active_count; ++i) {
+    if (bar_manager->displays == DISPLAY_MAIN_PATTERN && count) break;
+    if (bar_manager->displays != DISPLAY_MAIN_PATTERN
+        && !(bar_manager->displays & (1u << (i - 1)))) continue;
+    uint32_t did = bar_manager->displays == DISPLAY_MAIN_PATTERN
+                   ? display_main_display_id() : display_arrangement_display_id(i);
+    CGRect bounds = display_bounds(did);
+    uint32_t adid = display_arrangement(did);
+    current[count++] = (struct display_recovery_slot){did, adid,
+      CGDisplayIsActive(did) && bounds.size.width > 1 && bounds.size.height > 1};
+  }
+
+  enum display_recovery_action action = display_recovery_decide(
+    previous, bar_manager->bar_count, current, count);
+  if (action == DISPLAY_RECOVERY_DEFER) {
+    bar_manager->display_recovery_pending = true;
+    return;
+  }
+  bar_manager->display_recovery_pending = false;
   bar_manager->active_adid = display_active_display_adid();
 
   bar_manager_freeze(bar_manager);
-  bar_manager_reset(bar_manager);
+  if (action == DISPLAY_RECOVERY_REBUILD) {
+    bar_manager_reset(bar_manager);
+  } else {
+    // Resize and redraw retained windows when display identities are unchanged.
+    bar_manager->needs_ordering = true;
+  }
   bar_manager_unfreeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
 
@@ -943,6 +984,7 @@ void bar_manager_handle_space_windows_change(struct bar_manager* bar_manager, ch
 }
 
 void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool forced) {
+  if (bar_manager->sleeps || !display_active_display_count()) return;
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char info[19 * bar_manager->bar_count + 4];
@@ -1026,19 +1068,8 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
 }
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
-  if (bar_manager->sleeps) {
-    bar_manager->sleeps = false;
-
-    // Sometimes the system wake notification precedes the display layout
-    // changes, so we queue a second wake event slightly later.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-      usleep(500000);
-      dispatch_async(dispatch_get_main_queue(), ^{
-        struct event event = { NULL, SYSTEM_WOKE };
-        event_post(&event);
-      });
-    });
-  }
+  bar_manager->sleeps = false;
+  // Retry incomplete enumeration on the normal clock, without a synthetic wake.
 
   bar_manager_display_changed(bar_manager);
   bar_manager_custom_events_trigger(bar_manager,

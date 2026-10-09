@@ -27,6 +27,7 @@ struct bar_manager {
   bool bar_needs_update;
   bool bar_needs_resize;
   bool show_in_fullscreen;
+  bool display_recovery_pending;
 
   uint32_t displays;
   char position;
