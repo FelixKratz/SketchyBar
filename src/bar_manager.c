@@ -593,6 +593,8 @@ void bar_manager_begin(struct bar_manager* bar_manager) {
     memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
     bar_manager->bars[0] = bar_create(did);
     bar_manager->bars[0]->adid = display_arrangement(did);
+    if (bar_manager->any_bar_hidden)
+      bar_set_hidden(bar_manager->bars[0], true);
   }
   else {
     uint32_t display_count = display_active_display_count();
