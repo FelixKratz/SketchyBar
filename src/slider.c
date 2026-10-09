@@ -97,6 +97,7 @@ void slider_draw(struct slider* slider, CGContextRef context) {
   background_draw(&slider->background, context);
   background_draw(&slider->foreground, context);
   text_draw(&slider->knob, context);
+  text_draw_badge(&slider->knob, context);
 }
 
 void slider_destroy(struct slider* slider) {
