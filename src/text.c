@@ -105,10 +105,8 @@ static void text_destroy_line(struct text* text) {
 bool text_set_max_chars(struct text* text, uint32_t max_chars) {
   if (text->max_chars == max_chars) return false;
   text->max_chars = max_chars;
-  if (strlen(text->string) > text->max_chars) {
-    text_set_string(text, text->string, true);
-  }
-  return strlen(text->string) > text->max_chars;
+  text_set_string(text, text->string, true);
+  return true;
 }
 
 bool text_set_string(struct text* text, char* string, bool forced) {
