@@ -18,7 +18,7 @@ sketchybar - a highly customizable macOS status bar replacement
 *sketchybar --default* _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_ ++
 *sketchybar --reorder* _NAME_ ... _NAME_ ++
 *sketchybar --move* _NAME_ *before*|*after* _REFERENCE_NAME_ ++
-*sketchybar --clone* _PARENT_NAME_ _NAME_ [*before*|*after*] ++
+*sketchybar --clone* _NEW_NAME_ _PARENT_NAME_ [*before*|*after*] ++
 *sketchybar --rename* _OLD_NAME_ _NEW_NAME_ ++
 *sketchybar --remove* _NAME_
 

@@ -11,7 +11,7 @@ sketchybar-items - configuration of items in the bar
 *sketchybar --default* _PROPERTY_=_VALUE_ ... _PROPERTY_=_VALUE_ ++
 *sketchybar --reorder* _NAME_ ... _NAME_ ++
 *sketchybar --move* _NAME_ *before*|*after* _REFERENCE_NAME_ ++
-*sketchybar --clone* _PARENT_NAME_ _NAME_ [*before*|*after*] ++
+*sketchybar --clone* _NEW_NAME_ _PARENT_NAME_ [*before*|*after*] ++
 *sketchybar --rename* _OLD_NAME_ _NEW_NAME_ ++
 *sketchybar --remove* _NAME_
 
@@ -71,7 +71,7 @@ values found here.
 	Move items to specific positions. To move item _NAME_ before item
 	_REFERENCE_NAME_, use *before*. Otherwise, use *after*.
 
-*--clone* _PARENT_NAME_ _NAME_ [*before*|*after*]
+*--clone* _NEW_NAME_ _PARENT_NAME_ [*before*|*after*]
 	Clone an item to another item. The new item will inherit *all* properties of
 	the parent item. The optional *before* and *after* modifiers can be used to
 	move the item before, or after the parent, equivalently to a *--move* command.
