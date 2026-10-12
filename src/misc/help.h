@@ -18,7 +18,7 @@ static const char help_str[] = {
   "      --move <name> before <reference name>\n"
   "      --move <name> after <reference name>\n"
   "                                  \tMove item relative to reference item\n"
-  "      --clone <parent name> <name> [optional: before/after]\n"
+  "      --clone <name> <parent name> [optional: before/after]\n"
   "                                  \tClone parent to create new item\n"
   "      --rename <old name> <new name>\tRename item\n"
   "      --remove <name>             \tRemove item\n\n"
