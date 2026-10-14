@@ -210,7 +210,7 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
                          "\t\"modifier\": \"%s\",\n"
                          "\t\"modfier_code\": %u\n"
                          "}\n",
-                         get_type_description(type),
+                         get_type_description(type, mouse_button_code),
                          mouse_button_code,
                          get_modifier_description(modifier),
                          modifier                           );
@@ -219,7 +219,7 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
 
   env_vars_set(&env_vars,
                string_copy("BUTTON"),
-               string_copy(get_type_description(type)));
+               string_copy(get_type_description(type, mouse_button_code)));
 
   env_vars_set(&env_vars,
                string_copy("MODIFIER"),
