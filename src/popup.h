@@ -17,6 +17,7 @@ struct popup {
   char align;
 
   uint32_t adid;
+  uint32_t target_adid;
   uint32_t cell_size;
   uint32_t blur_radius;
   int y_offset;
@@ -33,6 +34,8 @@ struct popup {
 
 void popup_init(struct popup* popup, struct bar_item* host);
 void popup_set_anchor(struct popup* popup, CGPoint anchor, uint32_t adid);
+void popup_set_target_adid(struct popup* popup, uint32_t adid);
+uint32_t popup_get_target_adid(struct popup* popup);
 void popup_add_item(struct popup* popup, struct bar_item* item);
 bool popup_set_drawing(struct popup* popup, bool drawing);
 void popup_remove_item(struct popup* popup, struct bar_item* bar_item);
