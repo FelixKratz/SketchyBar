@@ -153,11 +153,12 @@ static void event_mouse_entered(void* context) {
     return;
   }
 
+  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          NULL          );
+                                                          &window       );
 
-  bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
+  bar_manager_handle_mouse_entered(&g_bar_manager, bar_item, window);
 }
 
 static void event_mouse_exited(void* context) {

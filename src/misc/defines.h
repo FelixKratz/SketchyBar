@@ -91,6 +91,7 @@
 #define PROPERTY_UPDATE_FREQ                   "update_freq"
 #define PROPERTY_SCRIPT                        "script"
 #define PROPERTY_CLICK_SCRIPT                  "click_script"
+#define PROPERTY_TOOLTIP                       "tooltip"
 #define PROPERTY_ICON                          "icon"
 #define PROPERTY_XOFFSET                       "x_offset"
 #define PROPERTY_YOFFSET                       "y_offset"

@@ -48,6 +48,7 @@ void bar_item_init(struct bar_item* bar_item, struct bar_item* default_item) {
   bar_item->name = NULL;
   bar_item->script = NULL;
   bar_item->click_script = NULL;
+  bar_item->tooltip = NULL;
 
   bar_item->group = NULL;
   bar_item->parent = NULL;
@@ -295,11 +296,17 @@ void bar_item_on_scroll(struct bar_item* bar_item, int scroll_delta, uint32_t mo
   env_vars_destroy(&env_vars);
 }
 
-void bar_item_mouse_entered(struct bar_item* bar_item) {
+void bar_item_mouse_entered(struct bar_item* bar_item, struct window* window) {
   if (bar_item->update_mask & UPDATE_MOUSE_ENTERED && !bar_item->mouse_over) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_ENTERED, true, NULL);
   }
   bar_item->mouse_over = true;
+
+  if (window && g_bar_manager.tooltip.host != bar_item) {
+    CGRect anchor = window->frame;
+    anchor.origin = window->origin;
+    tooltip_show(&g_bar_manager.tooltip, bar_item, anchor);
+  }
 }
 
 void bar_item_mouse_exited(struct bar_item* bar_item) {
@@ -307,6 +314,9 @@ void bar_item_mouse_exited(struct bar_item* bar_item) {
     bar_item_update(bar_item, COMMAND_SUBSCRIBE_MOUSE_EXITED, true, NULL); 
   }
   bar_item->mouse_over = false;
+
+  if (g_bar_manager.tooltip.host == bar_item)
+    tooltip_hide(&g_bar_manager.tooltip);
 }
 
 static bool bar_item_set_drawing(struct bar_item* bar_item, bool state) {
@@ -343,6 +353,21 @@ static void bar_item_set_click_script(struct bar_item* bar_item, char* script) {
 
   char* path = resolve_path(script);
   if (path) bar_item->click_script = path;
+}
+
+static bool bar_item_set_tooltip(struct bar_item* bar_item, char* tooltip) {
+  if (!tooltip) return false;
+
+  if (bar_item->tooltip && strcmp(bar_item->tooltip, tooltip) == 0) {
+    free(tooltip);
+    return false;
+  }
+
+  if (tooltip != bar_item->tooltip && bar_item->tooltip)
+    free(bar_item->tooltip);
+
+  bar_item->tooltip = tooltip;
+  return true;
 }
 
 static bool bar_item_set_yoffset(struct bar_item* bar_item, int offset) {
@@ -737,6 +762,7 @@ static void bar_item_clear_pointers(struct bar_item* bar_item) {
   bar_item->name = NULL;
   bar_item->script = NULL;
   bar_item->click_script = NULL;
+  bar_item->tooltip = NULL;
   bar_item->group = NULL;
   bar_item->signal_args.env_vars.vars = NULL;
   bar_item->signal_args.env_vars.count = 0;
@@ -758,6 +784,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   char* name = bar_item->name;
   char* script = bar_item->script;
   char* click_script = bar_item->click_script;
+  char* tooltip = bar_item->tooltip;
 
   memcpy(bar_item, ancestor, sizeof(struct bar_item));
   bar_item_clear_pointers(bar_item);
@@ -765,6 +792,7 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
   bar_item->name = name;
   bar_item->script = script;
   bar_item->click_script = click_script;
+  bar_item->tooltip = tooltip;
 
   text_copy(&bar_item->icon, &ancestor->icon);
   text_copy(&bar_item->label, &ancestor->label);
@@ -774,6 +802,8 @@ void bar_item_inherit_from_item(struct bar_item* bar_item, struct bar_item* ance
     bar_item_set_script(bar_item, string_copy(ancestor->script));
   if (ancestor->click_script)
     bar_item_set_click_script(bar_item, string_copy(ancestor->click_script));
+  if (ancestor->tooltip)
+    bar_item_set_tooltip(bar_item, string_copy(ancestor->tooltip));
 
   image_copy(&bar_item->background.image,
              ancestor->background.image.image_ref);
@@ -804,6 +834,10 @@ void bar_item_destroy(struct bar_item* bar_item, bool free_memory) {
   if (bar_item->name) free(bar_item->name);
   if (bar_item->script) free(bar_item->script);
   if (bar_item->click_script) free(bar_item->click_script);
+  if (bar_item->tooltip) free(bar_item->tooltip);
+
+  if (g_bar_manager.tooltip.host == bar_item)
+    tooltip_hide(&g_bar_manager.tooltip);
 
   text_destroy(&bar_item->icon);
   text_destroy(&bar_item->label);
@@ -918,6 +952,11 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
   fprintf(rsp, "\t\"label\": {\n");
   text_serialize(&bar_item->label, "\t\t", rsp);
   fprintf(rsp, "\n\t},\n");
+
+  char* escaped_tooltip = escape_string(bar_item->tooltip);
+  fprintf(rsp, "\t\"tooltip\": \"%s\",\n",
+               escaped_tooltip ? escaped_tooltip : "");
+  if (escaped_tooltip) free(escaped_tooltip);
 
 
   char* escaped_script = escape_string(bar_item->script);
@@ -1109,6 +1148,15 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     bar_item_set_script(bar_item, token_to_string(get_token(&message)));
   } else if (token_equals(property, PROPERTY_CLICK_SCRIPT)) {
     bar_item_set_click_script(bar_item, token_to_string(get_token(&message)));
+  } else if (token_equals(property, PROPERTY_TOOLTIP)) {
+    needs_refresh = bar_item_set_tooltip(bar_item,
+                                         token_to_string(get_token(&message)));
+
+    if (g_bar_manager.tooltip.host == bar_item) {
+      tooltip_show(&g_bar_manager.tooltip,
+                   bar_item,
+                   g_bar_manager.tooltip.anchor);
+    }
   } else if (token_equals(property, PROPERTY_UPDATE_FREQ)) {
     bar_item->update_frequency = token_to_uint32t(get_token(&message));
   } else if (token_equals(property, PROPERTY_POSITION)) {

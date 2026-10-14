@@ -2,6 +2,7 @@
 #include "bar.h"
 #include "bar_item.h"
 #include "animation.h"
+#include "tooltip.h"
 
 #define CLOCK_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef CLOCK_CALLBACK(clock_callback);
@@ -51,6 +52,7 @@ struct bar_manager {
   struct custom_events custom_events;
 
   struct animator animator;
+  struct tooltip tooltip;
   struct image current_artwork;
 };
 
@@ -111,7 +113,7 @@ void bar_manager_poll_active_display(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_entered_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_exited_global(struct bar_manager* bar_manager);
 void bar_manager_handle_mouse_scrolled_global(struct bar_manager* bar_manager, int scroll_delta, uint32_t did, uint32_t modifier);
-void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item);
+void bar_manager_handle_mouse_entered(struct bar_manager* bar_manager, struct bar_item* bar_item, struct window* window);
 void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar_item* bar_item);
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool forced);
