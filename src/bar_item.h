@@ -136,7 +136,7 @@ void* draw_item_proc(void* context);
 void bar_item_draw(struct bar_item* bar_item, CGContextRef context);
 bool bar_item_clip_needs_update_for_bar(struct bar_item* bar_item, struct bar* bar);
 void bar_item_clip_bar(struct bar_item* bar_item, int offset, struct bar* bar);
-bool bar_item_clips_bar(struct bar_item* bar_item);
+bool bar_item_clips_bar(struct bar_item* bar_item, struct bar* bar);
 
 void bar_item_change_space(struct bar_item* bar_item, uint64_t dsid, uint32_t adid);
 
