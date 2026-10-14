@@ -54,7 +54,7 @@ If an item is *clicked* the script has access to the additional variables:
 $BUTTON
 $MODIFIER
 ```
-where the `$BUTTON` can be *left*, *right* or *other* and specifies the mouse button that was used to click the item, while the `$MODIFIER` is either *shift*, *ctrl*, *alt* or *cmd* and 
+where the `$BUTTON` can be *left*, *right*, *middle* or *other* and specifies the mouse button that was used to click the item, while the `$MODIFIER` is either *shift*, *ctrl*, *alt* or *cmd* and
 specifies the modifier key held down while clicking the item.
 
 If an item receive a *scroll* event from the mouse the script gets send the additional `$SCROLL_DELTA` variable.

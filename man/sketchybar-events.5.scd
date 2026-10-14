@@ -42,7 +42,7 @@ If an item is *clicked*, the script being called (either *click_script* or the
 variables such as
 - *$BUTTON*
 - *$MODIFIER*
-where *$BUTTON* can have a value of *left*, *right* or *other*, and does
+where *$BUTTON* can have a value of *left*, *right*, *middle* or *other*, and does
 specify the mouse button that was used to click the item. Whereas, *$MODIFIER*
 can be *shift*, *ctrl*, *alt* or *cmd*, and does specify the modifier key held
 down while clicking the item.
