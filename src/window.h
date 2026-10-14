@@ -17,7 +17,6 @@ struct window {
   bool needs_resize;
 
   uint32_t id;
-  int32_t refc;
 
   CGRect frame;
   CGPoint origin;

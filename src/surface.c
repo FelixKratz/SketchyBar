@@ -3,12 +3,24 @@
 #include "window.h"
 #include "layer.h"
 
+void surface_retain(struct surface* surface) {
+  surface->refc++;
+}
+
+void surface_release(struct surface* surface) {
+  if (--surface->refc == 0) free(surface);
+}
+
 void surface_destroy(struct surface* surface) {
   if (!surface) return;
   if (surface->id) SLSRemoveSurface(g_connection, surface->wid, surface->id);
   if (surface->layer) layer_destroy(surface->layer);
   if (surface->context) CGContextRelease(surface->context);
-  free(surface);
+  // Invalidate pending updates before releasing the window owner's reference.
+  surface->id = 0;
+  surface->layer = NULL;
+  surface->context = NULL;
+  surface_release(surface);
 }
 
 struct surface* surface_create(struct window* window) {
@@ -18,6 +30,8 @@ struct surface* surface_create(struct window* window) {
   if (!surface) return NULL;
   memset(surface, 0, sizeof(struct surface));
 
+  surface->refc = 1;
+  surface->frame = window->frame;
   surface->wid = window->id;
   surface->layer = layer_create(g_connection, window->frame);
 
@@ -49,6 +63,7 @@ struct surface* surface_create(struct window* window) {
 }
 
 void surface_resize(struct surface* surface, struct window* window) {
+  surface->frame = window->frame;
   if (surface->context) CGContextRelease(surface->context);
   surface->context = context_create(window->frame.size, 2.0f);
 
