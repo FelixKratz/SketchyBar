@@ -223,6 +223,18 @@ static void handle_domain_add(FILE* rsp, struct token domain, char* message) {
       struct token width = get_token(&message);
       slider_setup(&bar_item->slider, token_to_uint32t(width));
     }
+    else if (bar_item->type == BAR_COMPONENT_RING) {
+      struct token diameter = get_token(&message);
+      int diameter_value = token_to_int(diameter);
+      if (diameter.length == 0 || diameter_value <= 0) {
+        respond(rsp,
+                "[!] Add %s: Ring diameter must be positive\n",
+                name.text);
+        bar_manager_remove_item(&g_bar_manager, bar_item);
+        return;
+      }
+      ring_setup(&bar_item->ring, (uint32_t)diameter_value);
+    }
     else if (bar_item->type == BAR_COMPONENT_ALIAS) {
       char* tmp_name = string_copy(name.text);
       struct key_value_pair key_value_pair = get_key_value_pair(tmp_name, ',');
