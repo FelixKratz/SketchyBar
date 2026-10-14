@@ -1,5 +1,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/ps/IOPowerSources.h>
+#include <IOKit/ps/IOPSKeys.h>
 
 #define POWER_AC_KEY      CFSTR(kIOPMACPowerKey)
 #define POWER_BATTERY_KEY CFSTR(kIOPMBatteryPowerKey)
@@ -10,3 +11,6 @@
 
 void forced_power_event();
 void begin_receiving_power_events();
+
+void forced_battery_event();
+void begin_receiving_battery_events();
