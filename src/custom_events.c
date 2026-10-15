@@ -87,12 +87,16 @@ void custom_events_destroy(struct custom_events* custom_events) {
 void custom_events_serialize(struct custom_events* custom_events, FILE* rsp) {
   fprintf(rsp, "{\n");
   for (int i = 0; i < custom_events->count; i++) {
+    char* escaped_name = escape_string(custom_events->events[i]->name);
+    char* escaped_notification = escape_string(custom_events->events[i]->notification);
     fprintf(rsp, "\t\"%s\": {\n"
                  "\t\t\"bit\": %llu,\n"
                  "\t\t\"notification\": \"%s\"\n",
-                 custom_events->events[i]->name,
+                 escaped_name ? escaped_name : "(null)",
                  1ULL << i,
-                 custom_events->events[i]->notification);
+                 escaped_notification ? escaped_notification : "(null)");
+    free(escaped_name);
+    free(escaped_notification);
     if (i < custom_events->count - 1) fprintf(rsp, "\t},\n");
   }
   fprintf(rsp, "\t}\n}\n");

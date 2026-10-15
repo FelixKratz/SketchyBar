@@ -114,7 +114,7 @@ static void app_windows_post_event_for_space(struct app_windows* windows, uint64
   memset(&pid_count, 0, sizeof(uint32_t)*windows->num_windows);
   memset(&pid_name, 0, sizeof(char*)*windows->num_windows);
 
-  uint32_t length = 64;
+  size_t length = 64;
   for (int i = 0; i < windows->num_windows; i++) {
     for (int j = 0; j < windows->num_windows; j++) {
       if ((!pid_list[j] || pid_list[j] == windows->windows[i].pid)
@@ -122,7 +122,9 @@ static void app_windows_post_event_for_space(struct app_windows* windows, uint64
         pid_list[j] = windows->windows[i].pid;
         pid_count[j]++;
         if (!pid_name[j]) {
-          pid_name[j] = workspace_copy_app_name_for_pid(pid_list[j]);
+          char* name = workspace_copy_app_name_for_pid(pid_list[j]);
+          pid_name[j] = escape_string(name);
+          free(name);
           length += pid_name[j] ? (strlen(pid_name[j]) + 16) : 0;
         }
         break;

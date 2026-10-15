@@ -880,6 +880,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
       break;
   }
 
+  char* escaped_name = escape_string(bar_item->name);
   fprintf(rsp, "{\n"
                "\t\"name\": \"%s\",\n"
                "\t\"type\": \"%s\",\n"
@@ -895,7 +896,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"scroll_texts\": \"%s\",\n"
                "\t\t\"width\": %d,\n"
                "\t\t\"background\": {\n",
-               bar_item->name,
+               escaped_name ? escaped_name : "(null)",
                type,
                format_bool(bar_item->drawing),
                position,
@@ -907,6 +908,7 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                bar_item->background.padding_right,
                format_bool(bar_item->scroll_texts),
                bar_item->has_const_width ? bar_item->custom_width : -1);
+  free(escaped_name);
 
   background_serialize(&bar_item->background, "\t\t\t", rsp, true);
   fprintf(rsp, "\n\t\t}\n\t},\n");
@@ -928,8 +930,8 @@ void bar_item_serialize(struct bar_item* bar_item, FILE* rsp) {
                "\t\t\"update_freq\": %u,\n"
                "\t\t\"update_mask\": %llu,\n"
                "\t\t\"updates\": \"%s\"\n\t},\n",
-               escaped_script,
-               escaped_click_script,
+               escaped_script ? escaped_script : "(null)",
+               escaped_click_script ? escaped_click_script : "(null)",
                bar_item->update_frequency,
                bar_item->update_mask,
                bar_item->updates_only_when_shown

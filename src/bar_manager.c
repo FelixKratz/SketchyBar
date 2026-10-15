@@ -1124,7 +1124,9 @@ void bar_manager_serialize(struct bar_manager* bar_manager, FILE* rsp) {
 
   fprintf(rsp, ",\n%s\"items\": [\n", indent);
   for (int i = 0; i < bar_manager->bar_item_count; i++) {
-    fprintf(rsp, "%s\t \"%s\"", indent, bar_manager->bar_items[i]->name);
+    char* escaped_name = escape_string(bar_manager->bar_items[i]->name);
+    fprintf(rsp, "%s\t \"%s\"", indent, escaped_name ? escaped_name : "(null)");
+    free(escaped_name);
     if (i < bar_manager->bar_item_count - 1) fprintf(rsp, ",\n");
   }
   fprintf(rsp, "\n%s]\n}\n", indent);
