@@ -156,9 +156,13 @@ void print_all_menu_items(FILE* rsp) {
       if (counter++ > 0) {
         fprintf(rsp, ", \n");
       }
-      fprintf(rsp, "\t\"%s,%s(%d)\"", item->owner,
-                                      item->name,
+      char* escaped_owner = escape_string(item->owner);
+      char* escaped_name = escape_string(item->name);
+      fprintf(rsp, "\t\"%s,%s(%d)\"", escaped_owner ? escaped_owner : "(null)",
+                                      escaped_name ? escaped_name : "(null)",
                                       counter     );
+      free(escaped_owner);
+      free(escaped_name);
     }
     fprintf(rsp, "\n]\n");
   }
