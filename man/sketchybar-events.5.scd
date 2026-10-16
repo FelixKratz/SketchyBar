@@ -33,9 +33,12 @@ All scripts invoked by an item have access to some environment variables such as
 - *$NAME*
 - *$SENDER*
 - *$CONFIG_DIR*
+- *$BAR_NAME*
 where *$NAME* is the name of the item that invoked the script and *$SENDER* is
 the reason why the script was executed. *$CONFIG_DIR* holds the value of the
 absolute path of the directory where the current configuration file is located.
+*$BAR_NAME* contains the name of the bar that invoked the script, which is useful
+when running multiple bars.
 
 If an item is *clicked*, the script being called (either *click_script* or the
 *script* when subscribed to *mouse.clicked*) has access to the additional
