@@ -21,7 +21,6 @@ void window_init(struct window* window) {
   window->needs_move = false;
   window->needs_resize = false;
   window->order_mode = W_ABOVE;
-  window->refc = 1;
 }
 
 static CFTypeRef window_create_region(struct window* window, CGRect frame) {
@@ -38,7 +37,6 @@ struct window* window_create() {
 }
 
 void window_destroy(struct window* window) {
-  if (--window->refc > 0) return;
   window_close(window);
   free(window);
 }
@@ -128,7 +126,6 @@ void window_clear(struct window* window) {
   window->frame = CGRectNull;
   window->needs_move = false;
   window->needs_resize = false;
-  window->refc = 1;
 }
 
 void window_flush(struct window* window) {
@@ -192,14 +189,13 @@ void window_move(struct window* window, CGPoint point) {
 
 }
 
-static void window_defer_update(struct window* window) {
+static void window_defer_update(struct surface* surface) {
   void (^block)() = ^{
-    if (!window->surface) return;
-    if (--window->refc <= 0) window_destroy(window);
-    else {
-      layer_set_bounds(window->surface->layer, window->frame);
-      window_flush(window);
+    if (surface->id) {
+      layer_set_bounds(surface->layer, surface->frame);
+      surface_flush(surface);
     }
+    surface_release(surface);
   };
 
   if (pthread_main_np()) dispatch_async(dispatch_get_main_queue(), block);
@@ -210,7 +206,9 @@ bool window_apply_frame(struct window* window, bool forced) {
   if (window->needs_resize || forced) {
     windows_freeze();
     CFTypeRef frame_region = window_create_region(window, window->frame);
-    window->refc++;
+    // Callbacks can outlive the allocation containing the window.
+    struct surface* surface = window->surface;
+    surface_retain(surface);
 
     if (__builtin_available(macOS 26.0, *)) {
       SLSTransactionSetWindowShape(g_transaction, window->id,
@@ -220,9 +218,9 @@ bool window_apply_frame(struct window* window, bool forced) {
       window_move(window, window->origin);
       if (SBSLSTransactionAddPostDecodeAction) {
         SBSLSTransactionAddPostDecodeAction(g_transaction, ^{
-          window_defer_update(window);
+          window_defer_update(surface);
         });
-      } else window_defer_update(window);
+      } else window_defer_update(surface);
     }
     else if (__builtin_available(macOS 13.0, *)) {
       // Ventura and later
@@ -232,7 +230,7 @@ bool window_apply_frame(struct window* window, bool forced) {
                                       frame_region);
       window_clear_background(window);
       window_move(window, window->origin);
-      window_defer_update(window);
+      window_defer_update(surface);
     } else {
       // Monterey and previous
       if (window->parent) {
@@ -246,7 +244,7 @@ bool window_apply_frame(struct window* window, bool forced) {
         window_order(window, window->parent, window->order_mode);
       }
       window_move(window, window->origin);
-      window_defer_update(window);
+      window_defer_update(surface);
     }
 
     surface_resize(window->surface, window);
@@ -279,6 +277,7 @@ void window_send_to_space(struct window* window, uint64_t dsid) {
 void window_close(struct window* window) {
   if (!window->id) return;
 
+  SLSRemoveFromOrderingGroup(g_connection, window->id);
   SLSOrderWindow(g_connection, window->id, 0, 0);
   surface_destroy(window->surface);
   if (window->context) CGContextRelease(window->context);
@@ -311,6 +310,30 @@ void window_order(struct window* window, struct window* parent, int mode) {
   } else {
     // Ventura and previous
     SLSOrderWindow(g_connection, window->id, mode, parent ? parent->id : 0);
+  }
+}
+
+// A click brings the clicked window to the front of its level, even though
+// our windows carry kCGSPreventsActivationTagBit (observed on macOS 27). A
+// click on a bracket or on the empty bar then lifts that background above the
+// item windows it should sit behind. Link the windows into one ordering chain,
+// bottom to top, with each window the only ordering child of the one below
+// it: the window server then keeps the whole stack together, whichever window
+// it brings forward.
+void windows_set_order_chain(struct window* root,
+                             struct window** windows,
+                             int count                ) {
+  struct window* parent = root;
+  for (int i = 0; i < count; i++) {
+    struct window* window = windows[i];
+    if (!window || !window->id) continue;
+
+    SLSRemoveFromOrderingGroup(g_connection, window->id);
+    SLSAddWindowToWindowOrderingGroup(g_connection,
+                                      parent->id,
+                                      window->id,
+                                      W_ABOVE     );
+    parent = window;
   }
 }
 
