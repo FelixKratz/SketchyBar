@@ -81,9 +81,31 @@ static void bar_calculate_popup_anchor_for_bar_item(struct bar* bar, struct bar_
   popup_calculate_bounds(&bar_item->popup, bar);
 }
 
+// macOS 27 moved the menu bar into MenuBarAgent, which keeps a transparent
+// window at kCGStatusWindowLevel over the whole menu bar strip while the menu
+// bar is auto-hidden. A click on it reveals the menu bar instead of reaching
+// a window below it, so a bar in that strip never sees its clicks. The reveal
+// itself runs through an event tap and is not blocked by windows above the
+// strip. While the menu bar is hidden on the space of a top bar, lift the bar
+// above that window; once the menu bar is revealed, fall back to the
+// configured level so the menu bar and its status items stay usable above
+// the bar.
+static uint32_t bar_window_level(struct bar* bar) {
+  uint32_t level = g_bar_manager.window_level;
+  if (__builtin_available(macOS 27.0, *)) {
+    if (g_bar_manager.position == POSITION_TOP
+        && (int32_t)level <= kCGStatusWindowLevel
+        && !SLSIsMenuBarVisibleOnSpace(g_connection, bar->dsid)) {
+      level = kCGStatusWindowLevel + 1;
+    }
+  }
+  return level;
+}
+
 void bar_order_item_windows(struct bar* bar) {
   if (bar->sid < 1 || bar->adid < 1 || !bar->shown) return;
-  window_set_level(&bar->window, g_bar_manager.window_level);
+  uint32_t level = bar_window_level(bar);
+  window_set_level(&bar->window, level);
   window_order(&bar->window, NULL, W_ABOVE);
 
   struct window* previous_window = NULL;
@@ -96,7 +118,7 @@ void bar_order_item_windows(struct bar* bar) {
     if (bar_item->position == POSITION_POPUP) continue;
 
     struct window* window = bar_item_get_window(bar_item, bar->adid);
-    window_set_level(window, g_bar_manager.window_level);
+    window_set_level(window, level);
 
     if (!first_window) first_window = window;
 

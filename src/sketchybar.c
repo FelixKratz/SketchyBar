@@ -189,6 +189,12 @@ static void space_events(uint32_t event, void* data, size_t data_length, void* c
   event_post(&ev);
 }
 
+// 1302: the auto-hidden menu bar was revealed, 1301: it was hidden again.
+static void menu_bar_events(uint32_t event, void* data, size_t data_length, void* context) {
+  struct event ev = { NULL, MENU_BAR_REVEAL_CHANGED };
+  event_post(&ev);
+}
+
 static void system_events(uint32_t event, void* data, size_t data_length, void* context) {
   if (event == 1322) {
     g_disable_capture = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW_APPROX);
@@ -223,6 +229,11 @@ int main(int argc, char **argv) {
   if (__builtin_available(macOS 13.0, *)) {
     SLSRegisterNotifyProc((void*)space_events, 1327, NULL);
     SLSRegisterNotifyProc((void*)space_events, 1328, NULL);
+  }
+
+  if (__builtin_available(macOS 27.0, *)) {
+    SLSRegisterNotifyProc((void*)menu_bar_events, 1301, NULL);
+    SLSRegisterNotifyProc((void*)menu_bar_events, 1302, NULL);
   }
 
   workspace_event_handler_init(&g_workspace_context);

@@ -47,6 +47,11 @@ static void event_menu_bar_hidden_changed(void* context) {
   bar_manager_resize(&g_bar_manager);
   g_bar_manager.bar_needs_update = true;
   bar_manager_refresh(&g_bar_manager, false);
+  bar_manager_handle_menu_bar_reveal(&g_bar_manager);
+}
+
+static void event_menu_bar_reveal_changed(void* context) {
+  bar_manager_handle_menu_bar_reveal(&g_bar_manager);
 }
 
 static void event_system_woke(void* context) {
@@ -365,6 +370,7 @@ static callback_type* event_handler[] = {
   [COVER_CHANGED]              = event_cover_changed,
   [DISTRIBUTED_NOTIFICATION]   = event_distributed_notification,
   [MENU_BAR_HIDDEN_CHANGED]    = event_menu_bar_hidden_changed,
+  [MENU_BAR_REVEAL_CHANGED]    = event_menu_bar_reveal_changed,
   [SYSTEM_WOKE]                = event_system_woke,
   [SYSTEM_WILL_SLEEP]          = event_system_will_sleep,
   [SHELL_REFRESH]              = event_shell_refresh,

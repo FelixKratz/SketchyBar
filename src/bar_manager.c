@@ -448,6 +448,13 @@ void bar_manager_refresh(struct bar_manager* bar_manager, bool forced) {
   bar_manager_clear_needs_update(bar_manager);
 }
 
+// The level of a bar depends on whether the menu bar is revealed on its
+// space, so re-apply the levels and the window order without redrawing.
+void bar_manager_handle_menu_bar_reveal(struct bar_manager* bar_manager) {
+  for (int i = 0; i < bar_manager->bar_count; ++i)
+    bar_order_item_windows(bar_manager->bars[i]);
+}
+
 void bar_manager_resize(struct bar_manager* bar_manager) {
   for (int i = 0; i < bar_manager->bar_count; ++i)
     bar_resize(bar_manager->bars[i]);
@@ -967,6 +974,8 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
       bar_manager->bars[i]->dsid = dsid;
       if (!bar_manager->sticky && bar_manager->bars[i]->shown)
         bar_change_space(bar_manager->bars[i], dsid);
+      // The menu bar may be revealed on one space and hidden on another.
+      bar_order_item_windows(bar_manager->bars[i]);
     }
     if (i == bar_manager->bar_count - 1)
       separator[0] = '\0';
