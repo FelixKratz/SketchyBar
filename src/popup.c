@@ -55,7 +55,8 @@ static void popup_order_windows(struct popup* popup) {
   for (int i = 0; i < popup->num_items; i++) {
     struct bar_item* bar_item = popup->items[i];
 
-    struct window* window = bar_item_get_window(bar_item, popup->adid);
+    struct window* window = bar_item_peek_window(bar_item, popup->adid);
+    if (!window) continue;
     window_set_level(window, level);
     if (!first_window) first_window = window;
 
