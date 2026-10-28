@@ -74,21 +74,12 @@ void graph_draw(struct graph* graph, CGContextRef context) {
   CGContextSetLineWidth(context, graph->line_width);
   CGMutablePathRef p = CGPathCreateMutable();
   uint32_t start_x = x;
-  if (graph->rtl) {
-    CGPathMoveToPoint(p,
-                      NULL,
-                      x,
-                      y + graph_get_y(graph, graph->width - 1) * height);
-
-    for (int i = graph->width - 1; i > 0; --i, x -= sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
-    }
-  }
-  else {
-    CGPathMoveToPoint(p, NULL, x, y + graph_get_y(graph, 0) * height);
-    for (int i = graph->width - 1; i > 0; --i, x += sample_width) {
-      CGPathAddLineToPoint(p, NULL, x, y + graph_get_y(graph, i) * height);
-    }
+  for (uint32_t i = 0; i < graph->width; ++i) {
+    float sample_y = y + graph_get_y(graph, graph->width - 1 - i) * height;
+    if (i == 0) CGPathMoveToPoint(p, NULL, x, sample_y);
+    else CGPathAddLineToPoint(p, NULL, x, sample_y);
+    if (graph->rtl) x -= sample_width;
+    else x += sample_width;
   }
   CGContextAddPath(context, p);
   CGContextStrokePath(context);
