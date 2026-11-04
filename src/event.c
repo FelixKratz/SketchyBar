@@ -93,6 +93,9 @@ static void event_mouse_up(void* context) {
   if (bar_item && window) {
     point_in_window_coords.x = point.x - window->origin.x;
     point_in_window_coords.y = point.y - window->origin.y;
+
+    uint32_t adid = bar_item_get_window_adid(bar_item, window);
+    if (adid > 0) popup_set_target_adid(&bar_item->popup, adid);
   }
 
   bar_item_on_click(bar_item,
