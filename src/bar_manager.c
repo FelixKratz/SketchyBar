@@ -855,12 +855,19 @@ void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar
   }
 }
 
-void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float volume) {
+void bar_manager_handle_volume_change(struct bar_manager* bar_manager, struct volume_info* volume) {
   struct env_vars env_vars;
   env_vars_init(&env_vars);
   char volume_str[16];
-  snprintf(volume_str, 16, "%d", (int)(volume*100. + 0.5));
+  snprintf(volume_str, 16, "%d", (int)(volume->effective_volume*100. + 0.5));
   env_vars_set(&env_vars, string_copy("INFO"), string_copy(volume_str));
+  if (volume->volume < 0) snprintf(volume_str, 16, "unknown");
+  else snprintf(volume_str, 16, "%d", volume->volume);
+  env_vars_set(&env_vars, string_copy("VOLUME"), string_copy(volume_str));
+  env_vars_set(&env_vars,
+               string_copy("MUTED"),
+               string_copy(volume->muted < 0 ? "unknown"
+                           : volume->muted ? "true" : "false"));
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_VOLUME_CHANGE,
                                     &env_vars                       );
