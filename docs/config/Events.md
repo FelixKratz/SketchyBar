@@ -19,7 +19,7 @@ where the events are:
 | `space_change`         | When the active mission control space changes                                                       | JSON for active spaces on all displays |
 | `space_windows_change` | When a window is created or destroyed on a space                                                    | JSON containing the space and all app windows on this space |
 | `display_change`       | When the active display is changed                                                                  | new active display id                  |
-| `volume_change`        | When the system audio volume is changed                                                             | new volume in percent                  |
+| `volume_change`        | When the system audio volume or mute state changes                                                  | new volume in percent                  |
 | `brightness_change`    | When a displays brightness is changed                                                               | new brightness in percent              |
 | `power_source_change`  | When the devices power source is changed                                                            | new power source (`AC` or `BATTERY`)   |
 | `wifi_change`          | When the device connects of disconnects from wifi                                                   | new WiFi SSID or empty on disconnect (not working since macOS Sonoma) |
@@ -60,6 +60,14 @@ where the `$BUTTON` can be *left*, *right*, *middle* or *other* and specifies th
 specifies the modifier key held down while clicking the item.
 
 If an item receive a *scroll* event from the mouse the script gets send the additional `$SCROLL_DELTA` variable.
+
+For `volume_change`, scripts receive additional variables for the default output device:
+```bash
+$VOLUME
+$MUTED
+```
+where `$VOLUME` is the volume percentage before mute and `$MUTED` is the
+device-wide mute state (`true` or `false`). Either value is `unknown` if unavailable.
 
 All scripts are forced to terminate after 60 seconds and do not run while the system is sleeping. 
 
