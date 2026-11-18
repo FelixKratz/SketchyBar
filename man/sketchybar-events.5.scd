@@ -53,6 +53,13 @@ down while clicking the item.
 If an item receives a *scroll* event from the mouse, the script sends the
 additional *$SCROLL_DELTA* variable.
 
+For *volume_change*, scripts receive additional variables for the default output
+device:
+- *$VOLUME*
+- *$MUTED*
+where *$VOLUME* is the volume percentage before mute and *$MUTED* is the
+device-wide mute state (*true* or *false*). Either value is *unknown* if unavailable.
+
 All scripts are *forced* to terminate after 60 seconds and do not run while
 the system is sleeping.
 
@@ -108,7 +115,7 @@ the system is sleeping.
 :  When the active display is changed
 :  new active display id
 |  volume_change
-:  When the system audio volume is changed
+:  When the system audio volume or mute state changes
 :  new volume in percent
 |  brightness_change
 :  When a displays brightness is changed
