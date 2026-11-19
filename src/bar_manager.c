@@ -214,6 +214,8 @@ bool bar_manager_set_position(struct bar_manager* bar_manager, char pos) {
   if (bar_manager->position == pos) return false;
   bar_manager->position = pos;
   bar_manager->bar_needs_resize = true;
+  // Only a top bar is lifted over the menu bar strip, so the level can change.
+  bar_manager->needs_ordering = true;
   return true;
 }
 
