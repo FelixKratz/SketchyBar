@@ -12,6 +12,8 @@ struct bar {
   uint32_t dsid;
   uint32_t did;
   uint32_t adid;
+  // The level bar_order_item_windows last applied to the bar's windows.
+  uint32_t window_level;
 
   struct window window;
 };
@@ -24,6 +26,7 @@ void bar_calculate_bounds(struct bar* bar);
 void bar_resize(struct bar* bar);
 void bar_draw(struct bar* bar, bool forced);
 void bar_order_item_windows(struct bar* bar);
+void bar_update_window_level(struct bar* bar);
 
 bool bar_draws_item(struct bar* bar, struct bar_item* bar_item);
 

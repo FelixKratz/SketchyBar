@@ -105,6 +105,7 @@ static uint32_t bar_window_level(struct bar* bar) {
 void bar_order_item_windows(struct bar* bar) {
   if (bar->sid < 1 || bar->adid < 1 || !bar->shown) return;
   uint32_t level = bar_window_level(bar);
+  bar->window_level = level;
   window_set_level(&bar->window, level);
   window_order(&bar->window, NULL, W_ABOVE);
 
@@ -141,6 +142,13 @@ void bar_order_item_windows(struct bar* bar) {
   // Brackets sit between the bar and the items.
   memcpy(chain + group_count, items, sizeof(struct window*) * item_count);
   windows_set_order_chain(&bar->window, chain, group_count + item_count);
+}
+
+// Ordering brings the bar to the front of its level, which would push it over
+// other windows at that level every time the menu bar moves. Only reorder when
+// the level itself has to change.
+void bar_update_window_level(struct bar* bar) {
+  if (bar_window_level(bar) != bar->window_level) bar_order_item_windows(bar);
 }
 
 static void bar_check_for_clip_updates(struct bar* bar) {
