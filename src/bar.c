@@ -216,23 +216,23 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                                                            bar,
                                                            POSITION_CENTER);
 
-  uint32_t bar_left_first_item_x = max(g_bar_manager.background.padding_left,
+  int64_t bar_left_first_item_x = max(g_bar_manager.background.padding_left,
                                        0                                     );
 
-  uint32_t bar_right_first_item_x = bar->window.frame.size.width
+  int64_t bar_right_first_item_x = bar->window.frame.size.width
                                    -max(g_bar_manager.background.padding_right,
                                           0                                  );
 
-  uint32_t bar_center_first_item_x = (bar->window.frame.size.width
+  int64_t bar_center_first_item_x = (bar->window.frame.size.width
                                       - center_length) / 2;
 
-  uint32_t bar_center_right_first_item_x = (bar->window.frame.size.width
+  int64_t bar_center_right_first_item_x = (bar->window.frame.size.width
                                             + notch_width) / 2;
 
-  uint32_t bar_center_left_first_item_x = (bar->window.frame.size.width
+  int64_t bar_center_left_first_item_x = (bar->window.frame.size.width
                                            - notch_width) / 2;
 
-  uint32_t* next_position = NULL;
+  int64_t* next_position = NULL;
   uint32_t y = bar->window.frame.size.height / 2;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
@@ -244,7 +244,7 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
       continue;
     } 
 
-    uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
+    int64_t bar_item_display_length = bar_item_get_length(bar_item, true);
     bool rtl = false;
 
     if (bar_item->position == POSITION_LEFT)
@@ -267,14 +267,14 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                            - bar_item_display_length               );
     }
     else {
-      *next_position += max((int)-*next_position,
+      *next_position += max(-*next_position,
                             bar_item->background.padding_left);
     }
 
     bar_item->graph.rtl = rtl;
 
     CGPoint shadow_offsets = bar_item_calculate_shadow_offsets(bar_item);
-    uint32_t bar_item_length = bar_item_calculate_bounds(bar_item,
+    int64_t bar_item_length = bar_item_calculate_bounds(bar_item,
                                  bar->window.frame.size.height
                                  - (g_bar_manager.background.border_width + 1),
                                  max(shadow_offsets.x, 0),
@@ -302,7 +302,7 @@ static void bar_calculate_bounds_top_bottom(struct bar* bar) {
                         : (- bar_item->background.padding_left);
     } else {
       *next_position += bar_item->has_const_width
-                        ? bar_item->custom_width
+                        ? (int64_t)bar_item->custom_width
                           - bar_item->background.padding_left
                         : (bar_item_length
                            + bar_item->background.padding_right);
@@ -335,24 +335,24 @@ static void bar_calculate_bounds_left_right(struct bar* bar) {
                                                            bar,
                                                            POSITION_CENTER);
 
-  uint32_t bar_left_first_item_y = max(g_bar_manager.background.padding_left,
+  int64_t bar_left_first_item_y = max(g_bar_manager.background.padding_left,
                                        0                                     );
 
-  uint32_t bar_right_first_item_y = bar->window.frame.size.height
+  int64_t bar_right_first_item_y = bar->window.frame.size.height
                                    -max(g_bar_manager.background.padding_right,
                                           0                                  );
 
-  uint32_t bar_center_first_item_y = (bar->window.frame.size.height
+  int64_t bar_center_first_item_y = (bar->window.frame.size.height
                                       - 2*g_bar_manager.margin
                                       - center_length) / 2 - 1;
 
-  uint32_t bar_center_right_first_item_y = (bar->window.frame.size.height
+  int64_t bar_center_right_first_item_y = (bar->window.frame.size.height
                                             + notch_width) / 2;
 
-  uint32_t bar_center_left_first_item_y = (bar->window.frame.size.height
+  int64_t bar_center_left_first_item_y = (bar->window.frame.size.height
                                            - notch_width) / 2 ;
 
-  uint32_t* next_position = NULL;
+  int64_t* next_position = NULL;
 
   for (int i = 0; i < g_bar_manager.bar_item_count; i++) {
     struct bar_item* bar_item = g_bar_manager.bar_items[i];
@@ -363,8 +363,8 @@ static void bar_calculate_bounds_left_right(struct bar* bar) {
       continue;
     } 
 
-    uint32_t bar_item_display_height = bar_item_get_height(bar_item);
-    uint32_t bar_item_display_length = bar_item_get_length(bar_item, true);
+    int64_t bar_item_display_height = bar_item_get_height(bar_item);
+    int64_t bar_item_display_length = bar_item_get_length(bar_item, true);
     uint32_t x =  0;
     bool rtl = false;
 
@@ -389,7 +389,7 @@ static void bar_calculate_bounds_left_right(struct bar* bar) {
                            - bar_item_display_height               );
     }
     else {
-      *next_position += max((int)-*next_position,
+      *next_position += max(-*next_position,
                             bar_item->background.padding_left);
     }
 
@@ -426,7 +426,7 @@ static void bar_calculate_bounds_left_right(struct bar* bar) {
                         : - bar_item->background.padding_left;
     } else {
       *next_position += bar_item->has_const_width
-                        ? bar_item->custom_width
+                        ? (int64_t)bar_item->custom_width
                           - bar_item->background.padding_left
                         : (bar_item_display_height
                            + bar_item->background.padding_right);
