@@ -16,6 +16,11 @@ struct alias {
 
   pid_t pid;
 
+  // The item is drawn by MenuBarAgent (macOS 27 and later), see menubar_agent.h
+  bool menubar_agent;
+  CGRect crop;
+  CGRect item_frame;
+
   struct window window;
 
   bool color_override;
@@ -31,6 +36,7 @@ uint32_t alias_get_height(struct alias* alias);
 void alias_calculate_bounds(struct alias* alias, uint32_t x, uint32_t y);
 void alias_draw(struct alias* alias, CGContextRef context);
 bool alias_update(struct alias* alias, bool forced);
+bool alias_click(struct alias* alias);
 void alias_destroy(struct alias* alias);
 
 void print_all_menu_items(FILE* rsp);

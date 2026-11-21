@@ -239,7 +239,15 @@ void bar_item_on_click(struct bar_item* bar_item, uint32_t type, uint32_t mouse_
     }
   }
 
-  if (bar_item->click_script && strlen(bar_item->click_script) > 0) {
+  bool has_click_script = bar_item->click_script
+                          && strlen(bar_item->click_script) > 0;
+
+  // Aliases without a click script forward the click to the menu bar item
+  if (bar_item->has_alias && !has_click_script) {
+    alias_click(&bar_item->alias);
+  }
+
+  if (has_click_script) {
     for (int i = 0; i < bar_item->signal_args.env_vars.count; i++) {
       env_vars_set(&env_vars,
                    string_copy(bar_item->signal_args.env_vars.vars[i]->key),
