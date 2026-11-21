@@ -1163,10 +1163,14 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
     bar_item->associated_to_active_display = false;
     uint32_t count;
     char** list = token_split(token, ',', &count);
+    bool all_displays = false;
     if (list && count > 0) {
       for (int i = 0; i < count; i++) {
         if (strcmp(list[i], "active") == 0) {
           bar_item->associated_to_active_display = true;
+        }
+        else if (strcmp(list[i], ARGUMENT_DISPLAY_ALL) == 0) {
+          all_displays = true;
         }
         else {
           bar_item_append_associated_display(bar_item,
@@ -1177,6 +1181,7 @@ void bar_item_parse_set_message(struct bar_item* bar_item, char* message, FILE* 
       }
       free(list);
     }
+    if (all_displays) bar_item->associated_display = 0;
     needs_refresh = (prev != bar_item->associated_display);
   } else if (token_equals(property, PROPERTY_YOFFSET)) {
     struct token token = get_token(&message);
