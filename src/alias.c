@@ -1,4 +1,5 @@
 #include "alias.h"
+#include "menubar_agent.h"
 #include "misc/helpers.h"
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -12,6 +13,9 @@ struct menu_item {
   uint64_t layer;
 
   CGRect bounds;
+  // Part of the window that shows the item, empty if the item has a window of
+  // its own (macOS < 27)
+  CGRect crop;
 };
 
 void menu_item_init(struct menu_item* menu_item) {
@@ -68,7 +72,33 @@ void menu_item_list_clear(struct menu_item_list* menu_item_list) {
   memset(menu_item_list, 0, sizeof(struct menu_item_list)); 
 }
 
+static struct menu_item_list get_menubar_agent_item_list() {
+  struct menubar_agent_item* items = NULL;
+  uint32_t count = menubar_agent_copy_items(&items);
+
+  struct menu_item_list menu_item_list;
+  menu_item_list_init(&menu_item_list, count);
+  for (uint32_t i = 0; i < count; i++) {
+    struct menu_item* menu_item = menu_item_list.menu_items + i;
+    menu_item->owner = items[i].owner;
+    menu_item->name = items[i].name;
+    menu_item->x_pos = items[i].frame.origin.x;
+    menu_item->wid = items[i].wid;
+    menu_item->layer = 0;
+    menu_item->bounds = items[i].frame;
+    menu_item->crop = items[i].crop;
+    // Ownership of the strings moved to the menu item
+    items[i].owner = NULL;
+    items[i].name = NULL;
+  }
+  menubar_agent_items_free(items, count);
+  return menu_item_list;
+}
+
 struct menu_item_list get_menu_item_list() {
+  // On macOS 27 status items no longer have windows of their own
+  if (menubar_agent_available()) return get_menubar_agent_item_list();
+
   CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll,
                                                       kCGNullWindowID        );
   int window_count = CFArrayGetCount(window_list);
@@ -147,6 +177,13 @@ void print_all_menu_items(FILE* rsp) {
   }
 
 #endif
+  if (menubar_agent_available() && !menubar_agent_trusted(false)) {
+    respond(rsp, "[!] Query (default_menu_items): Accessibility "
+                 "Permissions not given. They are needed to find menu bar "
+                 "items on this version of macOS.\n");
+    return;
+  }
+
   struct menu_item_list menu_item_list = get_menu_item_list();
   if (menu_item_list.menu_item_count > 0) {
     fprintf(rsp, "[\n");
@@ -170,6 +207,9 @@ void print_all_menu_items(FILE* rsp) {
 }
 
 void alias_get_permission(struct alias* alias) { 
+  alias->menubar_agent = menubar_agent_available();
+  if (alias->menubar_agent) menubar_agent_trusted(true);
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 
   if (__builtin_available(macOS 11.0, *)) {
     alias->permission = CGRequestScreenCaptureAccess();
@@ -193,6 +233,9 @@ void alias_init(struct alias* alias) {
   color_init(&alias->color, 0xffff0000);
   alias->update_frequency = 1;
   alias->counter = 0;
+  alias->menubar_agent = false;
+  alias->crop = CGRectNull;
+  alias->item_frame = CGRectNull;
 
   window_init(&alias->window);
   image_init(&alias->image);
@@ -212,10 +255,14 @@ static void alias_find_window(struct alias* alias) {
                                item->name,
                                i + 1                    );
         if (strcmp(alias->name, indexed_name) != 0) continue; 
-      } else if (strcmp(item->name, "") != 0) continue;
+      } else if (strcmp(item->name, "") != 0 && !alias->menubar_agent) {
+        continue;
+      }
     }
 
     alias->window.id = item->wid;
+    alias->crop = item->crop;
+    alias->item_frame = item->bounds;
     alias->window.frame.size = item->bounds.size;
     alias->window.origin = item->bounds.origin;
 
@@ -226,9 +273,53 @@ static void alias_find_window(struct alias* alias) {
   menu_item_list_clear(&menu_item_list);
 }
 
+// Copies the part of a captured window that shows the menu bar item. The
+// pixels are copied, such that the image data only changes when the item does.
+static CGImageRef alias_crop_image(CGImageRef image_ref, CGRect window_frame, CGRect crop) {
+  if (window_frame.size.width <= 0) return NULL;
+  CGFloat scale = CGImageGetWidth(image_ref) / window_frame.size.width;
+  CGRect pixel_crop = CGRectIntegral(CGRectMake(crop.origin.x * scale,
+                                                crop.origin.y * scale,
+                                                crop.size.width * scale,
+                                                crop.size.height * scale));
+
+  CGImageRef cropped_ref = CGImageCreateWithImageInRect(image_ref, pixel_crop);
+  if (!cropped_ref) return NULL;
+
+  size_t width = CGImageGetWidth(cropped_ref);
+  size_t height = CGImageGetHeight(cropped_ref);
+  CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
+  CGContextRef context = CGBitmapContextCreate(NULL,
+                                               width,
+                                               height,
+                                               8,
+                                               0,
+                                               color_space,
+                                               kCGImageAlphaPremultipliedFirst
+                                               | kCGBitmapByteOrder32Host     );
+  CGColorSpaceRelease(color_space);
+  if (!context) {
+    CGImageRelease(cropped_ref);
+    return NULL;
+  }
+
+  CGContextDrawImage(context, CGRectMake(0, 0, width, height), cropped_ref);
+  CGImageRelease(cropped_ref);
+  CGImageRef result = CGBitmapContextCreateImage(context);
+  CGContextRelease(context);
+  return result;
+}
+
 static bool alias_update_image(struct alias* alias, bool forced) {
-  if (alias->window.id == 0) alias_find_window(alias);
-  if (alias->window.id == 0) return false;
+  // Items drawn by MenuBarAgent move whenever an item next to them changes
+  // its size, so their position is looked up on every update.
+  if (alias->window.id == 0 || alias->menubar_agent) alias_find_window(alias);
+  if (alias->window.id == 0) {
+    // The item left the bar, e.g. because its app quit or was hidden
+    bool had_image = alias->image.image_ref != NULL;
+    if (alias->menubar_agent) image_destroy(&alias->image);
+    return alias->menubar_agent && had_image;
+  }
 
   bool disabled = false;
   CGImageRef image_ref = window_capture(&alias->window, &disabled);
@@ -241,9 +332,20 @@ static bool alias_update_image(struct alias* alias, bool forced) {
     return false;
   }
 
+  CGRect frame = alias->window.frame;
+  if (alias->menubar_agent && !CGRectIsNull(alias->crop)) {
+    CGImageRef cropped_ref = alias_crop_image(image_ref,
+                                              alias->window.frame,
+                                              alias->crop         );
+    CGImageRelease(image_ref);
+    if (!cropped_ref) return false;
+    image_ref = cropped_ref;
+    frame = (CGRect){{0, 0}, alias->crop.size};
+  }
+
   return image_set_image(&alias->image,
                          image_ref,
-                         alias->window.frame,
+                         frame,
                          forced              );
 }
 
@@ -275,6 +377,13 @@ bool alias_update(struct alias* alias, bool forced) {
     }
   }
   return false;
+}
+
+// Forwards a click on the alias to the menu bar item it shows. Only items
+// drawn by MenuBarAgent can be clicked this way.
+bool alias_click(struct alias* alias) {
+  if (!alias->menubar_agent || CGRectIsNull(alias->item_frame)) return false;
+  return menubar_agent_press(alias->item_frame);
 }
 
 void alias_draw(struct alias* alias, CGContextRef context) {
