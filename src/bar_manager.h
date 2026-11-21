@@ -3,6 +3,8 @@
 #include "bar_item.h"
 #include "animation.h"
 
+struct volume_info;
+
 #define CLOCK_CALLBACK(name) void name(CFRunLoopTimerRef timer, void *context)
 typedef CLOCK_CALLBACK(clock_callback);
 
@@ -118,7 +120,7 @@ void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool force
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
 void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager);
-void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float volume);
+void bar_manager_handle_volume_change(struct bar_manager* bar_manager, struct volume_info* volume);
 void bar_manager_handle_wifi_change(struct bar_manager* bar_manager, char* ssid);
 void bar_manager_handle_brightness_change(struct bar_manager* bar_manager, float brightness);
 void bar_manager_handle_power_source_change(struct bar_manager* bar_manager, char* state);

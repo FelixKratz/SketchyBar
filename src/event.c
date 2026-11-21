@@ -309,7 +309,7 @@ static void event_mouse_scrolled(void* context) {
 
 
 static void event_volume_changed(void* context) {
-  bar_manager_handle_volume_change(&g_bar_manager, *(float*)context);
+  bar_manager_handle_volume_change(&g_bar_manager, context);
 }
 
 static void event_wifi_changed(void* context) {
