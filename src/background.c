@@ -168,28 +168,41 @@ void background_clip_bar(struct background* background, int offset, struct bar* 
             background->corner_radius);
 }
 
-void background_calculate_bounds(struct background* background, uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+void background_calculate_bounds(struct background* background, CGFloat x, CGFloat y, uint32_t width, uint32_t height) {
   background->bounds.origin.x = x;
-  background->bounds.origin.y = y - height / 2;
+  background->bounds.origin.y = y - (CGFloat)height / 2.f;
   background->bounds.size.width = width;
   background->bounds.size.height = height;
 
   if (background->image.enabled)
-    image_calculate_bounds(&background->image, x, y);
+    image_calculate_bounds(&background->image,
+                           x + background->x_offset,
+                           y + background->y_offset);
 }
 
 static void draw_rect(CGContextRef context, CGRect region, struct color* fill_color, uint32_t corner_radius, uint32_t line_width, struct color* stroke_color) {
-  CGContextSetLineWidth(context, line_width);
-  if (stroke_color) CGContextSetRGBStrokeColor(context, stroke_color->r, stroke_color->g, stroke_color->b, stroke_color->a);
+  bool draw_stroke = stroke_color && stroke_color->a > 0.f && line_width > 0;
+  if (draw_stroke) {
+    CGContextSetLineWidth(context, line_width);
+    CGContextSetRGBStrokeColor(context,
+                               stroke_color->r,
+                               stroke_color->g,
+                               stroke_color->b,
+                               stroke_color->a);
+  } else {
+    CGContextSetLineWidth(context, 0.f);
+    CGContextSetRGBStrokeColor(context, 0.f, 0.f, 0.f, 0.f);
+  }
   CGContextSetRGBFillColor(context, fill_color->r, fill_color->g, fill_color->b, fill_color->a);
 
   CGMutablePathRef path = CGPathCreateMutable();
-  CGRect inset_region = CGRectInset(region, (float)(line_width) / 2.f, (float)(line_width) / 2.f);
+  float inset = draw_stroke ? (float)(line_width) / 2.f : 0.f;
+  CGRect inset_region = CGRectInset(region, inset, inset);
   if (corner_radius > inset_region.size.height / 2.f || corner_radius > inset_region.size.width / 2.f)
     corner_radius = inset_region.size.height > inset_region.size.width ? inset_region.size.width / 2.f : inset_region.size.height / 2.f; 
   CGPathAddRoundedRect(path, NULL, inset_region, corner_radius, corner_radius);
   CGContextAddPath(context, path);
-  CGContextDrawPath(context, kCGPathFillStroke);
+  CGContextDrawPath(context, draw_stroke ? kCGPathFillStroke : kCGPathFill);
   CFRelease(path);
 }
 
