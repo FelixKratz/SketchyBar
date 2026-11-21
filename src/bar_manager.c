@@ -582,55 +582,115 @@ void bar_manager_reset(struct bar_manager* bar_manager) {
   bar_manager_begin(bar_manager);
 }
 
-void bar_manager_begin(struct bar_manager* bar_manager) {
+struct display_target {
+  uint32_t did;
+  uint32_t adid;
+};
+
+// The displays the bar configuration asks for, in arrangement order. Both the
+// initial build and the display change reconciliation use this list, so they
+// cannot disagree about where bars belong.
+static uint32_t bar_manager_target_displays(struct bar_manager* bar_manager, struct display_target targets[32]) {
   if (bar_manager->displays == DISPLAY_MAIN_PATTERN) {
     uint32_t did = display_main_display_id();
-    bar_manager->bar_count = 1;
-    bar_manager->bars = (struct bar **) realloc(
-                                bar_manager->bars,
-                                sizeof(struct bar *) * bar_manager->bar_count);
-
-    memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
-    bar_manager->bars[0] = bar_create(did);
-    bar_manager->bars[0]->adid = display_arrangement(did);
-    if (bar_manager->any_bar_hidden)
-      bar_set_hidden(bar_manager->bars[0], true);
-  }
-  else {
-    uint32_t display_count = display_active_display_count();
-    uint32_t bar_count = 0;
-    for (uint32_t index = 1; index <= display_count; index++) {
-      if (!(bar_manager->displays & 1 << (index - 1))) continue;
-      bar_count++;
-    }
-
-    bar_manager->bar_count = bar_count;
-    bar_manager->bars = (struct bar **) realloc(
-                                bar_manager->bars,
-                                sizeof(struct bar *) * bar_manager->bar_count);
-
-    memset(bar_manager->bars, 0, sizeof(struct bar*) * bar_manager->bar_count);
-
-    uint32_t bar_index = 0;
-    for (uint32_t index = 1; index <= display_count; index++) {
-      if (!(bar_manager->displays & 1 << (index - 1))) continue;
-      uint32_t did = display_arrangement_display_id(index);
-      bar_manager->bars[bar_index] = bar_create(did);
-      bar_manager->bars[bar_index]->adid = index;
-      if (bar_manager->any_bar_hidden)
-        bar_set_hidden(bar_manager->bars[bar_index], true);
-
-      bar_index++;
-    }
+    targets[0] = (struct display_target){ did, display_arrangement(did) };
+    return 1;
   }
 
+  uint32_t count = 0;
+  uint32_t display_count = display_active_display_count();
+  for (uint32_t index = 1; index <= display_count && index <= 32; index++) {
+    if (!(bar_manager->displays & 1u << (index - 1))) continue;
+    targets[count++] = (struct display_target){
+      display_arrangement_display_id(index),
+      index
+    };
+  }
+  return count;
+}
+
+static struct bar* bar_manager_create_bar(struct bar_manager* bar_manager, struct display_target target) {
+  struct bar* bar = bar_create(target.did);
+  bar->adid = target.adid;
+  if (bar_manager->any_bar_hidden) bar_set_hidden(bar, true);
+  return bar;
+}
+
+static void bar_manager_update_active_displays(struct bar_manager* bar_manager) {
   bar_manager->active_displays = 0;
   for (int i = 0; i < bar_manager->bar_count; i++) {
     bar_manager->active_displays |= 1 << bar_manager->bars[i]->adid;
   }
 
   bar_manager->active_adid = display_active_display_adid();
+}
+
+void bar_manager_begin(struct bar_manager* bar_manager) {
+  struct display_target targets[32];
+  uint32_t target_count = bar_manager_target_displays(bar_manager, targets);
+
+  bar_manager->bar_count = target_count;
+  bar_manager->bars = (struct bar **) realloc(
+                              bar_manager->bars,
+                              sizeof(struct bar *) * bar_manager->bar_count);
+
+  for (uint32_t i = 0; i < target_count; i++) {
+    bar_manager->bars[i] = bar_manager_create_bar(bar_manager, targets[i]);
+  }
+
+  bar_manager_update_active_displays(bar_manager);
   bar_manager->needs_ordering = true;
+}
+
+// Brings the bars in line with the current display layout without tearing
+// down bars whose display and arrangement index are unchanged. Item windows
+// are stored per arrangement index, so a bar is only kept when both its
+// display id and its arrangement index still match; every other bar is
+// destroyed (with its item windows) before any new bar is created, so a new
+// bar never inherits stale item windows at a reused arrangement index.
+static void bar_manager_reconcile_bars(struct bar_manager* bar_manager) {
+  struct display_target targets[32];
+  uint32_t target_count = bar_manager_target_displays(bar_manager, targets);
+  struct bar* kept[32] = { NULL };
+
+  bar_manager_reset_bar_association(bar_manager);
+  for (int i = 0; i < bar_manager->bar_count; i++) {
+    struct bar* bar = bar_manager->bars[i];
+    bool matched = false;
+    for (uint32_t j = 0; j < target_count; j++) {
+      if (!kept[j]
+          && targets[j].did == bar->did
+          && targets[j].adid == bar->adid) {
+        kept[j] = bar;
+        matched = true;
+        break;
+      }
+    }
+    if (matched) continue;
+
+    for (int j = 0; j < bar_manager->bar_item_count; j++) {
+      bar_item_remove_window(bar_manager->bar_items[j], bar->adid);
+    }
+    bar_destroy(bar);
+  }
+
+  bar_manager->bar_count = target_count;
+  bar_manager->bars = (struct bar **) realloc(
+                              bar_manager->bars,
+                              sizeof(struct bar *) * bar_manager->bar_count);
+
+  for (uint32_t j = 0; j < target_count; j++) {
+    if (kept[j]) {
+      struct bar* bar = kept[j];
+      bar->sid = mission_control_index(display_space_id(bar->did));
+      bar_manager->bars[j] = bar;
+    } else {
+      bar_manager->bars[j] = bar_manager_create_bar(bar_manager, targets[j]);
+      bar_manager->needs_ordering = true;
+    }
+  }
+
+  bar_manager_update_active_displays(bar_manager);
 }
 
 struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, CGPoint point, struct window** window_out) {
@@ -771,17 +831,22 @@ void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
   bar_manager_display_changed(bar_manager);
 }
 
-void bar_manager_display_changed(struct bar_manager* bar_manager) {
+static void bar_manager_apply_display_layout(struct bar_manager* bar_manager, bool rebuild) {
   bar_manager->active_adid = display_active_display_adid();
 
   bar_manager_freeze(bar_manager);
-  bar_manager_reset(bar_manager);
+  if (rebuild) bar_manager_reset(bar_manager);
+  else bar_manager_reconcile_bars(bar_manager);
   bar_manager_unfreeze(bar_manager);
   bar_manager_refresh(bar_manager, true);
 
   bar_manager_handle_display_change(bar_manager);
   bar_manager_handle_space_change(bar_manager, true);
   animator_renew_display_link(&bar_manager->animator);
+}
+
+void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  bar_manager_apply_display_layout(bar_manager, false);
 }
 
 void bar_manager_cancel_drag(struct bar_manager* bar_manager) {
@@ -1040,7 +1105,7 @@ void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
     });
   }
 
-  bar_manager_display_changed(bar_manager);
+  bar_manager_apply_display_layout(bar_manager, true);
   bar_manager_custom_events_trigger(bar_manager,
                                     COMMAND_SUBSCRIBE_SYSTEM_WOKE,
                                     NULL                          );
