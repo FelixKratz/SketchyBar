@@ -540,6 +540,12 @@ uint32_t bar_item_get_height(struct bar_item* bar_item) {
   return max(item_height, background_height);
 }
 
+struct window* bar_item_peek_window(struct bar_item* bar_item, uint32_t adid) {
+  if (adid < 1 || !bar_item) return NULL;
+  if (bar_item->num_windows < adid) return NULL;
+  return bar_item->windows[adid - 1];
+}
+
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid) {
   if (adid < 1 || !bar_item) return NULL;
   if (bar_item->num_windows < adid) {

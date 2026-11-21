@@ -639,7 +639,7 @@ struct bar_item* bar_manager_get_item_by_point(struct bar_manager* bar_manager, 
     if (!bar_item->drawing) continue;
 
     for (int adid = 1; adid <= bar_item->num_windows; adid++) {
-      struct window* window = bar_item_get_window(bar_item, adid);
+      struct window* window = bar_item_peek_window(bar_item, adid);
       if (!window) continue;
 
       CGRect frame = window->frame;
@@ -659,7 +659,7 @@ struct bar_item* bar_manager_get_item_by_wid(struct bar_manager* bar_manager, ui
     if (!bar_item->drawing) continue;
 
     for (int adid = 1; adid <= bar_item->num_windows; adid++) {
-      struct window* window = bar_item_get_window(bar_item, adid);
+      struct window* window = bar_item_peek_window(bar_item, adid);
       if (!window) continue;
 
       if (window->id == wid) {

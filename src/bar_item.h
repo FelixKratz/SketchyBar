@@ -128,6 +128,7 @@ uint32_t bar_item_get_length(struct bar_item* bar_item, bool ignore_override);
 uint32_t bar_item_get_height(struct bar_item* bar_item);
 
 struct window* bar_item_get_window(struct bar_item* bar_item, uint32_t adid);
+struct window* bar_item_peek_window(struct bar_item* bar_item, uint32_t adid);
 void bar_item_remove_window(struct bar_item* bar_item, uint32_t adid);
 
 CGPoint bar_item_calculate_shadow_offsets(struct bar_item* bar_item);
