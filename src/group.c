@@ -142,7 +142,9 @@ void group_serialize(struct group* group, char* indent, FILE* rsp) {
     for (int i = 1; i < group->num_members; i++) {
       if (!group->members[i]) continue;
       if (counter++ > 0) fprintf(rsp, ",\n");
-      fprintf(rsp, "%s\"%s\"", indent, group->members[i]->name);
+      char* escaped_name = escape_string(group->members[i]->name);
+      fprintf(rsp, "%s\"%s\"", indent, escaped_name ? escaped_name : "(null)");
+      free(escaped_name);
     }
 }
 

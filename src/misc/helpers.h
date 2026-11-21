@@ -82,20 +82,30 @@ static inline char* format_bool(bool b) {
 
 static inline char* escape_string(char* string) {
   if (!string) return NULL;
-  int len = strlen(string);
-  char* buffer = malloc(2*len + 1);
-  int cursor = 0;
-  for (int i = 0; i < len; i++) {
-    if (string[i] == '"') {
+  size_t len = strlen(string);
+  char* buffer = malloc(6*len + 1);
+  size_t cursor = 0;
+  const char* hex = "0123456789abcdef";
+  for (size_t i = 0; i < len; i++) {
+    unsigned char c = (unsigned char)string[i];
+    if (c == '"' || c == '\\') {
       buffer[cursor++] = '\\';
-      buffer[cursor++] = '"';
+      buffer[cursor++] = c;
     }
-    else if (string[i] == '\n') {
+    else if (c == '\n') {
       buffer[cursor++] = '\\';
       buffer[cursor++] = 'n';
     }
+    else if (c < 0x20) {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = 'u';
+      buffer[cursor++] = '0';
+      buffer[cursor++] = '0';
+      buffer[cursor++] = hex[c >> 4];
+      buffer[cursor++] = hex[c & 0xf];
+    }
     else {
-      buffer[cursor++] = string[i];
+      buffer[cursor++] = c;
     }
   }
   buffer[cursor] = '\0';

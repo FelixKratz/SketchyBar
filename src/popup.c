@@ -425,7 +425,9 @@ void popup_serialize(struct popup* popup, char* indent, FILE* rsp) {
 
   fprintf(rsp, "\n%s},\n%s\"items\": [\n", indent, indent);
   for (int i = 0; i < popup->num_items; i++) {
-    fprintf(rsp, "%s\t \"%s\"", indent, popup->items[i]->name);
+    char* escaped_name = escape_string(popup->items[i]->name);
+    fprintf(rsp, "%s\t \"%s\"", indent, escaped_name ? escaped_name : "(null)");
+    free(escaped_name);
     if (i < popup->num_items - 1) fprintf(rsp, ",\n");
   }
   fprintf(rsp, "\n%s]", indent);

@@ -334,7 +334,9 @@ void display_serialize(FILE* rsp) {
 
     fprintf(rsp, "\t\t\"arrangement-id\":%d,\n", display_arrangement(did));
     fprintf(rsp, "\t\t\"DirectDisplayID\":%d,\n", did);
-    fprintf(rsp, "\t\t\"UUID\":\"%s\",\n", uuid ? uuid : "<unknown>");
+    char* escaped_uuid = escape_string(uuid);
+    fprintf(rsp, "\t\t\"UUID\":\"%s\",\n", escaped_uuid ? escaped_uuid : "<unknown>");
+    free(escaped_uuid);
     fprintf(rsp, "\t\t\"frame\":{\n\t\t\"x\":%.4f,\n\t\t\"y\":%.4f,\n\t\t\"w\":%.4f,\n\t\t\"h\":%.4f\n\t\t}\n", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
     if (i == count - 1)

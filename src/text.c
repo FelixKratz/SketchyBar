@@ -384,6 +384,9 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
       break;
   }
 
+  char* escaped_string = escape_string(text->string);
+  char* escaped_family = escape_string(text->font.family);
+  char* escaped_style = escape_string(text->font.style);
   fprintf(rsp, "%s\"value\": \"%s\",\n"
                "%s\"drawing\": \"%s\",\n"
                "%s\"highlight\": \"%s\",\n"
@@ -397,7 +400,7 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                "%s\"scroll_duration\": %d,\n"
                "%s\"align\": \"%s\",\n"
                "%s\"background\": {\n",
-               indent, text->string,
+               indent, escaped_string ? escaped_string : "(null)",
                indent, format_bool(text->drawing),
                indent, format_bool(text->highlight),
                indent, text->color.hex,
@@ -405,10 +408,14 @@ void text_serialize(struct text* text, char* indent, FILE* rsp) {
                indent, text->padding_left,
                indent, text->padding_right,
                indent, text->y_offset,
-               indent, text->font.family, text->font.style, text->font.size,
+               indent, escaped_family ? escaped_family : "(null)",
+               escaped_style ? escaped_style : "(null)", text->font.size,
                indent, text->custom_width,
                indent, text->scroll_duration,
                indent, align, indent                                        );
+  free(escaped_string);
+  free(escaped_family);
+  free(escaped_style);
 
   char deeper_indent[strlen(indent) + 2];
   snprintf(deeper_indent, strlen(indent) + 2, "%s\t", indent);

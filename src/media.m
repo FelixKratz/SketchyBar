@@ -60,11 +60,12 @@ bool g_media_events = false;
 - (void) update {
   @autoreleasepool {
     if (self.app && self.artist && self.title && self.album) {
+      char* escaped_app = escape_string((char*)self.app);
       char* escaped_artist = escape_string((char*)self.artist);
       char* escaped_title = escape_string((char*)self.title);
       char* escaped_album = escape_string((char*)self.album);
 
-      uint32_t info_len = strlen(self.app)
+      uint32_t info_len = strlen(escaped_app)
                           + strlen(escaped_artist)
                           + strlen(escaped_title)
                           + strlen(escaped_album) + 256;
@@ -80,8 +81,9 @@ bool g_media_events = false;
                                escaped_title,
                                escaped_album,
                                escaped_artist,
-                               self.app                            );
+                               escaped_app                            );
 
+      free(escaped_app);
       free(escaped_artist);
       free(escaped_title);
       free(escaped_album);
