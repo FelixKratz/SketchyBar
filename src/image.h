@@ -37,7 +37,7 @@ bool image_load(struct image* image, char* path, FILE* rsp);
 bool image_set_scale(struct image* image, float scale);
 
 CGSize image_get_size(struct image* image);
-void image_calculate_bounds(struct image* image, uint32_t x, uint32_t y);
+void image_calculate_bounds(struct image* image, CGFloat x, CGFloat y);
 void image_draw(struct image* image, CGContextRef context);
 void image_clear_pointers(struct image* image);
 void image_destroy(struct image* image);
