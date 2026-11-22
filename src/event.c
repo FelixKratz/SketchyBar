@@ -81,12 +81,26 @@ static void event_mouse_up(void* context) {
                                                           wid,
                                                           &window        );
 
+  // macOS 27 brings the clicked window to the front of its level even though
+  // it carries kCGSPreventsActivationTagBit (#850): a click on the empty bar
+  // or on a bracket lifts that background window above the item windows, and
+  // the ordering chain alone does not survive it. Remember whether this click
+  // hit a background window so the bar can be restacked below.
+  bool background_click = !bar_item || bar_item->type == BAR_COMPONENT_GROUP;
+
   if (!bar_item || bar_item->type == BAR_COMPONENT_GROUP) {
     bar_item = bar_manager_get_item_by_point(&g_bar_manager, point, &window);
   }
 
   struct bar* bar = bar_manager_get_bar_by_wid(&g_bar_manager, wid);
   struct popup* popup = bar_manager_get_popup_by_wid(&g_bar_manager, wid);
+
+  if (background_click && !popup) {
+    struct bar* clicked = bar ? bar
+                              : bar_manager_get_bar_by_point(&g_bar_manager, point);
+    if (clicked) bar_order_item_windows(clicked);
+  }
+
   if (!bar_item && !popup && !bar) return;
 
   CGPoint point_in_window_coords = CGPointZero;
