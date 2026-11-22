@@ -33,19 +33,18 @@ static AudioObjectPropertyAddress kMuteLeftPropertyAddress = {
                                             1                                };
 
 static float g_last_volume = -1.f;
+static int g_last_raw_volume = -1;
+static int g_last_muted = -1;
 static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObjectPropertyAddress* addresses, void* context) {
-  float v = 0;
-  float* volume = &v;
-
   uint32_t muted_main = 0;
   uint32_t size = sizeof(uint32_t);
 
-  AudioObjectGetPropertyData(id,
-                             &kMuteMainPropertyAddress,
-                             0,
-                             NULL,
-                             &size,
-                             &muted_main               );
+  OSStatus mute_main_status = AudioObjectGetPropertyData(id,
+                                                          &kMuteMainPropertyAddress,
+                                                          0,
+                                                          NULL,
+                                                          &size,
+                                                          &muted_main               );
 
   uint32_t muted_left = 0;
   size = sizeof(uint32_t);
@@ -59,31 +58,52 @@ static OSStatus handler(AudioObjectID id, uint32_t address_count, const AudioObj
 
   size = sizeof(float);
   float volume_main = 0.f;
-  AudioObjectGetPropertyData(id,
-                             &kVolumeMainPropertyAddress,
-                             0,
-                             NULL,
-                             &size,
-                             &volume_main                );
+  OSStatus volume_main_status = AudioObjectGetPropertyData(id,
+                                                            &kVolumeMainPropertyAddress,
+                                                            0,
+                                                            NULL,
+                                                            &size,
+                                                            &volume_main                );
 
   size = sizeof(float);
   float volume_left = 0.f;
-  AudioObjectGetPropertyData(id,
-                             &kVolumeLeftPropertyAddress,
-                             0,
-                             NULL,
-                             &size,
-                             &volume_left                );
+  OSStatus volume_left_status = AudioObjectGetPropertyData(id,
+                                                            &kVolumeLeftPropertyAddress,
+                                                            0,
+                                                            NULL,
+                                                            &size,
+                                                            &volume_left                );
 
+  struct volume_info volume = { 0, -1, -1 };
+  // Preserve INFO's channel selection and mute handling.
   if (volume_left > 0.f) {
-    *volume = (muted_left || muted_main) ? 0.f : volume_left;
+    volume.effective_volume = (muted_left || muted_main) ? 0.f : volume_left;
   } else {
-    *volume = muted_main ? 0.f : volume_main;
+    volume.effective_volume = muted_main ? 0.f : volume_main;
   }
 
-  if (*volume > g_last_volume + 1e-2 || *volume < g_last_volume - 1e-2) {
-    g_last_volume = *volume;
-    struct event event = { (void*) volume, VOLUME_CHANGED };
+  if (mute_main_status == noErr) volume.muted = muted_main != 0;
+
+  if (volume_main_status == noErr || volume_left_status == noErr) {
+    float scalar = volume_main_status == noErr ? volume_main : 0.f;
+    if (volume_left_status == noErr
+        && (volume_left > 0.f || volume_main_status != noErr)) {
+      scalar = volume_left;
+    }
+    volume.volume = (int)(scalar*100. + 0.5);
+  }
+
+  // Metadata-only events must not change INFO's threshold baseline.
+  bool volume_changed = volume.effective_volume > g_last_volume + 1e-2
+                        || volume.effective_volume < g_last_volume - 1e-2;
+  if (volume_changed) g_last_volume = volume.effective_volume;
+
+  if (volume_changed
+      || volume.volume != g_last_raw_volume
+      || volume.muted != g_last_muted) {
+    g_last_raw_volume = volume.volume;
+    g_last_muted = volume.muted;
+    struct event event = { (void*) &volume, VOLUME_CHANGED };
     event_post(&event);
   } 
   return KERN_SUCCESS;
