@@ -116,6 +116,10 @@ void bar_manager_handle_mouse_exited(struct bar_manager* bar_manager, struct bar
 void bar_manager_handle_front_app_switch(struct bar_manager* bar_manager, char* info);
 void bar_manager_handle_space_change(struct bar_manager* bar_manager, bool forced);
 void bar_manager_handle_display_change(struct bar_manager* bar_manager);
+void bar_manager_handle_display_resized(struct bar_manager* bar_manager);
+void bar_manager_handle_display_moved(struct bar_manager* bar_manager);
+void bar_manager_handle_display_removed(struct bar_manager* bar_manager);
+void bar_manager_handle_display_added(struct bar_manager* bar_manager);
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager);
 void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager);
 void bar_manager_handle_volume_change(struct bar_manager* bar_manager, float volume);
