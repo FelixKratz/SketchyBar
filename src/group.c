@@ -10,7 +10,8 @@ static struct bar_item* group_get_first_member(struct group* group, struct bar* 
   for (int i = 1; i < group->num_members; i++) {
     struct bar_item* member = group->members[i];
     if (bar_draws_item(bar, member)) {
-      struct window* window = bar_item_get_window(member, bar->adid);
+      struct window* window = bar_item_peek_window(member, bar->adid);
+      if (!window) continue;
       if (window->origin.x < min) {
         min = window->origin.x;
         first_item = member;
@@ -30,7 +31,8 @@ static struct bar_item* group_get_last_member(struct group* group, struct bar* b
   for (int i = 1; i < group->num_members; i++) {
     struct bar_item* member = group->members[i];
     if (bar_draws_item(bar, member)) {
-      struct window* window = bar_item_get_window(member, bar->adid);
+      struct window* window = bar_item_peek_window(member, bar->adid);
+      if (!window) continue;
       if (window->origin.x + window->frame.size.width > max) {
         max = window->origin.x + window->frame.size.width;
         last_item = member;
@@ -108,10 +110,10 @@ void group_destroy(struct group* group) {
 
 void group_calculate_bounds(struct group* group, struct bar* bar, uint32_t y) {
   group->first_item = group_get_first_member(group, bar);
-  group->first_window = bar_item_get_window(group->first_item, bar->adid);
+  group->first_window = bar_item_peek_window(group->first_item, bar->adid);
 
   group->last_item = group_get_last_member(group, bar);
-  group->last_window = bar_item_get_window(group->last_item, bar->adid);
+  group->last_window = bar_item_peek_window(group->last_item, bar->adid);
 
   if (!group->first_window || !group->last_window) {
     group->bounds.origin = g_nirvana;
