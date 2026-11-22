@@ -93,6 +93,9 @@ static void event_mouse_up(void* context) {
   if (bar_item && window) {
     point_in_window_coords.x = point.x - window->origin.x;
     point_in_window_coords.y = point.y - window->origin.y;
+
+    uint32_t adid = bar_item_get_window_adid(bar_item, window);
+    if (adid > 0) popup_set_target_adid(&bar_item->popup, adid);
   }
 
   bar_item_on_click(bar_item,
@@ -153,9 +156,15 @@ static void event_mouse_entered(void* context) {
     return;
   }
 
+  struct window* window = NULL;
   struct bar_item* bar_item = bar_manager_get_item_by_wid(&g_bar_manager,
                                                           wid,
-                                                          NULL          );
+                                                          &window        );
+
+  if (bar_item && window) {
+    uint32_t adid = bar_item_get_window_adid(bar_item, window);
+    if (adid > 0) popup_set_target_adid(&bar_item->popup, adid);
+  }
 
   bar_manager_handle_mouse_entered(&g_bar_manager, bar_item);
 }
