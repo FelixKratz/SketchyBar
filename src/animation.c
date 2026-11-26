@@ -134,7 +134,9 @@ void animator_init(struct animator* animator) {
 
 void animator_renew_display_link(struct animator* animator) {
   animator_destroy_display_link(animator);
-  CVDisplayLinkCreateWithActiveCGDisplays(&animator->display_link);
+  if (g_bar_manager.sleeps || !display_active_display_count()) return;
+  if (CVDisplayLinkCreateWithActiveCGDisplays(&animator->display_link)
+      != kCVReturnSuccess || !animator->display_link) return;
 
   CVDisplayLinkSetOutputCallback(animator->display_link,
                                  animation_frame_callback,

@@ -1,4 +1,5 @@
 #pragma once
+#include "display_recovery.h"
 #include "bar.h"
 #include "bar_item.h"
 #include "animation.h"
@@ -27,6 +28,9 @@ struct bar_manager {
   bool bar_needs_update;
   bool bar_needs_resize;
   bool show_in_fullscreen;
+  bool display_recovery_pending;
+  bool display_recovery_scheduled;
+  struct display_recovery_settle display_recovery_settle;
 
   uint32_t displays;
   char position;
