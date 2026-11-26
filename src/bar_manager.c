@@ -36,6 +36,9 @@ void bar_manager_init(struct bar_manager* bar_manager) {
   bar_manager->frozen = false;
   bar_manager->sleeps = false;
   bar_manager->display_recovery_pending = false;
+  bar_manager->display_recovery_scheduled = false;
+  memset(&bar_manager->display_recovery_settle, 0,
+         sizeof(bar_manager->display_recovery_settle));
   bar_manager->window_level = kCGBackstopMenuLevel;
   bar_manager->topmost = false;
   bar_manager->notch_width = 200;
@@ -772,11 +775,33 @@ void bar_manager_display_added(struct bar_manager* bar_manager, uint32_t did) {
   bar_manager_display_changed(bar_manager);
 }
 
+static void bar_manager_display_recover(struct bar_manager* bar_manager);
+
+static void bar_manager_schedule_display_recovery(struct bar_manager* bar_manager,
+                                                  uint64_t delay) {
+  bar_manager->display_recovery_pending = true;
+  if (bar_manager->display_recovery_scheduled) return;
+  bar_manager->display_recovery_scheduled = true;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay),
+                 dispatch_get_main_queue(), ^{
+    bar_manager->display_recovery_scheduled = false;
+    bar_manager_display_recover(bar_manager);
+  });
+}
+
+// Display events arrive inside the CoreGraphics reconfiguration callback
+// (displayConfigFinalizedProc). Closing or ordering windows there can block in
+// SkyLight, so recovery always runs on a later main-queue turn.
 void bar_manager_display_changed(struct bar_manager* bar_manager) {
+  bar_manager_schedule_display_recovery(bar_manager, 0);
+}
+
+static void bar_manager_display_recover(struct bar_manager* bar_manager) {
   uint32_t active_count = display_active_display_count();
-  if (bar_manager->sleeps || !active_count || active_count > 32
-      || bar_manager->bar_count > 32) {
-    bar_manager->display_recovery_pending = true;
+  if (bar_manager->sleeps) return;
+  if (!active_count || active_count > 32 || bar_manager->bar_count > 32) {
+    bar_manager_schedule_display_recovery(bar_manager,
+                                          DISPLAY_RECOVERY_RETRY_NS);
     return;
   }
 
@@ -799,8 +824,13 @@ void bar_manager_display_changed(struct bar_manager* bar_manager) {
 
   enum display_recovery_action action = display_recovery_decide(
     previous, bar_manager->bar_count, current, count);
-  if (action == DISPLAY_RECOVERY_DEFER) {
-    bar_manager->display_recovery_pending = true;
+  if (action == DISPLAY_RECOVERY_DEFER
+      || (action == DISPLAY_RECOVERY_REBUILD
+          && !display_recovery_settled(&bar_manager->display_recovery_settle,
+                                       current, count,
+                                       clock_gettime_nsec_np(CLOCK_UPTIME_RAW)))) {
+    bar_manager_schedule_display_recovery(bar_manager,
+                                          DISPLAY_RECOVERY_RETRY_NS);
     return;
   }
   bar_manager->display_recovery_pending = false;
@@ -1065,7 +1095,12 @@ void bar_manager_handle_system_will_sleep(struct bar_manager* bar_manager) {
 
 void bar_manager_handle_system_woke(struct bar_manager* bar_manager) {
   bar_manager->sleeps = false;
-  // Retry incomplete enumeration on the normal clock, without a synthetic wake.
+  // Rebuilds wait for a stable topology; unchanged displays are reused at once.
+  uint64_t now = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+  bar_manager->display_recovery_settle.woke_at = now;
+  bar_manager->display_recovery_settle.changed_at = now;
+  bar_manager->display_recovery_settle.count = 0;
+  animator_renew_display_link(&bar_manager->animator);
 
   bar_manager_display_changed(bar_manager);
   bar_manager_custom_events_trigger(bar_manager,

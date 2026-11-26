@@ -31,6 +31,24 @@ int main(void) {
   for (int i = 0; i < 1000; ++i)
     assert(display_recovery_decide(dual, 2, dual, 2) == DISPLAY_RECOVERY_REUSE);
 
+  // Wake settling: a transient but valid topology waits, a stable one rebuilds.
+  const uint64_t ms = 1000000ULL;
+  struct display_recovery_settle settle = {0};
+  assert(display_recovery_settled(&settle, single, 1, 10 * ms));
+  settle = (struct display_recovery_settle){ .woke_at = 1000 * ms,
+                                             .changed_at = 1000 * ms };
+  assert(!display_recovery_settled(&settle, single, 1, 1100 * ms));
+  assert(!display_recovery_settled(&settle, reversed, 2, 1350 * ms));
+  assert(!display_recovery_settled(&settle, reversed, 2, 1850 * ms));
+  assert(display_recovery_settled(&settle, reversed, 2, 2100 * ms));
+  assert(settle.woke_at == 0);
+  settle = (struct display_recovery_settle){ .woke_at = 1000 * ms,
+                                             .changed_at = 1000 * ms };
+  for (uint64_t t = 1100; t < 6000; t += 500)
+    assert(!display_recovery_settled(&settle, (t / 500) % 2 ? single : dual,
+                                     (t / 500) % 2 ? 1 : 2, t * ms));
+  assert(display_recovery_settled(&settle, single, 1, 6000 * ms));
+
   puts("Display recovery decision tests passed.");
   return 0;
 }
